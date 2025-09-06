@@ -149,6 +149,7 @@ endif()
 #----------------------------------------------------------------------------
 # Package rule
 #----------------------------------------------------------------------------
+#[[
 # Package Infomations
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
@@ -196,6 +197,7 @@ cpack_add_component(Application
 cpack_add_component(Documentation
   DISPLAY_NAME "Documentation"
   INSTALL_TYPES Full)
+#]]
 #----------------------------- End of file ----------------------------------
 
 

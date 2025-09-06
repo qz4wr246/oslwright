@@ -147,8 +147,8 @@ Exmaple
 # find dependent dlls and copy
 set(PLUGINS_DLLS a.dll b.dll)
 oslw_find_depdll(DEPENDENT_DLLS
-  DLLS ${PLUGINS_DLLS}
-  WORKDIR ${PLUGINS_PATH}
+                DLLS ${PLUGINS_DLLS}
+                WORKDIR ${PLUGINS_PATH}
 )
 add_custom_command(TARGET ${target_name} POST_BUILD
                       COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -157,15 +157,11 @@ add_custom_command(TARGET ${target_name} POST_BUILD
                       COMMAND_EXPAND_LISTS)
 
 ```
+
 # Note
-* OSLwrightは、デフォルトでMSVCランタイムライブラリのコンパイルオプションはMultiThreadedDLL(/MD)を設定し、リリース版をビルドしています。<br>
+OSLwrightは、パッケージをリリースビルドしています。MSVCランタイムライブラリのコンパイルオプションはMultiThreadedDLL(/MD)に設定されます。<br>
 開発するアプリケーションにおいて、MSVCランタイムライブラリのコンパイルオプションの設定は、リリース・デバックの両方ともにMultiThreadedDLL(/MD)へ変更してください。
 
-
-# License
-OSLwright のライセンスは MIT License です。<br>
-サンプルソースコードのライセンスは UNLICENSEです。<br>
-各パッケージは、それぞれのライセンスに従ってください。
 
 # Appendix
 ## ファルダ命名規則(Folder naming conventions)
@@ -181,3 +177,9 @@ OSLwright のライセンスは MIT License です。<br>
   |&lt;package&gt;-&lt;version&gt;-x64-vc144-md-release|release only|
   |&lt;package&gt;-&lt;version&gt;-x64-vc144-md-debug|debug only|
   |&lt;package&gt;-&lt;version&gt;| header  only|
+
+
+# License
+OSLwright のライセンスは MIT License です。<br>
+サンプルソースコードのライセンスは MIT License と CC0 1.0 Universal です。<br>
+各パッケージは、それぞれのライセンスに従ってください。

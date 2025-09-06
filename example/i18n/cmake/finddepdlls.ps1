@@ -1,9 +1,37 @@
-# Params:
-#   -Target  <string>  path to .exe or .dll
-#   -Path    <string>  search path. exp. "path1;path2;..."
-#   -Exclude <string>  exclude dlls
-#   -Dest    <string>  copy dlls to directory
-#
+<#
+.SYNOPSIS
+Recursively searches for DLLs that the target depends on from a list of paths.
+
+.DESCRIPTION
+This script analyzes the dependencies of a specified target (e.g., EXE or DLL),
+recursively searches for required DLLs within a given list of directories,
+and either displays the list of found DLLs or copies them to a specified destination.
+
+.PARAMETER Target
+The path to the target executable or DLL file.
+
+.PARAMETER Path
+(Optional) Semicolon-separated list of directory paths to search for dependent DLLs,
+  or set the list via the FINDDEPDLL_SEARCH_PATH environment variable.
+
+.PARAMETER Dest
+(Optional) The path to copy the found DLLs to. If not specified, the script only displays the list.
+
+.PARAMETER Exclude
+(Optional) A list of DLL file names to exclude from the results. DLLs matching these names will be ignored.
+
+.EXAMPLE
+finddepdlls.ps1 -Target "dist\bin\myapp.exe" -Path "dist\package_1;dist\package_2" -Dest "dist\bin"
+
+.NOTES
+Copyright (c) 2025 qz4wr246 (https://github.com/qz4wr246)
+This software is released under the MIT License.
+See https://opensource.org/licenses/MIT
+
+.LINK
+https://github.com/qz4wr246/oslwright
+#>
+
 param (
   [parameter(mandatory)][String]$Target,
   [String]$Path,
@@ -64,8 +92,8 @@ function GetExternalDlls($target, $paths, $excludes){
 # __main__
 if ($Path) {
   $dll_search_path = $Path.split(";")
-} elseif($env:FINDDEPDLL_SERCH_PATH) {
-  $dll_search_path = $env:FINDDEPDLL_SERCH_PATH.split(";")
+} elseif($env:FINDDEPDLL_SEARCH_PATH) {
+  $dll_search_path = $env:FINDDEPDLL_SEARCH_PATH.split(";")
 }
 if ($Target -and $dll_search_path){
   try {

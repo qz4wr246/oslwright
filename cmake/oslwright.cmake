@@ -1,10 +1,10 @@
-# oslwright.cmake
 #
-#  include(<path/to>/oslwright.cmake)
-#  set(CMAKE_PREFIX_PATH "${OSLW_FRAMEWORK_PATH}")
+# Copyright (c) 2025 qz4wr246 (https://github.com/qz4wr246)
+# This software is released under the MIT License.
+# See https://opensource.org/licenses/MIT
+#
 
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
-
 #
 #  Generate OSLW_FRAMEWORK_PATH
 #
@@ -91,7 +91,7 @@ function(oslw_install_depdll)
   list(JOIN __framework_path ";" __paths)
   set(__code "
         execute_process(
-          COMMAND \${CMAKE_COMMAND} -E env \$<1:\"FINDDEPDLL_SERCH_PATH=${__paths}\">
+          COMMAND \${CMAKE_COMMAND} -E env \$<1:\"FINDDEPDLL_SEARCH_PATH=${__paths}\">
             powershell -NoProfile -NonInteractive -executionpolicy Bypass
               -File \$<1:\"${_ps_file}\">
               -Target \$<1:\"$<TARGET_FILE:${_args_TARGET}>\">
@@ -109,7 +109,6 @@ function(oslw_install_depdll)
   endif()
   unset(__code)
   unset(__paths)
-  unset(__component)
   unset(__framework_path)
 endfunction()
 
@@ -137,7 +136,7 @@ function(oslw_copy_depdll)
   add_custom_command(
     TARGET ${_args_TARGET}
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E env "FINDDEPDLL_SERCH_PATH=${__paths}"
+    COMMAND ${CMAKE_COMMAND} -E env "FINDDEPDLL_SEARCH_PATH=${__paths}"
       powershell -NoProfile -NonInteractive -executionpolicy Bypass
       -File $<1:"${_ps_file}">
       -Target $<1:"$<TARGET_FILE:${_args_TARGET}>">
@@ -173,7 +172,7 @@ function(oslw_find_depdll arg)
   list(JOIN __framework_path ";" __paths)
   list(JOIN _args_DLLS ";" __dlls)
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -E env "FINDDEPDLL_SERCH_PATH=${__paths}"
+    COMMAND ${CMAKE_COMMAND} -E env "FINDDEPDLL_SEARCH_PATH=${__paths}"
     powershell -NoProfile -NonInteractive -executionpolicy Bypass
       -File "${_ps_file}"
       -Target "${__dlls}"
