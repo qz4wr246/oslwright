@@ -1,6 +1,6 @@
 <h1>OSLwright: A C/C++ Open Source Library Builder for Windows</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-blue.svg?cacheSeconds=2592000" />
+  <img alt="Version" src="https://img.shields.io/badge/version-Under_construction-blue.svg?cacheSeconds=2592000" />
   <a href="#" target="_blank">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT_License-yellow.svg" />
     <img alt="Language: python" src="https://img.shields.io/badge/Language-Python-green.svg" />
@@ -14,17 +14,16 @@ Windows向けのC/C++ネイティブ・ライブラリをスクラッチビル�
 <img src="images/building.png" width="50%" style="display: block; margin: auto;" />
 </p>
 
-<div style="border: 4px double yellow; padding: 10px; color: yellow;">
-<p style="text-align: center;">現在、工事中！</p>
-テストは実施していません。デフォルト設定以外ではビルドに失敗する場合があります。
-</div>
+> [!WARNING]
+> ## 🚧 現在、工事中！ 👷‍♀️
+> デフォルト設定のみビルドの動作確認をしたが十分では無い。
 
 # Features
 * Windows向けにC/C++オープンソースライブラリをビルドします。
 * GUIで簡単にパッケージのビルドが出来ます。
 * 気まぐれで商業利用に制限の少ないライセンスのパッケージを収集しています。
 * ソースファイルをダウンロードしてスクラッチ・ビルドするので、バージョン管理やソースの追跡に向いています。
-* __vcpkg__ を利用したくない場合や出来ない場合に向いています。
+* __vcpkg__ を利用したくない場合や出来ない場合など
 
 # Requirements
 
@@ -71,16 +70,25 @@ Windows向けのC/C++ネイティブ・ライブラリをスクラッチビル�
     ```
 1. CMakeLists.txt に oslwrite module をロードするコードを記述する
     ```cmake
-    # oslwrite module load
-    include(${CMAKE_SOURCE_DIR}/cmake/oslwright.cmake)
-    set(CMAKE_PREFIX_PATH "${OSLW_FRAMEWORK_PATH}")
+    if(MSVC)
+      if (NOT CMAKE_TOOLCHAIN_FILE)
+        # oslwrite module load
+        include(${CMAKE_SOURCE_DIR}/cmake/oslwright.cmake)
+      endif()
+      if(OSLW_FRAMEWORK_PATH)
+        # oslwrite framework path
+        set(CMAKE_PREFIX_PATH "${OSLW_FRAMEWORK_PATH}")
+      endif()
+    endif()
     ```
 ## B. CMAKE_TOOLCHAIN_FILEを設定してパッケージを使用する方法
 
 1. CMakeLists.txtに、CMAKE_PREFIX_PATHの設定を記述する
     ```cmake
-    # oslwrite framework path
-    set(CMAKE_PREFIX_PATH "${OSLW_FRAMEWORK_PATH}")
+    if(OSLW_FRAMEWORK_PATH)
+      # oslwrite framework path
+      set(CMAKE_PREFIX_PATH "${OSLW_FRAMEWORK_PATH}")
+    endif()
     ```
 1. オプションにCMAKE_TOOLCHAIN_FILEを設定しcmake コマンドを実行する
     ```dos
