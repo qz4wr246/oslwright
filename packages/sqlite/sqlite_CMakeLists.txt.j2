@@ -1,0 +1,119 @@
+cmake_minimum_required(VERSION 3.10)
+
+file(STRINGS sqlite3.h version REGEX "#define[ \\t]+SQLITE_VERSION[ \\t]+\".+\"")
+string(REGEX MATCH "[0-9.]+" SQLITE_VERSION "${version}" "")
+
+project(SQLite3 VERSION ${SQLITE_VERSION}  LANGUAGES C)
+
+option(WITH_ZLIB "Build sqlite3 with zlib support" OFF)
+option(SQLITE3_SKIP_TOOLS "Disable build sqlite3 executable" OFF)
+
+if(MSVC)
+  # set(MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+  set(CMAKE_DEBUG_POSTFIX "d")
+  add_compile_options("/utf-8")
+endif()
+
+add_library(sqlite3
+  sqlite3.h
+  sqlite3ext.h
+  sqlite3.c
+)
+
+target_compile_definitions(sqlite3
+  PRIVATE
+    $<$<CONFIG:Debug>:SQLITE_DEBUG=1>
+    $<$<CONFIG:Debug>:SQLITE_ENABLE_SELECTTRACE>
+    $<$<CONFIG:Debug>:SQLITE_ENABLE_WHERETRACE>
+    $<$<COMPILE_LANGUAGE:RC>:RC_VERONLY>
+    SQLITE_ENABLE_RTREE
+    SQLITE_ENABLE_FTS4
+    SQLITE_ENABLE_FTS5
+    SQLITE_ENABLE_JSON1
+    SQLITE_ENABLE_RBU
+    SQLITE_ENABLE_STAT4
+)
+
+if(BUILD_SHARED_LIBS)
+  target_compile_definitions(sqlite3
+    PRIVATE
+    WINDLL
+    SQLITE_THREADSAFE=1
+    SQLITE_ENABLE_UNLOCK_NOTIFY
+    "SQLITE_API=_declspec(dllexport)"
+    INTERFACE
+    "SQLITE_API=_declspec(dllimport)"
+  )
+endif()
+
+target_include_directories(
+  sqlite3 PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  INTERFACE
+  $<INSTALL_INTERFACE:include>
+)
+
+set_target_properties(sqlite3 PROPERTIES EXPORT_NAME SQLite3)
+
+install(TARGETS sqlite3
+  EXPORT sqlite3-export
+  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+)
+
+install(FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3ext.h
+  DESTINATION include
+)
+
+if(MSVC AND BUILD_SHARED_LIBS)
+  install(FILES
+    $<TARGET_PDB_FILE:sqlite3>
+    DESTINATION lib
+    OPTIONAL
+  )
+endif()
+
+if (NOT SQLITE3_SKIP_TOOLS)
+  add_executable(sqlite3_shell
+    shell.c
+  )
+
+  set_target_properties(sqlite3_shell
+    PROPERTIES
+      OUTPUT_NAME sqlite
+      DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX}
+  )
+  target_link_libraries(sqlite3_shell PRIVATE sqlite3)
+
+  if (${WITH_ZLIB})
+    find_package(ZLIB REQUIRED)
+    target_link_libraries(sqlite3_shell PRIVATE ZLIB::ZLIB)
+    target_compile_definitions(sqlite3_shell PRIVATE SQLITE_HAVE_ZLIB)
+  endif()
+
+  install(TARGETS sqlite3_shell
+    CONFIGURATIONS Release
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+  )
+endif()
+
+include(CMakePackageConfigHelpers)
+install(EXPORT sqlite3-export
+  FILE SQLite3Config.cmake
+  NAMESPACE   SQLite::
+  DESTINATION lib/cmake/SQLite3
+  EXPORT_LINK_INTERFACE_LIBRARIES
+)
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/SQLite3ConfigVersion.cmake
+  COMPATIBILITY AnyNewerVersion
+)
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/SQLite3ConfigVersion.cmake
+  DESTINATION lib/cmake/SQLite3
+)

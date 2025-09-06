@@ -1,0 +1,46 @@
+{
+  "name": "perl",
+  "display": "Strawberry Perl",
+  "description": "Strawberry Perl is a perl environment for MS Windows",
+  "site": "https://strawberryperl.com/",
+  "license": "Artistic License",
+  "settings": [
+    {
+      "display": "Version",
+      "name": "version",
+      "enable": true,
+      "type": "chose",
+      "item": "{{$versions}}",
+      "default": "$latest_version"
+    }
+  ],
+  "versions": {
+    "default": {
+      "dist_dir": "$package_dir",
+      "stages": {
+        "install": {
+          "scripts": [
+            {
+              "when": "{{ not os.path.isfile($perl_cache) }}",
+              "chdir" : "$cache_rootdir",
+              "script": "curl.exe -L -s -o \"$perl_cache\" \"$perl_url\""
+            },
+            {
+              "when": "{{ os.path.isfile($perl_cache) }}",
+              "script": "7z x -aoa -y -o\"$dist_dir\" \"$perl_cache\""
+            }
+          ]
+        }
+      }
+    },
+    "5.38.2.2": {
+      "perl_url": "https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_53822_64bit/strawberry-perl-5.38.2.2-64bit-portable.zip",
+      "perl_cache": "$cache_rootdir\\strawberry-perl-5.38.2.2-64bit-portable.zip"
+    },
+    "5.40.2.1": {
+      "perl_url": "https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54021_64bit_UCRT/strawberry-perl-5.40.2.1-64bit-portable.zip",
+      "perl_cache": "$cache_rootdir\\strawberry-perl-5.40.2.1-64bit-portable.zip"
+    }
+  }
+}
+

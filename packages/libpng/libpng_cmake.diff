@@ -1,0 +1,36 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ad3f242..6b84d6a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1123,9 +1123,14 @@ endif()
+ 
+ # Create an export file that CMake users can include() to import our targets.
+ if(NOT SKIP_INSTALL_EXPORT AND NOT SKIP_INSTALL_ALL)
++  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libpng.pc.in
++                  ${CMAKE_CURRENT_BINARY_DIR}/libpng.pc
++                  @ONLY)
++  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libpng.pc
++          DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+   install(EXPORT libpng
+           DESTINATION ${CMAKE_INSTALL_LIBDIR}/libpng
+-          FILE libpng${PNGLIB_ABI_VERSION}.cmake)
++          FILE libpng-config.cmake)
+ endif()
+ 
+ # TODO: Create MSVC import lib for MinGW-compiled shared lib.
+diff --git a/libpng.pc.in b/libpng.pc.in
+index de127d4..03b3321 100644
+--- a/libpng.pc.in
++++ b/libpng.pc.in
+@@ -1,7 +1,7 @@
+-prefix=@prefix@
+-exec_prefix=@exec_prefix@
+-libdir=@libdir@
+-includedir=@includedir@/libpng@PNGLIB_MAJOR@@PNGLIB_MINOR@
++prefix=${pcfiledir}/../..
++exec_prefix=${prefix}
++libdir=${prefix}/lib
++includedir=${prefix}/include/libpng@PNGLIB_MAJOR@@PNGLIB_MINOR@
+ 
+ Name: libpng
+ Description: Loads and saves PNG files

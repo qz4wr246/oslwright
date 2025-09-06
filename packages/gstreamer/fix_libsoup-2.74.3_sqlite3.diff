@@ -1,0 +1,31 @@
+diff --git a/subprojects/libsoup.wrap b/subprojects/libsoup.wrap
+index 4a12f2c..40140f0 100644
+--- a/subprojects/libsoup.wrap
++++ b/subprojects/libsoup.wrap
+@@ -4,6 +4,7 @@ source_url = https://download.gnome.org/sources/libsoup/2.74/libsoup-2.74.3.tar.
+ source_fallback_url = https://ftp.acc.umu.se/pub/gnome/sources/libsoup/2.74/libsoup-2.74.3.tar.xz
+ source_filename = libsoup-2.74.3.tar.xz
+ source_hash = e4b77c41cfc4c8c5a035fcdc320c7bc6cfb75ef7c5a034153df1413fa1d92f13
++diff_files = libsoup/meson_build-sqlite3.patch
+
+ [provide]
+ libsoup-2.4 = libsoup_dep
+diff --git a/subprojects/packagefiles/libsoup/meson_build-sqlite3.patch b/subprojects/packagefiles/libsoup/meson_build-sqlite3.patch
+new file mode 100644
+index 0000000..cee3dad
+--- /dev/null
++++ b/subprojects/packagefiles/libsoup/meson_build-sqlite3.patch
+@@ -0,0 +1,13 @@
++diff --git a/meson.build b/meson.build
++index 130f813..628626b 100644
++--- a/meson.build
+++++ b/meson.build
++@@ -92,7 +92,7 @@ gio_dep = dependency('gio-2.0', version : glib_required_version,
++
++ glib_deps = [glib_dep, gmodule_dep, gobject_dep, gio_dep]
++
++-sqlite_dep = dependency('sqlite3', required: false)
+++sqlite_dep = dependency('SQLite3', required: false)
++
++ # Fallback check for sqlite, not all platforms ship pkg-config file
++ if not sqlite_dep.found()

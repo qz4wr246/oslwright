@@ -1,0 +1,16 @@
+#! /bin/sh
+
+while test $# -gt 0; do
+  case $1 in
+    --cflags)
+      pkg-config --cflags sdl2
+      ;;
+    --libs)
+      pkg-config --libs sdl2
+      ;;
+    --version)
+      pkg-config --version sdl2
+      ;;
+  esac
+  shift
+done

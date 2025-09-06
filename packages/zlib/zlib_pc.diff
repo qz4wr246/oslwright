@@ -1,0 +1,24 @@
+diff --git a/zlib.pc.in b/zlib.pc.in
+index 7e5acf9..f099e00 100644
+--- a/zlib.pc.in
++++ b/zlib.pc.in
+@@ -1,13 +1,13 @@
+-prefix=@prefix@
+-exec_prefix=@exec_prefix@
+-libdir=@libdir@
+-sharedlibdir=@sharedlibdir@
+-includedir=@includedir@
++prefix=${pcfiledir}/../..
++exec_prefix=${prefix}
++libdir=${prefix}/lib
++sharedlibdir=${prefix}/lib
++includedir=${prefix}/include
+ 
+ Name: zlib
+ Description: zlib compression library
+ Version: @VERSION@
+ 
+ Requires:
+-Libs: -L${libdir} -L${sharedlibdir} -lz
++Libs: -L${libdir} -L${sharedlibdir} -lzlib
+ Cflags: -I${includedir}

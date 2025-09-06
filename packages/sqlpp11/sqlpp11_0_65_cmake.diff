@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index bb05cd8..8d3baf8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -112,7 +112,7 @@ endif()
+ 
+ ### Packaging
+ install(PROGRAMS ${PROJECT_SOURCE_DIR}/scripts/ddl2cpp
+-    RENAME sqlpp11-ddl2cpp
++    RENAME sqlpp11-ddl2cpp.py
+     DESTINATION ${CMAKE_INSTALL_BINDIR}
+ )
+ 

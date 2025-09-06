@@ -1,0 +1,97 @@
+diff --git a/I18NTest_vs2012/I18NTest/i18n/I18nDefine.h b/I18NTest_vs2012/I18NTest/i18n/I18nDefine.h
+index 18cfeed..2893249 100644
+--- a/I18NTest_vs2012/I18NTest/i18n/I18nDefine.h
++++ b/I18NTest_vs2012/I18NTest/i18n/I18nDefine.h
+@@ -31,8 +31,26 @@
+ 
+ 
+ #ifdef _MSC_VER
+-#define snprintf _snprintf
++// #define snprintf _snprintf
+ typedef unsigned long ssize_t;
+ #endif
+ 
++#ifdef I18NGETTEXT_STATIC_BUILD
++# define I18NGETTEXT_API
++#elif defined(_WIN32) || defined(__CYGWIN__)
++# ifdef I18NGETTEXT_BUILD_INTERNAL
++#  define I18NGETTEXT_API __declspec(dllexport)
++# else
++#  define I18NGETTEXT_API __declspec(dllimport)
++# endif
++#elif defined(__GNUC__) && (__GNUC__ >= 4)
++# ifdef I18NGETTEXT_BUILD_INTERNAL
++#  define I18NGETTEXT_API __attribute__((__visibility__("default")))
++# else
++#  define I18NGETTEXT_API
++# endif
++#else
++# define I18NGETTEXT_API
++#endif
++
+ #endif /* defined(__I18N__I18nDefine_H__) */
+diff --git a/I18NTest_vs2012/I18NTest/i18n/I18nUtils.h b/I18NTest_vs2012/I18NTest/i18n/I18nUtils.h
+index 350f2ba..da2d10d 100644
+--- a/I18NTest_vs2012/I18NTest/i18n/I18nUtils.h
++++ b/I18NTest_vs2012/I18NTest/i18n/I18nUtils.h
+@@ -16,7 +16,7 @@
+ NS_I18N_BEGIN
+ using std::string;
+ 
+-class I18nUtils
++class I18NGETTEXT_API I18nUtils
+ {
+ public:
+     static std::string DEFAULT_DOMAIN;
+@@ -205,31 +205,31 @@ private:
+  ***************************************************************
+  */
+ 
+-inline string __(string text, string domain = I18nUtils::DEFAULT_DOMAIN) {
++inline I18NGETTEXT_API string __(string text, string domain = I18nUtils::DEFAULT_DOMAIN) {
+     return I18nUtils::getInstance()->gettext(text, domain);
+ }
+ 
+-inline string _x(string text, string context, string domain = I18nUtils::DEFAULT_DOMAIN) {
++inline I18NGETTEXT_API string _x(string text, string context, string domain = I18nUtils::DEFAULT_DOMAIN) {
+     return I18nUtils::getInstance()->xgettext(text, context, domain);
+ }
+ 
+-inline string _n(string singular, string plural, int number, string domain = I18nUtils::DEFAULT_DOMAIN) {
++inline I18NGETTEXT_API string _n(string singular, string plural, int number, string domain = I18nUtils::DEFAULT_DOMAIN) {
+     return I18nUtils::getInstance()->ngettext(singular, plural, number, domain);
+ }
+ 
+-inline string _nx(string singular, string plural, int number, string context, string domain = I18nUtils::DEFAULT_DOMAIN) {
++inline I18NGETTEXT_API string _nx(string singular, string plural, int number, string context, string domain = I18nUtils::DEFAULT_DOMAIN) {
+     return I18nUtils::getInstance()->nxgettext(singular, plural, number, context, domain);
+ }
+ 
+-inline NoopEntry _n_noop(string singular, string plural, string domain = I18nUtils::DEFAULT_DOMAIN) {
++inline I18NGETTEXT_API NoopEntry _n_noop(string singular, string plural, string domain = I18nUtils::DEFAULT_DOMAIN) {
+     return I18nUtils::getInstance()->ngettextNoop(singular, plural, domain);
+ }
+ 
+-inline NoopEntry _nx_noop(string singular, string plural, string context, string domain = I18nUtils::DEFAULT_DOMAIN) {
++inline I18NGETTEXT_API NoopEntry _nx_noop(string singular, string plural, string context, string domain = I18nUtils::DEFAULT_DOMAIN) {
+     return I18nUtils::getInstance()->nxgettextNoop(singular, plural, context, domain);
+ }
+ 
+-inline string t_nooped(NoopEntry entry, int number, string domain = I18nUtils::DEFAULT_DOMAIN) {
++inline I18NGETTEXT_API string t_nooped(NoopEntry entry, int number, string domain = I18nUtils::DEFAULT_DOMAIN) {
+     return I18nUtils::getInstance()->translateNooped(entry, number, domain);
+ }
+ 
+diff --git a/I18NTest_vs2012/I18NTest/i18n/MO.h b/I18NTest_vs2012/I18NTest/i18n/MO.h
+index a944dd4..02f0980 100644
+--- a/I18NTest_vs2012/I18NTest/i18n/MO.h
++++ b/I18NTest_vs2012/I18NTest/i18n/MO.h
+@@ -26,7 +26,7 @@ protected: varType varName;\
+ protected: void set##funName(varType var){ varName = var; }\
+ public: virtual const varType& get##funName(void) const { return varName; }
+ 
+-class MO
++class I18NGETTEXT_API MO
+ {
+ public:
+     static const char CONTEXT_SEPARATOR;

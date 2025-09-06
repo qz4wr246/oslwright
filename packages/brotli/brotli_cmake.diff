@@ -1,0 +1,48 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 61378cd..5b0a2ad 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -150,6 +150,9 @@ foreach(lib ${BROTLI_LIBRARIES_CORE})
+     set_target_properties(${lib} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+   endif()
+   set_property(TARGET ${lib} APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${BROTLI_INCLUDE_DIRS}>")
++  target_include_directories( ${lib} INTERFACE
++    $<BUILD_INTERFACE:${BROTLI_INCLUDE_DIRS}>
++    $<INSTALL_INTERFACE:include>)
+ endforeach()
+ 
+ if(NOT BROTLI_EMSCRIPTEN)
+@@ -176,11 +179,13 @@ target_link_libraries(brotli ${BROTLI_LIBRARIES})
+ if(NOT BROTLI_BUNDLED_MODE)
+   install(
+     TARGETS brotli
++    CONFIGURATIONS Release
+     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+   )
+ 
+   install(
+     TARGETS ${BROTLI_LIBRARIES_CORE}
++    EXPORT brotli-export
+     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+@@ -362,3 +367,19 @@ endif()  # BROTLI_BUNDLED_MODE
+ if (ENABLE_COVERAGE STREQUAL "yes")
+   SETUP_TARGET_FOR_COVERAGE(coverage test coverage)
+ endif ()
++
++include(CMakePackageConfigHelpers)
++install(EXPORT brotli-export
++  FILE brotliConfig.cmake
++  DESTINATION lib/cmake/brotli
++  EXPORT_LINK_INTERFACE_LIBRARIES
++)
++write_basic_package_version_file(
++  ${CMAKE_CURRENT_BINARY_DIR}/brotliConfigVersion.cmake
++  VERSION "${BROTLI_VERSION}"
++  COMPATIBILITY AnyNewerVersion
++)
++install(FILES
++  ${CMAKE_CURRENT_BINARY_DIR}/brotliConfigVersion.cmake
++  DESTINATION lib/cmake/brotli
++)

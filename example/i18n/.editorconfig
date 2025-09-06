@@ -1,0 +1,27 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+root = true
+
+# default style
+[*]
+indent_style = space
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+
+[Makefile]
+indent_style = tab
+
+[*.c,*.h,*.cpp,*.hpp,*.cxx,*.hxx]
+indent_size = 4
+
+[*.txt]
+indent_size = 2
+
+[*.md]
+indent_size = 4
+
+[*.bat]
+end_of_line = crlf
+charset = cp932
+indent_size = 2

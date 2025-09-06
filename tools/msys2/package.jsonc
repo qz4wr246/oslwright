@@ -1,0 +1,56 @@
+{
+  "name": "msys2",
+  "display": "msys2",
+  "description": "Software Distribution and Building Platform for Windows",
+  "site": "https://www.msys2.org/",
+  "license": "any",
+  "process_time": "180",
+  "settings": [
+    {
+      "display": "Version",
+      "name": "version",
+      "enable": true,
+      "type": "chose",
+      "item": "{{ $versions }}",
+      "default": "$latest_version"
+    }
+  ],
+  "versions": {
+    "default": {
+      "stages": {
+        "install": {
+          "scripts": [
+            {
+              "message": "Download $name",
+              "when": "{{not os.path.isfile($msys_cache)}}",
+              "chdir" : "$cache_rootdir",
+              "script": "curl.exe -L -s -o \"$msys_cache\" \"$msys_url\""
+            },
+            {
+              "message": "Extruct $name",
+              "when": "{{os.path.isfile($msys_cache) and not os.path.exists(os.path.join($package_dir,'msys64'))}}",
+              "script": "7z x \"$msys_cache\" -so | 7z x -aoa -si -ttar -o\"$package_dir\""
+            },
+            {
+              "message": "Setup",
+              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
+              "chdir": "{{os.path.join($package_dir,'msys64')}}",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c exit"
+            },
+            {
+              "message": "Install build tools",
+              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
+              "chdir": "{{os.path.join($package_dir,'msys64')}}",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'pacman -S --noconfirm make pkgconf diffutils'"
+            }
+          ]
+        }
+      }
+    },
+    "20241116": {
+      "msys_url": "https://repo.msys2.org/distrib/x86_64/msys2-base-x86_64-20241116.tar.xz",
+      "msys_cache": "$cache_rootdir\\msys2-base-x86_64-20241116.tar.xz"
+    }
+  }
+}
+

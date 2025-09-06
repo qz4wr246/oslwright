@@ -1,0 +1,9 @@
+perl/
+c/
+cpan/
+data/
+licenses/
+win32/
+*.txt
+*.perl
+*.bat

@@ -1,0 +1,15 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 15ceebe..f0e6917 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -156,6 +156,10 @@ target_include_directories(zlibstatic PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE
+ set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
+ set_target_properties(zlib PROPERTIES SOVERSION 1)
+
++if(MSVC)
++    set_target_properties(zlib zlibstatic PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
++endif()
++
+ if(NOT CYGWIN)
+     # This property causes shared libraries on Linux to have the full version
+     # encoded into their final filename.  We disable this on Cygwin because

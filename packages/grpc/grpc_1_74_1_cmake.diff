@@ -1,0 +1,282 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f652a40..7638bac 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2066,6 +2066,8 @@ if(WIN32 AND MSVC)
+     target_compile_definitions(gpr
+     PRIVATE
+       "GPR_DLL_EXPORTS"
++      INTERFACE
++      $<INSTALL_INTERFACE:GPR_DLL_IMPORTS>
+     )
+   endif()
+   if(gRPC_INSTALL)
+@@ -3046,6 +3048,9 @@ if(WIN32 AND MSVC)
+     PRIVATE
+       "GRPC_DLL_EXPORTS"
+       "GPR_DLL_IMPORTS"
++    INTERFACE
++      $<INSTALL_INTERFACE:GRPC_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GPR_DLL_IMPORTS>
+     )
+   endif()
+   if(gRPC_INSTALL)
+@@ -3768,6 +3773,9 @@ if(WIN32 AND MSVC)
+     PRIVATE
+       "GRPC_DLL_EXPORTS"
+       "GPR_DLL_IMPORTS"
++    INTERFACE
++      $<INSTALL_INTERFACE:GRPC_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GPR_DLL_IMPORTS>
+     )
+   endif()
+   if(gRPC_INSTALL)
+@@ -4189,6 +4197,12 @@ if(WIN32 AND MSVC)
+       DESTINATION ${gRPC_INSTALL_LIBDIR} OPTIONAL
+     )
+   endif()
++  # More details in third_party/upb/upb/port_def.inc;
++  # needs to be separate from gRPC_DLL_{IM,EX}PORTS
++  set_target_properties(upb_mem_lib PROPERTIES DEFINE_SYMBOL "UPB_MEM_DLL_EXPORTS")
++  if(BUILD_SHARED_LIBS)
++    target_compile_definitions(upb_mem_lib INTERFACE UPB_MEM_DLL_IMPORTS)
++  endif()
+ endif()
+
+ target_include_directories(upb_mem_lib
+@@ -4247,6 +4261,12 @@ if(WIN32 AND MSVC)
+       DESTINATION ${gRPC_INSTALL_LIBDIR} OPTIONAL
+     )
+   endif()
++  # More details in third_party/upb/upb/port_def.inc;
++  # needs to be separate from gRPC_DLL_{IM,EX}PORTS
++  set_target_properties(upb_message_lib PROPERTIES DEFINE_SYMBOL "UPB_MSG_DLL_EXPORTS")
++  if(BUILD_SHARED_LIBS)
++    target_compile_definitions(upb_message_lib INTERFACE UPB_MSG_DLL_IMPORTS)
++  endif()
+ endif()
+
+ target_include_directories(upb_message_lib
+@@ -4267,8 +4287,6 @@ target_link_libraries(upb_message_lib
+   upb_mini_table_lib
+ )
+
+-
+-
+ if(gRPC_INSTALL)
+   install(TARGETS upb_message_lib EXPORT gRPCTargets
+     RUNTIME DESTINATION ${gRPC_INSTALL_BINDIR}
+@@ -4298,6 +4316,7 @@ if(WIN32 AND MSVC)
+   set_target_properties(upb_mini_descriptor_lib PROPERTIES COMPILE_PDB_NAME "upb_mini_descriptor_lib"
+     COMPILE_PDB_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+   )
++
+   if(gRPC_INSTALL)
+     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/upb_mini_descriptor_lib.pdb
+       DESTINATION ${gRPC_INSTALL_LIBDIR} OPTIONAL
+@@ -4352,6 +4371,11 @@ if(WIN32 AND MSVC)
+   set_target_properties(upb_mini_table_lib PROPERTIES COMPILE_PDB_NAME "upb_mini_table_lib"
+     COMPILE_PDB_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+   )
++  set_target_properties(upb_mini_table_lib PROPERTIES DEFINE_SYMBOL "UPB_MSG_DLL_EXPORTS")
++  if(BUILD_SHARED_LIBS)
++    target_compile_definitions(upb_mini_table_lib INTERFACE UPB_MSG_DLL_IMPORTS)
++  endif()
++
+   if(gRPC_INSTALL)
+     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/upb_mini_table_lib.pdb
+       DESTINATION ${gRPC_INSTALL_LIBDIR} OPTIONAL
+@@ -4786,6 +4810,10 @@ if(WIN32 AND MSVC)
+       "GRPCXX_DLL_EXPORTS"
+       "GPR_DLL_IMPORTS"
+       "GRPC_DLL_IMPORTS"
++    INTERFACE
++      $<INSTALL_INTERFACE:GRPCXX_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GPR_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GRPC_DLL_IMPORTS>
+     )
+   endif()
+   if(gRPC_INSTALL)
+@@ -5070,6 +5098,10 @@ if(WIN32 AND MSVC)
+       "GPR_DLL_IMPORTS"
+       "GRPC_DLL_IMPORTS"
+       "GRPCXX_DLL_IMPORTS"
++    INTERFACE
++      $<INSTALL_INTERFACE:GPR_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GRPC_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GRPCXX_DLL_IMPORTS>
+     )
+   endif()
+   if(gRPC_INSTALL)
+@@ -5141,6 +5173,10 @@ if(WIN32 AND MSVC)
+       "GPR_DLL_IMPORTS"
+       "GRPC_DLL_IMPORTS"
+       "GRPCXX_DLL_IMPORTS"
++    INTERFACE
++      $<INSTALL_INTERFACE:GPR_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GRPC_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GRPCXX_DLL_IMPORTS>
+     )
+   endif()
+   if(gRPC_INSTALL)
+@@ -5222,6 +5258,10 @@ if(WIN32 AND MSVC)
+       "GPR_DLL_IMPORTS"
+       "GRPC_DLL_IMPORTS"
+       "GRPCXX_DLL_IMPORTS"
++    INTERFACE
++      $<INSTALL_INTERFACE:GPR_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GRPC_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GRPCXX_DLL_IMPORTS>
+     )
+   endif()
+   if(gRPC_INSTALL)
+@@ -5526,6 +5566,10 @@ if(WIN32 AND MSVC)
+       "GRPCXX_DLL_EXPORTS"
+       "GPR_DLL_IMPORTS"
+       "GRPC_DLL_IMPORTS"
++    INTERFACE
++      $<INSTALL_INTERFACE:GPR_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GRPC_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GRPCXX_DLL_IMPORTS>
+     )
+   endif()
+   if(gRPC_INSTALL)
+@@ -6093,6 +6137,8 @@ if(WIN32 AND MSVC)
+     target_compile_definitions(grpc_authorization_provider
+     PRIVATE
+       "GPR_DLL_IMPORTS"
++    INTERFACE
++      $<INSTALL_INTERFACE:GPR_DLL_IMPORTS>
+     )
+   endif()
+   if(gRPC_INSTALL)
+@@ -6311,6 +6357,10 @@ if(WIN32 AND MSVC)
+       "GPR_DLL_IMPORTS"
+       "GRPC_DLL_IMPORTS"
+       "GRPCXX_DLL_IMPORTS"
++    INTERFACE
++      $<INSTALL_INTERFACE:GPR_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GRPC_DLL_IMPORTS>
++      $<INSTALL_INTERFACE:GRPCXX_DLL_IMPORTS>
+     )
+   endif()
+   if(gRPC_INSTALL)
+diff --git a/include/grpcpp/impl/status.h b/include/grpcpp/impl/status.h
+index 94c0e80..275d0da 100644
+--- a/include/grpcpp/impl/status.h
++++ b/include/grpcpp/impl/status.h
+@@ -31,7 +31,7 @@ namespace grpc {
+ /// Did it work? If it didn't, why?
+ ///
+ /// See \a grpc::StatusCode for details on the available code and their meaning.
+-class GRPC_MUST_USE_RESULT_WHEN_USE_STRICT_WARNING GRPCXX_DLL Status {
++class GRPC_MUST_USE_RESULT_WHEN_USE_STRICT_WARNING Status {
+  public:
+   /// Construct an OK instance.
+   Status() : code_(StatusCode::OK) {
+@@ -109,9 +109,9 @@ class GRPC_MUST_USE_RESULT_WHEN_USE_STRICT_WARNING GRPCXX_DLL Status {
+
+   // Pre-defined special status objects.
+   /// An OK pre-defined instance.
+-  static const Status& OK;
++  GRPCXX_DLL static const Status& OK;
+   /// A CANCELLED pre-defined instance.
+-  static const Status& CANCELLED;
++  GRPCXX_DLL static const Status& CANCELLED;
+
+   /// Return the instance's error code.
+   StatusCode error_code() const { return code_; }
+diff --git a/src/core/lib/debug/trace_flags.h b/src/core/lib/debug/trace_flags.h
+index 6d4fffe..12f3e65 100644
+--- a/src/core/lib/debug/trace_flags.h
++++ b/src/core/lib/debug/trace_flags.h
+@@ -43,14 +43,14 @@ extern DebugOnlyTraceFlag polling_api_trace;
+ extern DebugOnlyTraceFlag promise_primitives_trace;
+ extern DebugOnlyTraceFlag resolver_refcount_trace;
+ extern DebugOnlyTraceFlag security_connector_refcount_trace;
+-extern DebugOnlyTraceFlag slice_refcount_trace;
+-extern DebugOnlyTraceFlag stream_refcount_trace;
++GRPC_DLL extern DebugOnlyTraceFlag slice_refcount_trace;
++GRPC_DLL extern DebugOnlyTraceFlag stream_refcount_trace;
+ extern DebugOnlyTraceFlag subchannel_refcount_trace;
+ extern DebugOnlyTraceFlag work_serializer_trace;
+ extern DebugOnlyTraceFlag ztrace_trace;
+ extern TraceFlag api_trace;
+ extern TraceFlag apple_polling_trace;
+-extern TraceFlag backend_metric_trace;
++GRPC_DLL extern TraceFlag backend_metric_trace;
+ extern TraceFlag backend_metric_filter_trace;
+ extern TraceFlag bdp_estimator_trace;
+ extern TraceFlag call_trace;
+diff --git a/third_party/upb/upb/mem/alloc.h b/third_party/upb/upb/mem/alloc.h
+index aa01fa9..b17ecac 100644
+--- a/third_party/upb/upb/mem/alloc.h
++++ b/third_party/upb/upb/mem/alloc.h
+@@ -57,7 +57,7 @@ UPB_INLINE void upb_free_sized(upb_alloc* alloc, void* ptr, size_t size) {
+
+ // The global allocator used by upb. Uses the standard malloc()/free().
+
+-extern upb_alloc upb_alloc_global;
++UPB_MEM_DLL extern upb_alloc upb_alloc_global;
+
+ /* Functions that hard-code the global malloc.
+  *
+diff --git a/third_party/upb/upb/mini_table/internal/message.h b/third_party/upb/upb/mini_table/internal/message.h
+index e1decf8..130ec07 100644
+--- a/third_party/upb/upb/mini_table/internal/message.h
++++ b/third_party/upb/upb/mini_table/internal/message.h
+@@ -87,10 +87,8 @@ UPB_INLINE const struct upb_MiniTable* UPB_PRIVATE(
+ #endif
+   return mt;
+ }
+-
++UPB_MSG_DLL extern const struct upb_MiniTable UPB_PRIVATE(_kUpb_MiniTable_Empty);
+ UPB_INLINE const struct upb_MiniTable* UPB_PRIVATE(_upb_MiniTable_Empty)(void) {
+-  extern const struct upb_MiniTable UPB_PRIVATE(_kUpb_MiniTable_Empty);
+-
+   return &UPB_PRIVATE(_kUpb_MiniTable_Empty);
+ }
+
+@@ -100,8 +98,6 @@ UPB_API_INLINE int upb_MiniTable_FieldCount(const struct upb_MiniTable* m) {
+
+ UPB_INLINE bool UPB_PRIVATE(_upb_MiniTable_IsEmpty)(
+     const struct upb_MiniTable* m) {
+-  extern const struct upb_MiniTable UPB_PRIVATE(_kUpb_MiniTable_Empty);
+-
+   return m == &UPB_PRIVATE(_kUpb_MiniTable_Empty);
+ }
+
+diff --git a/third_party/upb/upb/port/def.inc b/third_party/upb/upb/port/def.inc
+index 06f808c..87f9414 100644
+--- a/third_party/upb/upb/port/def.inc
++++ b/third_party/upb/upb/port/def.inc
+@@ -558,3 +558,29 @@ Error, UINTPTR_MAX is undefined
+ #ifdef UPB_FUTURE_BREAKING_CHANGES
+
+ #endif
++
++// UPB_{MEM,MSG}_DLL
++// inspired by https://github.com/abseil/abseil-cpp/blob/20220623.1/absl/base/config.h#L730-L747
++//
++// When building upb as a DLL, this macro expands to `__declspec(dllexport)`
++// so we can annotate symbols appropriately as being exported. When used in
++// headers consuming a DLL, this macro expands to `__declspec(dllimport)` so
++// that consumers know the symbol is defined inside the DLL. In all other cases,
++// the macro expands to nothing.
++// Note: UPB_{MEM,MSG}_DLL_EXPORTS is set in CMakeLists.txt when building shared upb
++//       UPB_{MEM,MSG}_DLL_IMPORTS is set by us as part of the interface for consumers of the DLL
++#if defined(UPB_MEM_DLL_EXPORTS)
++#define UPB_MEM_DLL __declspec(dllexport)
++#elif defined(UPB_MEM_DLL_IMPORTS)
++#define UPB_MEM_DLL __declspec(dllimport)
++#else
++#define UPB_MEM_DLL
++#endif // defined(UPB_MEM_DLL_EXPORTS)
++
++#if defined(UPB_MSG_DLL_EXPORTS)
++#define UPB_MSG_DLL __declspec(dllexport)
++#elif defined(UPB_MSG_DLL_IMPORTS)
++#define UPB_MSG_DLL __declspec(dllimport)
++#else
++#define UPB_MSG_DLL
++#endif // defined(UPB_MSG_DLL_EXPORTS)

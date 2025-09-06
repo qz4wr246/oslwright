@@ -1,0 +1,299 @@
+{
+  "name": "icu4c",
+  "display": "ICU4C",
+  "description": "ICU - International Components for Unicode",
+  "site": "https://icu.unicode.org/",
+  "license": "UNICODE LICENSE V3",
+  "process_time": "340",
+  "settings": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "chose",
+      "item": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "chose",
+      "item": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "chose",
+      "item": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "chose",
+      "item": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "enable": false,
+      "type": "chose",
+      "item": [
+        "shared",
+        // "static"
+      ],
+      "default": "$build_library_default"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "chose",
+      "item": [
+        "Release;Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "enable": false,
+      "type": "chose",
+      "item": [
+        "union",
+        // "separation"
+      ],
+      "default": "union"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": false,
+      "type": "chose",
+      "item": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    }
+  ],
+  "versions": {
+    "default": {
+      "version_code": "",
+      "zip_url": "https://github.com/unicode-org/icu/releases/download/release-${version_code}/icu4c-{{$version_code.replace('-','_')}}-src.zip",
+      "zip_cache" : "$cache_rootdir\\icu4c-{{$version_code.replace('-','_')}}-src.zip",
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "build_bin_dir": "${source_dir}\\icu\\{{'bin64' if $build_arch == 'x64' else 'bin'}}",
+      "build_lib_dir": "${source_dir}\\icu\\{{'lib64' if $build_arch == 'x64' else 'lib'}}",
+      "build_inc_dir": "${source_dir}\\icu\\include",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name}",
+      "dist_bin_debug": "$dist_dir_debug\\bin",
+      "dist_bin_release": "$dist_dir_release\\bin",
+      "dist_lib_debug": "$dist_dir_debug\\bin",
+      "dist_lib_release": "$dist_dir_release\\lib",
+      "dist_inc_debug": "$dist_dir_debug\\include",
+      "dist_inc_release": "$dist_dir_release\\include",
+      "icu4c_vs_soldir": "$source_dir\\icu\\source\\allinone",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "message": "Download $name",
+              "when": "{{ not os.path.isfile($zip_cache) }}",
+              "chdir" : "$cache_rootdir",
+              "script": "curl.exe -L -s -o \"$zip_cache\" \"$zip_url\""
+            },
+            {
+              "message": "extruct $name",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($zip_cache)}}",
+              "script": "7z x -aoa \"$zip_cache\" -o\"$source_dir\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            }
+          ]
+        },
+        "build": {
+          "scripts": [
+            {
+              "message": "change compile flag /MD",
+              "when": "{{$msvc_runtime_library == 'md'}}",
+              "script": "forfiles -P \"$source_dir\\icu\\source\" /M *.vcxproj /S /C \"cmd /c perl -p -i -e 0x22s#<RuntimeLibrary>MultiThreaded</RuntimeLibrary>#<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>#g;s#<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>#<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>#g0x22 @PATH\""
+            },
+            {
+              "message": "change compile flag /MT",
+              "when": "{{$msvc_runtime_library == 'mt'}}",
+              "script": "forfiles -P \"$source_dir\\icu\\source\" /M *.vcxproj /S /C \"cmd /c perl -p -i -e 0x22s#<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>#<RuntimeLibrary>MultiThreaded</RuntimeLibrary>#g;s#<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>#<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>#g0x22 @PATH\""
+            },
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$icu4c_vs_soldir",
+              "script": "msbuild allinone.sln /t:build /p:Configuration=Debug /p:Platform=\"{{'x64' if $build_arch =='x64' else 'Win32'}}\" /p:SkipUWP=true -clp:ShowCommandLine;NoSummary -verbosity:Normal"
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$icu4c_vs_soldir",
+              "script": "msbuild allinone.sln /t:build /p:Configuration=Release /p:Platform=\"{{'x64' if $build_arch =='x64' else 'Win32'}}\" /p:SkipUWP=true -clp:ShowCommandLine;NoSummary -verbosity:Normal"
+            }
+          ]
+        },
+        "install": {
+          "dll_bs" : "{{exec('import re;import glob') or re.findall(r'(\\w+).dll', ''.join(glob.glob('*.dll', root_dir=$build_bin_dir)))}}",
+          "dll_dd": "{{exec('import re') or re.findall(r'\\'(\\w+)d\\'', str($dll_bs))}}",
+          "dll_dbg_bs": "{{[f'{a}d' for a in list(set($dll_dd) - set([b for b in $dll_dd if b not in $dll_bs]))]}}",
+          "dll_rel_bs": "{{list(set($dll_bs) - set($dll_dbg_bs))}}",
+          "dlls_debug": "{{' '.join([f'{f}.dll' for f in $dll_dbg_bs])}}",
+          "dlls_release": "{{' '.join([f'{f}.dll' for f in $dll_rel_bs])}}",
+          "lib_bs" : "{{exec('import re;import glob') or re.findall(r'(\\w+).lib', ''.join(glob.glob('*.lib', root_dir=$build_lib_dir)))}}",
+          "lib_dd": "{{exec('import re') or re.findall(r'\\'(\\w+)d\\'', str($lib_bs))}}",
+          "lib_dbg_bs": "{{[f'{a}d' for a in list(set($lib_dd) - set([b for b in $lib_dd if b not in $lib_bs]))]}}",
+          "lib_rel_bs": "{{list(set($lib_bs) - set($lib_dbg_bs))}}",
+          "libs_debug": "{{' '.join([f'{f}.lib' for f in $lib_dbg_bs])}}",
+          "libs_release": "{{' '.join([f'{f}.lib' for f in $lib_rel_bs])}}",
+          "exe_bs" : "{{exec('import re;import glob') or re.findall(r'(\\w+).exe', ''.join(glob.glob('*.exe', root_dir=$build_bin_dir)))}}",
+          "exe_dd": "{{exec('import re') or re.findall(r'\\'(\\w+)d\\'', str($exe_bs))}}",
+          "exe_dbg_bs": "{{[f'{a}d' for a in list(set($exe_dd) - set([b for b in $exe_dd if b not in $exe_bs]))]}}",
+          "exe_rel_bs": "{{list(set($exe_bs) - set($exe_dbg_bs))}}",
+          "exes_debug": "{{' '.join([f'{f}.exe' for f in $exe_dbg_bs])}}",
+          "exes_release": "{{' '.join([f'{f}.exe' for f in $exe_rel_bs])}}",
+          "scripts": [
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": true,
+              "script": "mkdir \"$dist_bin_debug\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": true,
+              "script": "mkdir \"$dist_bin_release\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$build_bin_dir\" \"$dist_bin_debug\" $exes_debug /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$build_bin_dir\" \"$dist_bin_release\" $exes_release /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$build_bin_dir\" \"$dist_bin_debug\" $dlls_debug /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$build_bin_dir\" \"$dist_bin_release\" $dlls_release /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": true,
+              "script": "mkdir \"$dist_lib_debug\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": true,
+              "script": "mkdir \"$dist_lib_release\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$build_lib_dir\" \"$dist_lib_debug\" $libs_debug /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$build_lib_dir\" \"$dist_lib_release\" $libs_release /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": true,
+              "script": "mkdir \"$dist_inc_debug\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": true,
+              "script": "mkdir \"$dist_inc_release\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$build_inc_dir\" \"$dist_inc_debug\" /e /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$build_inc_dir\" \"$dist_inc_release\" /e /is /njh /njs /ndl /nc /ns /np"
+            }
+          ]
+        },
+        "post-install" :{
+          "pkgconfig_dir_release": "$dist_lib_release\\pkgconfig",
+          "pkgconfig_dir_debug": "$dist_lib_debug\\pkgconfig",
+          "j2_template_01": "$package_dir\\icu-uc.pc.j2",
+          "j2_template_02": "$package_dir\\icu-i18n.pc.j2",
+          "j2_template_03": "$package_dir\\icu-io.pc.j2",
+          "j2_output_01_debug": "$pkgconfig_dir_debug\\icu-uc.pc",
+          "j2_output_01_release": "$pkgconfig_dir_release\\icu-uc.pc",
+          "j2_output_02_debug": "$pkgconfig_dir_debug\\icu-i18n.pc",
+          "j2_output_02_release": "$pkgconfig_dir_release\\icu-i18n.pc",
+          "j2_output_03_debug": "$pkgconfig_dir_debug\\icu-io.pc",
+          "j2_output_03_release": "$pkgconfig_dir_release\\icu-io.pc",
+          "scripts": [
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": true,
+              "script": "mkdir \"$pkgconfig_dir_release\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": true,
+              "script": "mkdir \"$pkgconfig_dir_debug\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_release\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_02\" > \"$j2_output_02_release\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_03\" > \"$j2_output_03_release\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_debug\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_02\" > \"$j2_output_02_debug\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_03\" > \"$j2_output_03_debug\""
+            }
+          ]
+        }
+      }
+    },
+    "75.1": {
+      "version_code": "75-1"
+    }
+  }
+}

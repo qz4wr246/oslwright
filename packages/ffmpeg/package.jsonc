@@ -1,0 +1,367 @@
+{
+  "name": "ffmpeg",
+  "display": "FFmpeg",
+  "description": "The leading multimedia framework",
+  "site": "https://www.ffmpeg.org",
+  "license": "LGPL 2.1+, GPL 2+",
+  "info":"info.md",
+  "process_time": "2600",
+  "settings": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "chose",
+      "item": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "chose",
+      "item": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "chose",
+      "item": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "chose",
+      "item": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "type": "chose",
+      "item": [
+        "shared",
+        "static"
+      ],
+      "default": "$build_library_default"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "chose",
+      "item": [
+        "Release",
+        "Debug",
+        "Release;Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "enable": false,
+      "type": "chose",
+      "item": [
+        "union",
+        "separation"
+      ],
+      "default": "separation"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": "{{True if $cuda_versions else False}}",
+      "type": "bool",
+      "default": "{{$cuda_enable_default}}"
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": "cuda_enable",
+      "type": "chose",
+      "item": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    },
+    {
+      "display": "Build Apps",
+      "name": "build_apps",
+      "type": "bool",
+      "default": true
+    }
+  ],
+  "versions": {
+    "default": {
+      "dependencies": {
+        "sdl": {
+          "version": ">=2.30;<3.0"  // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
+        },
+        "zlib": {
+          "version": ">=1.3"
+        }
+      },
+      "environments": {
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+      },
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "git_url": "https://git.ffmpeg.org/ffmpeg.git",
+      "git_tag": "n${version}",
+      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "message": "git clone.",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extruct from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "make cache.",
+              "when": "{{not os.path.isfile($cache_file)}}",
+              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
+              "failed": "del \"$cache_file\""
+            }
+          ]
+        },
+        "patch": {
+          //
+          // Copy SDL2 and zlib binary to MSYS2
+          // Remove the inclusion of unistd.h in zconf.h. This gets erroneously included when building FFmpeg.
+          //
+          "zlib_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'zlib' in x), '')}}",
+          "zlib_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'zlib' in x), '')}}",
+          "sdl_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'sdl' in x), '')}}",
+          "sdl_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'sdl' in x), '')}}",
+          "scripts": [
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$zlib_dir_debug\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$zlib_dir_release\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "script": "perl -p -i -e \"s#^.+include <unistd.h>.*##g\" \"${msys2_dir}\\ucrt64\\include\\zconf.h\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$sdl_dir_debug\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$sdl_dir_release\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "script": "copy /Y \"${package_dir}\\sdl2-config\" \"${msys2_dir}\\ucrt64\\bin\\\""
+            }
+          ]
+        },
+        "configure": {
+          "config_options": [
+            "--toolchain=msvc",
+            "--arch=x86_64",
+            "--enable-w32threads",
+            "{{'--enable-shared --disable-static' if 'shared' in $build_library else ''}}",
+            "{{'--extra-cflags=\"-MD\" --extra-cxxflags=\"-MD\" --extra-ldflags=\"/nodefaultlib:libcmt.lib\"' if 'md' == $msvc_runtime_library else '--extra-cflags=\"-MT\" --extra-cxxflags=\"-MT\" --extra-ldflags=\"/nodefaultlib:msvcrt.lib\"'}}",
+            "--disable-doc",
+            "--disable-htmlpages",
+            "--disable-manpages",
+            "--disable-podpages",
+            "--disable-txtpages",
+            "--disable-postproc",
+            "--disable-iconv",
+            "--disable-nonfree",
+            "--disable-gpl",
+            "--disable-libx264",
+            "--disable-nvenc",
+            "--disable-cuda-nvcc",
+            "--disable-libnpp",
+            "--extra-cflags=-DZLIB_DLL"
+          ],
+          "config_options_debug" : [
+            "--prefix=/opt/ffmpeg/debug",
+            "--enable-debug",
+            "--disable-ffplay",
+            "--disable-ffmpeg",
+            "--disable-ffprobe"
+          ],
+          "config_options_release" : [
+            "--prefix=/opt/ffmpeg/release",
+            "--disable-debug",
+            "--enable-small",
+            "--{{'enable' if $build_apps else 'disable'}}-ffplay",
+            "--{{'enable' if $build_apps else 'disable'}}-ffmpeg",
+            "--{{'enable' if $build_apps else 'disable'}}-ffprobe"
+          ],
+          "scripts": [
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "script": "del /q /s \"$build_dir_debug\" > nul"
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "del /q /s \"$build_dir_release\" > nul"
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
+              "script": "mkdir \"$build_dir_debug\""
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
+              "script": "mkdir \"$build_dir_release\""
+            },
+            {
+              "message": "config for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+              },
+              "chdir": "$build_dir_debug",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here ../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}"
+            },
+            {
+              "message": "config for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+              },
+              "chdir": "$build_dir_release",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here ../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}"
+            }
+          ]
+        },
+        "build": {
+          "scripts": [
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
+                "PERLIO": "raw"
+              },
+              "chdir": "$build_dir_debug",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make'"
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
+                "PERLIO": "raw"
+              },
+              "chdir": "$build_dir_release",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make'"
+            }
+          ]
+        },
+        "install": {
+          "scripts": [
+            {
+              "message": "install for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$build_dir_debug",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make install'"
+            },
+            {
+              "message": "install for release.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$build_dir_release",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make install'"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"${msys2_dir}\\opt\\ffmpeg\\debug\" \"$dist_dir_debug\" /e /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"${msys2_dir}\\opt\\ffmpeg\\release\" \"$dist_dir_release\" /e /is /njh /njs /ndl /nc /ns /np"
+            }
+          ]
+        },
+        "post-install" :{
+          "j2_template_01": "${package_dir}\\activate.bat.j2",
+          "j2_output_01_release": "${dist_dir_release}\\bin\\activate.bat",
+          "environments": {
+            "PERLIO": "raw"
+          },
+          "scripts": [
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#-libpath:.+lib # #g0x22 @PATH\""
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#-libpath:.+lib # #g0x22 @PATH\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$dist_dir_debug\\bin\" \"$dist_dir_debug\\lib\" *.lib /MOV"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$dist_dir_release\\bin\" \"$dist_dir_release\\lib\" *.lib /MOV"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "jinja2 -D DEPENDENT_DLL_PATHS=\"{{$dependent_dlls_release.replace($dist_rootdir +'\\\\','')}}\" \"$j2_template_01\" > \"$j2_output_01_release\""
+            }
+          ]
+        }
+      }
+    },
+    "6.1.3": { // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
+      "dependencies": {
+        "sdl": {
+          "version": ">=2.30;<3.0"  // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
+        }
+      }
+    }
+    // "7.1": {}
+  }
+}

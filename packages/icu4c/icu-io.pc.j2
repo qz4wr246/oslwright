@@ -1,0 +1,12 @@
+prefix = ${pcfiledir}/../..
+exec_prefix = ${prefix}
+bindir = ${exec_prefix}/bin
+libdir = ${exec_prefix}/lib
+includedir = ${prefix}/include
+
+Name: icu-io
+Version: {{VERSION}}
+Cflags: -I${includedir}
+Description: International Components for Unicode: Stream and I/O Library
+Requires: icu-i18n
+Libs: -licuio

@@ -1,0 +1,39 @@
+#pragma code_page(65001)
+#include "winver.h"
+#include "winres.h"
+
+;IDI_ICON1 ICON  DISCARDABLE  "WindowsAppIcon.ico"
+
+VS_VERSION_INFO VERSIONINFO
+  FILEVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,0
+  PRODUCTVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,0
+#ifdef _DEBUG
+  FILEFLAGS 0x1L
+#else
+  FILEFLAGS 0x0L
+#endif
+  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+  FILEOS VOS_NT_WINDOWS32
+  FILETYPE VFT_APP
+  FILESUBTYPE VFT2_UNKNOWN
+
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "041104b0"
+    BEGIN
+      VALUE "CompanyName", "組織名を記入"
+      VALUE "FileDescription", "説明を記入"
+      VALUE "FileVersion", "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@.0\0"
+      VALUE "LegalCopyright", "著作権表示を記入"
+      VALUE "InternalName", "@target_name@"
+      VALUE "OriginalFilename", "@target_name@.exe"
+      VALUE "ProductName", "@target_name@"
+      VALUE "ProductVersion", "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@.0\0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x411, 0x4b0
+  END
+END

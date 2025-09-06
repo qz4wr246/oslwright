@@ -1,0 +1,237 @@
+{
+  "name": "bzip2",
+  "display": "bzip2",
+  "description": "bzip2 is a freely available, patent free, high-quality data compressor.",
+  "site": "https://sourceware.org/bzip2/",
+  "license": "BSD-style license",
+  "process_time": "30",
+  "settings": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "chose",
+      "item": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "chose",
+      "item": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "chose",
+      "item": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "chose",
+      "item": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "type": "chose",
+      "item": [
+        "shared",
+        "static"
+      ],
+      "default": "$build_library_default"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "chose",
+      "item": [
+        "Release",
+        "Debug",
+        "Release;Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "type": "chose",
+      "item": [
+        "union",
+        "separation"
+      ],
+      "default": "union"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": false,
+      "type": "chose",
+      "item": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    },
+    {
+      "display": "Skip build Tools",
+      "name": "bzip2_skip_tools",
+      "type": "bool",
+      "default": true
+    }
+  ],
+  "versions": {
+    "default": {
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "git_url": "https://sourceware.org/git/bzip2.git",
+      "git_tag": "bzip2-${version}",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "message": "git clone.",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extruct from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "make cache.",
+              "when": "{{not os.path.isfile($cache_file)}}",
+              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
+              "failed": "del \"$cache_file\""
+            }
+          ]
+        },
+        "patch": {
+          "patch_file_01": "${package_dir}\\CMakeLists.txt",
+          "patch_file_02": "${package_dir}\\fix-import-export-macros.patch",
+          "scripts": [
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              "chdir": "$source_dir",
+              "script": "copy /y \"$patch_file_01\" \"$source_dir\\\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+            },
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_02)))}}",
+              "chdir": "$source_dir",
+              "script": "git apply \"$patch_file_02\" && copy nul > {{'__patched_' + os.path.basename($patch_file_02)}}"
+            }
+          ]
+        },
+        "configure": {
+          "cmake_genarator": "-G \"Ninja Multi-Config\"",
+          "cmake_options": [
+            "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
+            "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
+            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
+            "-DBZIP2_SKIP_TOOLS={{'ON' if $bzip2_skip_tools else 'OFF'}}"
+          ],
+          "cmake_options_debug": [
+            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
+          ],
+          "cmake_options_release": [
+            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_release\""
+          ],
+          "scripts": [
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "script": "del /q /s \"$build_dir_debug\" > nul"
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "del /q /s \"$build_dir_release\" > nul"
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
+              "script": "mkdir \"$build_dir_debug\""
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
+              "script": "mkdir \"$build_dir_release\""
+            },
+            {
+              "message": "config for debug.",
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "environments": {
+                "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
+                "PKG_CONFIG_PATH": "$pkg_config_path_debug",
+                "PERLIO": "raw"
+              },
+              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\" -B \"$build_dir_debug\""
+            },
+            {
+              "message": "config for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "CMAKE_PREFIX_PATH": "$dependent_packages_release",
+                "PKG_CONFIG_PATH": "$pkg_config_path_release",
+                "PERLIO": "raw"
+              },
+              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
+            }
+          ]
+        },
+        "build": {
+          "scripts": [
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "cmake --build \"$build_dir_debug\" --config Debug"
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "cmake --build \"$build_dir_release\" --config Release"
+            }
+          ]
+        },
+        "install": {
+          "scripts": [
+            {
+              "message": "install for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "cmake --install \"$build_dir_debug\" --config Debug"
+            },
+            {
+              "message": "install for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "cmake --install \"$build_dir_release\" --config Release"
+            }
+          ]
+        }
+      }
+    },
+    "1.0.8": {}
+  }
+}

@@ -1,0 +1,19 @@
+diff --git a/Configurations/00-base-templates.conf b/Configurations/00-base-templates.conf
+index 55da5ec..88577f7 100644
+--- a/Configurations/00-base-templates.conf
++++ b/Configurations/00-base-templates.conf
+@@ -115,10 +115,10 @@ my %targets=(
+         lib_defines      =>
+             sub {
+                 my @defs = ();
+-                unless ($disabled{"zlib-dynamic"}) {
+-                    my $zlib = $withargs{zlib_lib} // "ZLIB1";
+-                    push @defs, 'LIBZ=' . (quotify("perl", $zlib))[0];
+-                }
++                #unless ($disabled{"zlib-dynamic"}) {
++                #    my $zlib = $withargs{zlib_lib} // "ZLIB1";
++                #   push @defs, 'LIBZ=' . (quotify("perl", $zlib))[0];
++                #}
+                 return [ @defs ];
+             },
+         ex_libs         =>

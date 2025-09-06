@@ -1,0 +1,250 @@
+{
+  "display": "Boost",
+  "name": "boost",
+  "description": "Boost provides free peer-reviewed portable C++ source libraries.",
+  "site": "https://www.boost.org/",
+  "license": "BSL-1.0",
+  "info": "info.md",
+  "process_time": "1800",
+  "settings": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "chose",
+      "item": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "chose",
+      "item": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "chose",
+      "item": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "chose",
+      "item": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "type": "chose",
+      "item": [
+        "shared",
+        "static"
+      ],
+      "default": "$build_library_default"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "chose",
+      "item": [
+        "Release",
+        "Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "type": "chose",
+      "item": [
+        "union",
+        "separation"
+      ],
+      "default": "separation"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": false,
+      "type": "chose",
+      "item": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    }
+  ],
+  "versions": {
+    "default": {
+      "dependencies": {
+        "icu4c": {
+          "version": ">=75.1"
+        },
+        "bzip2": {
+          "version": ">=1.0"
+        },
+        "xz": {
+          "version": ">=5.6"
+        },
+        "zlib": {
+          "version": ">=1.3"
+        },
+        "zstd": {
+          "version": ">=1.5"
+        }
+      },
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "git_url": "https://github.com/boostorg/boost.git",
+      "git_tag": "boost-${version}",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git clone.",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extruct from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "make cache.",
+              "when": "{{not os.path.isfile($cache_file)}}",
+              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
+              "failed": "del \"$cache_file\""
+            }
+          ]
+        },
+        "patch": {
+          "patch_file_01": "${package_dir}\\boost_install.diff",
+          "scripts": [
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              "chdir": "$source_dir",
+              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+            }
+          ]
+        },
+        "install": {
+          "bzip2_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'bzip2' in x), '')}}",
+          "bzip2_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'bzip2' in x), '')}}",
+          "xz_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'xz' in x), '')}}",
+          "xz_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'xz' in x), '')}}",
+          "zlib_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'zlib' in x), '')}}",
+          "zlib_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'zlib' in x), '')}}",
+          "zstd_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'zstd' in x), '')}}",
+          "zstd_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'zstd' in x), '')}}",
+          "icu_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'icu4c' in x), '')}}",
+          "icu_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'icu4c' in x), '')}}",
+          "b2_options": [
+            "link=$build_library",
+            "threading=multi",
+            "runtime-link={{'shared' if $msvc_runtime_library == 'md' else 'static'}}",
+            "address-model={{'64' if $build_arch == 'x64' else '32'}}",
+            "--with-locale boost.locale.std=off boost.locale.posix=off boost.locale.iconv=off boost.locale.icu=on",
+            "cxxflags=\"/utf-8 /std:c++17\""
+          ],
+          "b2_options_debug": [
+            "variant=debug",
+            "--prefix=\"$dist_dir_debug\"",
+            "--build-dir=\"$build_dir_debug\"",
+            "{{'-sICU_PATH=\"$icu_dir_debug\"' if len($icu_dir_debug) else ''}}",
+            "{{f'-sZLIB_LIBRARY_PATH=\"{$zlib_dir_debug}\\\\lib\" -sZLIB_INCLUDE=\"{$zlib_dir_debug}\\\\include\" -sZLIB_NAME=zlib' if len($zlib_dir_debug) else ''}}",
+            "{{f'-sZSTD_LIBRARY_PATH=\"{$zstd_dir_debug}\\\\lib\" -sZSTD_INCLUDE=\"{$zstd_dir_debug}\\\\include\" -sZSTD_NAME=zstd' if len($zstd_dir_debug) else ''}}",
+            "{{f'-sBZIP2_LIBRARY_PATH=\"{$bzip2_dir_debug}\\\\lib\" -sBZIP2_INCLUDE=\"{$bzip2_dir_debug}\\\\include\" -sBZIP2_NAME=bz2' if len($bzip2_dir_debug) else ''}}",
+            "{{f'-sLZMA_LIBRARY_PATH=\"{$xz_dir_debug}\\\\lib\" -sLZMA_INCLUDE=\"{$xz_dir_debug}\\\\include\" -sLZMA_NAME=liblzma' if len($xz_dir_debug) else ''}}"
+          ],
+          "b2_options_release": [
+            "variant=release",
+            "--prefix=\"$dist_dir_release\"",
+            "--build-dir=\"$build_dir_release\"",
+            "{{f'-sICU_PATH=\"{$icu_dir_release}\"' if len($icu_dir_release) else ''}}",
+            "{{f'-sZLIB_LIBRARY_PATH=\"{$zlib_dir_release}\\\\lib\" -sZLIB_INCLUDE=\"{$zlib_dir_release}\\\\include\" -sZLIB_NAME=zlib' if len($zlib_dir_release) else ''}}",
+            "{{f'-sZSTD_LIBRARY_PATH=\"{$zstd_dir_release}\\\\lib\" -sZSTD_INCLUDE=\"{$zstd_dir_release}\\\\include\" -sZSTD_NAME=zstd' if len($zstd_dir_release) else ''}}",
+            "{{f'-sBZIP2_LIBRARY_PATH=\"{$bzip2_dir_release}\\\\lib\" -sBZIP2_INCLUDE=\"{$bzip2_dir_release}\\\\include\" -sBZIP2_NAME=bz2' if len($bzip2_dir_release) else ''}}",
+            "{{f'-sLZMA_LIBRARY_PATH=\"{$xz_dir_release}\\\\lib\" -sLZMA_INCLUDE=\"{$xz_dir_release}\\\\include\" -sLZMA_NAME=liblzma' if len($xz_dir_release) else ''}}"
+          ],
+          "scripts": [
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "script": "del /q /s \"$build_dir_debug\" > nul"
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "del /q /s \"$build_dir_release\" > nul"
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
+              "script": "mkdir \"$build_dir_debug\""
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
+              "script": "mkdir \"$build_dir_release\""
+            },
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, 'b2.exe'))}}",
+              "chdir": "$source_dir",
+              "script": "bootstrap.bat"
+            },
+            {
+              "message": "build for debug and install.",
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "chdir": "$source_dir",
+              "environments": {
+                "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
+                "PKG_CONFIG_PATH": "$pkg_config_path_debug",
+                "PERLIO": "raw"
+              },
+              "script": ".\\b2.exe {{' '.join($b2_options)}} {{' '.join($b2_options_debug)}} -j4 install"
+            },
+            {
+              "message": "build for release and install.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$source_dir",
+              "environments": {
+                "CMAKE_PREFIX_PATH": "$dependent_packages_release",
+                "PKG_CONFIG_PATH": "$pkg_config_path_release",
+                "PERLIO": "raw"
+              },
+              "script": ".\\b2.exe {{' '.join($b2_options)}} {{' '.join($b2_options_release)}} -j4 install"
+            }
+          ]
+        }
+      }
+    },
+    "1.86.0": {}
+  }
+}

@@ -1,0 +1,28 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 59ecf01..ef2586a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1595,6 +1595,7 @@ if(HAVE_DECODERS AND (NOT MSVC OR MSVC_VERSION GREATER_EQUAL 1900))
+         tuklib_progname("${XZDEC}")
+ 
+         install(TARGETS "${XZDEC}"
++                CONFIGURATIONS Release
+                 RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+                         COMPONENT "${XZDEC}_Runtime")
+     endforeach()
+@@ -1658,6 +1659,7 @@ if(HAVE_DECODERS AND (NOT MSVC OR MSVC_VERSION GREATER_EQUAL 1900))
+     endif()
+ 
+     install(TARGETS lzmainfo
++            CONFIGURATIONS Release
+             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+                     COMPONENT lzmainfo_Runtime)
+ 
+@@ -1867,6 +1869,7 @@ if(NOT MSVC OR MSVC_VERSION GREATER_EQUAL 1900)
+     # its target must already exists. There is no race condition for parallel
+     # builds because the generated cmake_install.cmake executes serially.
+     install(TARGETS xz
++            CONFIGURATIONS Release
+             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+                     COMPONENT xz_Runtime)
+ 

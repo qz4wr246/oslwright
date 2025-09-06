@@ -1,0 +1,5 @@
+bin/
+share/
+manifest/
+*.zip
+Output.txt

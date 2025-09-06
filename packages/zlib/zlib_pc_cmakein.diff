@@ -1,0 +1,24 @@
+diff --git a/zlib.pc.cmakein b/zlib.pc.cmakein
+index a5e6429..f099e00 100644
+--- a/zlib.pc.cmakein
++++ b/zlib.pc.cmakein
+@@ -1,13 +1,13 @@
+-prefix=@CMAKE_INSTALL_PREFIX@
+-exec_prefix=@CMAKE_INSTALL_PREFIX@
+-libdir=@INSTALL_LIB_DIR@
+-sharedlibdir=@INSTALL_LIB_DIR@
+-includedir=@INSTALL_INC_DIR@
++prefix=${pcfiledir}/../..
++exec_prefix=${prefix}
++libdir=${prefix}/lib
++sharedlibdir=${prefix}/lib
++includedir=${prefix}/include
+ 
+ Name: zlib
+ Description: zlib compression library
+ Version: @VERSION@
+ 
+ Requires:
+-Libs: -L${libdir} -L${sharedlibdir} -lz
++Libs: -L${libdir} -L${sharedlibdir} -lzlib
+ Cflags: -I${includedir}

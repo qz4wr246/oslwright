@@ -1,0 +1,43 @@
+{
+  "name": "gn",
+  "display": "GN",
+  "description": "GN is a meta-build system that generates build files for Ninja.",
+  "site": "https://gn.googlesource.com/gn/",
+  "license": "BSD-3-Clause",
+  "settings": [
+    {
+      "display": "Version",
+      "name": "version",
+      "enable": true,
+      "type": "chose",
+      "item": "{{ $versions }}",
+      "default": "$latest_version"
+    }
+  ],
+  "versions": {
+    "default": {
+      "gn_url": "https://chrome-infra-packages.appspot.com/dl/gn/gn/windows-amd64/+/latest",
+      "gn_cache": "$cache_rootdir\\gn-windows-amd64.zip",
+      "stages": {
+        "install": {
+          "scripts": [
+            {
+              "message": "Download $name",
+              "when": "{{not os.path.isfile($gn_cache)}}",
+              "chdir" : "$cache_rootdir",
+              "script": "curl.exe -L -s -o \"$gn_cache\" \"$gn_url\""
+            },
+            {
+              "message": "Extruct $name",
+              "when": "{{os.path.isfile($gn_cache)}}",
+              "script": "tar -xf \"$gn_cache\" -C \"$package_dir\""
+            }
+          ]
+        }
+      }
+    },
+    "latest": {
+    }
+  }
+}
+

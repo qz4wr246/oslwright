@@ -1,0 +1,21 @@
+diff --git a/meson.build b/meson.build
+index 9606190..a9b80e2 100644
+--- a/meson.build
++++ b/meson.build
+@@ -157,6 +157,7 @@ if meson.version().version_compare('>=0.60.0')
+   icu_dep = dependency('icu-uc', 'ICU',
+                             version: icu_min_version,
+                             components: 'uc',
++                            modules: ['ICU::uc'],
+                             required: get_option('icu'),
+                             allow_fallback: true)
+ else
+@@ -186,7 +187,7 @@ else
+ endif
+ 
+ if icu_dep.found() and icu_dep.version().version_compare('>=75.1') and (get_option('cpp_std') == 'c++11' or get_option('cpp_std') == 'c++14')
+-  add_project_arguments('-std=c++17', language: 'cpp')
++  add_project_arguments('/std:c++17', language: 'cpp')
+ endif
+ 
+ if icu_dep.found() and icu_dep.type_name() == 'pkgconfig'

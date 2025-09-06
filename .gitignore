@@ -1,0 +1,23 @@
+dist/
+sources/
+settings/
+cache/
+.vscode/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.manifest
+*.spec
+
+# Django stuff:
+*.log
+*.log.*
+
+# Environments
+.env
+.venv
+venv
+# setting
+.oslwright_setting.jsonc

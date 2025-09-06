@@ -1,0 +1,47 @@
+{
+  "name": "nasm",
+  "display": "NASM",
+  "description": "The Netwide Assembler (NASM)",
+  "site": "https://www.nasm.us/",
+  "license": "BSD-2-Clause",
+  "settings": [
+    {
+      "display": "Version",
+      "name": "version",
+      "enable": true,
+      "type": "chose",
+      "item": "{{ $versions }}",
+      "default": "$latest_version"
+    }
+  ],
+  "versions": {
+    "default": {
+      "stages": {
+        "install": {
+          "scripts": [
+            {
+              "message": "Download $name",
+              "when": "{{not os.path.isfile($nasm_cache)}}",
+              "chdir" : "$cache_rootdir",
+              "script": "curl.exe -L -s -o \"$nasm_cache\" \"$nasm_url\""
+            },
+            {
+              "message": "Extruct $name",
+              "when": "{{os.path.isfile($nasm_cache)}}",
+              "script": "tar -xf \"$nasm_cache\" -C \"$package_dir\""
+            },
+            {
+              "when": "{{os.path.isdir(os.path.join($package_dir, f'{$name}-{$version}'))}}",
+              "script": "rename \"$package_dir\\$name-$version\" bin"
+            }
+          ]
+        }
+      }
+    },
+    "2.16.03": {
+      "nasm_url": "https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/win64/nasm-2.16.03-win64.zip",
+      "nasm_cache": "$cache_rootdir\\nasm-2.16.03-win64.zip"
+    }
+  }
+}
+

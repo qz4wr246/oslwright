@@ -1,0 +1,14 @@
+asyncio
+flet==0.23.2
+flet-core==0.23.2
+flet-runtime==0.23.2
+gitlint
+jinja2-cli
+meson==1.6.1
+natsort
+ninja
+pyjson5
+setuptools
+nest_asyncio
+regex
+json-with-comments

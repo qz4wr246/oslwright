@@ -1,0 +1,13 @@
+diff --git a/src/memory_secure.c b/src/memory_secure.c
+index ee82bca..f443203 100644
+--- a/src/memory_secure.c
++++ b/src/memory_secure.c
+@@ -68,7 +68,7 @@ static void mcMemoryFree(void* pPrior)
+   if (mcSecureMemoryFlag)
+   {
+     int nSize = mcMemorySize(pPrior);
+-    sqlite3mcSecureZeroMemory(pPrior, 0, nSize);
++    sqlite3mcSecureZeroMemory(pPrior, nSize);
+   }
+   mcDefaultMemoryMethods.xFree(pPrior);
+ }

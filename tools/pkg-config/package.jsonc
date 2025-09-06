@@ -1,0 +1,64 @@
+{
+  "name": "pkg-config",
+  "display": "pkg-config",
+  "description": "pkg-config is a helper tool used when compiling applications and libraries.",
+  "site": "https://www.freedesktop.org/wiki/Software/pkg-config",
+  "license": "GPL v2",
+  "settings": [
+    {
+      "display": "Version",
+      "name": "version",
+      "enable": true,
+      "type": "chose",
+      "item": "{{$versions}}",
+      "default": "$latest_version"
+    }
+  ],
+  "versions": {
+    "default": {
+      "dist_dir": "$package_dir",
+      "stages": {
+        "install": {
+          "scripts": [
+            {
+              "when": "{{ not os.path.isfile($glib_cache) }}",
+              "chdir" : "$cache_rootdir",
+              "script": "curl.exe -L -s -o \"$glib_cache\" \"$glib_url\""
+            },
+            {
+              "when": "{{ os.path.isfile($glib_cache) }}",
+              "script": "tar -xf \"$glib_cache\" -C \"$dist_dir\""
+            },
+            {
+              "when": "{{ not os.path.isfile($gettext_cache) }}",
+              "chdir" : "$cache_rootdir",
+              "script": "curl.exe -L -s -o \"$gettext_cache\" \"$gettext_url\""
+            },
+            {
+              "when": "{{ os.path.isfile($gettext_cache) }}",
+              "script": "7z x -aoa -o\"$dist_dir\" \"$gettext_cache\""
+            },
+            {
+              "when": "{{ not os.path.isfile($pkg_config_cache) }}",
+              "chdir" : "$cache_rootdir",
+              "script": "curl.exe -L -s -o \"$pkg_config_cache\" \"$pkg_config_url\""
+            },
+            {
+              "when": "{{ os.path.isfile($pkg_config_cache) }}",
+              "script": "7z x -aoa -y -o\"$dist_dir\" \"$pkg_config_cache\""
+            }
+          ]
+        }
+      }
+    },
+    "0.23.2": {
+      "glib_url": "https://download.gnome.org/binaries/win64/glib/2.26/glib_2.26.1-1_win64.zip",
+      "glib_cache": "$cache_rootdir\\glib_2.26.1-1_win64.zip",
+      "gettext_url": "https://download.gnome.org/binaries/win64/dependencies/gettext-runtime_0.18.1.1-2_win64.zip",
+      "gettext_cache": "$cache_rootdir\\gettext-runtime_0.18.1.1-2_win64.zip",
+      "pkg_config_url": "https://download.gnome.org/binaries/win64/dependencies/pkg-config_0.23-2_win64.zip",
+      "pkg_config_cache" : "$cache_rootdir\\pkg-config_0.23-2_win64.zip"
+    }
+  }
+}
+

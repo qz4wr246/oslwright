@@ -1,0 +1,24 @@
+diff --git a/source/matplot/CMakeLists.txt b/source/matplot/CMakeLists.txt
+index eae8b78..b0a8503 100644
+--- a/source/matplot/CMakeLists.txt
++++ b/source/matplot/CMakeLists.txt
+@@ -253,6 +253,7 @@ if (MATPLOTPP_BUILD_EXPERIMENTAL_OPENGL_BACKEND)
+             backend/opengl.cpp
+             )
+     target_link_libraries(matplot_opengl PUBLIC matplot glad::glad glfw ${CMAKE_DL_LIBS})
++    target_compile_definitions(matplot_opengl PRIVATE matplot_EXPORTS)
+ 
+     list(APPEND TARGETS matplot_opengl)
+ endif()
+@@ -281,4 +282,11 @@ if (MATPLOTPP_BUILD_INSTALLER)
+             NAMESPACE Matplot++::
+             DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Matplot++
+             )
++
++    install(DIRECTORY
++        "${CMAKE_BINARY_DIR}/_deps/glad-build/include/"
++        DESTINATION include
++        FILES_MATCHING PATTERN "*.h"
++    )
++
+ endif()

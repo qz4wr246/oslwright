@@ -1,0 +1,12 @@
+diff --git a/build/cmake/lib/CMakeLists.txt b/build/cmake/lib/CMakeLists.txt
+index 5d514cc..e252c62 100644
+--- a/build/cmake/lib/CMakeLists.txt
++++ b/build/cmake/lib/CMakeLists.txt
+@@ -100,6 +100,7 @@ endif ()
+ if (MSVC)
+     set(MSVC_RESOURCE_DIR ${ZSTD_SOURCE_DIR}/build/VS2010/libzstd-dll)
+     set(PlatformDependResources ${MSVC_RESOURCE_DIR}/libzstd-dll.rc)
++    list(APPEND CMAKE_RC_STANDARD_INCLUDE_DIRECTORIES ${LIBRARY_DIR})
+ endif ()
+ 
+ # Explicitly set the language to C for all files, including ASM files.

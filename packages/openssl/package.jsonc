@@ -1,0 +1,389 @@
+{
+  "name": "openssl",
+  "display": "OpenSSL",
+  "description": "TLS/SSL and crypto library",
+  "site": "https://www.openssl.org",
+  "license": "Apache-2.0 license",
+  "info": "info.md",
+  "process_time": "5000",
+  "settings": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "chose",
+      "item": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "chose",
+      "item": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "chose",
+      "item": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "chose",
+      "item": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "type": "chose",
+      "item": [
+        "shared",
+        "static"
+      ],
+      "default": "$build_library_default"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "chose",
+      "item": [
+        "Release",
+        "Debug",
+        "Release;Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "enable": false,
+      "type": "chose",
+      "item": [
+        "union",
+        "separation"
+      ],
+      "default": "separation"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": false,
+      "type": "chose",
+      "item": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    },
+    {
+      "display": "With Zlib",
+      "name": "with_zlib",
+      "type": "chose",
+      "item": [
+        "none",
+        "auto",
+        "shared",
+        "static"
+      ],
+      "default": "$build_library_default"
+    },
+    {
+      "display": "With Brotli",
+      "name": "with_brotli",
+      "type": "chose",
+      "item": [
+        "none",
+        "auto",
+        "shared",
+        "static"
+      ],
+      "default": "$build_library_default"
+    },
+    {
+      "display": "With Zstandard",
+      "name": "with_zstd",
+      "type": "chose",
+      "item": [
+        "none",
+        "auto",
+        "shared",
+        "static"
+      ],
+      "default": "$build_library_default"
+    },
+    {
+      "display": "With Document",
+      "name": "with_documents",
+      "type": "bool",
+      "default": false
+    }
+  ],
+  "versions": {
+    "default": {
+      "dependencies": {
+        "zlib": {
+          "enable": "{{True if not $with_zlib == 'none' else False}}",
+          "version": ">=1.3",
+          "build_library": "{{ $with_zlib if $with_zlib != 'auto' else ''}}"
+        },
+        "brotli": {
+          "enable": "{{True if not $with_brotli == 'none' else False}}",
+          "version": ">=1.1",
+          "build_library": "{{ $with_brotli if $with_brotli != 'auto' else ''}}"
+        },
+        "zstd": {
+          "enable": "{{True if not $with_zstd == 'none' else False}}",
+          "version": ">=1.5",
+          "build_library": "{{ $with_zstd if $with_zstd != 'auto' else ''}}"
+        }
+      },
+      "environments": {
+        "LC_ALL": "C",
+        "PERLIO": "raw"
+      },
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name}-debug",
+      "build_dir_release": "${source_rootdir}\\${dist_name}-release",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "git_url": "https://github.com/openssl/openssl.git",
+      "git_tag": "openssl-${version}",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "message": "git clone.",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "make cache.",
+              "when": "{{os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extruct from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "failed": "del \"$cache_file\""
+            }
+          ]
+        },
+        "patch": {
+          "patch_file_01": "${package_dir}\\openssl_c_rehash.diff",
+          "patch_file_02":  "${package_dir}\\00-base-templates.conf.diff",
+          "scripts": [
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              "chdir": "$source_dir",
+              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+            },
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_02)))}}",
+              "chdir": "$source_dir",
+              "script": "git apply \"$patch_file_02\" && copy nul > {{'__patched_' + os.path.basename($patch_file_02)}}"
+            }
+          ]
+        },
+        "configure": {
+          "zlib_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'zlib' in x), '')}}",
+          "zlib_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'zlib' in x), '')}}",
+          "zlib_include_debug": "$zlib_dir_debug\\include",
+          "zlib_include_release": "$zlib_dir_release\\include",
+          "zlib_lib_debug": "$zlib_dir_debug\\lib\\zlib{{'static' if $with_zlib == 'static' else ''}}d.lib",
+          "zlib_lib_release": "$zlib_dir_release\\lib\\zlib{{'static' if $with_zlib == 'static' else ''}}.lib",
+          "brotli_dir_debug" :  "{{next((x for x in $dependent_packages_debug.split(';') if 'brotli' in x), '')}}",
+          "brotli_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'brotli' in x), '')}}",
+          "brotli_include_debug": "$brotli_dir_debug\\include",
+          "brotli_include_release": "$brotli_dir_release\\include",
+          "brotli_lib_debug": "$brotli_dir_debug\\lib",
+          "brotli_lib_release": "$brotli_dir_release\\lib",
+          "zstd_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'zstd' in x), '')}}",
+          "zstd_dir_release" :  "{{next((x for x in $dependent_packages_release.split(';') if 'zstd' in x), '')}}",
+          "zstd_include_debug": "$zstd_dir_debug\\include",
+          "zstd_include_release": "$zstd_dir_release\\include",
+          "zstd_lib_debug": "$zstd_dir_debug\\lib\\zstd{{'_static' if 'static' == $with_zstd else ''}}d.lib",
+          "zstd_lib_release": "$zstd_dir_release\\lib\\zstd{{'_static' if 'static' == $with_zstd else ''}}.lib",
+          "openssl_options" : [
+            "{{'VC-WIN64A' if ${build_arch} == 'x64' else 'VC-WIN32'}}",
+            "{{'no-shared' if 'static' == $build_library else 'shared'}}",
+            "threads",
+            "no-legacy",
+            "no-dynamic-engine",
+            "{{'' if $with_documents else 'no-docs'}}",
+            "enable-capieng"
+          ],
+          "openssl_options_debug": [
+            "no-apps",
+            "--prefix=\"$dist_dir_debug\"",
+            "--openssldir=ssl",
+            "{{'zlib' if $with_zlib == 'static' else 'zlib-dynamic' if $with_zlib == 'shared' else 'no-zlib'}}",
+            "{{f'--with-zlib-include=\"{$zlib_include_debug}\" --with-zlib-lib=\"{$zlib_lib_debug}\"' if $with_zlib != 'none' else ''}}",
+            "{{'enable-brotli' if $with_brotli == 'static' else 'enable-brotli-dynamic' if $with_brotli == 'shared' else ''}}",
+            "{{f'--with-brotli-include=\"{$brotli_include_debug}\" --with-brotli-lib=\"{$brotli_lib_debug}\"' if $with_brotli != 'none' else ''}}",
+            "{{'enable-zstd' if $with_zstd == 'static' else 'enable-zstd-dynamic' if $with_zstd == 'shared' else ''}}",
+            "{{f'--with-zstd-include=\"{$zstd_include_debug}\" --with-zstd-lib=\"{$zstd_lib_debug}\"' if $with_zstd != 'none' else ''}}",
+            "--debug"
+          ],
+          "openssl_options_release": [
+            "--prefix=\"$dist_dir_release\"",
+            "--openssldir=ssl",
+            "{{'zlib' if $with_zlib == 'static' else 'zlib-dynamic' if $with_zlib == 'shared' else 'no-zlib'}}",
+            "{{f'--with-zlib-include=\"{$zlib_include_release}\" --with-zlib-lib=\"{$zlib_lib_release}\"' if $with_zlib != 'none' else ''}}",
+            "{{'enable-brotli' if $with_brotli == 'static' else 'enable-brotli-dynamic' if $with_brotli == 'shared' else ''}}",
+            "{{f'--with-brotli-include=\"{$brotli_include_release}\" --with-brotli-lib=\"{$brotli_lib_release}\"' if $with_brotli != 'none' else ''}}",
+            "{{'enable-zstd' if $with_zstd == 'static' else 'enable-zstd-dynamic' if $with_zstd == 'shared' else ''}}",
+            "{{f'--with-zstd-include=\"{$zstd_include_release}\" --with-zstd-lib=\"{$zstd_lib_release}\"' if $with_zstd != 'none' else ''}}",
+            "--release"
+          ],
+          "scripts": [
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "script": "del /q /s \"$build_dir_debug\" > nul"
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "del /q /s \"$build_dir_release\" > nul"
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
+              "script": "mkdir \"$build_dir_debug\""
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
+              "script": "mkdir \"$build_dir_release\""
+            },
+            {
+              "message": "config for debug.",
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "chdir": "$build_dir_debug",
+              "script": "perl ${source_dir}\\Configure {{' '.join($openssl_options)}} {{' '.join($openssl_options_debug)}}"
+            },
+            {
+              "message": "config for release.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$build_dir_release",
+              "script": "perl ${source_dir}\\Configure {{' '.join($openssl_options)}} {{' '.join($openssl_options_release)}}"
+            },
+            {
+              "when": "{{'Debug' in $build_type and os.path.isfile(os.path.join($build_dir_debug, 'makefile')) and $msvc_runtime_library == 'md'}}",
+              "script": "perl -i -pe \"s/\\/MT/\\/MD/g; s/brotlicommon.lib/brotlicommond.lib/g; s/brotlidec.lib/brotlidecd.lib/g; s/brotlienc.lib/brotliencd.lib/g\" \"{{os.path.join($build_dir_debug, 'makefile')}}\""
+            },
+            {
+              "when": "{{'Debug' in $build_type and os.path.isfile(os.path.join($build_dir_debug, 'makefile'))}}",
+              "script": "perl -i -pe \"s/libcrypto.lib/libcryptod.lib/g; s/libcrypto-3-x64.dll/libcryptod-3-x64.dll/g; s/libssl.lib/libssld.lib/g; s/libssl-3-x64.dll/libssld-3-x64.dll/g; s/libcrypto-3-x64.pdb/libcryptod-3-x64.pdb/g; s/libssl-3-x64.pdb/libssld-3-x64.pdb/g\" \"{{os.path.join($build_dir_debug, 'makefile')}}\""
+            },
+            {
+              "when": "{{'Debug' in $build_type and os.path.isfile(os.path.join($build_dir_debug, 'makefile'))}}",
+              "script": "perl -i -pe \"s/libcrypto_static.lib/libcryptod_static.lib/g; s/libssl_static.lib/libssld_static.lib/g\" \"{{os.path.join($build_dir_debug, 'makefile')}}\""
+            },
+            {
+              "when": "{{'Release' in $build_type and os.path.isfile(os.path.join($build_dir_release, 'makefile')) and $msvc_runtime_library == 'md'}}",
+              "script": "perl -i -pe \"s;/MT;/MD;g\" \"{{os.path.join($build_dir_release, 'makefile')}}\""
+            },
+            {
+              "when": "{{'Debug' in $build_type and 'static' != $build_library}}",
+              "script": "perl -i -pe \"s/INSTALL_LIBS=.*$/INSTALL_LIBS=\\\"libcryptod.lib\\\" \\\"libssld.lib\\\" \\\"libcryptod_static.lib\\\" \\\"libssld_static.lib\\\"/g\" \"{{os.path.join($build_dir_debug, 'makefile')}}\""
+            },
+            {
+              "when": "{{'Release' in $build_type and 'static' != $build_library}}",
+              "script": "perl -i -pe \"s/INSTALL_LIBS=.*$/INSTALL_LIBS=\\\"libcrypto.lib\\\" \\\"libssl.lib\\\" \\\"libcrypto_static.lib\\\" \\\"libssl_static.lib\\\"/g\" \"{{os.path.join($build_dir_release, 'makefile')}}\""
+            }
+          ]
+        },
+        "build": {
+          "scripts": [
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$build_dir_debug",
+              "script": "nmake /NOLOGO"
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$build_dir_release",
+              "script": "nmake /NOLOGO"
+            }
+          ]
+        },
+        "install": {
+          "scripts": [
+            {
+              "message": "install for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$build_dir_debug",
+              "script": "nmake /NOLOGO install"
+            },
+            {
+              "message": "install for release.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$build_dir_release",
+              "script": "nmake /NOLOGO install"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "perl -i -pe \"s/libcrypto.lib/libcryptod.lib/g; s/libcrypto-3-x64.dll/libcryptod-3-x64.dll/g; s/libssl.lib/libssld.lib/g; s/libssl-3-x64.dll/libssld-3-x64.dll/g\" \"{{os.path.join($dist_dir_debug, 'lib','cmake', 'OpenSSL', 'OpenSSLConfig.cmake')}}\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "perl -i -pe \"s/libcrypto_static.lib/libcryptod_static.lib/g; s/libssl_static.lib/libssld_static.lib/g\" \"{{os.path.join($dist_dir_debug, 'lib','cmake', 'OpenSSL', 'OpenSSLConfig.cmake')}}\""
+            }
+          ]
+        },
+        "post-install" :{
+          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
+          "environments": {
+            "PERLIO": "raw"
+          },
+          "scripts": [
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
+            }
+          ]
+        }
+      }
+    },
+    "3.3.1": {}
+  }
+}

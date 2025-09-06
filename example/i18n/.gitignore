@@ -1,0 +1,8 @@
+build_x64/
+logs/
+dist/
+*.log
+!*.manifest
+!*.ini
+Output.txt
+src/resource.rc

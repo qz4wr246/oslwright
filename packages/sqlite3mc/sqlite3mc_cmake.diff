@@ -1,0 +1,96 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index cc50e11..0a0d87e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,7 @@
+ cmake_minimum_required(VERSION 3.24.0.0)
+-project(sqlite3mc)
++file(STRINGS src/sqlite3mc_version.h version REGEX "#define[ \\t]+SQLITE3MC_VERSION_STRING[ \\t]+\"\.+\"")
++string(REGEX MATCH "[0-9.]+" SQLITE3MC_VERSION "${version}" "")
++project(sqlite3mc VERSION ${SQLITE3MC_VERSION} LANGUAGES C)
+
+ # Helper macro
+ macro(_Enable_MT _target)
+@@ -7,6 +9,11 @@ macro(_Enable_MT _target)
+     $<$<CONFIG:Release>:/MT>$<$<CONFIG:Debug>:/MTd>
+   )
+ endmacro()
++macro(_Enable_MD _target)
++  target_compile_options(${_target} PRIVATE
++    $<$<CONFIG:Release>:/MD>$<$<CONFIG:Debug>:/MDd>
++  )
++endmacro()
+
+ set(_SQLITE3MC_REQUIRE_ZLIB OFF)
+
+@@ -200,7 +207,7 @@ if(SQLITE3MC_WITH_ICU)
+ endif()
+
+ # Only generate Debug and Release configuration types.
+-set(CMAKE_CONFIGURATION_TYPES Debug Release)
++option(CMAKE_CONFIGURATION_TYPES "" "Debug;Release")
+
+ set(SQLITE3MC_PUBLIC_HEADERS
+   src/sqlite3.h
+@@ -343,11 +350,18 @@ endif()
+ if(SQLITE3MC_STATIC_RUNTIME_LINK)
+   message("Will build ${SQLITE3MC_TARGET} with static runtime link")
+   _Enable_MT(${SQLITE3MC_TARGET})
++else()
++  message("Will build ${SQLITE3MC_TARGET} with dynamic runtime link")
++  _Enable_MD(${SQLITE3MC_TARGET})
+ endif()
+ message("Will build ${SQLITE3MC_TARGET} as ${SQLITE3MC_LINK}")
+
+ set_target_properties(${SQLITE3MC_TARGET} PROPERTIES PUBLIC_HEADER "${SQLITE3MC_PUBLIC_HEADERS}")
++
++add_library(SQLCipher::SQLCipher ALIAS ${SQLITE3MC_TARGET})
++
+ INSTALL(TARGETS ${SQLITE3MC_TARGET}
++  EXPORT ${SQLITE3MC_TARGET}-export
+   ARCHIVE DESTINATION lib
+   LIBRARY DESTINATION lib
+   PUBLIC_HEADER DESTINATION include/${CMAKE_PROJECT_NAME}
+@@ -368,6 +382,7 @@ if(SQLITE3MC_BUILD_SHELL)
+     ${SQLITE3MC_SHELL_DEFINITIONS}
+   )
+   target_link_libraries(${SQLITE3MC_SHELL_TARGET} PRIVATE
++    ${SQLITE3MC_TARGET}
+     ${SQLITE3MC_SHELL_SYSTEM_LINKS}
+     ${SQLITE3MC_LINK_LIBRARIES}
+   )
+@@ -393,9 +408,12 @@ if(SQLITE3MC_BUILD_SHELL)
+     message("Will build ${SQLITE3MC_SHELL_TARGET} with ICU")
+   endif()
+
+-  if(SQLITE3MC_RUNTIME_LINK)
++  if(SQLITE3MC_STATIC_RUNTIME_LINK)
+     message("Will build ${SQLITE3MC_SHELL_TARGET} with static runtime")
+-    _Enable_MT(${SQLIT3MC_SHELL_TARGET})
++    _Enable_MT(${SQLITE3MC_SHELL_TARGET})
++  else()
++    message("Will build ${SQLITE3MC_SHELL_TARGET} with dynamic runtime")
++    _Enable_MD(${SQLITE3MC_SHELL_TARGET})
+   endif()
+   message("Will build ${SQLITE3MC_SHELL_TARGET}")
+
+@@ -406,3 +424,19 @@ if(SQLITE3MC_BUILD_SHELL)
+     RUNTIME DESTINATION bin
+   )
+ endif()
++
++include(CMakePackageConfigHelpers)
++install(EXPORT ${SQLITE3MC_TARGET}-export
++  FILE SQLCipherConfig.cmake
++  NAMESPACE SQLCipher::
++  DESTINATION lib/cmake/SQLCipher
++  EXPORT_LINK_INTERFACE_LIBRARIES
++)
++write_basic_package_version_file(
++  ${CMAKE_CURRENT_BINARY_DIR}/SQLCipherConfigVersion.cmake
++  COMPATIBILITY AnyNewerVersion
++)
++install(FILES
++  ${CMAKE_CURRENT_BINARY_DIR}/SQLCipherConfigVersion.cmake
++  DESTINATION lib/cmake/SQLCipher
++)

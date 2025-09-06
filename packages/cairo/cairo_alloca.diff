@@ -1,0 +1,12 @@
+diff --git a/src/cairo-colr-glyph-render.c b/src/cairo-colr-glyph-render.c
+index 28254fd..ba29c40 100644
+--- a/src/cairo-colr-glyph-render.c
++++ b/src/cairo-colr-glyph-render.c
+@@ -42,6 +42,7 @@
+ #include <math.h>
+ #include <stdio.h>
+ #include <string.h>
++#include <malloc.h>
+ 
+ #if HAVE_FT_COLR_V1
+ 

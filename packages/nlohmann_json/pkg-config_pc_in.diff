@@ -1,0 +1,13 @@
+diff --git a/cmake/pkg-config.pc.in b/cmake/pkg-config.pc.in
+index d36317f..2116418 100644
+--- a/cmake/pkg-config.pc.in
++++ b/cmake/pkg-config.pc.in
+@@ -1,4 +1,7 @@
++prefix=${pcfiledir}/../..
++includedir=${prefix}/include
++
+ Name: ${PROJECT_NAME}
+ Description: JSON for Modern C++
+ Version: ${PROJECT_VERSION}
+-Cflags: -I${CMAKE_INSTALL_FULL_INCLUDEDIR}
++Cflags: -I${includedir}

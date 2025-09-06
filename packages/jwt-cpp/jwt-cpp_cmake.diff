@@ -1,0 +1,16 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5cd876f..4516fee 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -53,9 +53,9 @@ endif()
+ 
+ # Lookup dependencies
+ if(${JWT_SSL_LIBRARY} MATCHES "OpenSSL")
+-  find_package(OpenSSL 1.0.1 REQUIRED)
++  find_package(OpenSSL CONFIG REQUIRED)
+ elseif(${JWT_SSL_LIBRARY} MATCHES "LibreSSL")
+-  find_package(LibreSSL 3.0.0 REQUIRED)
++  find_package(LibreSSL CONFIG REQUIRED)
+ elseif(${JWT_SSL_LIBRARY} MATCHES "wolfSSL")
+   find_package(PkgConfig REQUIRED)
+   pkg_check_modules(wolfssl REQUIRED IMPORTED_TARGET wolfssl)

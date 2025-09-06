@@ -1,0 +1,70 @@
+cmake_minimum_required(VERSION 3.12)
+project(glad VERSION {{GLAD_VERSION}} LANGUAGES C)
+
+set(GLAD_SOURCES_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+include(cmake/GladConfig.cmake)
+
+set(TARGET_NAME glad)
+
+option(GGC_ALIAS "" ON)
+option(GGC_HEADERONLY "" ON)
+option(GGC_DEBUG "" OFF)
+option(GGC_LOADER "" ON)
+option(GGC_MX "" ON)
+option(GGC_MXGLOBAL "" ON)
+option(GGC_ON_DEMAND "" OFF)
+
+if(BUILD_SHARED_LIBS)
+  set(GGC_BUILD_TYPE SHARED)
+else()
+  set(GGC_BUILD_TYPE STATIC)
+endif()
+
+glad_add_library(${TARGET_NAME}
+  MERGE
+  ${GGC_BUILD_TYPE}
+  QUIET
+  LANGUAGE C
+  API gl:core=4.6
+)
+set_target_properties(${TARGET_NAME} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "\${_IMPORT_PREFIX}/include")
+install(TARGETS ${TARGET_NAME}
+  EXPORT ${TARGET_NAME}-export
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  PUBLIC_HEADER DESTINATION include
+  RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY
+  "${CMAKE_CURRENT_BINARY_DIR}/gladsources/${TARGET_NAME}/include/"
+  DESTINATION include
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.hpp"
+)
+
+include(CMakePackageConfigHelpers)
+install(EXPORT ${TARGET_NAME}-export
+  FILE ${TARGET_NAME}Targets.cmake
+  NAMESPACE glad::
+  DESTINATION lib/cmake/glad
+  EXPORT_LINK_INTERFACE_LIBRARIES
+)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/gladConfigVersion.cmake
+  COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(
+    "${PROJECT_SOURCE_DIR}/Config.cmake.in"
+    "${CMAKE_BINARY_DIR}/gladConfig.cmake"
+    INSTALL_DESTINATION lib/cmake/glad
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/gladConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/gladConfig.cmake
+  DESTINATION lib/cmake/glad
+)

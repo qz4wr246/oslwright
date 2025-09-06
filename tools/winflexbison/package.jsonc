@@ -1,0 +1,181 @@
+{
+  "name": "winflexbison",
+  "display": "winflexbison",
+  "description": "Flex and Bison for Microsoft Windows",
+  "site": "https://github.com/lexxmark/winflexbison",
+  "license": "GPL-3.0, Unknown licenses found",
+  "process_time": "60",
+  "settings": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "chose",
+      "item": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "chose",
+      "item": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "chose",
+      "item": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "chose",
+      "item": [
+        "x64",
+        "x32"
+      ],
+      "default": "x64"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "type": "chose",
+      "item": [
+        "static"
+      ],
+      "default": "static"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "chose",
+      "item": [
+        "Release"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "type": "chose",
+      "item": [
+        "union",
+        "separation"
+      ],
+      "default": "union"
+    }
+  ],
+  "versions": {
+    "default": {
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}-${msvc_toolset_version}-${msvc_runtime_library}-${build_arch}{{'-static' if 'static' == $build_library else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_release": "${package_dir}\\${name}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "git_url": "https://github.com/lexxmark/winflexbison.git",
+      "git_tag": "v${version}",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git clone.",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extruct from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "make cache.",
+              "when": "{{not os.path.isfile($cache_file)}}",
+              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
+              "failed": "del \"$cache_file\""
+            }
+          ]
+        },
+        "configure": {
+          "cmake_genarator": "-G \"Ninja Multi-Config\"",
+          "cmake_options": [
+            "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+            "-DCMAKE_C_STANDARD=99",
+            "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
+            "-DCMAKE_DEBUG_POSTFIX=d",
+            "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
+            "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
+            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}"
+          ],
+          "cmake_options_release": [
+            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_release\""
+          ],
+          "scripts": [
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type }}",
+              "script": "del /q /s \"$build_dir_release\" > nul"
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
+              "script": "mkdir \"$build_dir_release\""
+            },
+            {
+              "message": "config for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "CMAKE_PREFIX_PATH": "$dependent_packages_release",
+                "PKG_CONFIG_PATH": "$pkg_config_path_release",
+                "PERLIO": "raw"
+              },
+              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
+            }
+          ]
+        },
+        "build": {
+          "scripts": [
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
+                "PERLIO": "raw"
+              },
+              "script": "cmake --build \"$build_dir_release\" --config Release -j4"
+            }
+          ]
+        },
+        "install": {
+          "scripts": [
+            {
+              "message": "install for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "cmake --install \"$build_dir_release\" --config Release"
+            }
+          ]
+        },
+        "post-install" :{
+          "scripts": [
+            {
+              "ignore_errors": true,
+              "chdir": "${dist_dir_release}",
+              "script": "mklink flex.exe win_flex.exe && mklink bison.exe win_bison.exe"
+            }
+          ]
+        }
+      }
+    },
+    "2.5.25": {}
+  }
+}

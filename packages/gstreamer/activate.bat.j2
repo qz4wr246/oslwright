@@ -1,0 +1,45 @@
+@echo off
+setlocal enabledelayedexpansion
+set _LD=%~dp0
+set SCRIPT_DIR=%_LD:~0,-1%
+
+set "DEP_DLLS_RELPATHS={{DEPENDENT_DLL_PATHS}}"
+
+call :ConvertToAbsolutePaths "%SCRIPT_DIR%\..\.." "%DEP_DLLS_RELPATHS%" "RESULT"
+set "DEP_DLLS_ABSPATHS=!RESULT!"
+
+if not defined _OLSW_OLD_PATH set "_OLSW_OLD_PATH=%PATH%"
+set "PATH=%DEP_DLLS_ABSPATHS%;%PATH%"
+
+echo Sub-shell started. PATH resets on exit.
+cmd /k
+endlocal
+goto :EOF
+
+@REM =====================================================
+:ConvertToAbsolutePaths
+set "BASE=%~1"
+set "RELATIVE_LIST=%~2"
+set "OUT_VAR=%~3"
+set "ABSOLUTE_LIST="
+
+set "TMP_LIST=%RELATIVE_LIST%"
+:next_path
+for /f "tokens=1* delims=;" %%A in ("!TMP_LIST!") do (
+    set "REL=%%A"
+    set "TMP_LIST=%%B"
+    pushd "%BASE%" >nul 2>&1
+    for %%X in ("!REL!") do (
+        set "ABS_PATH=%%~fX"
+        if defined ABSOLUTE_LIST (
+            set "ABSOLUTE_LIST=!ABSOLUTE_LIST!;!ABS_PATH!"
+        ) else (
+            set "ABSOLUTE_LIST=!ABS_PATH!"
+        )
+    )
+    popd >nul
+
+    if defined TMP_LIST goto :next_path
+)
+endlocal & set "%~3=%ABSOLUTE_LIST%"
+@REM =====================================================

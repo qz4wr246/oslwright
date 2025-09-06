@@ -1,0 +1,14 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 150a018..12d0adf 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -774,6 +774,9 @@ elseif(WIN32)
+       CHECK_SYMBOL_EXISTS(_aligned_malloc malloc.h HAVE_WIN32_ALIGNED_MALLOC)
+     endif()
+   endif()
++  if(OPENCV_ENABLE_PKG_CONFIG)
++    find_package(PkgConfig QUIET)
++  endif()
+ endif()
+ 
+ if(DEFINED OPENCV_ALGO_HINT_DEFAULT)

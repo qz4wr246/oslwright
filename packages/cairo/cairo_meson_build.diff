@@ -1,0 +1,14 @@
+diff --git a/meson.build b/meson.build
+index 9100152..03cdf61 100644
+--- a/meson.build
++++ b/meson.build
+@@ -217,7 +217,8 @@ feature_conf = configuration_data()
+ # Optional keys: requires, libs
+ built_features = []
+
+-zlib_dep = dependency('zlib',
++zlib_dep = dependency('zlib', 'ZLIB',
++  modules: ['ZLIB::ZLIB'],
+   required: get_option('zlib'),
+   fallback : ['zlib', 'zlib_dep'],
+ )
