@@ -1,0 +1,21 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 83d2fb3..0659a3f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -73,6 +73,7 @@ IF(WIN32)
+ ELSE()
+     OPTION(FREEGLUT_REPLACE_GLUT "Be a replacement for GLUT" ON)
+ ENDIF()
++OPTION(FREEGLUT_GLUT_HEADER "Append GLUT.h" OFF)
+ 
+ IF(NOT WIN32)
+     # Wayland support
+@@ -91,7 +92,7 @@ SET(FREEGLUT_HEADERS
+     include/GL/freeglut_ext.h
+     include/GL/freeglut_std.h
+ )
+-IF(FREEGLUT_REPLACE_GLUT)
++IF(FREEGLUT_REPLACE_GLUT OR FREEGLUT_GLUT_HEADER)
+     LIST(APPEND FREEGLUT_HEADERS
+         include/GL/glut.h
+     )

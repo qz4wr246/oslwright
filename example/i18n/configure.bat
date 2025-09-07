@@ -40,6 +40,7 @@ set CMAKE_CONFIGURATION_TYPES=Release;Debug
 call :GetMsvcGenerator %VS_VERSION% MSVC_GENERATOR_VERSION
 set MSVC_GENERATOR_ARCH=x64
 set MSVC_GENERATOR=-G "%MSVC_GENERATOR_VERSION%" -A %MSVC_GENERATOR_ARCH%
+set CMAKE_GENERATOR=%MSVC_GENERATOR%
 
 @REM ----------------------------------------------------------------
 @REM Setup building environment

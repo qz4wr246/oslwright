@@ -1,0 +1,10 @@
+{
+  "files.exclude": {
+    "sources/**/.git": true
+  },
+  "search.exclude": {
+    "sources/**/.git": true
+  },
+  "python.analysis.exclude": ["oslwrite/__pycache__", ".git/**", ".venv/**", "sources/**", "dist/**", "tools/**", "**/node_modules", "**/__pycache__"],
+  "python.analysis.include": ["oslwrite/**"]
+}

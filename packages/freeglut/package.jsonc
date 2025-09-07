@@ -46,10 +46,11 @@
       "name": "build_library",
       "type": "chose",
       "item": [
+        "static",
         "shared",
-        "static"
+        "shared;static"
       ],
-      "default": "$build_library_default"
+      "default": "shared;static"
     },
     {
       "display": "Build type",
@@ -86,6 +87,12 @@
       "type": "chose",
       "item": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
+    },
+    {
+      "display": "Enable glut.h",
+      "name": "enable_glut_h",
+      "type": "bool",
+      "default": true
     }
   ],
   "versions": {
@@ -128,6 +135,16 @@
             }
           ]
         },
+        "patch": {
+          "patch_file_01": "${package_dir}\\freeglut-3.6.0_cmake.diff",
+          "scripts": [
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              "chdir": "$source_dir",
+              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+            }
+          ]
+        },
         "configure": {
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
@@ -135,7 +152,9 @@
             "-DCMAKE_DEBUG_POSTFIX=d",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
-            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}"
+            "-DFREEGLUT_BUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
+            "-DFREEGLUT_BUILD_STATIC_LIBS={{'ON' if 'static' in $build_library else 'OFF'}}",
+            "-DFREEGLUT_GLUT_HEADER={{'ON' if $enable_glut_h else 'OFF'}}"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -252,6 +271,12 @@
         }
       }
     },
-    "3.6.0": {}
+    "3.6.0": {
+      "stages": {
+        "patch": {
+          "patch_file_01": "${package_dir}\\freeglut-3.6.0_cmake.diff"
+        }
+      }
+    }
   }
 }

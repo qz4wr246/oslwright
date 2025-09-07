@@ -2,7 +2,10 @@ dist/
 sources/
 settings/
 cache/
-.vscode/
+.vscode/*.local.json
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

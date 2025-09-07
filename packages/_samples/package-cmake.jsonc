@@ -47,7 +47,8 @@
       "type": "chose",
       "item": [
         "shared",
-        "static"
+        "static",
+        "shared;static"
       ],
       "default": "$build_library_default"
     },

@@ -52,6 +52,7 @@
       "item": [
         "shared",
         "static",
+        "shared;static",
         "interface"
       ],
       "default": "interface"
