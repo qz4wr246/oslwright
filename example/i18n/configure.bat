@@ -83,7 +83,7 @@ if defined CMAKE_TOOLCHAIN_FILE (
 
 @REM Remove cmake cache files.
 if exist "%BUILD_DIR%" (
-  del /q /s "%BUILD_DIR%\CMakeCache.txt" "%BUILD_DIR%\CMakeFiles\" >nul 2>&1
+  del /q /s "%BUILD_DIR%\CMakeCache.txt" "%BUILD_DIR%\CMakeFiles\" "%BUILD_DIR%\*.cmake" >nul 2>&1
 )
 
 @REM Generate Visual Studio solution file, and configuration.
