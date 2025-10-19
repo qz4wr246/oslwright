@@ -30,8 +30,8 @@ class uiInfo(ft.Container):
                             value=package.GetInfoText(),
                             selectable=True,
                             extension_set=ft.MarkdownExtensionSet.GITHUB_FLAVORED,
-                            code_theme="night-owl",
-                            on_tap_link=lambda e: self.page.launch_url(e.data),
+                            code_theme=ft.MarkdownCodeTheme.NIGHT_OWL,
+                            on_tap_link=lambda e: self.page.launch_url(str(e.data)),
                         )
                     ],
                     expand=True,
@@ -47,7 +47,7 @@ class uiInfo(ft.Container):
 class uiInfoView(ft.View):
     def __init__(self, package: Package):
         controls = [
-            ft.AppBar(title=ft.Text(f"Info : {package.display}"), bgcolor=ft.colors.SURFACE_VARIANT),
+            ft.AppBar(title=ft.Text(f"Info : {package.display}"), bgcolor=ft.Colors.SURFACE_CONTAINER_HIGHEST),
             uiInfo(package),
         ]
         super().__init__("/info", controls=controls)

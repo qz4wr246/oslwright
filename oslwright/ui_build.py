@@ -32,9 +32,9 @@ class uiBuild(ft.Column):
             stroke_width=10,
             stroke_cap=ft.StrokeCap.ROUND,
             value=0,
-            bgcolor=ft.colors.BLUE_GREY_700,
+            bgcolor=ft.Colors.BLUE_GREY_700,
         )
-        self.tx_remaining_time = ft.Text("00:00:00", weight="bold", size=24)
+        self.tx_remaining_time = ft.Text("00:00:00", weight=ft.FontWeight.BOLD, size=24)
 
         stack = ft.Stack(
             [self.progress_ring, ft.Container(content=self.tx_remaining_time, alignment=ft.Alignment(0, 0))],
@@ -81,7 +81,7 @@ class uiBuild(ft.Column):
             data_row_max_height=36,
             expand=True,
         )
-        self.btn_stop = ft.ElevatedButton("Stop build", icon=ft.icons.STOP_CIRCLE_OUTLINED, on_click=self.on_stop_build)
+        self.btn_stop = ft.ElevatedButton("Stop build", icon=ft.Icons.STOP_CIRCLE_OUTLINED, on_click=self.on_stop_build)
         self.progress_area = ft.Column(
             controls=[
                 ft.Row(controls=[ft.Container(stack, width=180, alignment=ft.Alignment(0, 0)), data_table]),
@@ -155,12 +155,12 @@ class uiBuild(ft.Column):
     def on_stop_build(self, e):
 
         def on_click_no(e):
-            e.page.close_dialog()
+            self.page.close(dlg_modal)
 
         def on_click_yes(e):
             self.btn_stop.disabled = True
             self.btn_stop.update()
-            e.page.close_dialog()
+            self.page.close(dlg_modal)
             self.tx_status.value = "Stopping build"
             self.tx_status.update()
             loop = asyncio.get_event_loop()
@@ -168,14 +168,15 @@ class uiBuild(ft.Column):
 
         dlg_modal = ft.AlertDialog(
             modal=True,
-            title=ft.Row(controls=[ft.Icon(name=ft.icons.WARNING_ROUNDED), ft.Text("Confimination")]),
+            title=ft.Row(controls=[ft.Icon(name=ft.Icons.WARNING_ROUNDED), ft.Text("Confimination")]),
             content=ft.Text("Do you want to stop the build?"),
             actions=[
                 ft.TextButton("Yes", on_click=on_click_yes),
                 ft.TextButton("No", on_click=on_click_no),
             ],
         )
-        self.page.show_dialog(dlg_modal)
+        self.page.open(dlg_modal)
+        self.page.update()
 
     async def stop_task(self):
         async with self.task_lock:
@@ -184,13 +185,6 @@ class uiBuild(ft.Column):
             self.running = False
 
     async def do_build_packages(self):
-        def exit_build(page, auto_exit):
-            page.close_dialog()
-            if auto_exit:
-                page.window.destroy()
-            else:
-                page.go("/")
-
         reason = Package.Reaseon.COMPLETED
         for bld_pkg in self.build_packages:
             async with self.task_lock:
@@ -211,27 +205,34 @@ class uiBuild(ft.Column):
             self.total_process_time -= dlt
             self.remaining_time -= dlt
             self.n_builded += 1
-            self.prediction_time = self.start_time + datetime.timedelta(seconds=self.total_process_time)
+            self.prediction_time = start_time + datetime.timedelta(seconds=self.total_process_time)
 
             if reason != Package.Reaseon.COMPLETED:
                 break
 
-        title = ft.Row(controls=[ft.Icon(name=ft.icons.INFO_OUTLINE), ft.Text("Infomation")])
+        title = ft.Row(controls=[ft.Icon(name=ft.Icons.INFO_OUTLINE), ft.Text("Infomation")])
         message = ft.Text("Packages build completed.")
         if reason == Package.Reaseon.ERROR:
-            title = ft.Row(controls=[ft.Icon(name=ft.icons.WARNING_ROUNDED), ft.Text("Error")])
+            title = ft.Row(controls=[ft.Icon(name=ft.Icons.WARNING_ROUNDED), ft.Text("Error")])
             message = ft.Text(f"Build error in {bld_pkg["package"].name}.")
 
         elif reason == Package.Reaseon.USER_INTERRUPTED:
-            title = ft.Row(controls=[ft.Icon(name=ft.icons.INFO_OUTLINE), ft.Text("Infomation")])
+            title = ft.Row(controls=[ft.Icon(name=ft.Icons.INFO_OUTLINE), ft.Text("Infomation")])
             message = ft.Text(f"Stop build in {bld_pkg["package"].name}.")
+
+        def close_dlg(e):
+            self.page.close(dlg_modal)
+            if self.auto_exit:
+                self.page.window.destroy()
+            else:
+                self.page.go("/")
 
         dlg_modal = ft.AlertDialog(
             modal=True,
             title=title,
             content=message,
             actions=[
-                ft.TextButton("Close", on_click=lambda e: exit_build(e.page, self.auto_exit)),
+                ft.TextButton("Close", on_click=lambda e: close_dlg(e)),
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
@@ -239,7 +240,8 @@ class uiBuild(ft.Column):
         await asyncio.sleep(1)
         self.btn_stop.disabled = False
         self.running = False
-        self.page.show_dialog(dlg_modal)
+        self.page.open(dlg_modal)
+        self.page.update()
 
     def put_info(self, message: str):
         message = message.rstrip("\n")
@@ -257,7 +259,7 @@ class uiBuild(ft.Column):
     def put_error(self, message: str):
         message = message.rstrip("\n")
         logging.error(message)
-        self.output_area.controls.append(ft.Text(value=message, selectable=True, color=ft.colors.RED_400))
+        self.output_area.controls.append(ft.Text(value=message, selectable=True, color=ft.Colors.RED_400))
         self.output_area.scroll_to(offset=-1)
 
     def put_status(self, message: str):
@@ -280,7 +282,7 @@ class uiBuildView(ft.View):
         controls = [
             ft.AppBar(
                 title=ft.Text(f"Building Packages"),
-                bgcolor=ft.colors.SURFACE_VARIANT,
+                bgcolor=ft.Colors.SURFACE_CONTAINER_HIGHEST,
                 automatically_imply_leading=False,
             ),
             uiBuild(packages, auto_exit),

@@ -68,8 +68,10 @@ class uiDefaultSettings(ft.Column):
         }
 
         self.setting_list = ft.Column(expand=True, scroll=ft.ScrollMode.ALWAYS)
-        self.save_button = ft.ElevatedButton("Save", icon=ft.icons.DRAW, on_click=self.on_save_settings, disabled=True)
-
+        self.save_button = ft.ElevatedButton("Save", icon=ft.Icons.DRAW, on_click=self.on_save_settings, disabled=True)
+        self.reset_button = ft.ElevatedButton(
+            "Reset", icon=ft.Icons.SETTINGS_BACKUP_RESTORE, on_click=self.on_reset_settings, disabled=True
+        )
         for param in self.params:
             self.setting_list.controls.append(
                 uiSettingItem(param=param, settings=self.settings, on_change=self.on_change_value)
@@ -77,7 +79,7 @@ class uiDefaultSettings(ft.Column):
         self.controls = [
             self.setting_list,
             ft.Divider(),
-            ft.Row(controls=[self.save_button], alignment=ft.MainAxisAlignment.END),
+            ft.Row(controls=[self.reset_button, self.save_button], alignment=ft.MainAxisAlignment.END),
         ]
         self.expand = True
 
@@ -86,11 +88,11 @@ class uiDefaultSettings(ft.Column):
             item.update_disabled()
 
         self.save_button.disabled = False
+        self.reset_button.disabled = False
         self.update()
 
     def on_save_settings(self, e):
         self.save_button.disabled = True
-
         for key, value in self.settings.items():
             setattr(self.platform, key, value)
 
@@ -99,13 +101,19 @@ class uiDefaultSettings(ft.Column):
             package.Reload()
         e.page.go("/")
 
+    def on_reset_settings(self, e):
+        for item in self.setting_list.controls:
+            item.reset()
+        self.reset_button.disabled = True
+        self.update()
+
 
 class uiDefaultSettingsView(ft.View):
 
     def __init__(self, param):
         platform, packages = param
         controls = [
-            ft.AppBar(title=ft.Text(f"Default Settings"), bgcolor=ft.colors.SURFACE_VARIANT),
+            ft.AppBar(title=ft.Text(f"Default Settings"), bgcolor=ft.Colors.SURFACE_CONTAINER_HIGHEST),
             uiDefaultSettings(platform, packages),
         ]
         super().__init__("/default_settings", controls=controls)

@@ -1,6 +1,7 @@
 import asyncio
 
 import flet as ft
+from click import style
 
 from oslwright.ow_package import Package
 from oslwright.ow_platform import Platform, Reason, ReasonCode
@@ -15,57 +16,51 @@ class uiPackageItem(ft.Container):
 
         self.check_box = ft.Checkbox(
             label=self.package.display,
-            label_style=ft.TextStyle(size=16),
+            label_style=ft.TextStyle(size=18),
             value=self.clicked,
-            width=200,
             on_change=self.on_change_checkbox,
         )
         self.txt_version = ft.Text(
             f"version: {self.package.settings['version']}",
             theme_style=ft.TextThemeStyle.BODY_MEDIUM,
         )
-        pkginfo = ft.Row(
+        info = ft.Column(
             expand=True,
-            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            spacing=0,
             controls=[
-                self.check_box,
-                ft.Column(
-                    expand=True,
-                    spacing=0,
+                ft.Row(
                     controls=[
-                        ft.Row(
-                            controls=[
-                                self.txt_version,
-                                ft.Text(f"license: {self.package.license}", theme_style=ft.TextThemeStyle.BODY_MEDIUM),
-                            ]
-                        ),
-                        ft.Text(
-                            value=self.package.description,
-                            theme_style=ft.TextThemeStyle.BODY_SMALL,
-                            italic=True,
-                            max_lines=2,
-                            no_wrap=False,
-                        ),
-                    ],
+                        self.txt_version,
+                        ft.Text(f"license: {self.package.license}", theme_style=ft.TextThemeStyle.BODY_MEDIUM),
+                    ]
+                ),
+                ft.Text(
+                    value=self.package.description,
+                    theme_style=ft.TextThemeStyle.BODY_SMALL,
+                    italic=True,
+                    max_lines=2,
+                    no_wrap=False,
                 ),
             ],
         )
-
         buttons = ft.Row(
             spacing=0,
             controls=[
-                ft.IconButton(icon=ft.icons.INFO_OUTLINE_ROUNDED, on_click=self.on_click_info),
-                ft.IconButton(icon=ft.icons.SETTINGS_ROUNDED, on_click=self.on_click_setting),
-                ft.IconButton(icon=ft.icons.CONSTRUCTION_ROUNDED, on_click=self.on_click_construction),
+                ft.IconButton(icon=ft.Icons.INFO_OUTLINE_ROUNDED, on_click=self.on_click_info),
+                ft.IconButton(icon=ft.Icons.SETTINGS_ROUNDED, on_click=self.on_click_setting),
+                ft.IconButton(icon=ft.Icons.CONSTRUCTION_ROUNDED, on_click=self.on_click_construction),
             ],
             alignment=ft.MainAxisAlignment.START,
         )
-        self.content = ft.Row(controls=[pkginfo, buttons], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
+        self.content = ft.Row(
+            controls=[ft.Row(controls=[self.check_box], width=260), info, buttons],
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        )
         self.padding = ft.padding.only(right=10)
         self.on_hover = self.on_change_bgcolor
 
     def on_change_bgcolor(self, e):
-        e.control.bgcolor = ft.colors.SURFACE_VARIANT if e.data == "true" else ft.colors.SURFACE
+        e.control.bgcolor = ft.Colors.SURFACE_CONTAINER_HIGHEST if e.data == "true" else ft.Colors.SURFACE
         e.control.update()
 
     def on_change_checkbox(self, e):
@@ -99,12 +94,12 @@ class uiPackageArea(ft.Column):
         self.packages: list[Package] = []
         self.platform = platform
 
-        self.reload_button = ft.ElevatedButton("Reload", icon=ft.icons.REFRESH, on_click=self.on_reload)
+        self.reload_button = ft.ElevatedButton("Reload", icon=ft.Icons.REFRESH, on_click=self.on_reload)
         self.default_settings_button = ft.ElevatedButton(
-            "Setting", icon=ft.icons.SETTINGS_ROUNDED, on_click=self.on_default_settings
+            "Setting", icon=ft.Icons.SETTINGS_ROUNDED, on_click=self.on_default_settings
         )
         self.build_all_button = ft.ElevatedButton(
-            "Build all", icon=ft.icons.CONSTRUCTION, on_click=self.on_click_build_all
+            "Build all", icon=ft.Icons.CONSTRUCTION, on_click=self.on_click_build_all
         )
         package_head = ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -177,7 +172,7 @@ class uiPackageView(ft.View):
         self.package_area.expand = True
 
         controls = [
-            ft.AppBar(title=ft.Text("Select Pacakge"), bgcolor=ft.colors.SURFACE_VARIANT),
+            ft.AppBar(title=ft.Text("Select Pacakge"), bgcolor=ft.Colors.SURFACE_CONTAINER_HIGHEST),
             ft.Column(
                 expand=True,
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -195,7 +190,7 @@ class uiPackageView(ft.View):
 
     async def startup_task(self):
         def exit_app(page):
-            page.close_dialog()
+            page.close(dlg_modal)
             page.window.destroy()
 
         reason = self.platform.CheckPlatform()
@@ -211,7 +206,8 @@ class uiPackageView(ft.View):
                 actions=[ft.TextButton("Exit", on_click=lambda e: exit_app(e.page))],
                 actions_alignment=ft.MainAxisAlignment.END,
             )
-            await self.page.show_dialog_async(dlg_modal)
+            self.page.open(dlg_modal)
+            self.page.update()
             return
         elif reason.code == ReasonCode.MISSING_BASE_TOOLS:
             dlg_modal = ft.AlertDialog(
@@ -223,7 +219,8 @@ class uiPackageView(ft.View):
                 actions=[ft.TextButton("Exit", on_click=lambda e: exit_app(e.page))],
                 actions_alignment=ft.MainAxisAlignment.END,
             )
-            await self.page.show_dialog_async(dlg_modal)
+            self.page.open(dlg_modal)
+            self.page.update()
             return
 
         elif reason.code == ReasonCode.MISSING_EMBEDDED_TOOLS:
@@ -241,8 +238,8 @@ class uiPackageView(ft.View):
                 ],
                 actions_alignment=ft.MainAxisAlignment.END,
             )
-            await self.page.show_dialog_async(dlg_modal)
-            self.update()
+            self.page.open(dlg_modal)
+            self.page.update()
             return
         self.update()
 
