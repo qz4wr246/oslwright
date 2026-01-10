@@ -94,7 +94,7 @@
         "opencv": {
           "version": ">=4.10"
         },
-        // "glad": {   // MEMO: Using a olf embeded glad package.
+        // "glad": {   // MEMO: Using a embeded glad package.
         //   "version": ">=2.0"
         // },
         "glfw": {
@@ -168,7 +168,6 @@
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DCMAKE_DOC=OFF",
             "-DBUILD_TESTING=OFF",
             "-DMATPLOTPP_BUILD_WITH_MSVC_HACKS=ON",
             "-DMATPLOTPP_BUILD_WITH_UTF8=ON",
