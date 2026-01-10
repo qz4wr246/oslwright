@@ -107,7 +107,8 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://github.com/skaslev/gl3w.git",
-      "git_tag": "${version}",
+      "git_tag" :"{{'master' if $version.startswith('master') else 'v' + $version}}",
+      "git_hash": "{{$version.removeprefix('master-') if $version.startswith('master-') else ''}}",
       "stages": {
         "download": {
           "scripts": [
@@ -119,6 +120,13 @@
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
               "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "failed": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git checkout.",
+              "when": "{{len($git_hash) and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$source_dir",
+              "script": "git checkout $git_hash",
               "failed": "rmdir /q /s \"$source_dir\""
             },
             {
@@ -254,6 +262,6 @@
         }
       }
     },
-    "master": {}
+    "master-97a85e1": {}
   }
 }
