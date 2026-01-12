@@ -93,6 +93,12 @@
       "name": "gst_enable_tools",
       "type": "bool",
       "default": false
+    },
+    {
+      "display": "Enable openh264",
+      "name": "enable_openh264",
+      "type": "bool",
+      "default": false
     }
   ],
   "versions": {
@@ -128,6 +134,10 @@
         "ffmpeg": {
           "version": ">=6.1;<7.0",   // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
           "build_library": "shared"
+        },
+        "openh264": {
+          "enable": "{{$enable_openh264}}",
+          "version": ">=2.6"
         },
         // cannot build with external glib.
         // "glib": {
@@ -198,6 +208,7 @@
             "-Dgst-plugins-bad:videoparsers=enabled",
             "-Dgst-plugins-bad:nvenc={{'enabled' if $cuda_enable else 'disabled'}}",
             "-Dgst-plugins-bad:nvdec={{'enabled' if $cuda_enable else 'disabled'}}",
+            "-Dgst-plugins-bad:openh264={{'enabled' if $enable_openh264 else 'disabled'}}",
             "-DFFmpeg:default_library=shared",
             "-Dpython=disabled", // python should be disabled.
             "-Dgstreamer:tools={{'enabled' if $gst_enable_tools else 'disabled'}}",
@@ -331,7 +342,7 @@
         }
       }
     },
-    "1.24.5": {  // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
+    "1.24.13": {  // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
       "dependencies": {
         "ffmpeg": {
           "version": ">=6.1;<7.0",
