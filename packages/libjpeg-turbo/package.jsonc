@@ -5,7 +5,7 @@
   "site": "https://libjpeg-turbo.org/",
   "license": "libjpeg-turbo Licenses(IJG, 3-clause BSD, zlib)",
   "info": "info.md",
-  "process_time": "60",
+  "process_time": "85",
   "settings": [
     {
       "display": "Version",
@@ -242,6 +242,7 @@
         }
       }
     },
-    "3.0.3": {}
+    "3.0.3": {},
+    "3.1.3": {}
   }
 }
