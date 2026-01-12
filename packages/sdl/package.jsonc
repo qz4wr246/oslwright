@@ -252,7 +252,9 @@
         }
       }
     },
-    "2.30.7": { // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
+    "2.30.12": { // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
+    },
+    "2.32.10": { // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
     }
   }
 }

@@ -93,11 +93,34 @@
       "name": "build_apps",
       "type": "bool",
       "default": true
+    },
+    {
+      "display": "Enable GPL",
+      "name": "enable_gpl",
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "Enable openh264",
+      "name": "enable_openh264",
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "Enable NVENC",
+      "name": "enable_nvenc",
+      "enable": "cuda_enable",
+      "type": "bool",
+      "default": false
     }
   ],
   "versions": {
     "default": {
       "dependencies": {
+        "openh264": {
+          "enable": "{{$enable_openh264}}",
+          "version": ">=2.6.0"
+        },
         "sdl": {
           "version": ">=2.30;<3.0"  // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
         },
@@ -153,6 +176,8 @@
           "zlib_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'zlib' in x), '')}}",
           "sdl_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'sdl' in x), '')}}",
           "sdl_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'sdl' in x), '')}}",
+          "openh264_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'openh264' in x), '')}}",
+          "openh264_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'openh264' in x), '')}}",
           "scripts": [
             {
               "when": "{{'Debug' in $build_type}}",
@@ -179,6 +204,16 @@
             },
             {
               "script": "copy /Y \"${package_dir}\\sdl2-config\" \"${msys2_dir}\\ucrt64\\bin\\\""
+            },
+            {
+              "when": "{{'Debug' in $build_type and $enable_openh264}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$openh264_dir_debug\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Release' in $build_type and $enable_openh264}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$openh264_dir_release\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
             }
           ]
         },
@@ -197,9 +232,9 @@
             "--disable-postproc",
             "--disable-iconv",
             "--disable-nonfree",
-            "--disable-gpl",
-            "--disable-libx264",
-            "--disable-nvenc",
+            "{{'--enable-gpl' if $enable_gpl else '--disable-gpl'}}",
+            "{{'--enable-libopenh264' if $enable_openh264 else '--disable-libopenh264'}}",
+            "{{'--enable-nvenc' if $enable_nvenc else '--disable-nvenc'}}",
             "--disable-cuda-nvcc",
             "--disable-libnpp",
             "--extra-cflags=-DZLIB_DLL"
@@ -355,7 +390,7 @@
         }
       }
     },
-    "6.1.3": { // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
+    "6.1.4": { // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
       "dependencies": {
         "sdl": {
           "version": ">=2.30;<3.0"  // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.

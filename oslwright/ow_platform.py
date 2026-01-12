@@ -795,4 +795,3 @@ class Platform:
         self.bison_flex_exe = self._findBisonFlex()
         if self.bison_flex_exe:
             Post.Info("Found Bison Flex.")
-            Post.Info("Found Bison Flex.")
