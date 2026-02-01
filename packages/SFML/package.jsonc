@@ -1,11 +1,11 @@
 {
-  "name": "crow",
-  "display": "Crow",
-  "description": "A Fast and Easy to use microframework for the web.",
-  "site": "https://crowcpp.org/",
-  "license": "BSD 3-Clause License",
+  "name": "SFML",
+  "display": "SFML",
+  "description": "Simple and Fast Multimedia Library",
+  "site": "https://www.sfml-dev.org/",
+  "license": "Zlib license",
   "info": "info.md",
-  "process_time": "300",
+  "process_time": "210",
   "settings": [
     {
       "display": "Version",
@@ -15,21 +15,46 @@
       "default": "$latest_version"
     },
     {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "chose",
+      "item": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "chose",
+      "item": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "chose",
+      "item": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
       "display": "Build library",
       "name": "build_library",
-      "enable": false,
       "type": "chose",
       "item": [
         "shared",
         "static",
-        "interface"
+        "shared;static"
       ],
-      "default": "interface"
+      "default": "$build_library_default"
     },
     {
       "display": "Build type",
       "name": "build_type",
-      "enable": false,
       "type": "chose",
       "item": [
         "Release",
@@ -41,7 +66,6 @@
     {
       "display": "Build layout",
       "name": "build_layout",
-      "enable": false,
       "type": "chose",
       "item": [
         "union",
@@ -52,19 +76,8 @@
   ],
   "versions": {
     "default": {
-      "dependencies": {
-        "asio": {
-          "version": ">=1.36"
-        },
-        // "boost": {
-        //   "version": ">=1.64"
-        // },
-        "openssl": {
-          "version": ">=3.3"
-        },
-        "zlib": {
-          "version": ">=1.3"
-        }
+      "environments": {
+        "PERLIO": "raw"
       },
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + ('-static' if 'static' == $build_library else '')}}",
@@ -75,8 +88,8 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/CrowCpp/Crow.git",
-      "git_tag": "v${version}",
+      "git_url": "https://github.com/SFML/SFML.git",
+      "git_tag": "${version}",
       "stages": {
         "download": {
           "scripts": [
@@ -107,16 +120,18 @@
         "configure": {
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
+            "-DCMAKE_CXX_STANDARD=17",
+            "-DCMAKE_C_STANDARD=17",
+            "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
+            "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
+            "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
             "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
+            "-DCMAKE_DEBUG_POSTFIX=d",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
-            "-DCROW_BUILD_EXAMPLES=OFF",
-            "-DCROW_BUILD_TESTS=OFF",
-            "-DCROW_BUILD_FUZZER=OFF",
-            "-DCROW_AMALGAMATE=OFF",
-            "-DCROW_USE_BOOST=OFF",
-            "-DCROW_RETURNS_OK_ON_HTTP_OPTIONS_REQUEST=ON",
-            "-DCROW_ENABLE_SSL=ON",
-            "-DCROW_ENABLE_COMPRESSION=ON"
+            "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
+            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
+            "-DSFML_USE_STATIC_STD_LIBS=OFF",
+            "-DSFML_USE_SYSTEM_DEPS=ON"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -233,6 +248,18 @@
         }
       }
     },
-    "1.2.1.2": {}
+    "3.0.2": {
+      "dependencies": {
+        "ogg": {
+          "version": "==1.3.6"
+        },
+        "vorbis": {
+          "version": "==1.3.7"
+        },
+        "flac": {
+          "version": "==1.4.3"
+        }
+      }
+    }
   }
 }
