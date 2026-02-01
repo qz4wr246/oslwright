@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b603b2e..0de86b8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -196,7 +196,7 @@ ENDIF()
+ IF (WIN32)
+   # Use a subset of Windows.h
+   ADD_DEFINITIONS( -DWIN32_LEAN_AND_MEAN )
+-
++  add_compile_options(/EHsc)
+   IF(MSVC)
+     OPTION( ASSIMP_INSTALL_PDB
+       "Create MSVC debug symbol files and add to Install target."

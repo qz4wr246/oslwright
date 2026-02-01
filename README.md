@@ -1,6 +1,6 @@
 <h1>OSLwright: A C/C++ Open Source Library Builder for Windows</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-Under_construction-blue.svg?cacheSeconds=2592000" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.1.2-blue.svg?cacheSeconds=2592000" />
   <a href="#" target="_blank">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT_License-yellow.svg" />
     <img alt="Language: python" src="https://img.shields.io/badge/Language-Python-green.svg" />
@@ -15,15 +15,17 @@ Windows向けのC/C++ネイティブ・ライブラリをスクラッチビル�
 </p>
 
 > [!WARNING]
-> ## 🚧 現在、工事中！ 👷‍♀️
-> デフォルト設定のみビルドの動作確認をしたが十分では無い。
+> ## 🚧 ！工事中！ 👷‍♀️
+> ほとんどテストを実施していません。デフォルト設定（リリースビルド）でのビルドを実施しました。
 
 # Features
+
 * Windows向けにC/C++オープンソースライブラリをビルドします。
 * GUIで簡単にパッケージのビルドが出来ます。
+* いくつかパッケージはCMakeConfigを追加しています。pkg-configは相対パスへ変更済み
 * 気まぐれで商業利用に制限の少ないライセンスのパッケージを収集しています。
-* ソースファイルをダウンロードしてスクラッチ・ビルドするので、バージョン管理やソースの追跡に向いています。
-* __vcpkg__ を利用したくない場合や出来ない場合など
+* ソースファイルをダウンロードしてスクラッチ・ビルドするので、バージョン管理やソースの追跡が容易です。
+* 特に理由がなければ、[__vcpkg__](https://learn.microsoft.com/ja-jp/vcpkg/get_started/overview) をお勧めします。
 
 # Requirements
 
@@ -159,7 +161,7 @@ add_custom_command(TARGET ${target_name} POST_BUILD
 ```
 
 # Note
-OSLwrightは、パッケージをリリースビルドしています。MSVCランタイムライブラリのコンパイルオプションはMultiThreadedDLL(/MD)に設定されます。<br>
+OSLwrightは、各パッケージをリリースビルドしています。MSVCランタイムライブラリのコンパイルオプションはMultiThreadedDLL(/MD)に設定されます。<br>
 開発するアプリケーションにおいて、MSVCランタイムライブラリのコンパイルオプションの設定は、リリース・デバックの両方ともにMultiThreadedDLL(/MD)へ変更してください。
 
 
@@ -182,4 +184,5 @@ OSLwrightは、パッケージをリリースビルドしています。MSVCラ�
 # License
 OSLwright のライセンスは MIT License です。<br>
 サンプルソースコードのライセンスは MIT License と CC0 1.0 Universal です。<br>
-各パッケージは、それぞれのライセンスに従ってください。
+各パッケージは、それぞれのライセンスに従ってください。<br>
+__本ソフトウェアおよび生成物について、作者は一切の責任を負いません。利用による結果はすべて利用者の責任とします。__

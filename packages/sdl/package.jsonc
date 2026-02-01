@@ -1,6 +1,6 @@
 {
   "name": "sdl",
-  "display": "SDL",
+  "display": "SDL2",
   "description": "Simple Directmedia Layer",
   "site": "https://libsdl.org/",
   "license": "Zlib license",

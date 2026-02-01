@@ -1,0 +1,13 @@
+diff --git a/src/unix_file_system.cpp b/src/unix_file_system.cpp
+index ad3b249..b461720 100644
+--- a/src/unix_file_system.cpp
++++ b/src/unix_file_system.cpp
+@@ -22,7 +22,7 @@
+ #include <filesystem>
+ #include <fstream>
+ 
+-#ifdef WIN32
++#ifdef _WIN32
+ #  include "tinygettext/dirent.h"
+ #else
+ # include <dirent.h>
