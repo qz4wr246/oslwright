@@ -339,7 +339,7 @@ class PlatformService(FletXService):
         visual_studio = next((vc for vc in self.visual_studio_infos if vc.generator == mscv_version), None)
 
         arch = "x86" if build_arch and build_arch == "x32" else "amd64"
-        vcver = msvc_toolset_version if msvc_toolset_version else visual_studio.msvc_toolset_version_default
+        vcver = msvc_toolset_version if msvc_toolset_version else visual_studio.msvc_toolset_version_default.name  # type: ignore
 
         key = (visual_studio.installationpath, arch, vcver)  # type: ignore
         if key in self.msvc_environment_cache:
@@ -1013,6 +1013,7 @@ class PlatformService(FletXService):
             "msvc_generator": msvc_generator,
             "msvc_version_default": msvc_version_default,
             "msvc_versions": [msvc.generator for msvc in self.visual_studio_infos],
+            "msvc_version": msvc_version_default,
         }
         vers = [k for k in package.versions.keys() if k != "default"]
         session = {
