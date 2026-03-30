@@ -831,7 +831,7 @@ class PlatformService(FletXService):
         if not msys2_exe:
             _exe = self.tools_rootdir / "msys2" / "msys64" / "msys2_shell.cmd"
             if _exe.is_file():
-                return (_exe, None)
+                msys2_exe = _exe
         if not msys2_exe:
             _exe = shutil.which("msys2_shell.cmd")
             if _exe and Path(_exe).is_file():
@@ -872,51 +872,83 @@ class PlatformService(FletXService):
         self.git_exe, version = self._findGit()
         if self.git_exe:
             Post.info(f'Found Git: {self.git_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Git.")
         self.gitlfs_exe, version = self._findGitLFS()
         if self.gitlfs_exe:
             Post.info(f'Found Git-lfs: {self.gitlfs_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Git-lfs.")
         self.cmake_exe, version = self._findCMake()
         if self.cmake_exe:
             Post.info(f'Found CMake: {self.cmake_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found CMake.")
         self.ninja_exe, version = self._findNinja()
         if self.ninja_exe:
             Post.info(f'Found Ninja: {self.ninja_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Ninja.")
         self.sevenzip_exe, version = self._find7zip()
         if self.sevenzip_exe:
             Post.info(f'Found 7z: {self.sevenzip_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found 7z.")
         self.nasm_exe, version = self._findNasm()
         if self.nasm_exe:
             Post.info(f'Found NASM: {self.nasm_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found NASM.")
         self.yasm_exe, version = self._findYasm()
         if self.yasm_exe:
             Post.info(f'Found YASM: {self.yasm_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found YASM.")
         self.perl_exe, version = self._findPerl()
         if self.perl_exe:
             Post.info(f'Found Perl: {self.perl_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Perl.")
         self.pkg_config_exe, version = self._findPkgConfig()
         if self.pkg_config_exe:
             Post.info(f'Found pkg-config: {self.pkg_config_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found pkg-config.")
         self.gn_exe, version = self._findGN()
         if self.gn_exe:
             Post.info(f'Found gn: {self.gn_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found gn.")
         self.python_exe, version = self._findPython()
         if self.python_exe:
             Post.info(f'Found Python: {self.python_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Python.")
         self.py_exe, version = self._findPythonLauncher()
         if self.py_exe:
             Post.info(f'Found Python Launcher: {self.py_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Python Launcher.")
         self.meson_exe, version = self._findMeson()
         if self.meson_exe:
             Post.info(f'Found Meson: {self.meson_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Meson.")
         self.jinja2_exe, version = self._findJinja2()
         if self.jinja2_exe:
             Post.info(f'Found Jinja2: {self.jinja2_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Jinja2.")
         self.msys2_exe, version = self._findMsys2()
         if self.msys2_exe:
             Post.info(f'Found MYSYS2: {self.msys2_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found MYSYS2.")
         self.bison_flex_exe, version = self._findBisonFlex()
         if self.bison_flex_exe:
             Post.info(f'Found Bison Flex: {self.bison_flex_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Bison Flex.")
 
     def get_package_files(self) -> list[Path]:
         files = list(self.package_rootdir.rglob("package.jsonc"))
