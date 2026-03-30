@@ -11,104 +11,61 @@
     "process_time",
     "options",
     "versions"
-  ], // 'info' is optional
+  ],
   "properties": {
-    "name": {
-      "type": "string"
-    },
-    "display": {
-      "type": "string"
-    },
-    "description": {
-      "type": "string"
-    },
-    "site": {
-      "type": "string",
-      "format": "uri"
-    },
-    "process_time": {
-      "type": "number"
-    },
-    "license": {
-      "type": "string"
-    },
-    "info": {
-      "type": "string"
-    },
+    "name": { "type": "string" },
+    "display": { "type": "string" },
+    "description": { "type": "string" },
+    "site": { "type": "string", "format": "uri" },
+    "process_time": { "type": "number" },
+    "license": { "type": "string" },
+    "info": { "type": "string" },
     "options": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "display": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "enable": {
-            "type": [
-              "string",
-              "boolean"
-            ]
-          }, // 'enable' is optional
+          "display": { "type": "string" },
+          "name": { "type": "string" },
+          "enable": { "type": ["string", "boolean"] },
           "type": {
             "type": "string",
-            "enum": [
-              "text",
-              "bool",
-              "choice"
-            ]
+            "enum": ["text", "bool", "choice"]
           },
           "items": {},
-          "default": {
-            "type": [
-              "string",
-              "boolean"
-            ]
-          }
+          "default": { "type": ["string", "boolean"] }
         },
-        "required": [
-          "display",
-          "name",
-          "type",
-          "default"
-        ],
+        "required": ["display", "name", "type", "default"],
         "if": {
-          "properties": {
-            "type": {
-              "const": "choice"
-            }
-          }
+          "properties": { "type": { "const": "choice" } }
         },
         "then": {
           "properties": {
             "items": {
-              "oneOf": [
-                {
-                  "type": "array"
-                },
-                {
-                  "type": "string"
-                }
-              ]
+              "oneOf": [{ "type": "array" }, { "type": "string" }]
             }
           },
           "required": ["items"]
         },
         "else": {
-          "not": {
-            "required": ["items"]
-          }
+          "not": { "required": ["items"] }
         },
         "additionalProperties": false
-      }
+      },
+      "allOf": [
+        { "contains": { "properties": { "name": { "const": "version" } } } },
+        { "contains": { "properties": { "name": { "const": "msvc_version" } } } },
+        { "contains": { "properties": { "name": { "const": "msvc_toolset_version" } } } },
+        { "contains": { "properties": { "name": { "const": "build_arch" } } } },
+        { "contains": { "properties": { "name": { "const": "msvc_runtime_library" } } } },
+        { "contains": { "properties": { "name": { "const": "build_library" } } } },
+        { "contains": { "properties": { "name": { "const": "build_type" } } } },
+        { "contains": { "properties": { "name": { "const": "build_layout" } } } }
+      ]
     },
     "versions": {
       "type": "object",
-      "required": [
-        "default"
-      ],
+      "required": ["default"],
       "minProperties": 2,
       "patternProperties": {
         ".*": {
@@ -130,12 +87,7 @@
                           "type": "string",
                           "pattern": "^((\\s*(>=|<=|>|<)\\s*[0-9]+(\\.[0-9]+){0,3}(-[0-9A-Za-z.-]+)?\\s*)|([A-Za-z0-9_.-]+))(\\s*[;,]\\s*((>=|<=|>|<)\\s*[0-9]+(\\.[0-9]+){0,3}(-[0-9A-Za-z.-]+)?\\s*|[A-Za-z0-9_.-]+))*$"
                         },
-                        "enable": {
-                          "type": [
-                            "string",
-                            "boolean"
-                          ]
-                        }
+                        "enable": { "type": ["string", "boolean"] }
                       },
                       "additionalProperties": true
                     }
@@ -146,11 +98,7 @@
             },
             "environments": {
               "type": "object",
-              "patternProperties": {
-                ".*": {
-                  "type": "string"
-                }
-              },
+              "patternProperties": { ".*": { "type": "string" } },
               "additionalProperties": false
             },
             "stages": {
@@ -161,11 +109,7 @@
                   "properties": {
                     "environments": {
                       "type": "object",
-                      "patternProperties": {
-                        ".*": {
-                          "type": "string"
-                        }
-                      },
+                      "patternProperties": { ".*": { "type": "string" } },
                       "additionalProperties": true
                     },
                     "scripts": {
@@ -174,33 +118,17 @@
                         "type": "object",
                         "required": ["script"],
                         "properties": {
-                          "message": {
-                            "type": "string"
-                          },
-                          "chdir": {
-                            "type": "string"
-                          },
-                          "when": {
-                            "type": ["string", "boolean"]
-                          },
+                          "message": { "type": "string" },
+                          "chdir": { "type": "string" },
+                          "when": { "type": ["string", "boolean"] },
                           "environments": {
                             "type": "object",
-                            "patternProperties": {
-                              ".*": {
-                                "type": "string"
-                              }
-                            },
+                            "patternProperties": { ".*": { "type": "string" } },
                             "additionalProperties": true
                           },
-                          "script": {
-                            "type": "string"
-                          },
-                          "fallback": {
-                            "type": "string"
-                          },
-                          "ignore_errors": {
-                            "type": ["string", "boolean"]
-                          }
+                          "script": { "type": "string" },
+                          "fallback": { "type": "string" },
+                          "ignore_errors": { "type": ["string", "boolean"] }
                         }
                       }
                     },
