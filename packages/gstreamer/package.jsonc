@@ -4,37 +4,44 @@
   "description": "GStreamer open-source multimedia framework",
   "site": "https://gstreamer.freedesktop.org/",
   "license": "LGPL v2.1",
-  "process_time": "1500",
-  "settings": [
+  "process_time": 1900,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "type": "chose",
-      "item": "{{$versions}}",
+      "type": "choice",
+      "items": "{{$versions}}",
       "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
     },
     {
       "display": "Build arch",
       "name": "build_arch",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "x64",
         "x32"
       ],
       "default": "$build_arch_default"
     },
     {
-      "display": "MSVC toolset version",
-      "name": "msvc_toolset_version",
-      "type": "chose",
-      "item": "{{$msvc_toolset_versions}}",
-      "default": "$msvc_toolset_version_default"
-    },
-    {
       "display": "MSVC runtime library",
       "name": "msvc_runtime_library",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "mt",
         "md"
       ],
@@ -43,22 +50,20 @@
     {
       "display": "Build library",
       "name": "build_library",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "shared",
         // "static"
       ],
-      // "default": "$build_library_default"
       "default": "shared"
     },
     {
       "display": "Build type",
       "name": "build_type",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "Release",
-        "Debug",
-        "Release;Debug"
+        "Debug"
       ],
       "default": "Release"
     },
@@ -66,8 +71,8 @@
       "display": "Build layout",
       "name": "build_layout",
       "enable": false,
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "union",
         "separation"
       ],
@@ -83,14 +88,21 @@
     {
       "display": "CUDA Version",
       "name": "cuda_version",
-      "enable": "cuda_enable",
-      "type": "chose",
-      "item": "{{$cuda_versions}}",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
     },
     {
       "display": "Enable tools",
       "name": "gst_enable_tools",
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "Enable NVCodec",
+      "name": "enable_nvcodec",
+      "enable": "{{$cuda_enable}}",
       "type": "bool",
       "default": false
     },
@@ -172,30 +184,52 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-      "git_tag": "${version}",
+      "git_tag": "{{ver.split('@', 1)[0] if '@' in $version else $version}}",
+      "git_hash": "{{ver.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
           "scripts": [
             {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
               "message": "git clone.",
-              "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
-              "failed": "rmdir /q /s \"$source_dir\""
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git checkout.",
+              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$source_dir",
+              "script": "git checkout $git_hash",
+              "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "extruct from cache.",
               "when": "{{os.path.isfile($cache_file)}}",
               "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
-              "failed": "rmdir /q /s \"$source_dir\""
+              "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "make cache.",
               "when": "{{not os.path.isfile($cache_file)}}",
               "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
-              "failed": "del \"$cache_file\""
+              "fallback": "del \"$cache_file\""
             }
           ]
         },
+        // "patch": {
+        //   "patch_file_01": "${package_dir}\\gl_mkenum_py13.diff",
+        //   "scripts": [
+        //     {
+        //       "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+        //       "chdir": "$source_dir",
+        //       "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+        //     }
+        //   ]
+        // },
         "configure": {
           "meson_options": [
             "--vsenv",
@@ -203,11 +237,9 @@
             "-Db_vscrt={{'from_buildtype' if $msvc_runtime_library == 'md' else 'static_from_buildtype'}}",
             "-Ddefault_library=$build_library",
             "-Dgst-full-target-type={{'static_library' if $build_library  == 'static' else 'shared_library'}}",
-            "-Dbase=enabled -Dgood=enabled -Dugly=disabled -Dbad=disabled",
             "-Dglib-networking:openssl=enabled",
             "-Dgst-plugins-bad:videoparsers=enabled",
-            "-Dgst-plugins-bad:nvenc={{'enabled' if $cuda_enable else 'disabled'}}",
-            "-Dgst-plugins-bad:nvdec={{'enabled' if $cuda_enable else 'disabled'}}",
+            "-Dgst-plugins-bad:nvcodec={{'enabled' if $cuda_enable and $enable_nvcodec else 'disabled'}}",
             "-Dgst-plugins-bad:openh264={{'enabled' if $enable_openh264 else 'disabled'}}",
             "-DFFmpeg:default_library=shared",
             "-Dpython=disabled", // python should be disabled.

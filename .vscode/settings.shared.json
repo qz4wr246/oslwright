@@ -1,10 +1,21 @@
 {
   "files.exclude": {
-    "sources/**/.git": true
   },
   "search.exclude": {
-    "sources/**/.git": true
+    "sources/**/.git": true,
+    "cache/**":true,
+    "dist/**":true,
+    ".venv/**":true
   },
-  "python.analysis.exclude": ["oslwrite/__pycache__", ".git/**", ".venv/**", "sources/**", "dist/**", "tools/**", "**/node_modules", "**/__pycache__"],
-  "python.analysis.include": ["oslwrite/**"]
+  "files.watcherExclude": {
+    "sources/**": true,
+    "packages/**": true,
+    "cache/**":true,
+    "dist/**":true,
+    "tools/**":true,
+    ".venv/**":true
+  },
+  "python.analysis.exclude": ["app/**/__pycache__", ".git/**", ".venv/**", "cahce/**", "packages/**","sources/**", "dist/**", "tools/**"],
+  "python.analysis.include": ["app/**"],
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe"
 }

@@ -4,13 +4,13 @@
   "description": "The Netwide Assembler (NASM)",
   "site": "https://www.nasm.us/",
   "license": "BSD-2-Clause",
-  "settings": [
+  "process_time": 180,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "enable": true,
-      "type": "chose",
-      "item": "{{ $versions }}",
+      "type": "choice",
+      "items": "{{ $versions }}",
       "default": "$latest_version"
     }
   ],
@@ -22,7 +22,7 @@
             {
               "message": "Download $name",
               "when": "{{not os.path.isfile($nasm_cache)}}",
-              "chdir" : "$cache_rootdir",
+              "chdir": "$cache_rootdir",
               "script": "curl.exe -L -s -o \"$nasm_cache\" \"$nasm_url\""
             },
             {
@@ -44,4 +44,3 @@
     }
   }
 }
-

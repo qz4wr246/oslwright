@@ -1,0 +1,12 @@
+prefix=${pcfiledir}/../..
+exec_prefix=${prefix}/bin
+libdir=${prefix}/lib
+bindir=${prefix}/bin
+includedir=${prefix}/include
+
+Name: libsodium
+Version: {{VERSION}}
+Description: A modern and easy-to-use crypto library
+
+Libs: -L${libdir} -llibsodium
+Cflags: -I${includedir} {{SODIUM_STATIC}}

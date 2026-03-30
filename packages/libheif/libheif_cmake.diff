@@ -1,0 +1,209 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6462a3e..c851ba2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -222,7 +222,8 @@ plugin_option(AOM_DECODER "AOM AV1 decoder" ON OFF)
+ plugin_option(AOM_ENCODER "AOM AV1 encoder" ON OFF)
+ if (WITH_AOM_ENCODER OR WITH_AOM_DECODER)
+     find_package(AOM)
+-
++    set(AOM_DECODER_FOUND TRUE)
++    set(AOM_ENCODER_FOUND TRUE)
+     # When decoding/encoding is disabled, overwrite the *_FOUND variables, because they are used to ultimately decide what to build.
+     if (NOT WITH_AOM_DECODER)
+         set(AOM_DECODER_FOUND FALSE)
+@@ -420,8 +421,10 @@ if (WITH_LIBSHARPYUV)
+        set(LIBSHARPYUV_LIBRARIES ${PROJECT_SOURCE_DIR}/third-party/libwebp/build/libsharpyuv.a)
+        set(LIBSHARPYUV_FOUND YES)
+    else()
+-       find_package(libsharpyuv)
+-   endif()
++       # find_package(libsharpyuv)
++       find_package(PkgConfig REQUIRED)
++       pkg_check_modules(LIBSHARPYUV REQUIRED IMPORTED_TARGET libsharpyuv)
++   endif ()
+ endif ()
+ if (LIBSHARPYUV_FOUND)
+     message("libsharpyuv: found")
+diff --git a/heifio/CMakeLists.txt b/heifio/CMakeLists.txt
+index 920eeca..1d24647 100644
+--- a/heifio/CMakeLists.txt
++++ b/heifio/CMakeLists.txt
+@@ -28,7 +28,7 @@ target_compile_definitions(heifio
+ find_package(TIFF)
+ if (TIFF_FOUND)
+     target_sources(heifio PRIVATE decoder_tiff.cc decoder_tiff.h encoder_tiff.h encoder_tiff.cc)
+-    target_link_libraries(heifio PRIVATE TIFF::TIFF)
++    target_link_libraries(heifio PRIVATE TIFF::tiff)
+     target_compile_definitions(heifio PUBLIC HAVE_LIBTIFF=1)
+ endif()
+
+@@ -94,4 +94,3 @@ else ()
+     message("TIFF: ------ (libtiff not found)")
+ endif ()
+ message("")
+-
+diff --git a/libheif/CMakeLists.txt b/libheif/CMakeLists.txt
+index 2a66c1d..a9f2e11 100644
+--- a/libheif/CMakeLists.txt
++++ b/libheif/CMakeLists.txt
+@@ -221,7 +221,7 @@ if (APPLE)
+ 	    LINK_FLAGS "-Wl,-compatibility_version,${MACOS_COMPATIBLE_VERSION}")
+ endif ()
+
+-if (BUILD_FRAMEWORK)
++if (BUILD_FRAMEWORK)
+   set_target_properties(heif PROPERTIES
+     FRAMEWORK TRUE
+     FRAMEWORK_VERSION "${PACKAGE_VERSION}"
+@@ -253,8 +253,7 @@ add_subdirectory(plugins)
+ if (LIBSHARPYUV_FOUND)
+     message("Compiling in 'libsharpyuv'")
+     target_compile_definitions(heif PUBLIC HAVE_LIBSHARPYUV=1)
+-    target_include_directories(heif PRIVATE ${LIBSHARPYUV_INCLUDE_DIRS})
+-    target_link_libraries(heif PRIVATE ${LIBSHARPYUV_LIBRARIES})
++    target_link_libraries(heif PRIVATE PkgConfig::LIBSHARPYUV)
+ else ()
+     message("Not compiling 'libsharpyuv'")
+ endif ()
+@@ -266,8 +265,7 @@ endif ()
+
+ if (Brotli_FOUND)
+     target_compile_definitions(heif PUBLIC HAVE_BROTLI=1)
+-    target_include_directories(heif PRIVATE ${BROTLI_INCLUDE_DIRS})
+-    target_link_libraries(heif PRIVATE ${BROTLI_LIBS})
++    target_link_libraries(heif PRIVATE brotlidec brotlienc brotlicommon)
+ endif()
+
+ if (ENABLE_MULTITHREADING_SUPPORT)
+diff --git a/libheif/plugins/CMakeLists.txt b/libheif/plugins/CMakeLists.txt
+index 47d8072..e854fcc 100644
+--- a/libheif/plugins/CMakeLists.txt
++++ b/libheif/plugins/CMakeLists.txt
+@@ -1,5 +1,6 @@
+
+ macro(plugin_compilation name varName foundName optionName defineName)
++    set(targetName "${ARGV5}")
+     if (${foundName} AND WITH_${optionName})
+         if (PLUGIN_LOADING_SUPPORTED_AND_ENABLED AND WITH_${optionName}_PLUGIN)
+             message("Compiling '" ${name} "' as dynamic plugin")
+@@ -18,9 +19,11 @@ macro(plugin_compilation name varName foundName optionName defineName)
+                     LIBHEIF_EXPORTS
+                     HAVE_VISIBILITY)
+             target_compile_definitions(heif-${name} PRIVATE PLUGIN_${defineName}=1)
+-            target_include_directories(heif-${name} PRIVATE ${PROJECT_SOURCE_DIR} ${libheif_BINARY_DIR} ${libheif_SOURCE_DIR}/libheif ${libheif_SOURCE_DIR}/libheif/api ${${varName}_INCLUDE_DIRS})
++            target_include_directories(heif-${name} PRIVATE ${PROJECT_SOURCE_DIR} ${libheif_BINARY_DIR} ${libheif_SOURCE_DIR}/libheif ${libheif_SOURCE_DIR}/libheif/api ${${varName}_INCLUDE_DIRS} ${${varName}_INCLUDEDIR})
+             target_link_libraries(heif-${name} PRIVATE ${${varName}_LIBRARIES} heif)
+-
++            if (targetName)
++                target_link_libraries(heif-${name} PRIVATE ${targetName})
++            endif()
+             install(TARGETS heif-${name}
+                     LIBRARY DESTINATION ${COMPUTED_PLUGIN_INSTALL_DIRECTORY}
+                     )
+@@ -28,7 +31,7 @@ macro(plugin_compilation name varName foundName optionName defineName)
+             message("Compiling '" ${name} "' as built-in backend")
+             target_sources(heif PRIVATE ${${optionName}_sources})
+             target_compile_definitions(heif PRIVATE HAVE_${defineName}=1)
+-            target_include_directories(heif PRIVATE ${${varName}_INCLUDE_DIRS})
++            target_include_directories(heif PRIVATE ${${varName}_INCLUDE_DIRS} ${${varName}_INCLUDEDIR})
+             target_link_directories(heif PRIVATE ${${varName}_LINK_DIRS})
+             if (${varName}_DEBUG_LIBRARY)
+                 target_link_libraries(heif PRIVATE debug ${${varName}_DEBUG_LIBRARY})
+@@ -36,6 +39,9 @@ macro(plugin_compilation name varName foundName optionName defineName)
+             else()
+                 target_link_libraries(heif PRIVATE ${${varName}_LIBRARIES})
+             endif()
++            if (targetName)
++                target_link_libraries(heif PRIVATE ${targetName})
++            endif()
+         endif ()
+
+         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${${varName}_CFLAGS}")
+@@ -51,7 +57,7 @@ plugin_compilation(x265 X265 X265_FOUND X265 X265)
+
+ set(LIBDE265_sources decoder_libde265.cc decoder_libde265.h)
+ set(LIBDE265_extra_plugin_sources ../error.cc)
+-plugin_compilation(libde265 LIBDE265 LIBDE265_FOUND LIBDE265 LIBDE265)
++plugin_compilation(libde265 LIBDE265 LIBDE265_FOUND LIBDE265 LIBDE265 de265)
+
+ set(DAV1D_sources decoder_dav1d.cc decoder_dav1d.h)
+ set(DAV1D_extra_plugin_sources ../error.cc ../common_utils.cc ../common_utils.h)
+@@ -59,15 +65,15 @@ plugin_compilation(dav1d DAV1D DAV1D_FOUND DAV1D DAV1D)
+
+ set(AOM_DECODER_sources decoder_aom.cc decoder_aom.h)
+ set(AOM_DECODER_extra_plugin_sources)
+-plugin_compilation(aomdec AOM AOM_DECODER_FOUND AOM_DECODER AOM_DECODER)
++plugin_compilation(aomdec AOM AOM_DECODER_FOUND AOM_DECODER AOM_DECODER AOM::aom)
+
+ set(AOM_ENCODER_sources encoder_aom.cc encoder_aom.h)
+ set(AOM_ENCODER_extra_plugin_sources ../error.cc ../common_utils.cc ../common_utils.h)
+-plugin_compilation(aomenc AOM AOM_ENCODER_FOUND AOM_ENCODER AOM_ENCODER)
++plugin_compilation(aomenc AOM AOM_ENCODER_FOUND AOM_ENCODER AOM_ENCODER AOM::aom)
+
+ set(SvtEnc_sources encoder_svt.cc encoder_svt.h)
+ set(SvtEnc_extra_plugin_sources ../error.cc ../common_utils.cc ../common_utils.h)
+-plugin_compilation(svtenc SvtEnc SvtEnc_FOUND SvtEnc SvtEnc)
++plugin_compilation(svtenc SvtEnc_PKGCONF SvtEnc_FOUND SvtEnc SvtEnc )
+
+ set(RAV1E_sources encoder_rav1e.cc encoder_rav1e.h)
+ set(RAV1E_extra_plugin_sources ../error.cc)
+@@ -75,19 +81,19 @@ plugin_compilation(rav1e RAV1E RAV1E_FOUND RAV1E RAV1E)
+
+ set(JPEG_DECODER_sources decoder_jpeg.cc decoder_jpeg.h)
+ set(JPEG_DECODER_extra_plugin_sources)
+-plugin_compilation(jpegdec JPEG JPEG_FOUND JPEG_DECODER JPEG_DECODER)
++plugin_compilation(jpegdec JPEG JPEG_FOUND JPEG_DECODER JPEG_DECODER JPEG::JPEG )
+
+ set(JPEG_ENCODER_sources encoder_jpeg.cc encoder_jpeg.h)
+ set(JPEG_ENCODER_extra_plugin_sources)
+-plugin_compilation(jpegenc JPEG JPEG_FOUND JPEG_ENCODER JPEG_ENCODER)
++plugin_compilation(jpegenc JPEG JPEG_FOUND JPEG_ENCODER JPEG_ENCODER JPEG::JPEG )
+
+ set(OpenJPEG_DECODER_sources decoder_openjpeg.cc decoder_openjpeg.h)
+-set(OpenJPEG_DECODER_extra_plugin_sources )
+-plugin_compilation(j2kdec OPENJPEG OPENJPEG_FOUND OpenJPEG_DECODER OPENJPEG_DECODER)
++set(OpenJPEG_DECODER_extra_plugin_sources )
++plugin_compilation(j2kdec OPENJPEG OPENJPEG_FOUND OpenJPEG_DECODER OPENJPEG_DECODER openjp2)
+
+ set(OpenJPEG_ENCODER_sources encoder_openjpeg.cc encoder_openjpeg.h)
+ set(OpenJPEG_ENCODER_extra_plugin_sources)
+-plugin_compilation(j2kenc OPENJPEG OPENJPEG_FOUND OpenJPEG_ENCODER OPENJPEG_ENCODER)
++plugin_compilation(j2kenc OPENJPEG OPENJPEG_FOUND OpenJPEG_ENCODER OPENJPEG_ENCODER openjp2)
+
+ set(KVAZAAR_sources encoder_kvazaar.cc encoder_kvazaar.h)
+ set(KVAZAAR_extra_plugin_sources)
+@@ -95,11 +101,11 @@ plugin_compilation(kvazaar KVAZAAR KVAZAAR_FOUND KVAZAAR KVAZAAR)
+
+ set(FFMPEG_DECODER_sources decoder_ffmpeg.cc decoder_ffmpeg.h)
+ set(FFMPEG_DECODER_extra_plugin_sources ../error.cc nalu_utils.cc)
+-plugin_compilation(ffmpegdec FFMPEG FFMPEG_FOUND FFMPEG_DECODER FFMPEG_DECODER)
++plugin_compilation(ffmpegdec FFMPEG FFMPEG_FOUND FFMPEG_DECODER FFMPEG_DECODER FFMPEG::avcodec)
+
+ set(OPENJPH_ENCODER_sources encoder_openjph.cc encoder_openjph.h)
+ set(OPENJPH_ENCODER_extra_plugin_sources)
+-plugin_compilation(jphenc OPENJPH OPENJPH_FOUND OPENJPH_ENCODER OPENJPH_ENCODER)
++plugin_compilation(jphenc OPENJPH OPENJPH_FOUND OPENJPH_ENCODER OPENJPH_ENCODER openjph)
+
+ set(UVG266_sources encoder_uvg266.cc encoder_uvg266.h)
+ set(UVG266_extra_plugin_sources)
+@@ -107,11 +113,11 @@ plugin_compilation(uvg266 UVG266 UVG266_FOUND UVG266 UVG266)
+
+ set(VVDEC_sources decoder_vvdec.cc decoder_vvdec.h)
+ set(VVDEC_extra_plugin_sources)
+-plugin_compilation(vvdec vvdec vvdec_FOUND VVDEC VVDEC)
++plugin_compilation(vvdec vvdec vvdec_FOUND VVDEC VVDEC vvdec::vvdec)
+
+ set(VVENC_sources encoder_vvenc.cc encoder_vvenc.h)
+ set(VVENC_extra_plugin_sources)
+-plugin_compilation(vvenc vvenc vvenc_FOUND VVENC VVENC)
++plugin_compilation(vvenc vvenc vvenc_FOUND VVENC VVENC vvenc::vvenc)
+
+ set(X264_sources encoder_x264.h encoder_x264.cc)
+ set(X264_extra_plugin_sources)
+@@ -141,5 +147,3 @@ if (WITH_WEBCODECS)
+ 		  decoder_webcodecs.cc)
+    target_compile_definitions(heif PRIVATE HAVE_WEBCODECS=1)
+ endif()
+-
+-

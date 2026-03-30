@@ -4,21 +4,42 @@
   "description": "Software Distribution and Building Platform for Windows",
   "site": "https://www.msys2.org/",
   "license": "any",
-  "process_time": "180",
-  "settings": [
+  "process_time": 180,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "enable": true,
-      "type": "chose",
-      "item": "{{ $versions }}",
+      "type": "choice",
+      "items": "{{ $versions }}",
       "default": "$latest_version"
     }
   ],
   "versions": {
     "default": {
+      "msys2_packages": [
+        "mingw-w64-ucrt-x86_64-toolchain",
+        // "mingw-w64-ucrt-x86_64-gcc",
+        // "mingw-w64-ucrt-x86_64-pkg-config",
+        // "mingw-w64-ucrt-x86_64-make",
+        // "mingw-w64-ucrt-x86_64-libtool",
+        "base-devel",
+        "diffutils",
+        "automake",
+        "autoconf",
+        "yasm",
+        "nasm",
+        "gettext-devel",
+        "git",
+        "python3",
+        "patch",
+        "bison",
+        "flex",
+        "gperf",
+        "gtk-doc"
+      ],
       "stages": {
         "install": {
+          "profile_file": "$package_dir\\ucrt64_profile.sh",
           "scripts": [
             {
               "message": "Download $name",
@@ -32,16 +53,43 @@
               "script": "7z x \"$msys_cache\" -so | 7z x -aoa -si -ttar -o\"$package_dir\""
             },
             {
-              "message": "Setup",
+              "message": "Initalize msys2 system",
               "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
               "chdir": "{{os.path.join($package_dir,'msys64')}}",
               "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c exit"
             },
             {
+              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
+              "chdir": "{{os.path.join($package_dir,'msys64')}}",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'mkdir -p /opt/ucrt64'"
+            },
+            {
+              "message": "Copy profile",
+              "script": "copy /y \"$profile_file\" \"{{os.path.join($package_dir,'msys64','etc','profile.d')}}\\\"",
+            },
+            {
+              "message": "Download msys2",
+              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
+              "chdir": "{{os.path.join($package_dir,'msys64')}}",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'until pacman -Syyuw --noconfirm; do sleep 10; done'"
+            },
+                {
+              "message": "Upgrade msys2",
+              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
+              "chdir": "{{os.path.join($package_dir,'msys64')}}",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'pacman -Syyu --noconfirm'"
+            },
+            {
+              "message": "Download build tools",
+              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
+              "chdir": "{{os.path.join($package_dir,'msys64')}}",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'until pacman -Sw --noconfirm {{' '.join($msys2_packages)}};do sleep 10;done'"
+            },
+            {
               "message": "Install build tools",
               "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
               "chdir": "{{os.path.join($package_dir,'msys64')}}",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'pacman -S --noconfirm make pkgconf diffutils'"
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'pacman -S --noconfirm {{' '.join($msys2_packages)}}'"
             }
           ]
         }
@@ -50,7 +98,10 @@
     "20241116": {
       "msys_url": "https://repo.msys2.org/distrib/x86_64/msys2-base-x86_64-20241116.tar.xz",
       "msys_cache": "$cache_rootdir\\msys2-base-x86_64-20241116.tar.xz"
+    },
+    "20251213": {
+      "msys_url": "https://repo.msys2.org/distrib/x86_64/msys2-base-x86_64-20251213.tar.xz",
+      "msys_cache": "$cache_rootdir\\msys2-base-x86_64-20251213.tar.xz"
     }
   }
 }
-

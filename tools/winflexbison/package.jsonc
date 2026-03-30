@@ -4,27 +4,29 @@
   "description": "Flex and Bison for Microsoft Windows",
   "site": "https://github.com/lexxmark/winflexbison",
   "license": "GPL-3.0, Unknown licenses found",
-  "process_time": "60",
-  "settings": [
+  "process_time": 60,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "type": "chose",
-      "item": "{{$versions}}",
+      "type": "choice",
+      "items": "{{$versions}}",
       "default": "$latest_version"
     },
     {
       "display": "MSVC toolset version",
       "name": "msvc_toolset_version",
-      "type": "chose",
-      "item": "{{$msvc_toolset_versions}}",
+      "enable": false,
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
       "default": "$msvc_toolset_version_default"
     },
     {
       "display": "MSVC runtime library",
       "name": "msvc_runtime_library",
-      "type": "chose",
-      "item": [
+      "enable": false,
+      "type": "choice",
+      "items": [
         "mt",
         "md"
       ],
@@ -33,8 +35,9 @@
     {
       "display": "Build arch",
       "name": "build_arch",
-      "type": "chose",
-      "item": [
+      "enable": false,
+      "type": "choice",
+      "items": [
         "x64",
         "x32"
       ],
@@ -43,8 +46,9 @@
     {
       "display": "Build library",
       "name": "build_library",
-      "type": "chose",
-      "item": [
+      "enable": false,
+      "type": "choice",
+      "items": [
         "static"
       ],
       "default": "static"
@@ -52,8 +56,9 @@
     {
       "display": "Build type",
       "name": "build_type",
-      "type": "chose",
-      "item": [
+      "enable": false,
+      "type": "choice",
+      "items": [
         "Release"
       ],
       "default": "Release"
@@ -61,8 +66,9 @@
     {
       "display": "Build layout",
       "name": "build_layout",
-      "type": "chose",
-      "item": [
+      "enable": false,
+      "type": "choice",
+      "items": [
         "union",
         "separation"
       ],
@@ -89,7 +95,7 @@
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
               "failed": "rmdir /q /s \"$source_dir\""
             },
             {

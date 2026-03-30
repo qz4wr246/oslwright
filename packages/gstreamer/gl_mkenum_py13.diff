@@ -1,0 +1,13 @@
+diff --git a/subprojects/gst-plugins-base/gst-libs/gst/gl/gl_mkenum.py b/subprojects/gst-plugins-base/gst-libs/gst/gl/gl_mkenum.py
+index 1f52f77..372c390 100644
+--- a/subprojects/gst-plugins-base/gst-libs/gst/gl/gl_mkenum.py
++++ b/subprojects/gst-plugins-base/gst-libs/gst/gl/gl_mkenum.py
+@@ -47,7 +47,7 @@ if ofilename.endswith('.h'):
+ else:
+     arg_array = c_array
+ 
+-cmd_array = cmd + arg_array + headers
++cmd_array = ['python'] + cmd + arg_array + headers
+ pc = subprocess.Popen(cmd_array, stdout=subprocess.PIPE)
+ (stdo, _) = pc.communicate()
+ if pc.returncode != 0:

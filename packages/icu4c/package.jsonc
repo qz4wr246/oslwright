@@ -4,37 +4,44 @@
   "description": "ICU - International Components for Unicode",
   "site": "https://icu.unicode.org/",
   "license": "UNICODE LICENSE V3",
-  "process_time": "340",
-  "settings": [
+  "process_time": 720,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "type": "chose",
-      "item": "{{$versions}}",
+      "type": "choice",
+      "items": "{{$versions}}",
       "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
     },
     {
       "display": "Build arch",
       "name": "build_arch",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "x64",
         "x32"
       ],
       "default": "$build_arch_default"
     },
     {
-      "display": "MSVC toolset version",
-      "name": "msvc_toolset_version",
-      "type": "chose",
-      "item": "{{$msvc_toolset_versions}}",
-      "default": "$msvc_toolset_version_default"
-    },
-    {
       "display": "MSVC runtime library",
       "name": "msvc_runtime_library",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "mt",
         "md"
       ],
@@ -44,8 +51,8 @@
       "display": "Build library",
       "name": "build_library",
       "enable": false,
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "shared",
         // "static"
       ],
@@ -54,8 +61,8 @@
     {
       "display": "Build type",
       "name": "build_type",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "Release;Debug"
       ],
       "default": "Release"
@@ -64,8 +71,8 @@
       "display": "Build layout",
       "name": "build_layout",
       "enable": false,
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "union",
         // "separation"
       ],
@@ -81,11 +88,11 @@
     {
       "display": "CUDA Version",
       "name": "cuda_version",
-      "enable": false,
-      "type": "chose",
-      "item": "{{$cuda_versions}}",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
-    }
+    },
   ],
   "versions": {
     "default": {
@@ -119,7 +126,7 @@
               "message": "extruct $name",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($zip_cache)}}",
               "script": "7z x -aoa \"$zip_cache\" -o\"$source_dir\"",
-              "failed": "rmdir /q /s \"$source_dir\""
+              "fallback": "rmdir /q /s \"$source_dir\""
             }
           ]
         },

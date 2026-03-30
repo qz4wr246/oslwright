@@ -5,37 +5,44 @@
   "site": "https://gen.glad.sh/",
   "license": "MIT, Khronos, EGL",
   "info": "info.md",
-  "process_time": "300",
-  "settings": [
+  "process_time": 300,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "type": "chose",
-      "item": "{{$versions}}",
+      "type": "choice",
+      "items": "{{$versions}}",
       "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
     },
     {
       "display": "Build arch",
       "name": "build_arch",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "x64",
         "x32"
       ],
       "default": "$build_arch_default"
     },
     {
-      "display": "MSVC toolset version",
-      "name": "msvc_toolset_version",
-      "type": "chose",
-      "item": "{{$msvc_toolset_versions}}",
-      "default": "$msvc_toolset_version_default"
-    },
-    {
       "display": "MSVC runtime library",
       "name": "msvc_runtime_library",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "mt",
         "md"
       ],
@@ -44,8 +51,8 @@
     {
       "display": "Build library",
       "name": "build_library",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "shared",
         "static"
       ],
@@ -54,8 +61,8 @@
     {
       "display": "Build type",
       "name": "build_type",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "Release",
         "Debug",
         "Release;Debug"
@@ -65,8 +72,8 @@
     {
       "display": "Build layout",
       "name": "build_layout",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "union",
         "separation"
       ],
@@ -82,11 +89,11 @@
     {
       "display": "CUDA Version",
       "name": "cuda_version",
-      "enable": false,
-      "type": "chose",
-      "item": "{{$cuda_versions}}",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
-    }
+    },
   ],
   "versions": {
     "default": {
@@ -100,7 +107,8 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://github.com/Dav1dde/glad.git",
-      "git_tag": "v${version}",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
           "scripts": [
@@ -111,20 +119,27 @@
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
-              "failed": "rmdir /q /s \"$source_dir\""
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git checkout.",
+              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$source_dir",
+              "script": "git checkout $git_hash",
+              "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "extruct from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
               "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
-              "failed": "rmdir /q /s \"$source_dir\""
+              "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "make cache.",
               "when": "{{not os.path.isfile($cache_file)}}",
               "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
-              "failed": "del \"$cache_file\""
+              "fallback": "del \"$cache_file\""
             }
           ]
         },
@@ -168,24 +183,24 @@
           ],
           "scripts": [
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "del /q /s \"$build_dir_debug\" > nul"
+              "script": "del /q /s \"$build_dir_debug\" > nul",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
               "when": "{{'Release' in $build_type }}",
-              "script": "del /q /s \"$build_dir_release\" > nul"
+              "script": "del /q /s \"$build_dir_release\" > nul",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
-              "script": "mkdir \"$build_dir_debug\""
+              "script": "mkdir \"$build_dir_debug\"",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
               "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
-              "script": "mkdir \"$build_dir_release\""
+              "script": "mkdir \"$build_dir_release\"",
+              "ignore_errors": true
             },
             {
               "message": "config for debug.",
@@ -252,24 +267,14 @@
           },
           "scripts": [
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
-              "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
-            },
-            {
-              "ignore_errors": true,
               "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
+              "ignore_errors": true
             }
           ]
         }

@@ -4,13 +4,13 @@
   "description": "pkg-config is a helper tool used when compiling applications and libraries.",
   "site": "https://www.freedesktop.org/wiki/Software/pkg-config",
   "license": "GPL v2",
-  "settings": [
+  "process_time": 180,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "enable": true,
-      "type": "chose",
-      "item": "{{$versions}}",
+      "type": "choice",
+      "items": "{{$versions}}",
       "default": "$latest_version"
     }
   ],
@@ -61,4 +61,3 @@
     }
   }
 }
-

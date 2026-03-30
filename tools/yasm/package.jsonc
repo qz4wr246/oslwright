@@ -1,0 +1,41 @@
+{
+  "name": "yasm",
+  "display": "YASM",
+  "description": "Yasm Modular Assembler",
+  "site": "http://yasm.tortall.net/",
+  "license": "2-clause BSD license",
+  "process_time": 180,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    }
+  ],
+  "versions": {
+    "default": {
+      "dist_dir": "$package_dir",
+      "yasm_url": "https://github.com/yasm/yasm/releases/download/v${version}/vsyasm-$version-win64.zip",
+      "yasm_cache": "$cache_rootdir\\vsyasm-$version-win64.zip",
+      "stages": {
+        "install": {
+          "scripts": [
+            {
+              "when": "{{ not os.path.isfile($yasm_cache) }}",
+              "chdir" : "$cache_rootdir",
+              "script": "curl.exe -L -s -o \"$yasm_cache\" \"$yasm_url\""
+            },
+            {
+              "when": "{{ os.path.isfile($yasm_cache) }}",
+              "script": "7z x -aoa -y -o\"$dist_dir\" \"$yasm_cache\""
+            }
+          ]
+        }
+      }
+    },
+    "1.3.0": {
+    }
+  }
+}

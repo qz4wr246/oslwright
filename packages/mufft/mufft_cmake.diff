@@ -1,0 +1,101 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 37780f4..cbd5ce5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ cmake_minimum_required(VERSION 3.5)
+ set(CMAKE_C_STANDARD 99)
+-project(muFFT LANGUAGES C)
++project(muFFT LANGUAGES C VERSION 0.1.0)
+ 
+ if (CMAKE_COMPILER_IS_GNUCC OR (${CMAKE_C_COMPILER_ID} MATCHES "Clang"))
+     # Cannot safely use -ffast-math, breaks on GCC due to reliance on -0.0f behavior.
+@@ -22,7 +22,12 @@ endif()
+ 
+ add_library(muFFT STATIC fft.c kernel.c cpu.c)
+ target_compile_options(muFFT PRIVATE ${MUFFT_C_FLAGS})
+-target_include_directories(muFFT PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
++target_include_directories(muFFT PUBLIC
++  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
++  $<INSTALL_INTERFACE:include>
++)
++
++set(INSTALL_TARGETS muFFT)
+ 
+ if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+     target_compile_definitions(muFFT PRIVATE MUFFT_HAVE_X86)
+@@ -36,6 +41,7 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+         target_compile_options(muFFT-sse PRIVATE ${MUFFT_C_FLAGS})
+         target_compile_definitions(muFFT PRIVATE MUFFT_HAVE_SSE)
+         target_link_libraries(muFFT PRIVATE muFFT-sse)
++        list(APPEND INSTALL_TARGETS muFFT-sse)
+     endif()
+ 
+     if (MUFFT_SIMD_SSE3)
+@@ -46,6 +52,7 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+         target_compile_options(muFFT-sse3 PRIVATE ${MUFFT_C_FLAGS})
+         target_compile_definitions(muFFT PRIVATE MUFFT_HAVE_SSE3)
+         target_link_libraries(muFFT PRIVATE muFFT-sse3)
++        list(APPEND INSTALL_TARGETS muFFT-sse3)
+     endif()
+ 
+     if (MUFFT_SIMD_AVX)
+@@ -56,6 +63,7 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+         target_compile_options(muFFT-avx PRIVATE ${MUFFT_C_FLAGS})
+         target_compile_definitions(muFFT PRIVATE MUFFT_HAVE_AVX)
+         target_link_libraries(muFFT PRIVATE muFFT-avx)
++        list(APPEND INSTALL_TARGETS muFFT-avx)
+     endif()
+ endif()
+ 
+@@ -87,3 +95,42 @@ if (MUFFT_ENABLE_FFTW)
+         #target_link_directories(muFFT-test PRIVATE ${FFTW3f_LIBRARY_DIRS})
+     endif()
+ endif()
++
++# include
++install(
++    FILES ${CMAKE_CURRENT_SOURCE_DIR}/fft.h
++    DESTINATION include
++)
++
++install(TARGETS ${INSTALL_TARGETS}
++  EXPORT ${PROJECT_NAME}-export
++  ARCHIVE DESTINATION lib
++  LIBRARY DESTINATION lib
++  PUBLIC_HEADER DESTINATION include
++  RUNTIME DESTINATION bin
++)
++
++include(CMakePackageConfigHelpers)
++install(EXPORT ${PROJECT_NAME}-export
++  FILE ${PROJECT_NAME}Targets.cmake
++  NAMESPACE ${PROJECT_NAME}::
++  DESTINATION lib/cmake/${PROJECT_NAME}
++  EXPORT_LINK_INTERFACE_LIBRARIES
++)
++
++write_basic_package_version_file(
++  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
++  COMPATIBILITY AnyNewerVersion
++)
++
++configure_package_config_file(
++    "${PROJECT_SOURCE_DIR}/Config.cmake.in"
++    "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
++    INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
++)
++
++install(FILES
++  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
++  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
++  DESTINATION lib/cmake/${PROJECT_NAME}
++)
+diff --git a/Config.cmake.in b/Config.cmake.in
+new file mode 100644
+index 0000000..6b38d9e
+--- /dev/null
++++ b/Config.cmake.in
+@@ -0,0 +1,2 @@
++@PACKAGE_INIT@
++include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")

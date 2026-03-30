@@ -1,0 +1,286 @@
+{
+  "name": "libiconv",
+  "display": "libiconv",
+  "description": "A library and utility designed for converting text between different character encodings",
+  "site": "https://www.gnu.org/software/libiconv/",
+  "license": "LGPL v2.1",
+  "info": "info.md",
+  "process_time": 300,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "choice",
+      "items": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "choice",
+      "items": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "type": "choice",
+      "items": [
+        "shared",
+        "static"
+      ],
+      "default": "$build_library_default"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "choice",
+      "items": [
+        "Release",
+        "Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "type": "choice",
+      "items": [
+        "union",
+        "separation"
+      ],
+      "default": "separation"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    }
+  ],
+  "versions": {
+    "default": {
+      "environments": {
+        "PERLIO": "raw",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+      },
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
+      "download_url": "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${version}.tar.gz",
+      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "donloads",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "curl.exe -L -s -o \"$cache_file\" \"$download_url\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extruct from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z x \"$cache_file\" -so| 7z x -aoa -si -ttar -o\"$source_rootdir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            }
+          ]
+        },
+        "patch": {
+          // "patch_file_01": "${package_dir}\\patches\\file01.patch",
+          "scripts": [
+            {
+              "message": "Clean /opt/ucrt64 directory in msys2",
+              "script" : "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'rm -rf /opt/ucrt64/*'",
+              "ignore_errors": false
+            },
+            // {
+            //   "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+            //   "chdir": "$source_dir",
+            //   "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+            // }
+          ]
+        },
+        "configure": {
+          "config_options":[],
+          "config_options_debug": [
+            "--prefix=/opt/libiconv/debug"
+          ],
+          "config_options_release": [
+            "--prefix=/opt/libiconv/release"
+          ],
+          "scripts": [
+            {
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "script": "del /q /s \"$build_dir_debug\" > nul",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type }}",
+              "script": "del /q /s \"$build_dir_release\" > nul",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
+              "script": "mkdir \"$build_dir_debug\"",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
+              "script": "mkdir \"$build_dir_release\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "config for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+              },
+              "chdir": "$build_dir_debug",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c '../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}'"
+            },
+            {
+              "message": "config for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+              },
+              "chdir": "$build_dir_release",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c '../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}'"
+            }
+          ]
+        },
+        "build": {
+          "scripts": [
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
+                "PERLIO": "raw"
+              },
+              "chdir": "$build_dir_debug",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make'"
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
+                "PERLIO": "raw"
+              },
+              "chdir": "$build_dir_release",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make'"
+            }
+          ]
+        },
+        "install": {
+          "scripts": [
+            {
+              "message": "install for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$build_dir_debug",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make install'"
+            },
+            {
+              "message": "install for release.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$build_dir_release",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make install'"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"${msys2_dir}\\opt\\libiconv\\debug\" \"$dist_dir_debug\" /e /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"${msys2_dir}\\opt\\libiconv\\release\" \"$dist_dir_release\" /e /is /njh /njs /ndl /nc /ns /np"
+            }
+          ]
+        },
+        "post-install": {
+          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
+          "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
+          "j2_template_01": "${package_dir}\\libiconv.pc.j2",
+          "j2_output_01_release": "${pkgconfig_dir_release}\\libiconv.pc",
+          "j2_output_01_debug": "${pkgconfig_dir_debug}\\libiconv.pc",
+          "environments": {
+            "PERLIO": "raw"
+          },
+          "scripts": [
+            {
+              "when":"{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "ignore_errors": true
+            },
+            {
+              "when":"{{'Release' in $build_type }}",
+              "chdir": "$dist_dir_release\\lib",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "jinja2 -D LIBRAW_VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_debug\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "jinja2 -D LIBRAW_VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_release\""
+            }
+          ]
+        }
+      }
+    },
+    "1.19": {}
+  }
+}

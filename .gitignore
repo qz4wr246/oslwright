@@ -1,11 +1,14 @@
 dist/
 sources/
-settings/
+options/
 cache/
+logs/
+build/
 .vscode/*.local.json
 .vscode/settings.json
 .vscode/launch.json
 .vscode/tasks.json
+oslwright_setting.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -13,7 +16,7 @@ __pycache__/
 *$py.class
 *.manifest
 *.spec
-
+.fletx/
 # Django stuff:
 *.log
 *.log.*
@@ -23,4 +26,8 @@ __pycache__/
 .venv
 venv
 # setting
-.oslwright_setting.jsonc
+oslwright_setting.jsonc
+oslwright.egg-info/
+main.spec
+.python-version
+uv.lock

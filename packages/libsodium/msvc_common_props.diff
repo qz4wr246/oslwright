@@ -1,0 +1,20 @@
+diff --git a/builds/msvc/properties/Common.props b/builds/msvc/properties/Common.props
+index 17b4284..78f6ef2 100644
+--- a/builds/msvc/properties/Common.props
++++ b/builds/msvc/properties/Common.props
+@@ -17,8 +17,13 @@
+       <WarningLevel>Level3</WarningLevel>
+     </ClCompile>
+   </ItemDefinitionGroup>
+-
+-  <ItemDefinitionGroup Condition="'$(PlatformToolsetVersion)' &gt;= '143'">
++  <PropertyGroup>
++    <!-- VS 2026 toolsets may not define PlatformToolsetVersion. Derive it from PlatformToolset when needed. -->
++    <_SodiumToolsetVersion Condition="'$(PlatformToolsetVersion)' != ''">$(PlatformToolsetVersion)</_SodiumToolsetVersion>
++    <_SodiumToolsetVersion Condition="'$(PlatformToolsetVersion)' == '' and $(PlatformToolset.StartsWith('v'))">$(PlatformToolset.Substring(1))</_SodiumToolsetVersion>
++    <_SodiumToolsetVersion Condition="'$(_SodiumToolsetVersion)' == ''">0</_SodiumToolsetVersion>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="$(_SodiumToolsetVersion) &gt;= 143">
+     <ClCompile>
+       <AdditionalOptions>/UndefIntOverflow- %(AdditionalOptions)</AdditionalOptions>
+     </ClCompile>

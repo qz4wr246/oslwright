@@ -1,0 +1,275 @@
+{
+  "name": "libsodium",
+  "display": "libsodium",
+  "description": "A modern, portable, easy to use crypto library.",
+  "site": "https://libsodium.org/",
+  "license": "ISC License",
+  "info": "info.md",
+  "process_time": 300,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "choice",
+      "items": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "choice",
+      "items": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "type": "choice",
+      "items": [
+        "shared",
+        "static"
+      ],
+      "default": "static"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "choice",
+      "items": [
+        "Release",
+        "Debug",
+        "Release;Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "enable":false,
+      "type": "choice",
+      "items": [
+        "union",
+        "separation"
+      ],
+      "default": "separation"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    }
+  ],
+  "versions": {
+    "default": {
+      "environments": {
+        "PERLIO": "raw",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+      },
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "git_url": "https://github.com/jedisct1/libsodium.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version + '-RELEASE'}}",
+      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git clone.",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git checkout.",
+              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$source_dir",
+              "script": "git checkout $git_hash",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extruct from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "make cache.",
+              "when": "{{not os.path.isfile($cache_file)}}",
+              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
+              "fallback": "del \"$cache_file\""
+            }
+          ]
+        },
+        "patch": {
+          "patch_file_01": "${package_dir}\\msvc_common_props.diff",
+          "scripts": [
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              "chdir": "$source_dir",
+              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+            }
+          ]
+        },
+        "build": {
+          "libsodium_sln": "$source_dir\\builds\\msvc\\vs{{$msvc_generator.split()[-1]}}\\libsodium.sln",
+          "msbuild_platform": "{{'Win32' if 'x32' == $build_arch else 'x64'}}",
+          "msbuild_configuration_release": "{{'Static' if 'static' == $build_library else 'Dyn'}}Release",
+          "msbuild_runtimelibrary_release": "MultiThreaded{{'DLL' if 'md' == $msvc_runtime_library else ''}}",
+          "msbuild_configuration_debug": "{{'Static' if 'static' == $build_library else 'Dyn'}}Debug",
+          "msbuild_runtimelibrary_debug": "MultiThreadedDebug{{'DLL' if 'md' == $msvc_runtime_library else ''}}",
+          "msbuild_outdir_release": "$build_dir_release\\bin\\$build_arch\\Release\\$msvc_toolset_version\\$msvc_runtime_library\\{{'static' if 'static' == $build_library else 'dynamic'}}\\\\",
+          "msbuild_outdir_debug": "$build_dir_debug\\bin\\$build_arch\\Debug\\$msvc_toolset_version\\$msvc_runtime_library\\{{'static' if 'static' == $build_library else 'dynamic'}}\\\\",
+          "msbuild_intdir_release": "$build_dir_release\\obj\\$build_arch\\Release\\$msvc_toolset_version\\$msvc_runtime_library\\{{'static' if 'static' == $build_library else 'dynamic'}}\\\\",
+          "msbuild_intdir_debug": "$build_dir_debug\\obj\\$build_arch\\Debug\\$msvc_toolset_version\\$msvc_runtime_library\\{{'static' if 'static' == $build_library else 'dynamic'}}\\\\",
+          "scripts": [
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+                "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
+                "PERLIO": "raw"
+              },
+              "script": "msbuild \"$libsodium_sln\" /p:OutDir=\"$msbuild_outdir_release\" /p:IntDir=\"$msbuild_intdir_release\" /p:Configuration=$msbuild_configuration_release /p:Platform=$msbuild_platform /p:RuntimeLibrary=$msbuild_runtimelibrary_release /t:clean;rebuild"
+            },
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
+                "PERLIO": "raw"
+              },
+              "script": "msbuild \"$libsodium_sln\" /p:OutDir=\"$msbuild_outdir_debug\" /p:IntDir=\"$msbuild_intdir_debug\" /p:Configuration=$msbuild_configuration_debug /p:Platform=$msbuild_platform /p:RuntimeLibrary=$msbuild_runtimelibrary_debug /t:clean;rebuild"
+            }
+          ]
+        },
+        "install": {
+          "msbuild_outdir_release": "$build_dir_release\\bin\\$build_arch\\Release\\$msvc_toolset_version\\$msvc_runtime_library\\{{'static' if 'static' == $build_library else 'dynamic'}}",
+          "msbuild_outdir_debug": "$build_dir_debug\\bin\\$build_arch\\Debug\\$msvc_toolset_version\\$msvc_runtime_library\\{{'static' if 'static' == $build_library else 'dynamic'}}",
+          "libsodium_lib_release": "$msbuild_outdir_release\\libsodium.lib",
+          "libsodium_pdb_release": "$msbuild_outdir_release\\libsodium.pdb",
+          "libsodium_dll_release": "$msbuild_outdir_release\\libsodium.dll",
+          "libsodium_lib_debug": "$msbuild_outdir_debug\\libsodium.lib",
+          "libsodium_pdb_debug": "$msbuild_outdir_debug\\libsodium.pdb",
+          "libsodium_dll_debug": "$msbuild_outdir_debug\\libsodium.dll",
+          "libsodium_incdir": "$source_dir\\src\\libsodium\\include",
+          "libsodium_pc_j2": "$package_dir\\libsodium.pc.j2",
+          "libsodium_pc": "libsodium.pc",
+          "jinja2_options" : [
+            "-D VERSION=\"$version\"",
+            "({'-D SODIUM_STATIC=\"SODIUM_STATIC\"' if 'static' == $build_library else ''}}"
+          ],
+          "scripts": [
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": true,
+              "script": "for %i in (bin, lib\\pkgconfig, include) do mkdir \"$dist_dir_release\\%i\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": true,
+              "script": "for %i in (bin, lib\\pkgconfig, include) do mkdir \"$dist_dir_debug\\%i\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$libsodium_incdir\" \"$dist_dir_release\\include\" *.h /S /IS /IT /NP /NFL /NDL /NJH /NJS /R:0 /W:0"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$libsodium_incdir\" \"$dist_dir_debug\\include\" *.h /S /IS /IT /NP /NFL /NDL /NJH /NJS /R:0 /W:0"
+            },
+            {
+              "when": "{{'Release' in $build_type and 'shared' == $build_library}}",
+              "ignore_errors": true,
+              "script": "copy /y \"$libsodium_dll_release\" \"$dist_dir_release\\bin\\\" >nul"
+            },
+            {
+              "when": "{{'Debug' in $build_type and 'shared' == $build_library}}",
+              "ignore_errors": true,
+              "script": "copy /y \"$libsodium_dll_debug\" \"$dist_dir_debug\\bin\\\" >nul"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": true,
+              "script": "copy /y \"$libsodium_lib_release\" \"$dist_dir_release\\lib\\\" >nul"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": true,
+              "script": "copy /y \"$libsodium_pdb_release\" \"$dist_dir_release\\lib\\\" >nul"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": true,
+              "script": "copy /y \"$libsodium_lib_debug\" \"$dist_dir_debug\\lib\\\" >nul"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": true,
+              "script": "copy /y \"$libsodium_pdb_debug\" \"$dist_dir_debug\\lib\\\" >nul"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "jinja2 -D VERSION=\"$version\" \"$libsodium_pc_j2\" > \"$dist_dir_release\\lib\\pkgconfig\\$libsodium_pc\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "jinja2 {{' '.join($jinja2_options)}} \"$libsodium_pc_j2\" > \"$dist_dir_debug\\lib\\pkgconfig\\$libsodium_pc\""
+            }
+          ]
+        }
+      }
+    },
+    "1.0.21": {}
+  }
+}

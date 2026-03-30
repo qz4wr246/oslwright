@@ -6,6 +6,9 @@ set SCRIPT_DIR=%_LD:~0,-1%
 set SCRIPT_FILE=%~dpnx0
 set VENV_DIR=%SCRIPT_DIR%\.venv
 
+cd %SCRIPT_DIR%
+chcp 65001
+
 @REM Check python venv
 if not exist "%VENV_DIR%" (
   echo #================================================
@@ -23,5 +26,5 @@ if not exist "%VENV_DIR%\Scripts\python3.exe" (
 
 @REM Launch oslwright
 call "%VENV_DIR%\Scripts\activate.bat"
-start /MIN "" python.exe -m oslwright
+start /MIN "" pythonw.exe main.py
 exit

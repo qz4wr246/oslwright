@@ -4,13 +4,13 @@
   "description": "GN is a meta-build system that generates build files for Ninja.",
   "site": "https://gn.googlesource.com/gn/",
   "license": "BSD-3-Clause",
-  "settings": [
+  "process_time": 300,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "enable": true,
-      "type": "chose",
-      "item": "{{ $versions }}",
+      "type": "choice",
+      "items": "{{ $versions }}",
       "default": "$latest_version"
     }
   ],
@@ -40,4 +40,3 @@
     }
   }
 }
-
