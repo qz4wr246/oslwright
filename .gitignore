@@ -20,6 +20,7 @@ __pycache__/
 # Django stuff:
 *.log
 *.log.*
+*.bak
 
 # Environments
 .env
