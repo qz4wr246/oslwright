@@ -5,7 +5,7 @@
   "site": "https://github.com/Themaister/muFFT",
   "license": "MIT, (GPLv2)",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 30,
   "options": [
     {
       "display": "Version",

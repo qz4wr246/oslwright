@@ -5,7 +5,7 @@
   "site": "https://www.flecs.dev/",
   "license": "Apache 2 License",
   "info": "info.md",
-  "process_time": 90,
+  "process_time": 80,
   "options": [
     {
       "display": "Version",

@@ -5,7 +5,7 @@
   "site": "https://curl.se/",
   "license": "The curl license",
   "info": "info.md",
-  "process_time": 90,
+  "process_time": 120,
   "options": [
     {
       "display": "Version",

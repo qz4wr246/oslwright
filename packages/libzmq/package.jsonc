@@ -5,7 +5,7 @@
   "site": "https://www.zeromq.org/",
   "license": "MPL-2.0 license",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 120,
   "options": [
     {
       "display": "Version",
@@ -190,6 +190,7 @@
           ],
           "cmake_genarator": "-G \"${msvc_generator}\" -A {{'x64' if ${build_arch} == 'x64' else 'Win32'}}",
           "cmake_options": [
+            "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
             "-DCMAKE_CXX_STANDARD=17",
             "-DCMAKE_C_STANDARD=17",
             "-DCMAKE_CXX_STANDARD_REQUIRED=ON",

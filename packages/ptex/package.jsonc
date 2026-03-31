@@ -5,7 +5,7 @@
   "site": "https://www.disneyanimation.com/open-source/ptex/",
   "license": "Modified BSD License (3-Clause BSD License)",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 40,
   "options": [
     {
       "display": "Version",

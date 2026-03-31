@@ -4,7 +4,7 @@
   "description": "JSON implementation in C",
   "site": "github.com/json-c/json-c/wiki",
   "license": "MIT License",
-  "process_time": 90,
+  "process_time": 70,
   "options": [
     {
       "display": "Version",

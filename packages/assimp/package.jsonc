@@ -5,7 +5,7 @@
   "site": "https://www.assimp.org/",
   "license": "3-clause BSD-License,modifyed",
   "info": "info.md",
-  "process_time": 500,
+  "process_time": 450,
   "options": [
     {
       "display": "Version",

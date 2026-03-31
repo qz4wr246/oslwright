@@ -5,7 +5,7 @@
   "site": "http://think-async.com/Asio",
   "license": "BSL-1.0",
   "info": "info.md",
-  "process_time": 30,
+  "process_time": 40,
   "options": [
     {
       "display": "Version",

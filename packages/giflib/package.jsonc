@@ -5,7 +5,7 @@
   "site": "https://giflib.sourceforge.net/",
   "license": "MIT License",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 40,
   "options": [
     {
       "display": "Version",
@@ -77,7 +77,7 @@
         "union",
         "separation"
       ],
-      "default": "union"
+      "default": "separation"
     },
     {
       "display": "Using CUDA",
@@ -112,7 +112,7 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://git.code.sf.net/p/giflib/code",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
@@ -173,8 +173,6 @@
             "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
             "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
             "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
-            "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
-            "-DCMAKE_DEBUG_POSTFIX=d",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}"

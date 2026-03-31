@@ -5,7 +5,7 @@
   "site": "https://openal-soft.org/",
   "license": "GNU Lesser General Public License v2.1",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 280,
   "options": [
     {
       "display": "Version",
@@ -119,7 +119,7 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://github.com/kcat/openal-soft.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {

@@ -5,7 +5,7 @@
   "site": "https://log4cplus.github.io/log4cplus/",
   "license": "Log4cplus license",
   "info": "info.md",
-  "process_time": 180,
+  "process_time": 140,
   "options": [
     {
       "display": "Version",

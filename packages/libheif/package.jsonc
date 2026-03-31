@@ -5,7 +5,7 @@
   "site": "https://github.com/strukturag/libheif",
   "license": "LGPLv3, GPLv2+",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 390,
   "options": [
     {
       "display": "Version",
@@ -144,7 +144,7 @@
         "dav1d":{
           "version": ">=1.5"
         },
-        "vveec":{
+        "vvenc":{
           "version": ">=1.14"
         },
         "vvdec":{

@@ -5,7 +5,7 @@
   "site": "https://pocketpy.dev/",
   "license": "MIT license",
   "info": "info.md",
-  "process_time": 60,
+  "process_time": 40,
   "options": [
     {
       "display": "Version",

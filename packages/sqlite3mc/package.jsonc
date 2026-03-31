@@ -5,7 +5,7 @@
   "site": "https://utelle.github.io/SQLite3MultipleCiphers",
   "license": "MIT license",
   "info":"info.md",
-  "process_time": 120,
+  "process_time": 150,
   "options": [
     {
       "display": "Version",

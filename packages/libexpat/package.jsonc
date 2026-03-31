@@ -5,7 +5,7 @@
   "site": "https://libexpat.github.io/",
   "license": "MIT",
   "info": "info.md",
-  "process_time": 65,
+  "process_time": 60,
   "options": [
     {
       "display": "Version",

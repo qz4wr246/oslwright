@@ -97,11 +97,6 @@
   ],
   "versions": {
     "default": {
-      "dependencies": {
-        "fmtlib": {
-          "version": ">=11.0.0"
-        }
-      },
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
@@ -259,6 +254,19 @@
         }
       }
     },
-    "1.14.1": {}
+    "1.14.1": {
+      "dependencies": {
+        "fmtlib": {
+          "version": "==11.0.2"
+        }
+      }
+    },
+    "1.17.0": {
+            "dependencies": {
+        "fmtlib": {
+          "version": ">=12.1.0"
+        }
+      }
+    }
   }
 }

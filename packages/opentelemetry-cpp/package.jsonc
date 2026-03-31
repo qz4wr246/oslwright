@@ -5,7 +5,7 @@
   "site": "https://opentelemetry.io/",
   "license": "Apache 2 License",
   "info": "info.md",
-  "process_time": 150,
+  "process_time": 250,
   "options": [
     {
       "display": "Version",

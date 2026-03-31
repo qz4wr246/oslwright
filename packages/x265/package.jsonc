@@ -5,7 +5,7 @@
   "site": "https://www.x265.org/",
   "license": "GPL-2.0 license",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 500,
   "options": [
     {
       "display": "Version",
@@ -112,7 +112,7 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://github.com/videolan/x265.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
@@ -148,16 +148,16 @@
             }
           ]
         },
-        // "patch": {
-        //   "patch_file_01": "${package_dir}\\patches\\file01.patch",
-        //   "scripts": [
-        //     {
-        //       "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
-        //       "chdir": "$source_dir",
-        //       "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
-        //     }
-        //   ]
-        // },
+        "patch": {
+          "patch_file_01": "${package_dir}\\x265_cmake.diff",
+          "scripts": [
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              "chdir": "$source_dir",
+              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+            }
+          ]
+        },
         "configure": {
           "cmake_genarator": "-G \"${msvc_generator}\" -A {{'x64' if ${build_arch} == 'x64' else 'Win32'}}",
           "cmake_options": [

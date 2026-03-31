@@ -5,7 +5,7 @@
   "site": "https://github.com/tinygettext/tinygettext",
   "license": "zlib license",
   "info": "info.md",
-  "process_time": 80,
+  "process_time": 40,
   "options": [
     {
       "display": "Version",

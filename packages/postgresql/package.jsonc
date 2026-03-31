@@ -5,7 +5,7 @@
   "site": "https://facebook.github.io/zstd",
   "license": " PostgreSQL License",
   "info":"info.md",
-  "process_time": 700,
+  "process_time": 730,
   "options": [
     {
       "display": "Version",

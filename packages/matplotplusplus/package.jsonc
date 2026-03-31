@@ -5,7 +5,7 @@
   "site": "https://alandefreitas.github.io/matplotplusplus/",
   "license": "MIT license",
   "info": "info.md",
-  "process_time": 720,
+  "process_time": 200,
   "options": [
     {
       "display": "Version",

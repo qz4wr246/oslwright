@@ -5,7 +5,7 @@
   "site": "https://grpc.io/",
   "license": "Apache 2 License",
   "info": "info.md",
-  "process_time": 3400,
+  "process_time": 3600,
   "options": [
     {
       "display": "Version",

@@ -5,7 +5,7 @@
   "site": "https://www.hhi.fraunhofer.de/en/departments/vca/technologies-and-solutions/h266-vvc.html",
   "license": "BSD-3-Clause-Clear license",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 120,
   "options": [
     {
       "display": "Version",

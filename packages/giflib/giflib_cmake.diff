@@ -1,9 +1,9 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 new file mode 100644
-index 0000000..65e22cc
+index 0000000..cb9d4bb
 --- /dev/null
 +++ b/CMakeLists.txt
-@@ -0,0 +1,81 @@
+@@ -0,0 +1,110 @@
 +cmake_minimum_required(VERSION 3.10)
 +
 +file(READ "${CMAKE_CURRENT_SOURCE_DIR}/gif_lib.h" GIFLIB_HEADER)
@@ -15,11 +15,12 @@ index 0000000..65e22cc
 +set(GIFLIB_RELEASE "${CMAKE_MATCH_1}")
 +set(GIFLIB_VERSION "${GIFLIB_MAJOR}.${GIFLIB_MINOR}.${GIFLIB_RELEASE}")
 +
-+
 +project(GIF LANGUAGES C VERSION ${GIFLIB_VERSION})
++include(GNUInstallDirs)
 +
 +set(PUBLIC_HEADERS
 +  gif_lib.h
++  "${CMAKE_CURRENT_BINARY_DIR}/gif_lib_export.h"
 +)
 +
 +set(PRIVATE_HEADERS
@@ -38,10 +39,16 @@ index 0000000..65e22cc
 +  openbsd-reallocarray.c
 +)
 +
-+add_library (${PROJECT_NAME}
++add_library(${PROJECT_NAME}
 +  ${SOURCES}
 +  ${PUBLIC_HEADERS}
 +  ${PRIVATE_HEADERS}
++)
++
++target_include_directories(${PROJECT_NAME} PUBLIC
++    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
++    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
++    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 +)
 +
 +set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
@@ -49,16 +56,38 @@ index 0000000..65e22cc
 +
 +add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 +
-+target_include_directories(${PROJECT_NAME} INTERFACE
-+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
-+  $<INSTALL_INTERFACE:include>)
++if(MSVC)
++  if(BUILD_SHARED_LIBS)
++    target_compile_definitions(${PROJECT_NAME} PRIVATE GIFLIB_EXPORTS)
++    set(GIFLIB_STATIC_DEFINE "")
++  else()
++    target_compile_definitions(${PROJECT_NAME} PRIVATE GIFLIB_STATIC_DEFINE)
++    set(GIFLIB_STATIC_DEFINE "#define GIFLIB_STATIC_DEFINE 1")
++  endif()
++endif()
++
++configure_file(
++    "${CMAKE_CURRENT_SOURCE_DIR}/gif_lib_export.h.in"
++    "${CMAKE_CURRENT_BINARY_DIR}/gif_lib_export.h"
++    @ONLY
++)
++
++configure_file(
++    "${CMAKE_CURRENT_SOURCE_DIR}/GIF.pc.in"
++    "${CMAKE_CURRENT_BINARY_DIR}/GIF.pc"
++    @ONLY
++)
 +
 +install(TARGETS ${PROJECT_NAME}
-+  EXPORT ${PROJECT_NAME}-export
-+  ARCHIVE DESTINATION lib
-+  LIBRARY DESTINATION lib
-+  PUBLIC_HEADER DESTINATION include
-+  RUNTIME DESTINATION bin
++    EXPORT ${PROJECT_NAME}-export
++    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
++)
++
++install(FILES "${CMAKE_CURRENT_BINARY_DIR}/GIF.pc"
++    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 +)
 +
 +include(CMakePackageConfigHelpers)
@@ -76,8 +105,8 @@ index 0000000..65e22cc
 +
 +configure_package_config_file(
 +    "${PROJECT_SOURCE_DIR}/Config.cmake.in"
-+    "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-+    INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
++    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
++    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 +)
 +
 +install(FILES
@@ -93,3 +122,198 @@ index 0000000..6b38d9e
 @@ -0,0 +1,2 @@
 +@PACKAGE_INIT@
 +include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
+diff --git a/GIF.pc.in b/GIF.pc.in
+new file mode 100644
+index 0000000..cab0f1f
+--- /dev/null
++++ b/GIF.pc.in
+@@ -0,0 +1,10 @@
++prefix=${pcfiledir}/../..
++exec_prefix=${prefix}
++libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
++includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
++
++Name: @PROJECT_NAME@
++Description: GIF Library with Export Headers
++Version: @PROJECT_VERSION@
++Libs: -L${libdir} -lGIF
++Cflags: -I${includedir}
+diff --git a/gif_lib.h b/gif_lib.h
+index c75c20b..5c1a3eb 100644
+--- a/gif_lib.h
++++ b/gif_lib.h
+@@ -22,6 +22,7 @@ extern "C" {
+ 
+ #include <stdbool.h>
+ #include <stddef.h>
++#include "gif_lib_export.h"
+ 
+ #define GIF_STAMP "GIFVER" /* First chars in file - GIF stamp.  */
+ #define GIF_STAMP_LEN sizeof(GIF_STAMP) - 1
+@@ -125,13 +126,13 @@ typedef struct GraphicsControlBlock {
+ ******************************************************************************/
+ 
+ /* Main entry points */
+-GifFileType *EGifOpenFileName(const char *GifFileName,
++GIFLIB_EXPORT GifFileType *EGifOpenFileName(const char *GifFileName,
+                               const bool GifTestExistence, int *Error);
+-GifFileType *EGifOpenFileHandle(const int GifFileHandle, int *Error);
+-GifFileType *EGifOpen(void *userPtr, OutputFunc writeFunc, int *Error);
+-int EGifSpew(GifFileType *GifFile, int *ErrorCode);
+-const char *EGifGetGifVersion(GifFileType *GifFile); /* new in 5.x */
+-int EGifCloseFile(GifFileType *GifFile, int *ErrorCode);
++GIFLIB_EXPORT GifFileType *EGifOpenFileHandle(const int GifFileHandle, int *Error);
++GIFLIB_EXPORT GifFileType *EGifOpen(void *userPtr, OutputFunc writeFunc, int *Error);
++GIFLIB_EXPORT int EGifSpew(GifFileType *GifFile, int *ErrorCode);
++GIFLIB_EXPORT const char *EGifGetGifVersion(GifFileType *GifFile); /* new in 5.x */
++GIFLIB_EXPORT int EGifCloseFile(GifFileType *GifFile, int *ErrorCode);
+ 
+ #define E_GIF_SUCCEEDED 0
+ #define E_GIF_ERR_OPEN_FAILED 201 /* And EGif possible errors. */
+@@ -146,39 +147,39 @@ int EGifCloseFile(GifFileType *GifFile, int *ErrorCode);
+ #define E_GIF_ERR_NOT_WRITEABLE 210
+ 
+ /* These are legacy.  You probably do not want to call them directly */
+-int EGifPutScreenDesc(GifFileType *GifFile, const int GifWidth,
++GIFLIB_EXPORT int EGifPutScreenDesc(GifFileType *GifFile, const int GifWidth,
+                       const int GifHeight, const int GifColorRes,
+                       const int GifBackGround,
+                       const ColorMapObject *GifColorMap);
+-int EGifPutImageDesc(GifFileType *GifFile, const int GifLeft, const int GifTop,
++GIFLIB_EXPORT int EGifPutImageDesc(GifFileType *GifFile, const int GifLeft, const int GifTop,
+                      const int GifWidth, const int GifHeight,
+                      const bool GifInterlace,
+                      const ColorMapObject *GifColorMap);
+-void EGifSetGifVersion(GifFileType *GifFile, const bool gif89);
+-int EGifPutLine(GifFileType *GifFile, GifPixelType *GifLine, int GifLineLen);
+-int EGifPutPixel(GifFileType *GifFile, const GifPixelType GifPixel);
+-int EGifPutComment(GifFileType *GifFile, const char *GifComment);
+-int EGifPutExtensionLeader(GifFileType *GifFile, const int GifExtCode);
+-int EGifPutExtensionBlock(GifFileType *GifFile, const int GifExtLen,
++GIFLIB_EXPORT void EGifSetGifVersion(GifFileType *GifFile, const bool gif89);
++GIFLIB_EXPORT int EGifPutLine(GifFileType *GifFile, GifPixelType *GifLine, int GifLineLen);
++GIFLIB_EXPORT int EGifPutPixel(GifFileType *GifFile, const GifPixelType GifPixel);
++GIFLIB_EXPORT int EGifPutComment(GifFileType *GifFile, const char *GifComment);
++GIFLIB_EXPORT int EGifPutExtensionLeader(GifFileType *GifFile, const int GifExtCode);
++GIFLIB_EXPORT int EGifPutExtensionBlock(GifFileType *GifFile, const int GifExtLen,
+                           const void *GifExtension);
+-int EGifPutExtensionTrailer(GifFileType *GifFile);
+-int EGifPutExtension(GifFileType *GifFile, const int GifExtCode,
++GIFLIB_EXPORT int EGifPutExtensionTrailer(GifFileType *GifFile);
++GIFLIB_EXPORT int EGifPutExtension(GifFileType *GifFile, const int GifExtCode,
+                      const int GifExtLen, const void *GifExtension);
+-int EGifPutCode(GifFileType *GifFile, int GifCodeSize,
++GIFLIB_EXPORT int EGifPutCode(GifFileType *GifFile, int GifCodeSize,
+                 const GifByteType *GifCodeBlock);
+-int EGifPutCodeNext(GifFileType *GifFile, const GifByteType *GifCodeBlock);
++GIFLIB_EXPORT int EGifPutCodeNext(GifFileType *GifFile, const GifByteType *GifCodeBlock);
+ 
+ /******************************************************************************
+  GIF decoding routines
+ ******************************************************************************/
+ 
+ /* Main entry points */
+-GifFileType *DGifOpenFileName(const char *GifFileName, int *Error);
+-GifFileType *DGifOpenFileHandle(int GifFileHandle, int *Error);
+-int DGifSlurp(GifFileType *GifFile);
+-GifFileType *DGifOpen(void *userPtr, InputFunc readFunc,
++GIFLIB_EXPORT GifFileType *DGifOpenFileName(const char *GifFileName, int *Error);
++GIFLIB_EXPORT GifFileType *DGifOpenFileHandle(int GifFileHandle, int *Error);
++GIFLIB_EXPORT int DGifSlurp(GifFileType *GifFile);
++GIFLIB_EXPORT GifFileType *DGifOpen(void *userPtr, InputFunc readFunc,
+                       int *Error); /* new one (TVT) */
+-int DGifCloseFile(GifFileType *GifFile, int *ErrorCode);
++GIFLIB_EXPORT int DGifCloseFile(GifFileType *GifFile, int *ErrorCode);
+ 
+ #define D_GIF_SUCCEEDED 0
+ #define D_GIF_ERR_OPEN_FAILED 101 /* And DGif possible errors. */
+@@ -196,25 +197,25 @@ int DGifCloseFile(GifFileType *GifFile, int *ErrorCode);
+ #define D_GIF_ERR_EOF_TOO_SOON 113
+ 
+ /* These are legacy.  You probably do not want to call them directly */
+-int DGifGetScreenDesc(GifFileType *GifFile);
+-int DGifGetRecordType(GifFileType *GifFile, GifRecordType *GifType);
+-int DGifGetImageHeader(GifFileType *GifFile);
+-int DGifGetImageDesc(GifFileType *GifFile);
+-int DGifGetLine(GifFileType *GifFile, GifPixelType *GifLine, int GifLineLen);
+-int DGifGetPixel(GifFileType *GifFile, GifPixelType GifPixel);
+-int DGifGetExtension(GifFileType *GifFile, int *GifExtCode,
++GIFLIB_EXPORT int DGifGetScreenDesc(GifFileType *GifFile);
++GIFLIB_EXPORT int DGifGetRecordType(GifFileType *GifFile, GifRecordType *GifType);
++GIFLIB_EXPORT int DGifGetImageHeader(GifFileType *GifFile);
++GIFLIB_EXPORT int DGifGetImageDesc(GifFileType *GifFile);
++GIFLIB_EXPORT int DGifGetLine(GifFileType *GifFile, GifPixelType *GifLine, int GifLineLen);
++GIFLIB_EXPORT int DGifGetPixel(GifFileType *GifFile, GifPixelType GifPixel);
++GIFLIB_EXPORT int DGifGetExtension(GifFileType *GifFile, int *GifExtCode,
+                      GifByteType **GifExtension);
+-int DGifGetExtensionNext(GifFileType *GifFile, GifByteType **GifExtension);
+-int DGifGetCode(GifFileType *GifFile, int *GifCodeSize,
++GIFLIB_EXPORT int DGifGetExtensionNext(GifFileType *GifFile, GifByteType **GifExtension);
++GIFLIB_EXPORT int DGifGetCode(GifFileType *GifFile, int *GifCodeSize,
+                 GifByteType **GifCodeBlock);
+-int DGifGetCodeNext(GifFileType *GifFile, GifByteType **GifCodeBlock);
+-int DGifGetLZCodes(GifFileType *GifFile, int *GifCode);
+-const char *DGifGetGifVersion(GifFileType *GifFile);
++GIFLIB_EXPORT int DGifGetCodeNext(GifFileType *GifFile, GifByteType **GifCodeBlock);
++GIFLIB_EXPORT int DGifGetLZCodes(GifFileType *GifFile, int *GifCode);
++GIFLIB_EXPORT const char *DGifGetGifVersion(GifFileType *GifFile);
+ 
+ /******************************************************************************
+  Error handling and reporting.
+ ******************************************************************************/
+-extern const char *GifErrorString(int ErrorCode); /* new in 2012 - ESR */
++GIFLIB_EXPORT const char *GifErrorString(int ErrorCode); /* new in 2012 - ESR */
+ 
+ /*****************************************************************************
+  Everything below this point is new after version 1.2, supporting `slurp
+diff --git a/gif_lib_export.h.in b/gif_lib_export.h.in
+new file mode 100644
+index 0000000..623ef39
+--- /dev/null
++++ b/gif_lib_export.h.in
+@@ -0,0 +1,45 @@
++
++#ifndef GIFLIB_EXPORT_H
++#define GIFLIB_EXPORT_H
++
++@GIFLIB_STATIC_DEFINE@
++
++#ifdef GIFLIB_STATIC_DEFINE
++#  define GIFLIB_EXPORT
++#  define GIFLIB_NO_EXPORT
++#else
++#  ifndef GIFLIB_EXPORT
++#    ifdef GIFLIB_EXPORTS
++        /* We are building this library */
++#      define GIFLIB_EXPORT __declspec(dllexport)
++#    else
++        /* We are using this library */
++#      define GIFLIB_EXPORT __declspec(dllimport)
++#    endif
++#  endif
++
++#  ifndef GIFLIB_NO_EXPORT
++#    define GIFLIB_NO_EXPORT
++#  endif
++#endif
++
++#ifndef GIFLIB_DEPRECATED
++#  define GIFLIB_DEPRECATED __declspec(deprecated)
++#endif
++
++#ifndef GIFLIB_DEPRECATED_EXPORT
++#  define GIFLIB_DEPRECATED_EXPORT GIFLIB_EXPORT GIFLIB_DEPRECATED
++#endif
++
++#ifndef GIFLIB_DEPRECATED_NO_EXPORT
++#  define GIFLIB_DEPRECATED_NO_EXPORT GIFLIB_NO_EXPORT GIFLIB_DEPRECATED
++#endif
++
++/* NOLINTNEXTLINE(readability-avoid-unconditional-preprocessor-if) */
++#if 0 /* DEFINE_NO_DEPRECATED */
++#  ifndef GIFLIB_NO_DEPRECATED
++#    define GIFLIB_NO_DEPRECATED
++#  endif
++#endif
++
++#endif /* GIFLIB_EXPORT_H */

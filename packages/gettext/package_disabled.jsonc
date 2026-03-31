@@ -1,11 +1,11 @@
 {
-  "name": "libpqxx",
-  "display": "libpqxx",
-  "description": "The official C++ client API for PostgreSQL.",
-  "site": "http://pqxx.org/libpqxx/",
-  "license": "BSD-3-Clause license",
+  "name": "gettext",
+  "display": "gettext",
+  "description": "A standard system and library for the internationalization (i18n) and localization (l10n) of software.",
+  "site": "https://www.gnu.org/software/gettext/",
+  "license": "GPL v3, LGPL v2.1",
   "info": "info.md",
-  "process_time": 80,
+  "process_time": 300,
   "options": [
     {
       "display": "Version",
@@ -51,12 +51,13 @@
     {
       "display": "Build library",
       "name": "build_library",
+      "enable":false,
       "type": "choice",
       "items": [
         "shared",
         "static"
       ],
-      "default": "$build_library_default"
+      "default": "shared"
     },
     {
       "display": "Build type",
@@ -64,8 +65,7 @@
       "type": "choice",
       "items": [
         "Release",
-        "Debug",
-        "Release;Debug"
+        "Debug"
       ],
       "default": "Release"
     },
@@ -77,7 +77,7 @@
         "union",
         "separation"
       ],
-      "default": "union"
+      "default": "separation"
     },
     {
       "display": "Using CUDA",
@@ -93,13 +93,13 @@
       "type": "choice",
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
-    },
+    }
   ],
   "versions": {
     "default": {
       "dependencies": {
-        "postgresql": {
-          "version": ">=17.6"
+        "libiconv":{
+          "version": ">=1.19"
         }
       },
       "environments": {
@@ -115,10 +115,9 @@
       "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
-      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/jtv/libpqxx.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
-      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
+      "download_url": "https://ftp.gnu.org/pub/gnu/gettext/gettext-${version}.tar.gz",
+      "msys2_root_dir" : "${tools_rootdir}\\msys2\\msys64",
       "stages": {
         "download": {
           "scripts": [
@@ -127,63 +126,49 @@
               "script": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "git clone.",
+              "message": "donloads",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
-              "fallback": "rmdir /q /s \"$source_dir\""
-            },
-            {
-              "message": "git checkout.",
-              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "chdir": "$source_dir",
-              "script": "git checkout $git_hash",
+              "script": "curl.exe -L -s -o \"$cache_file\" \"$download_url\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "extruct from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "script": "7z x \"$cache_file\" -so| 7z x -aoa -si -ttar -o\"$source_rootdir\"",
               "fallback": "rmdir /q /s \"$source_dir\""
-            },
-            {
-              "message": "make cache.",
-              "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
-              "fallback": "del \"$cache_file\""
             }
           ]
         },
-        // "patch": {
-        //   "patch_file_01": "${package_dir}\\patches\\file01.patch",
-        //   "scripts": [
-        //     {
-        //       "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
-        //       "chdir": "$source_dir",
-        //       "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
-        //     }
-        //   ]
-        // },
+        "patch": {
+          // "patch_file_01": "${package_dir}\\patches\\file01.patch",
+          "scripts": [
+            {
+              "message": "Clean /opt/ucrt64 directory in msys2",
+              "script" : "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'rm -rf /opt/ucrt64/*'",
+              "ignore_errors": false
+            },
+            // {
+            //   "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+            //   "chdir": "$source_dir",
+            //   "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+            // }
+          ]
+        },
         "configure": {
-          "cmake_genarator": "-G \"Ninja Multi-Config\"",
-          "cmake_options": [
-            "-DCMAKE_CXX_STANDARD=17",
-            "-DCMAKE_C_STANDARD=17",
-            "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
-            "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
-            "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
-            "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
-            "-DCMAKE_DEBUG_POSTFIX=d",
-            "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
-            "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
-            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DBUILD_DOC=OFF",
-            "-DBUILD_TEST=OFF"
+          "config_options":[
+            "--host=x86_64-w64-mingw32",
+            "--build=x86_64-w64-mingw32",
+            "--disable-static",
+            "--enable-shared",
+            "--with-included-gettext",
+            "--with-included-libintl",
+            "--with-included-libtextstyle"
           ],
-          "cmake_options_debug": [
-            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
+          "config_options_debug": [
+            "--prefix=/opt/gettext/debug"
           ],
-          "cmake_options_release": [
-            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_release\""
+          "config_options_release": [
+            "--prefix=/opt/gettext/release"
           ],
           "scripts": [
             {
@@ -208,23 +193,21 @@
             },
             {
               "message": "config for debug.",
-              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
-                "PKG_CONFIG_PATH": "$pkg_config_path_debug",
-                "PERLIO": "raw"
+                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
-              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\" -B \"$build_dir_debug\""
+              "chdir": "$build_dir_debug",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c '../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}'"
             },
             {
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "CMAKE_PREFIX_PATH": "$dependent_packages_release",
-                "PKG_CONFIG_PATH": "$pkg_config_path_release",
-                "PERLIO": "raw"
+                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
-              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
+              "chdir": "$build_dir_release",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c '../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}'"
             }
           ]
         },
@@ -237,7 +220,8 @@
                 "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
                 "PERLIO": "raw"
               },
-              "script": "cmake --build \"$build_dir_debug\" --config Debug -j4"
+              "chdir": "$build_dir_debug",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make'"
             },
             {
               "message": "build for release.",
@@ -246,7 +230,8 @@
                 "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
                 "PERLIO": "raw"
               },
-              "script": "cmake --build \"$build_dir_release\" --config Release -j4"
+              "chdir": "$build_dir_release",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make'"
             }
           ]
         },
@@ -255,35 +240,71 @@
             {
               "message": "install for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "script": "cmake --install \"$build_dir_debug\" --config Debug"
+              "chdir": "$build_dir_debug",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make install'"
             },
             {
               "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
-              "script": "cmake --install \"$build_dir_release\" --config Release"
+              "chdir": "$build_dir_release",
+              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make install'"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"${msys2_root_dir}\\opt\\gettext\\debug\" \"$dist_dir_debug\" /e /is /njh /njs /ndl /nc /ns /np"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"${msys2_root_dir}\\opt\\gettext\\release\" \"$dist_dir_release\" /e /is /njh /njs /ndl /nc /ns /np"
             }
           ]
         },
-        "post-install" :{
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
+        "post-install": {
+          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
+          "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
+          "j2_template_01": "${package_dir}\\libintl.pc.j2",
+          "j2_output_01_release": "${pkgconfig_dir_release}\\libintl.pc",
+          "j2_output_01_debug": "${pkgconfig_dir_debug}\\libintl.pc",
           "environments": {
             "PERLIO": "raw"
           },
           "scripts": [
             {
+              "when":"{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "ignore_errors": true
+            },
+            {
+              "when":"{{'Release' in $build_type }}",
+              "chdir": "$dist_dir_release\\lib",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "ignore_errors": true
+            },
+            {
               "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
+              "script": "mkdir $pkgconfig_dir_debug",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_debug\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "mkdir $pkgconfig_dir_release",
               "ignore_errors": true
             },
             {
               "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
-              "ignore_errors": true
+              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_release\""
             }
           ]
         }
       }
     },
-    "7.10.1": {}
+    "1.0": {}
   }
 }

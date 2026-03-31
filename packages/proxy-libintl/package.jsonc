@@ -5,7 +5,7 @@
   "site": "https://github.com/frida/proxy-libintl",
   "license": "LGPLv2",
   "info":"info.md",
-  "process_time": 300,
+  "process_time": 30,
   "options": [
     {
       "display": "Version",
@@ -110,7 +110,7 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://github.com/frida/proxy-libintl.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
@@ -250,6 +250,11 @@
           ]
         },
         "post-install": {
+          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
+          "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
+          "j2_template_01": "${package_dir}\\libintl.pc.j2",
+          "j2_output_01_release": "${pkgconfig_dir_release}\\libintl.pc",
+          "j2_output_01_debug": "${pkgconfig_dir_debug}\\libintl.pc",
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
@@ -264,6 +269,24 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "mkdir $pkgconfig_dir_debug",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_debug\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "mkdir $pkgconfig_dir_release",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_release\""
             }
           ]
         }

@@ -5,7 +5,7 @@
   "site": "https://crowcpp.org/",
   "license": "BSD 3-Clause License",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 40,
   "options": [
     {
       "display": "Version",

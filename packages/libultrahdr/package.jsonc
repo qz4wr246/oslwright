@@ -5,7 +5,7 @@
   "site": "https://developer.android.com/guide/topics/media/platform/hdr-image-format",
   "license": "Apache-2.0 license",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 60,
   "options": [
     {
       "display": "Version",

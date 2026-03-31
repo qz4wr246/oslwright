@@ -5,7 +5,7 @@
   "site": "https://www.gnu.org/software/libiconv/",
   "license": "LGPL v2.1",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 440,
   "options": [
     {
       "display": "Version",
@@ -257,6 +257,16 @@
             "PERLIO": "raw"
           },
           "scripts": [
+            {
+              "when": "{{'Debug' in $build_type and not os.path.isdir($pkgconfig_dir_debug)}}",
+              "script": "mkdir \"$pkgconfig_dir_debug\"",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type and not os.path.isdir($pkgconfig_dir_release)}}",
+              "script": "mkdir \"$pkgconfig_dir_release\"",
+              "ignore_errors": true
+            },
             {
               "when":"{{'Debug' in $build_type}}",
               "chdir": "$dist_dir_debug\\lib",

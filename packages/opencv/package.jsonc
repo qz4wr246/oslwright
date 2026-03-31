@@ -5,7 +5,7 @@
   "site": "https://opencv.org",
   "license": "Apache 2 License",
   "info":"info.md",
-  "process_time": 2700,
+  "process_time": 2070,
   "options": [
     {
       "display": "Version",
@@ -187,7 +187,7 @@
       "contrib_cache_file": "${cache_rootdir}\\${name}_contrib-${version}.7z",
       "git_url": "https://github.com/opencv/opencv.git",
       "git_contrib_url" : "https://github.com/opencv/opencv_contrib",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {

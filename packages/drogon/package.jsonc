@@ -5,7 +5,7 @@
   "site": "https://github.com/drogonframework/drogon",
   "license": "MIT license",
   "info": "info.md",
-  "process_time": 330,
+  "process_time": 370,
   "options": [
     {
       "display": "Version",

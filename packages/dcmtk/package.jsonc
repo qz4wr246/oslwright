@@ -5,7 +5,7 @@
   "site": "https://git.dcmtk.org/",
   "license": "BSD like, see LICENSE",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 1200,
   "options": [
     {
       "display": "Version",
@@ -131,7 +131,7 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://github.com/DCMTK/dcmtk.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'DCMTK-' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
@@ -191,7 +191,7 @@
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DBUILD_TESTING=OFF",
+            "-DDCMTK_RUN_CTEST_SCRIPT=OFF",
             "-DDCMTK_WITH_XML=ON",
             "-DDCMTK_WITH_PNG=ON",
             "-DDCMTK_WITH_TIFF=ON",

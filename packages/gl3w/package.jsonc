@@ -5,7 +5,7 @@
   "site": "https://github.com/skaslev/gl3w",
   "license": "Unlicense license",
   "info": "info.md",
-  "process_time": 60,
+  "process_time": 40,
   "options": [
     {
       "display": "Version",
