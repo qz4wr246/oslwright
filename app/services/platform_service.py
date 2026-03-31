@@ -980,14 +980,17 @@ class PlatformService(FletXService):
             msvc_toolset_versions = [v.name for v in visual_studio.msvc_toolset_versions]
             msvc_toolset_version_default = visual_studio.msvc_toolset_version_default.name
             msvc_version_default = msvc_version
-            msvc_generator = visual_studio.generator
+            msvc_version = msvc_version
+            msvc_generator = msvc_version
+
         else:
             msvc_version = self.app_setting.values["msvc_version_default"]
             visual_studio = next((vc for vc in self.visual_studio_infos if vc.generator == msvc_version), None)
             msvc_toolset_versions = [v.name for v in visual_studio.msvc_toolset_versions]
             msvc_toolset_version_default = self.app_setting.values["msvc_toolset_version_default"]
-            msvc_version_default = msvc_version
-            msvc_generator = msvc_version
+            msvc_version_default = visual_studio.generator
+            msvc_version = visual_studio.generator
+            msvc_generator = visual_studio.generator
 
         plat_vers = {
             "rootdir": self.rootdir,
@@ -1013,7 +1016,7 @@ class PlatformService(FletXService):
             "msvc_generator": msvc_generator,
             "msvc_version_default": msvc_version_default,
             "msvc_versions": [msvc.generator for msvc in self.visual_studio_infos],
-            "msvc_version": msvc_version_default,
+            "msvc_version": msvc_generator,
         }
         vers = [k for k in package.versions.keys() if k != "default"]
         session = {

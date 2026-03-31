@@ -161,7 +161,6 @@ class BuildService(FletXService):
         # option 変数を変数に
         for k, v in option.versions[option.current_version].options.items():
             session[k] = v
-        session["msvc_generator"] = session["msvc_version"]
         return session
 
     def build_package(self, package: PackageModel, option: PackageOptionModel, model: BuildModel):
@@ -538,7 +537,9 @@ class BuildService(FletXService):
         # --- 巡回参照 (無限ループ) 判定 ---
         # 現在探索中の経路（stack）に同じハッシュが存在すれば例外
         if node_key in stack:
-            raise Exception(f"Circular dependency detected for option hash: {node_key}")
+            raise Exception(
+                f"Circular dependency detected for option:{parent.option.name if parent else 'None'}->{option.name}"
+            )
 
         # ノードを作成して結果リストに追加（重複を許容するため毎回追加）
         node = NodeModel(package=package, option=option, parent=parent)
@@ -558,8 +559,12 @@ class BuildService(FletXService):
         cond_reqs = self.get_cond_of_requests(package, option, parent_option)
 
         for name, cond in cond_reqs.items():
-            child_pkg = self.package_service.find_package(name)
-            child_opt = self.find_option_by_request(name, cond)
+            try:
+                child_pkg = self.package_service.find_package(name)
+                child_opt = self.find_option_by_request(name, cond)
+            except PackageValidationError as e:
+                raise Exception(f"Error in dependency of '{package.name}': {str(e)}")
+
             if child_pkg and child_opt:
                 self.get_package_dependencies_recursive(
                     child_pkg, child_opt, parent=node, visited=visited, stack=stack, result=result
