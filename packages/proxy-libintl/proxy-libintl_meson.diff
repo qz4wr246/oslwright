@@ -1,0 +1,67 @@
+diff --git a/IntlConfig.cmake.in b/IntlConfig.cmake.in
+new file mode 100644
+index 0000000..8405fb0
+--- /dev/null
++++ b/IntlConfig.cmake.in
+@@ -0,0 +1,8 @@
++@PACKAGE_INIT@
++
++add_library(Intl::Intl INTERFACE IMPORTED)
++set_target_properties(Intl::Intl PROPERTIES
++    INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
++    IMPORTED_IMPLIB_RELEASE "${_IMPORT_PREFIX}/lib/@LIB_NAME@.lib"
++    IMPORTED_LOCATION "${_IMPORT_PREFIX}/bin/@LIB_NAME@.dll"
++)
+diff --git a/meson.build b/meson.build
+index 758feec..a54ce52 100644
+--- a/meson.build
++++ b/meson.build
+@@ -1,10 +1,13 @@
+ project('proxy-libintl', 'c',
+   version : '1',
+-  meson_version : '>= 0.48.0',
++  meson_version : '>= 0.50.0',
+   default_options : [ 'warning_level=1',
+                       'c_std=c99',
+                       'buildtype=debugoptimized' ])
+ 
++cmake = import('cmake')
++pkg = import('pkgconfig')
++
+ if get_option('default_library') == 'static'
+   add_project_arguments('-DG_INTL_STATIC_COMPILATION', language : 'c')
+ endif
+@@ -26,3 +29,33 @@ endif
+ intl_dep = declare_dependency(link_with : intl_lib,
+   compile_args: c_args,
+   include_directories : include_directories('.'))
++
++# --- pkg-config generate ---
++pkg.generate(intl_lib,
++  name : 'intl',
++  filebase : 'intl',
++  description : 'Libintl is a library that provides native language support to programs. It is part of Gettext.',
++  version : meson.project_version(),
++  extra_cflags : c_args,
++  subdirs : '.'
++)
++
++# --- CMake Config generate ---
++conf_data = configuration_data()
++conf_data.set('LIB_NAME', 'intl')
++conf_data.set('VERSION', meson.project_version())
++
++cmake_install_dir = get_option('libdir') / 'cmake' / 'Intl'
++
++cmake.configure_package_config_file(
++  name:'Intl',
++  input: 'IntlConfig.cmake.in',
++  configuration: conf_data,
++  install_dir: cmake_install_dir
++)
++
++cmake.write_basic_package_version_file(
++  name: 'Intl',
++  version: meson.project_version(),
++  install_dir: cmake_install_dir
++)

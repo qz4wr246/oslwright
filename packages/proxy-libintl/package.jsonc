@@ -5,7 +5,7 @@
   "site": "https://github.com/frida/proxy-libintl",
   "license": "LGPLv2",
   "info":"info.md",
-  "process_time": 30,
+  "process_time": 40,
   "options": [
     {
       "display": "Version",
@@ -142,16 +142,16 @@
             }
           ]
         },
-        // "patch": {
-        //   "patch_file_01": "${package_dir}\\patches\\file01.patch",
-        //   "scripts": [
-        //     {
-        //       "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
-        //       "chdir": "$source_dir",
-        //       "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
-        //     }
-        //   ]
-        // },
+        "patch": {
+          "patch_file_01": "${package_dir}\\proxy-libintl_meson.diff",
+          "scripts": [
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              "chdir": "$source_dir",
+              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+            }
+          ]
+        },
         "configure": {
           "meson_options": [
             "--vsenv",
@@ -234,7 +234,7 @@
         },
         "install": {
           "meson_install_options": [
-            "--tags devel,runtime,bin"
+            //"--tags devel,runtime,bin"
           ],
           "scripts": [
             {
@@ -270,24 +270,24 @@
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
             },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "mkdir $pkgconfig_dir_debug",
-              "ignore_errors": true
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_debug\""
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "script": "mkdir $pkgconfig_dir_release",
-              "ignore_errors": true
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_release\""
-            }
+            // {
+            //   "when": "{{'Debug' in $build_type}}",
+            //   "script": "mkdir $pkgconfig_dir_debug",
+            //   "ignore_errors": true
+            // },
+            // {
+            //   "when": "{{'Debug' in $build_type}}",
+            //   "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_debug\""
+            // },
+            // {
+            //   "when": "{{'Release' in $build_type}}",
+            //   "script": "mkdir $pkgconfig_dir_release",
+            //   "ignore_errors": true
+            // },
+            // {
+            //   "when": "{{'Release' in $build_type}}",
+            //   "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_release\""
+            // }
           ]
         }
       }
