@@ -145,12 +145,12 @@ class PackageSelectPage(FletXPage):
 
         # まず部分一致を抽出
         partial = [w for w in keywords if lower_query in w.lower()]
-
+        mapping = {word.lower(): word for word in partial}
         # さらに類似度で並べ替え
         matches = get_close_matches(lower_query, [w.lower() for w in partial], n=5, cutoff=0.1)
 
         # 元の単語に戻す
-        result = [w for w in partial if w.lower() in matches]
+        result = [mapping[m] for m in matches if m in mapping]
 
         if result:
             target_key = result[0]
