@@ -246,6 +246,7 @@ class BuildService(FletXService):
         return ret
 
     def execute_script(self, script: dict, session: dict, base_environs: dict) -> Reason:
+        session = copy.deepcopy(session)
         message = script.get("message", None)
         when = script.get("when", True)
         chdir = script.get("chdir", None)
@@ -262,6 +263,13 @@ class BuildService(FletXService):
                 environments[k] = expand_envs_vars(v, base_environs)
             envs |= environments
         envs["ERRORLEVEL"] = "0"
+
+        for k, v in script.items():
+            if k in ["message", "when", "chdir", "script", "fallback", "environments", "ignore_errors"]:
+                continue
+            s = self.transform(v, session, envs)
+            session[k] = s
+
         message = evaluate_str(message, session) if isinstance(message, str) else message
         when = evaluate_str(when, session) if isinstance(when, str) else when
         chdir = evaluate_str(chdir, session) if isinstance(chdir, str) else chdir
