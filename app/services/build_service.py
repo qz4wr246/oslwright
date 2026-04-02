@@ -278,11 +278,11 @@ class BuildService(FletXService):
 
         if when:
             if message:
-                Post.gui(message)
+                Post.gui(f"[{session.get('display', 'Unknown')}] {message}")
             if code:
                 if chdir:
                     os.chdir(chdir)
-                    Post.gui(f"cd {chdir}")
+                    Post.gui(f"[{session.get('display', 'Unknown')}] cd {chdir}")
                 Post.gui(code)
                 result = self.shell.exec(code, env=envs, shell=True)
                 if isinstance(ignore_errors, str):
@@ -290,17 +290,21 @@ class BuildService(FletXService):
                     ignore_errors = expand_envs_vars(ignore_errors, envs)
                     ignore_errors = evaluate_str(ignore_errors, session)
                 if result.killed:
-                    Post.error(f"!! User Interrupted !!")
+                    Post.error(f"[{session.get('display', 'Unknown')}] !! User Interrupted !!")
                     return Reason.USER_INTERRUPTED
                 elif result.exitcode and fallback:
-                    Post.gui(f"ExiteCode={result.exitcode}, Fallback: {fallback}")
+                    Post.error(
+                        f"[{session.get('display', 'Unknown')}] ExitCode={result.exitcode}, Fallback: {fallback}"
+                    )
                     self.shell.exec(fallback, env=envs, shell=True)
                     return Reason.ERROR
                 elif result.exitcode and not ignore_errors:
-                    Post.error(f"ExiteCode={result.exitcode}")
+                    Post.error(
+                        f"[{session.get('display', 'Unknown')}] ExitCode={result.exitcode}, Check Output.log for details."
+                    )
                     return Reason.ERROR
                 elif result.exitcode and ignore_errors:
-                    Post.info("Ignore errors and continue.")
+                    Post.info(f"[{session.get('display', 'Unknown')}] Ignore errors and continue.")
         return Reason.COMPLETED
 
     def update_dependency_path(self, depdentpath, session):

@@ -190,7 +190,7 @@ class PipedShell:
                 if out == "stdout" and len(mesg):
                     Post.info(mesg)
                 elif out == "stderr" and len(mesg):
-                    Post.error(mesg)
+                    Post.info(mesg)
                 if content and len(mesg):
                     content[out] += mesg
             stream.close()
