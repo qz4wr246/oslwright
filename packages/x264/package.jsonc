@@ -115,6 +115,8 @@
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "msys2_bash_ob": "cmd.exe /c \"set \"MSYSTEM=UCRT64\" && set \"CHERE_INVOKING=1\" && \"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_bash_cb": "\"",
       "stages": {
         "download": {
           "scripts": [
@@ -150,18 +152,13 @@
           ]
         },
         "patch": {
-          // "patch_file_01": "${package_dir}\\patches\\file01.patch",
           "scripts": [
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
-              "script" : "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'rm -rf /opt/ucrt64/*'",
+              "bash_script": "rm -rf /opt/ucrt64/*",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}",
               "ignore_errors": false
-            },
-            // {
-            //   "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
-            //   "chdir": "$source_dir",
-            //   "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
-            // }
+            }
           ]
         },
         "configure": {
@@ -203,7 +200,8 @@
                 "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_debug",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c '../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}'"
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "message": "config for release.",
@@ -212,7 +210,8 @@
                 "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_release",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c '../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}'"
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
         },
@@ -226,7 +225,8 @@
                 "PERLIO": "raw"
               },
               "chdir": "$build_dir_debug",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make lib-shared'"
+              "bash_script": "make lib-shared",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "message": "build for release.",
@@ -236,7 +236,8 @@
                 "PERLIO": "raw"
               },
               "chdir": "$build_dir_release",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make lib-shared'"
+              "bash_script": "make lib-shared",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
         },
@@ -246,13 +247,15 @@
               "message": "install for debug.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make install-lib-shared'"
+              "bash_script": "make install-lib-shared",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'make install-lib-shared'"
+              "bash_script": "make install-lib-shared",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "when": "{{'Debug' in $build_type}}",

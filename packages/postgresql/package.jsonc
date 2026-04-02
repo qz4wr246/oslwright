@@ -115,6 +115,9 @@
         "icu4c": {
           "version": ">=75"
         },
+        "lz4": {
+          "version": ">=1.10"
+        },
         "zlib": {
           "version": ">=1.3"
         },

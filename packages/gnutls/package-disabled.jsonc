@@ -150,9 +150,11 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://gitlab.com/gnutls/gnutls.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "msys2_bash_ob": "cmd.exe /c \"set \"MSYSTEM=UCRT64\" && set \"CHERE_INVOKING=1\" && \"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_bash_cb": "\"",
       "stages": {
         "download": {
           "scripts": [
@@ -162,16 +164,16 @@
             },
             {
               "message": "[gnutls] git clone.",
-              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
-              "fallback": "rmdir /q /s \"$source_dir\""
+              "when": "{{not os.path.isdir($gnutls_source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$gnutls_source_dir\"",
+              "fallback": "rmdir /q /s \"$gnutls_source_dir\""
             },
             {
               "message": "[gnutls] git checkout.",
-              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "chdir": "$source_dir",
+              "when": "{{$git_hash and os.path.isdir($gnutls_source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$gnutls_source_dir",
               "script": "git checkout $git_hash",
-              "fallback": "rmdir /q /s \"$source_dir\""
+              "fallback": "rmdir /q /s \"$gnutls_source_dir\""
             },
             {
               "message": "[gnutls] extruct from cache.",
@@ -192,29 +194,30 @@
             "mingw-w64-ucrt-x86_64-nettle",
             "mingw-w64-ucrt-x86_64-gmp",
             "mingw-w64-ucrt-x86_64-libtasn1",
-            "mingw-w64-ucrt-x86_64-libunistring"
+            "mingw-w64-ucrt-x86_64-libunistring",
           ],
           "scripts": [
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
-              "script" : "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'rm -rf /opt/ucrt64/*'",
-              "ignore_errors": false
+              "bash_script": "rm -rf /opt/ucrt64/*",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}",
+              "ignore_errors": true
             },
             // Copy zlib binary to MSYS2
             {
               "when": "{{'Debug' in $build_type and $with_zlib}}",
-              "script": "robocopy \"$zlib_dir_debug\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
+              "script": "robocopy \"$zlib_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
               "ignore_errors": "{{%ERRORLEVEL% < 8}}"
             },
             {
               "when": "{{'Release' in $build_type and $with_zlib}}",
-              "script": "robocopy \"$zlib_dir_release\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
+              "script": "robocopy \"$zlib_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
               "ignore_errors": "{{%ERRORLEVEL% < 8}}"
             },
             // Remove the inclusion of unistd.h in zconf.h. This gets erroneously included when building gnutl
             {
               "when": "{{$with_zlib}}",
-              "script": "perl -p -i -e \"s#^.+include <unistd.h>.*##g\" \"${msys2_dir}\\ucrt64\\include\\zconf.h\""
+              "script": "perl -p -i -e \"s#^.+include <unistd.h>.*##g\" \"${msys2_dir}\\opt\\ucrt64\\include\\zconf.h\""
             },
             // Copy brotli binary to MSYS2
             {
@@ -224,24 +227,25 @@
             },
             {
               "when": "{{'Release' in $build_type and $with_brotli}}",
-              "script": "robocopy \"$brotli_dir_release\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
+              "script": "robocopy \"$brotli_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
               "ignore_errors": "{{%ERRORLEVEL% < 8}}"
             },
             // Copy zstd binary to MSYS2
             {
               "when": "{{'Debug' in $build_type and $with_zstd}}",
-              "script": "robocopy \"$zstd_dir_debug\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
+              "script": "robocopy \"$zstd_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
               "ignore_errors": "{{%ERRORLEVEL% < 8}}"
             },
             {
               "when": "{{'Release' in $build_type and $with_zstd}}",
-              "script": "robocopy \"$zstd_dir_release\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
+              "script": "robocopy \"$zstd_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
               "ignore_errors": "{{%ERRORLEVEL% < 8}}"
             },
             // Install required library
             {
               "when": "{{True if 'msys2_required_library' in globals() and $msys2_required_library else False}}",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c 'pacman -S --noconfirm {{' '.join($msys2_required_library)}}'"
+              "bash_script": "pacman -S --noconfirm {{' '.join($msys2_required_library)}}",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}",
             }
           ]
         },
@@ -249,15 +253,9 @@
           "gnutls_bootstrap_options" : [
           ],
           "gnutls_configure_options": [
-            // "CC=cl",
-            // "CXX=cl",
-            // "LD=link",
-            // "AR=lib",
-            // "NM=\"dumpbin -symbols\"",
-            // "STRIP=\":\"",
-            // "RANLIB=\":\"",
             "--host=x86_64-w64-mingw32",
             "--build=x86_64-w64-mingw32",
+            "--disable-maintainer-mode",
             "--disable-gtk-doc",
             "--disable-doc",
             "--disable-manpages",
@@ -266,20 +264,19 @@
             "--disable-valgrind-tests",
             "--disable-bash-tests",
             "--disable-full-test-suite",
-            "--enable-static={{'yes' if 'static' in $build_library else 'no'}}",
-            "--enable-shared={{'yes' if 'shared' in $build_library else 'no'}}",
+            "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
+            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}",
             "--without-p11-kit",
             "--without-libev-prefix",
-            "--with-zlib={{'dlopen' if $with_zlib else 'no'}}",
-            "--with-brotli={{'dlopen' if $with_brotli else 'no'}}",
-            "--with-zstd={{'dlopen' if $with_brotli else 'no'}}",
-            // "--with-libgmp-prefix=/ucrt64",
-            // "LDFLAGS=\"-L/ucrt64/lib\"",
-            // "CPPFLAGS=\"-I/ucrt64/include\"",
-            // "PKG_CONFIG_PATH=/ucrt64/lib/pkgconfig"
+            "--with-zlib={{'link' if $with_zlib else 'no'}}",
+            "--with-brotli={{'link' if $with_brotli else 'no'}}",
+            "--with-zstd={{'link' if $with_brotli else 'no'}}"
           ],
           "gnutls_configure_options_release": [
             "--prefix=/opt/gnutls/release"
+          ],
+          "gnutls_configure_options_debug": [
+            "--prefix=/opt/gnutls/debug"
           ],
           "scripts": [
             {
@@ -303,55 +300,26 @@
               "ignore_errors": true
             },
             {
-              "message": "bootstrap for release.",
+              "message": "call bootstrap",
               "when": "{{not os.path.isfile(os.path.join(${gnutls_source_dir},'configure'))}}",
               "chdir": "$gnutls_source_dir",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c ./bootstrap"
+              "bash_script": "./bootstrap",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "message": "configure for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$gnutls_build_dir_release",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -use-full-path -here -c ../../{{os.path.basename($source_dir)}}/gnutls/configure {{' '.join($gnutls_configure_options)}} {{' '.join($gnutls_configure_options_release)}}"
+              "bash_script": "../../{{os.path.basename($source_dir)}}/gnutls/configure {{' '.join($gnutls_configure_options)}} {{' '.join($gnutls_configure_options_release)}}",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
-            {"script":"exit 99"},
-            // {
-            // {
-            //   "message": "config for debug.",
-            //   "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-            //   "chdir": "$build_dir_debug",
-            //   "script": "perl ${gnutls_source_dir}\\Configure {{' '.join($gnutls_configure_options)}} {{' '.join($gnutls_configure_options_debug)}}"
-            // },
-            // {
-            //   "message": "config for release.",
-            //   "when": "{{'Release' in $build_type}}",
-            //   "chdir": "$build_dir_release",
-            //   "script": "perl ${source_dir}\\Configure {{' '.join($gnutls_configure_options)}} {{' '.join($gnutls_configure_options_release)}}"
-            // },
-            // {
-            //   "when": "{{'Debug' in $build_type and os.path.isfile(os.path.join($build_dir_debug, 'makefile')) and $msvc_runtime_library == 'md'}}",
-            //   "script": "perl -i -pe \"s/\\/MT/\\/MD/g; s/brotlicommon.lib/brotlicommond.lib/g; s/brotlidec.lib/brotlidecd.lib/g; s/brotlienc.lib/brotliencd.lib/g\" \"{{os.path.join($build_dir_debug, 'makefile')}}\""
-            // },
-            // {
-            //   "when": "{{'Debug' in $build_type and os.path.isfile(os.path.join($build_dir_debug, 'makefile'))}}",
-            //   "script": "perl -i -pe \"s/libcrypto.lib/libcryptod.lib/g; s/libcrypto-3-x64.dll/libcryptod-3-x64.dll/g; s/libssl.lib/libssld.lib/g; s/libssl-3-x64.dll/libssld-3-x64.dll/g; s/libcrypto-3-x64.pdb/libcryptod-3-x64.pdb/g; s/libssl-3-x64.pdb/libssld-3-x64.pdb/g\" \"{{os.path.join($build_dir_debug, 'makefile')}}\""
-            // },
-            // {
-            //   "when": "{{'Debug' in $build_type and os.path.isfile(os.path.join($build_dir_debug, 'makefile'))}}",
-            //   "script": "perl -i -pe \"s/libcrypto_static.lib/libcryptod_static.lib/g; s/libssl_static.lib/libssld_static.lib/g\" \"{{os.path.join($build_dir_debug, 'makefile')}}\""
-            // },
-            // {
-            //   "when": "{{'Release' in $build_type and os.path.isfile(os.path.join($build_dir_release, 'makefile')) and $msvc_runtime_library == 'md'}}",
-            //   "script": "perl -i -pe \"s;/MT;/MD;g\" \"{{os.path.join($build_dir_release, 'makefile')}}\""
-            // },
-            // {
-            //   "when": "{{'Debug' in $build_type and 'static' != $build_library}}",
-            //   "script": "perl -i -pe \"s/INSTALL_LIBS=.*$/INSTALL_LIBS=\\\"libcryptod.lib\\\" \\\"libssld.lib\\\" \\\"libcryptod_static.lib\\\" \\\"libssld_static.lib\\\"/g\" \"{{os.path.join($build_dir_debug, 'makefile')}}\""
-            // },
-            // {
-            //   "when": "{{'Release' in $build_type and 'static' != $build_library}}",
-            //   "script": "perl -i -pe \"s/INSTALL_LIBS=.*$/INSTALL_LIBS=\\\"libcrypto.lib\\\" \\\"libssl.lib\\\" \\\"libcrypto_static.lib\\\" \\\"libssl_static.lib\\\"/g\" \"{{os.path.join($build_dir_release, 'makefile')}}\""
-            // }
+            {
+              "message": "configure for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$gnutls_build_dir_debug",
+              "bash_script": "../../{{os.path.basename($source_dir)}}/gnutls/configure {{' '.join($gnutls_configure_options)}} {{' '.join($gnutls_configure_options_debug)}}",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+            }
           ]
         },
         "build": {
@@ -359,38 +327,34 @@
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "chdir": "$build_dir_debug",
-              "script": "nmake /NOLOGO"
+              "chdir": "$gnutls_build_dir_debug",
+              "bash_script": "make -j 4",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
-              "chdir": "$build_dir_release",
-              "script": "nmake /NOLOGO"
+              "chdir": "$gnutls_build_dir_release",
+              "bash_script": "make -j 4",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
         },
         "install": {
           "scripts": [
             {
-              "message": "install for debug.",
+              "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "chdir": "$build_dir_debug",
-              "script": "nmake /NOLOGO install"
+              "chdir": "$gnutls_build_dir_debug",
+              "bash_script": "make install",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
-              "message": "install for release.",
+              "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
-              "chdir": "$build_dir_release",
-              "script": "nmake /NOLOGO install"
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "perl -i -pe \"s/libcrypto.lib/libcryptod.lib/g; s/libcrypto-3-x64.dll/libcryptod-3-x64.dll/g; s/libssl.lib/libssld.lib/g; s/libssl-3-x64.dll/libssld-3-x64.dll/g\" \"{{os.path.join($dist_dir_debug, 'lib','cmake', 'gnutls', 'gnutlsConfig.cmake')}}\""
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "perl -i -pe \"s/libcrypto_static.lib/libcryptod_static.lib/g; s/libssl_static.lib/libssld_static.lib/g\" \"{{os.path.join($dist_dir_debug, 'lib','cmake', 'gnutls', 'gnutlsConfig.cmake')}}\""
+              "chdir": "$gnutls_build_dir_release",
+              "bash_script": "make install",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
         },
@@ -400,6 +364,7 @@
             "PERLIO": "raw"
           },
           "scripts": [
+            {"script": "exit 99"},
             {
               "when": "{{'Debug' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
