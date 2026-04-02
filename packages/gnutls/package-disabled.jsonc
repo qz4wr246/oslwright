@@ -5,7 +5,7 @@
   "site": "https://www.gnutls.org/",
   "license": "LGPL 2.1+",
   "info": "info.md",
-  "process_time": 6700,
+  "process_time": 1800,
   "options": [
     {
       "display": "Version",
@@ -67,8 +67,7 @@
       "type": "choice",
       "items": [
         "Release",
-        "Debug",
-        "Release;Debug"
+        "Debug"
       ],
       "default": "Release"
     },
@@ -98,6 +97,12 @@
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
     },
+        {
+      "display": "Enable Tools",
+      "name": "enable_tools",
+      "type": "bool",
+      "default": false
+    },
     {
       "display": "With Zlib",
       "name": "with_zlib",
@@ -115,7 +120,7 @@
       "name": "with_zstd",
       "type": "bool",
       "default": true
-    },
+    }
   ],
   "versions": {
     "default": {
@@ -140,7 +145,7 @@
         "PERLIO": "raw"
       },
       "source_dir": "${source_rootdir}\\${name}-${version}",
-      "gnutls_source_dir": "${source_dir}\\gnutls",
+      "gnutls_source_dir": "${source_dir}\\gnutls-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
       "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
@@ -148,10 +153,11 @@
       "gnutls_build_dir_release": "${source_rootdir}\\${dist_name}-release\\gnutls",
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
-      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "cache_file": "${cache_rootdir}\\gnutls-${version}.tar.xz",
       "git_url": "https://gitlab.com/gnutls/gnutls.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "download_url": "https://gnupg.org/ftp/gcrypt/gnutls/v{{$version.split('.')[0] + '.' + $version.split('.')[1]}}/gnutls-${version}.tar.xz",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_bash_ob": "cmd.exe /c \"set \"MSYSTEM=UCRT64\" && set \"CHERE_INVOKING=1\" && \"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "msys2_bash_cb": "\"",
@@ -163,23 +169,16 @@
               "script": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "[gnutls] git clone.",
-              "when": "{{not os.path.isdir($gnutls_source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$gnutls_source_dir\"",
-              "fallback": "rmdir /q /s \"$gnutls_source_dir\""
+              "message": "donloads",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "curl.exe -L -s -o \"$cache_file\" \"$download_url\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "[gnutls] git checkout.",
-              "when": "{{$git_hash and os.path.isdir($gnutls_source_dir) and not os.path.isfile($cache_file)}}",
-              "chdir": "$gnutls_source_dir",
-              "script": "git checkout $git_hash",
-              "fallback": "rmdir /q /s \"$gnutls_source_dir\""
-            },
-            {
-              "message": "[gnutls] extruct from cache.",
+              "message": "extruct from cache.",
               "when": "{{not os.path.isdir($gnutls_source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z x -aoa \"$cache_file\" -o\"$gnutls_source_dir\"",
-              "fallback": "del \"$cache_file\""
+              "script": "7z x \"$cache_file\" -so| 7z x -aoa -si -ttar -o\"$source_dir\"",
+              "fallback": "rmdir /q /s \"$gnutls_source_dir\""
             }
           ]
         },
@@ -194,7 +193,7 @@
             "mingw-w64-ucrt-x86_64-nettle",
             "mingw-w64-ucrt-x86_64-gmp",
             "mingw-w64-ucrt-x86_64-libtasn1",
-            "mingw-w64-ucrt-x86_64-libunistring",
+            "mingw-w64-ucrt-x86_64-libunistring"
           ],
           "scripts": [
             {
@@ -245,7 +244,7 @@
             {
               "when": "{{True if 'msys2_required_library' in globals() and $msys2_required_library else False}}",
               "bash_script": "pacman -S --noconfirm {{' '.join($msys2_required_library)}}",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
         },
@@ -254,23 +253,26 @@
           ],
           "gnutls_configure_options": [
             "--host=x86_64-w64-mingw32",
-            "--build=x86_64-w64-mingw32",
+            // "--build=x86_64-w64-mingw32",
             "--disable-maintainer-mode",
             "--disable-gtk-doc",
             "--disable-doc",
             "--disable-manpages",
             "--disable-tests",
+            "{{'--disable-tools' if not $enable_tools else '--enable-tools'}}",
             "--disable-nls",
             "--disable-valgrind-tests",
             "--disable-bash-tests",
             "--disable-full-test-suite",
+            "--disable-hardware-acceleration",
+            "--enable-heartbeat-support",
             "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
             "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}",
             "--without-p11-kit",
             "--without-libev-prefix",
             "--with-zlib={{'link' if $with_zlib else 'no'}}",
             "--with-brotli={{'link' if $with_brotli else 'no'}}",
-            "--with-zstd={{'link' if $with_brotli else 'no'}}"
+            "--with-zstd={{'link' if $with_zstd else 'no'}}"
           ],
           "gnutls_configure_options_release": [
             "--prefix=/opt/gnutls/release"
@@ -300,24 +302,17 @@
               "ignore_errors": true
             },
             {
-              "message": "call bootstrap",
-              "when": "{{not os.path.isfile(os.path.join(${gnutls_source_dir},'configure'))}}",
-              "chdir": "$gnutls_source_dir",
-              "bash_script": "./bootstrap",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
-            },
-            {
               "message": "configure for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$gnutls_build_dir_release",
-              "bash_script": "../../{{os.path.basename($source_dir)}}/gnutls/configure {{' '.join($gnutls_configure_options)}} {{' '.join($gnutls_configure_options_release)}}",
+              "bash_script": "../../{{os.path.basename($source_dir)}}/gnutls-${version}/configure {{' '.join($gnutls_configure_options)}} {{' '.join($gnutls_configure_options_release)}}",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "message": "configure for debug.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$gnutls_build_dir_debug",
-              "bash_script": "../../{{os.path.basename($source_dir)}}/gnutls/configure {{' '.join($gnutls_configure_options)}} {{' '.join($gnutls_configure_options_debug)}}",
+              "bash_script": "../../{{os.path.basename($source_dir)}}/gnutls-${version}/configure {{' '.join($gnutls_configure_options)}} {{' '.join($gnutls_configure_options_debug)}}",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
