@@ -4,7 +4,7 @@
   "description": "Software Distribution and Building Platform for Windows",
   "site": "https://www.msys2.org/",
   "license": "any",
-  "process_time": 180,
+  "process_time": 1100,
   "options": [
     {
       "display": "Version",
@@ -18,14 +18,11 @@
     "default": {
       "msys2_packages": [
         "mingw-w64-ucrt-x86_64-toolchain",
-        // "mingw-w64-ucrt-x86_64-gcc",
-        // "mingw-w64-ucrt-x86_64-pkg-config",
-        // "mingw-w64-ucrt-x86_64-make",
-        // "mingw-w64-ucrt-x86_64-libtool",
         "base-devel",
         "diffutils",
         "automake",
         "autoconf",
+        "libtool",
         "yasm",
         "nasm",
         "gettext-devel",
@@ -37,6 +34,9 @@
         "gperf",
         "gtk-doc"
       ],
+      "msys2_dir" : "{{os.path.join($package_dir,'msys64')}}",
+      "msys2_bash_ob": "cmd.exe /c \"set \"MSYSTEM=UCRT64\" && set \"CHERE_INVOKING=1\" && \"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_bash_cb": "\"",
       "stages": {
         "install": {
           "profile_file": "$package_dir\\ucrt64_profile.sh",
@@ -49,19 +49,20 @@
             },
             {
               "message": "Extruct $name",
-              "when": "{{os.path.isfile($msys_cache) and not os.path.exists(os.path.join($package_dir,'msys64'))}}",
+              "when": "{{os.path.isfile($msys_cache) and not os.path.exists($msys2_dir)}}",
               "script": "7z x \"$msys_cache\" -so | 7z x -aoa -si -ttar -o\"$package_dir\""
             },
             {
               "message": "Initalize msys2 system",
-              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
-              "chdir": "{{os.path.join($package_dir,'msys64')}}",
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
               "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c exit"
             },
             {
-              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
-              "chdir": "{{os.path.join($package_dir,'msys64')}}",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'mkdir -p /opt/ucrt64'"
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
+              "bash_script": "mkdir -p /opt/ucrt64",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "message": "Copy profile",
@@ -69,27 +70,31 @@
             },
             {
               "message": "Download msys2",
-              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
-              "chdir": "{{os.path.join($package_dir,'msys64')}}",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'until pacman -Syyuw --noconfirm; do sleep 10; done'"
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
+                "bash_script": "until pacman -Syyuw --noconfirm; do sleep 10; done",
+                "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
-                {
+            {
               "message": "Upgrade msys2",
-              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
-              "chdir": "{{os.path.join($package_dir,'msys64')}}",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'pacman -Syyu --noconfirm'"
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
+              "bash_script": "pacman -Syyu --noconfirm",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "message": "Download build tools",
-              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
-              "chdir": "{{os.path.join($package_dir,'msys64')}}",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'until pacman -Sw --noconfirm {{' '.join($msys2_packages)}};do sleep 10;done'"
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
+              "bash_script": "until pacman -Sw --noconfirm {{' '.join($msys2_packages)}};do sleep 10;done",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "message": "Install build tools",
-              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
-              "chdir": "{{os.path.join($package_dir,'msys64')}}",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'pacman -S --noconfirm {{' '.join($msys2_packages)}}'"
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
+              "bash_script": "pacman -S --noconfirm {{' '.join($msys2_packages)}}",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
         }
