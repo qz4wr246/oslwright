@@ -18,11 +18,13 @@
     "default": {
       "msys2_packages": [
         "mingw-w64-ucrt-x86_64-toolchain",
+        "mingw-w64-ucrt-x86_64-libtool",
+        "mingw-w64-ucrt-x86_64-autotools",
+        "mingw-w64-ucrt-x86_64-pkgconf",
         "base-devel",
         "diffutils",
         "automake",
         "autoconf",
-        "libtool",
         "yasm",
         "nasm",
         "gettext-devel",
