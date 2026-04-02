@@ -55,9 +55,7 @@ class PackageService(FletXService):
     def load_package_file(self, path: Path) -> PackageModel | None:
         try:
             with open(path, "r", encoding="utf-8") as f:
-
                 data = json.load(f)
-
                 latest_version = list(data["versions"].keys())[-1]
                 return PackageModel(
                     name=data["name"],
@@ -69,7 +67,7 @@ class PackageService(FletXService):
                     options=data["options"],
                     versions=data["versions"],
                     info=data.get("info"),
-                    path=path,
+                    path=str(path),
                     latest_version=latest_version,
                 )
 
