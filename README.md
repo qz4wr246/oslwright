@@ -30,6 +30,9 @@ Windows向けのC/C++ネイティブ・ライブラリをスクラッチビル�
 
 # Requirements
 
+スペック
+* ディスクスペース 45GB(パッケージのフルビルド時)
+
 次のアプリケーションをインストールしてください。
 
 * Python 3.12 or higher [https://www.python.org/downloads/](https://www.python.org/downloads/)
@@ -38,6 +41,7 @@ Windows向けのC/C++ネイティブ・ライブラリをスクラッチビル�
 * Git for Windows [https://gitforwindows.org/](https://gitforwindows.org/)
 * Git Large File Storage [https://git-lfs.com/](https://git-lfs.com/)
 * 7zip [https://www.7-zip.org/download.html](https://www.7-zip.org/download.html)
+
 
 # Get start
 1. Python, VisualStudioなどOSLwrightが依存するアプリケーションをインストールします。
@@ -200,4 +204,4 @@ OSLwrightは、各パッケージをリリースビルドしています。MSVC�
 OSLwright のライセンスは MIT License です。<br>
 サンプルソースコードのライセンスは MIT License と CC0 1.0 Universal です。<br>
 各パッケージは、それぞれのライセンスに従ってください。<br>
-__本ソフトウェアおよび生成物について、作者は一切の責任を負いません。利用による結果はすべて利用者の責任とします。__
+__本ソフトウェアおよび生成物について、作者は一切の責任を負いません。問い合わせも受け付けません。利用(exploit)および使用(use)による結果はすべて利用者の責任とします。__
