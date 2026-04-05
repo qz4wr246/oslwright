@@ -1,5 +1,6 @@
 import os
 import re
+import copy
 from typing import Any
 
 VAR_PATTERN = re.compile(r"\$(\w+)|\$\{\s*(\w+)\s*\}")
@@ -54,8 +55,21 @@ def replace_vars_in_text(text: str, variables: dict) -> str:
 
 def safe_eval_with_map(code, variables, s, match_start, mapping):
     try:
-        return eval(code, None, variables)
+        variables = copy.deepcopy(variables)
+        variables.update({"os": os, "re": re})
+        return eval(code, variables)
+    except NameError as e:
+        new_offset = e.args[0].find("'")  # 例: "name 'foo' is not defined" から 'foo' の位置を探す
+        if new_offset == -1:
+            raise EvalSyntaxError(e.args[0], s, match_start) from e
 
+        # 置換後 offset → 元の {{ code }} 内 offset
+        old_offset_in_code = mapping[new_offset - 1]
+
+        # 元の s 全体での offset
+        old_offset_in_s = match_start + old_offset_in_code
+
+        raise EvalSyntaxError(e.args[0], s, old_offset_in_s) from e
     except SyntaxError as e:
         new_offset = e.offset  # 置換後コードでの offset
 
@@ -100,14 +114,13 @@ def expand_envs_vars(s: str, envs: dict) -> str:
 
     def replace(match):
         var_name = match.group(1)
-        return envs.get(var_name, match.group(0))
+        # return envs.get(var_name, match.group(0))
+        return envs.get(var_name, "")  # 存在しない変数は空文字に置換
 
     return pattern.sub(replace, s)
 
 
 def evaluate_str(s: str, variables: dict, envs: dict | None = None) -> Any:
-    # if envs:
-    #     s = expand_envs_vars(s, envs)
     s = s.strip()
 
     # --- 1. 全体が {{ code }} のみの場合 ---
