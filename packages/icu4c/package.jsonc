@@ -120,7 +120,7 @@
               "message": "Download $name",
               "when": "{{ not os.path.isfile($zip_cache) }}",
               "chdir" : "$cache_rootdir",
-              "script": "curl.exe -L -s -o \"$zip_cache\" \"$zip_url\""
+              "script": "curl.exe --fail -L -s -o \"$zip_cache\" \"$zip_url\""
             },
             {
               "message": "extruct $name",

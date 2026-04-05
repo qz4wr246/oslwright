@@ -142,13 +142,13 @@
             {
               "message": "donloads",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "curl.exe -L -s -o \"$cache_file\" \"$download_url\"",
+              "script": "curl.exe --fail -L -s -o \"$cache_file\" \"$download_url\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "extruct from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z x \"$cache_file\" -so| 7z x -aoa -si -ttar -o\"$source_rootdir\"",
+              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_dir}\" && del \"${cache_file}.temp.tar\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             }
           ]

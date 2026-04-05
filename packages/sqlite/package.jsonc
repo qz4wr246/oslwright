@@ -126,7 +126,7 @@
             {
               "message": "download source",
               "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "curl.exe -L -s -o \"$cache_file\" \"$zip_url\""
+              "script": "curl.exe --fail -L -s -o \"$cache_file\" \"$zip_url\""
             },
             {
               "message": "extruct from cache.",

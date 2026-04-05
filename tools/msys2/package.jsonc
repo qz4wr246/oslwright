@@ -17,27 +17,33 @@
   "versions": {
     "default": {
       "msys2_packages": [
-        "mingw-w64-ucrt-x86_64-toolchain",
-        "mingw-w64-ucrt-x86_64-libtool",
-        "mingw-w64-ucrt-x86_64-autotools",
-        "mingw-w64-ucrt-x86_64-pkgconf",
+        "ucrt64/mingw-w64-ucrt-x86_64-gcc",
+        "ucrt64/mingw-w64-ucrt-x86_64-toolchain",
+        "ucrt64/mingw-w64-ucrt-x86_64-nsis",
+        "ucrt64/mingw-w64-ucrt-x86_64-gettext",
+        "ucrt64/mingw-w64-ucrt-x86_64-gperf",
+        "ucrt64/mingw-w64-ucrt-x86_64-cmake",
+        "ucrt64/mingw-w64-ucrt-x86_64-ninja",
+        "ucrt64/mingw-w64-ucrt-x86_64-yasm",
+        "ucrt64/mingw-w64-ucrt-x86_64-nasm",
         "base-devel",
         "diffutils",
+        "pkg-config",
+        "libtool",
+        "autotools",
         "automake",
         "autoconf",
-        "yasm",
-        "nasm",
+        "gettext",
         "gettext-devel",
         "git",
         "python3",
         "patch",
         "bison",
         "flex",
-        "gperf",
         "gtk-doc"
       ],
       "msys2_dir" : "{{os.path.join($package_dir,'msys64')}}",
-      "msys2_bash_ob": "cmd.exe /c \"set \"MSYSTEM=UCRT64\" && set \"CHERE_INVOKING=1\" && \"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_bash_ob": "cmd.exe /c \"set \"MSYSTEM=MSYS\" && set \"CHERE_INVOKING=1\" && \"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "msys2_bash_cb": "\"",
       "stages": {
         "install": {
@@ -50,9 +56,19 @@
               "script": "curl.exe -L -s -o \"$msys_cache\" \"$msys_url\""
             },
             {
-              "message": "Extruct $name",
+              "message": "Extract $name",
               "when": "{{os.path.isfile($msys_cache) and not os.path.exists($msys2_dir)}}",
               "script": "7z x \"$msys_cache\" -so | 7z x -aoa -si -ttar -o\"$package_dir\""
+            },
+            {
+              "message": "Fix ucrt64.ini",
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "script": "echo \"MSYS=winsymlinks:nativestrict\" >> \"$msys2_dir\\ucrt64.ini\""
+            },
+            {
+              "message": "Fix msys2.ini",
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "script": "echo \"MSYS=winsymlinks:nativestrict\" >> \"$msys2_dir\\msys2.ini\""
             },
             {
               "message": "Initalize msys2 system",
@@ -68,7 +84,7 @@
             },
             {
               "message": "Copy profile",
-              "script": "copy /y \"$profile_file\" \"{{os.path.join($package_dir,'msys64','etc','profile.d')}}\\\"",
+              "script": "copy /y \"$profile_file\" \"{{os.path.join($package_dir,'msys64','etc','profile.d')}}\\\""
             },
             {
               "message": "Download msys2",
@@ -76,13 +92,6 @@
               "chdir": "$msys2_dir",
                 "bash_script": "until pacman -Syyuw --noconfirm; do sleep 10; done",
                 "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
-            },
-            {
-              "message": "Upgrade msys2",
-              "when": "{{os.path.exists($msys2_dir)}}",
-              "chdir": "$msys2_dir",
-              "bash_script": "pacman -Syyu --noconfirm",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "message": "Download build tools",
@@ -95,7 +104,14 @@
               "message": "Install build tools",
               "when": "{{os.path.exists($msys2_dir)}}",
               "chdir": "$msys2_dir",
-              "bash_script": "pacman -S --noconfirm {{' '.join($msys2_packages)}}",
+              "bash_script": "pacman -S --needed --noconfirm {{' '.join($msys2_packages)}}",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+            },
+            {
+              "message": "Upgrade msys2",
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
+              "bash_script": "pacman -Syyu --noconfirm",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]

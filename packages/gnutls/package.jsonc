@@ -154,9 +154,6 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\gnutls-${version}.tar.xz",
-      "git_url": "https://gitlab.com/gnutls/gnutls.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
-      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "download_url": "https://gnupg.org/ftp/gcrypt/gnutls/v{{$version.split('.')[0] + '.' + $version.split('.')[1]}}/gnutls-${version}.tar.xz",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_bash_ob": "cmd.exe /c \"set \"MSYSTEM=UCRT64\" && set \"CHERE_INVOKING=1\" && \"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
@@ -169,15 +166,15 @@
               "script": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "donloads",
+              "message": "downloads",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "curl.exe -L -s -o \"$cache_file\" \"$download_url\"",
+              "script": "curl.exe --fail -L -s -o \"$cache_file\" \"$download_url\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "extruct from cache.",
               "when": "{{not os.path.isdir($gnutls_source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z x \"$cache_file\" -so| 7z x -aoa -si -ttar -o\"$source_dir\"",
+              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_dir}\" && del \"${cache_file}.temp.tar\"",
               "fallback": "rmdir /q /s \"$gnutls_source_dir\""
             }
           ]
@@ -204,11 +201,13 @@
             },
             // Copy zlib binary to MSYS2
             {
+              "message": "Copy zlib binary to MSYS2 for debug.",
               "when": "{{'Debug' in $build_type and $with_zlib}}",
               "script": "robocopy \"$zlib_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
               "ignore_errors": "{{%ERRORLEVEL% < 8}}"
             },
             {
+              "message": "Copy zlib binary to MSYS2 for release.",
               "when": "{{'Release' in $build_type and $with_zlib}}",
               "script": "robocopy \"$zlib_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
               "ignore_errors": "{{%ERRORLEVEL% < 8}}"
@@ -218,27 +217,49 @@
               "when": "{{$with_zlib}}",
               "script": "perl -p -i -e \"s#^.+include <unistd.h>.*##g\" \"${msys2_dir}\\opt\\ucrt64\\include\\zconf.h\""
             },
+            {
+              "message": "Rename zlib library file.",
+              "when": "{{$with_zlib}}",
+              "chdir": "${msys2_dir}\\opt\\ucrt64\\lib",
+              "script": "for %f in (zlib*.lib) do ren \"%f\" \"lib%f\""
+            },
             // Copy brotli binary to MSYS2
             {
+              "message": "Copy brotli binary to MSYS2 for debug.",
               "when": "{{'Debug' in $build_type and $with_brotli}}",
-              "script": "robocopy \"$brotli_dir_debug\" \"${msys2_dir}\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
+              "script": "robocopy \"$brotli_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
               "ignore_errors": "{{%ERRORLEVEL% < 8}}"
             },
             {
+              "message": "Copy brotli binary to MSYS2 for release.",
               "when": "{{'Release' in $build_type and $with_brotli}}",
               "script": "robocopy \"$brotli_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
               "ignore_errors": "{{%ERRORLEVEL% < 8}}"
             },
+            {
+              "message": "Rename brotli library file.",
+              "when": "{{$with_brotli}}",
+              "chdir": "${msys2_dir}\\opt\\ucrt64\\lib",
+              "script": "for %f in (brotli*.lib) do ren \"%f\" \"lib%f\""
+            },
             // Copy zstd binary to MSYS2
             {
+              "message": "Copy zstd binary to MSYS2 for debug.",
               "when": "{{'Debug' in $build_type and $with_zstd}}",
               "script": "robocopy \"$zstd_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
               "ignore_errors": "{{%ERRORLEVEL% < 8}}"
             },
             {
+              "message": "Copy zstd binary to MSYS2 for release.",
               "when": "{{'Release' in $build_type and $with_zstd}}",
               "script": "robocopy \"$zstd_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
               "ignore_errors": "{{%ERRORLEVEL% < 8}}"
+            },
+            {
+              "message": "Rename zstd library file.",
+              "when": "{{$with_zstd}}",
+              "chdir": "${msys2_dir}\\opt\\ucrt64\\lib",
+              "script": "for %f in (zstd*.lib) do ren \"%f\" \"lib%f\""
             },
             // Install required library
             {
@@ -249,11 +270,8 @@
           ]
         },
         "configure": {
-          "gnutls_bootstrap_options" : [
-          ],
           "gnutls_configure_options": [
-            "--host=x86_64-w64-mingw32",
-            // "--build=x86_64-w64-mingw32",
+            "--build=x86_64-w64-mingw32",
             "--disable-maintainer-mode",
             "--disable-gtk-doc",
             "--disable-doc",
@@ -350,7 +368,19 @@
               "chdir": "$gnutls_build_dir_release",
               "bash_script": "make install",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
-            }
+            },
+            {
+              "message": "Copy gnutls files for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "robocopy \"${msys2_dir}\\opt\\gnutls\\debug\" \"$dist_dir_debug\" /e /is /njh /njs /ndl /nc /ns /np",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
+            },
+            {
+              "message": "Copy gnutls files for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "robocopy \"${msys2_dir}\\opt\\gnutls\\release\" \"$dist_dir_release\" /e /is /njh /njs /ndl /nc /ns /np",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
+            },
           ]
         },
         "post-install" :{
@@ -359,7 +389,18 @@
             "PERLIO": "raw"
           },
           "scripts": [
-            {"script": "exit 99"},
+            {
+              "when":"{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "ignore_errors": true
+            },
+            {
+              "when":"{{'Release' in $build_type }}",
+              "chdir": "$dist_dir_release\\lib",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "ignore_errors": true
+            },
             {
               "when": "{{'Debug' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",

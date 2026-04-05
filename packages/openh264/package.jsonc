@@ -253,7 +253,7 @@
             {
               "message": "Replace [the existing files] with the codec DLLs provided by CISO",
               "when": "{{ build_library == 'shared' and 'Release' in $build_type }}",
-              "script": "curl.exe -L -s -o \"$h264_dll_bz2\" \"$h264_dll_url\"",
+              "script": "curl.exe --fail -L -s -o \"$h264_dll_bz2\" \"$h264_dll_url\"",
               "ignore_errors": true
             },
             {

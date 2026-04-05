@@ -28,7 +28,7 @@
               "script": "curl.exe -L -s -o \"$gn_cache\" \"$gn_url\""
             },
             {
-              "message": "Extruct $name",
+              "message": "Extract $name",
               "when": "{{os.path.isfile($gn_cache)}}",
               "script": "tar -xf \"$gn_cache\" -C \"$package_dir\""
             }

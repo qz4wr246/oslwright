@@ -1,11 +1,11 @@
 {
-  "name": "libiconv",
-  "display": "libiconv",
-  "description": "A library and utility designed for converting text between different character encodings",
-  "site": "https://www.gnu.org/software/libiconv/",
-  "license": "LGPL v2.1",
+  "name": "libunistring",
+  "display": "libunistring",
+  "description": "Library for manipulating Unicode strings and C strings.",
+  "site": "https://www.gnu.org/software/libunistring/",
+  "license": "LGPL 3+",
   "info": "info.md",
-  "process_time": 440,
+  "process_time": 1800,
   "options": [
     {
       "display": "Version",
@@ -41,12 +41,13 @@
     {
       "display": "MSVC runtime library",
       "name": "msvc_runtime_library",
+      "enable": false,
       "type": "choice",
       "items": [
         "mt",
         "md"
       ],
-      "default": "$msvc_runtime_library_default"
+      "default": "md"
     },
     {
       "display": "Build library",
@@ -62,6 +63,7 @@
     {
       "display": "Build type",
       "name": "build_type",
+      "enable": false,
       "type": "choice",
       "items": [
         "Release",
@@ -98,6 +100,11 @@
   ],
   "versions": {
     "default": {
+      "dependencies": {
+        "libiconv": {
+          "version": ">=1.19"
+        }
+      },
       "environments": {
         "LC_ALL": "C",
         "MSYS": "winsymlinks:nativestrict",
@@ -123,12 +130,12 @@
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
       "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
-      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
-      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "build_dir_debug": "${source_rootdir}\\${dist_name}-debug",
+      "build_dir_release": "${source_rootdir}\\${dist_name}-release",
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
-      "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
-      "download_url": "https://ftp.gnu.org/pub/gnu/${name}/${name}-${version}.tar.gz",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.tar.xz",
+      "download_url": "https://ftp.gnu.org/gnu/${name}/${name}-${version}.tar.xz",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_bash_ob": "cmd.exe /c \"\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "msys2_bash_cb": "\"",
@@ -140,65 +147,83 @@
               "script": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "donloads",
+              "message": "downloads",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
               "script": "curl.exe --fail -L -s -o \"$cache_file\" \"$download_url\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "extruct from cache.",
+              "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "tmp_file": "${cache_file}.tmp",
               "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_rootdir}\" && del \"${cache_file}.temp.tar\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             }
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
-          "patch_files": [
-            {
-              "url": "$repo_url/0001-fixes-building-with-gcc-15.patch"
-            },
-            {
-              "url": "$repo_url/1.16-aliases.patch"
-            },
-            {
-              "url": "$repo_url/1.16-cross-install.patch"
-            },
-            {
-              "url": "$repo_url/1.16-wchar.patch"
-            }
-          ],
+          "libiconv_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'libiconv' in x), '')}}",
+          "libiconv_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'libiconv' in x), '')}}",
+          "patch_file_url_01": "https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libunistring/libunistring-0.9.3-2.src.patch",
+          "patch_file_01": "${source_dir}\\libunistring-0.9.3-2.src.patch",
           "scripts": [
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
               "bash_script": "rm -rf /opt/ucrt64/*",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}",
-              "ignore_errors": false
+              "ignore_errors": true
             },
             {
-              "message": "Patch ${name} source code",
-              "when": "{{any(not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename(p.get('url') or p.get('file', '')))) for p in $patch_files if p)}}",
+              "message": "Copy libiconv binary to MSYS2 for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "robocopy \"$libiconv_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
+            },
+            {
+              "message": "Copy libiconv binary to MSYS2 for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "robocopy \"$libiconv_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
+            },
+            {
+              "message": "Rename libiconv library file.",
+              "chdir": "${msys2_dir}\\opt\\ucrt64\\lib",
+              "script": "for %f in (libiconv*.lib) do ren \"%f\" \"lib%f\""
+            },
+            {
+              "message": "Patch libunistring source code",
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
               "chdir": "$source_dir",
-              "script":"{{' && '.join([f'curl.exe --fail -L -s -o \"{os.path.join($source_dir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" && patch -b -p1 -i \"{os.path.join($source_dir, os.path.basename(p[\"url\"]))}\" && copy nul > \"{os.path.join($source_dir, \"__patched_\" + os.path.basename(p[\"url\"]))}\"' if 'url' in p and not os.path.exists(os.path.join($source_dir, \"__patched_\" + os.path.basename(p['url']))) else f'patch -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"{os.path.join($source_dir, \"__patched_\" + os.path.basename(p[\"file\"]))}\"' if 'file' in p and not os.path.exists(os.path.join($source_dir, \"__patched_\" + os.path.basename(p['file']))) else '' for p in $patch_files if p])}}",
-              "fallback": "{{' && '.join([f'del \"{os.path.join($source_dir, \"__patched_\" + os.path.basename(p[\"url\"]))}\"' if 'url' in p and os.path.exists(os.path.join($source_dir, \"__patched_\" + os.path.basename(p['url']))) else f'del \"{os.path.join($source_dir, \"__patched_\" + os.path.basename(p[\"file\"]))}\"' if 'file' in p and os.path.exists(os.path.join($source_dir, \"__patched_\" + os.path.basename(p['file']))) else '' for p in $patch_files if p])  }}"
+              "script": "curl.exe --fail -L -s -o \"$patch_file_01\" \"$patch_file_url_01\" && git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}} && del \"$patch_file_01\"",
+              "fallback": "del \"$patch_file_01\""
             },
             {
               "message": "reconfigure",
               "chdir": "$source_dir",
-              "bash_script": "autoreconf -vfi",
+              "bash_script": "autoreconf -fi",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
         },
         "configure": {
-          "config_options":[],
-          "config_options_debug": [
-            "--prefix=/opt/${name}/debug"
+          "configure_options": [
+            "--host=x86_64-w64-mingw32",
+            "--disable-maintainer-mode",
+            "--enable-fat",
+            "--enable-cxx",
+            "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
+            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}"
           ],
-          "config_options_release": [
-            "--prefix=/opt/${name}/release"
+          "configure_options_release": [
+            "--prefix=/opt/libunistring/release"
           ],
+          "configure_options_debug": [
+            "--prefix=/opt/libunistring/debug"
+          ],
+          "environments": {
+            "CFLAGS": "-Wno-attributes",
+            "CXXFLAGS": "-Wno-attributes"
+          },
           "scripts": [
             {
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
@@ -206,7 +231,7 @@
               "ignore_errors": true
             },
             {
-              "when": "{{'Release' in $build_type }}",
+              "when": "{{'Release' in $build_type}}",
               "script": "del /q /s \"$build_dir_release\" > nul",
               "ignore_errors": true
             },
@@ -221,23 +246,17 @@
               "ignore_errors": true
             },
             {
-              "message": "config for debug.",
-              "when": "{{'Debug' in $build_type}}",
-              "environments": {
-                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
-              },
-              "chdir": "$build_dir_debug",
-              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
+              "message": "configure for release.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$build_dir_release",
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($configure_options)}} {{' '.join($configure_options_release)}}",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
-              "message": "config for release.",
-              "when": "{{'Release' in $build_type}}",
-              "environments": {
-                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
-              },
-              "chdir": "$build_dir_release",
-              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
+              "message": "configure for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$build_dir_debug",
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($configure_options)}} {{' '.join($configure_options_debug)}}",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
@@ -247,23 +266,15 @@
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
-                "PERLIO": "raw"
-              },
               "chdir": "$build_dir_debug",
-              "bash_script": "make -j4",
+              "bash_script": "make",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
-              "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
-                "PERLIO": "raw"
-              },
               "chdir": "$build_dir_release",
-              "bash_script": "make -j4",
+              "bash_script": "make",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
@@ -271,51 +282,39 @@
         "install": {
           "scripts": [
             {
-              "message": "install for debug.",
+              "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
               "bash_script": "make install",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
-              "message": "install for release.",
+              "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
               "bash_script": "make install",
               "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             },
             {
+              "message": "Copy libunistring files for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"${msys2_dir}\\opt\\${name}\\debug\" \"$dist_dir_debug\" /e /is /njh /njs /ndl /nc /ns /np"
+              "script": "robocopy \"${msys2_dir}\\opt\\libunistring\\debug\" \"$dist_dir_debug\" /e /is /njh /njs /ndl /nc /ns /np",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
             },
             {
+              "message": "Copy libunistring files for release.",
               "when": "{{'Release' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /e /is /njh /njs /ndl /nc /ns /np"
+              "script": "robocopy \"${msys2_dir}\\opt\\libunistring\\release\" \"$dist_dir_release\" /e /is /njh /njs /ndl /nc /ns /np",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
             }
           ]
         },
-        "post-install": {
-          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
-          "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
-          "j2_template_01": "${package_dir}\\libiconv.pc.j2",
-          "j2_output_01_release": "${pkgconfig_dir_release}\\libiconv.pc",
-          "j2_output_01_debug": "${pkgconfig_dir_debug}\\libiconv.pc",
+        "post-install" :{
+          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
           },
           "scripts": [
-            {
-              "when": "{{'Debug' in $build_type and not os.path.isdir($pkgconfig_dir_debug)}}",
-              "script": "mkdir \"$pkgconfig_dir_debug\"",
-              "ignore_errors": true
-            },
-            {
-              "when": "{{'Release' in $build_type and not os.path.isdir($pkgconfig_dir_release)}}",
-              "script": "mkdir \"$pkgconfig_dir_release\"",
-              "ignore_errors": true
-            },
             {
               "when":"{{'Debug' in $build_type}}",
               "chdir": "$dist_dir_debug\\lib",
@@ -328,18 +327,20 @@
               "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
               "ignore_errors": true
             },
-            // {
-            //   "when": "{{'Debug' in $build_type}}",
-            //   "script": "jinja2 -D LIBRAW_VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_debug\""
-            // },
-            // {
-            //   "when": "{{'Release' in $build_type}}",
-            //   "script": "jinja2 -D LIBRAW_VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_release\""
-            // }
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
+              "ignore_errors": true
+            }
           ]
         }
       }
     },
-    "1.19": {}
+    "1.4.1": {}
   }
 }
