@@ -22,6 +22,9 @@ class BuildController(FletXController):
         self.process_time = 0
         self.remaining_time = 1
         self.max_lines = 500
+        self.packages = []
+        self.model = BuildModel()
+        self.build_force = False
         super().__init__()
 
     def on_initialized(self):
@@ -50,8 +53,9 @@ class BuildController(FletXController):
         # print("BuildController:on_disposed")
         pass
 
-    def set_build_packages(self, packages):
+    def set_build_packages(self, packages, build_force: bool = False):
         self.packages = packages
+        self.build_force = build_force
 
     # --- ビルド開始 ---
     def start_build(self):
@@ -63,6 +67,8 @@ class BuildController(FletXController):
             self.is_running = True
             self.model = BuildModel()
             self.model.is_running = True
+            if self.build_force:
+                self.model.build_force_packages = [p.name for p in self.packages]
             self.build_service.run_build(self.packages, self.model)
             task = threading.Thread(target=self._update_progress_task, daemon=True)
             task.start()

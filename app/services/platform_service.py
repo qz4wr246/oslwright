@@ -389,6 +389,7 @@ class PlatformService(FletXService):
         path = str()
         if self.git_exe:
             path = ";".join([path, str(self.git_exe.parent)])
+            path = ";".join([path, str(self.git_exe.parent / ".." / "usr" / "bin")])
 
         if self.gitlfs_exe:
             path = ";".join([path, str(self.gitlfs_exe.parent)])
@@ -1021,6 +1022,7 @@ class PlatformService(FletXService):
         vers = [k for k in package.versions.keys() if k != "default"]
         session = {
             "name": package.name,
+            "display": package.display,
             "package_dir": str(Path(package.path).parent),
             "versions": vers,
             "latest_version": vers[-1],

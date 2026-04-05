@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, auto
+from typing import Optional, Any, List
 
 
 class Reason(Enum):
@@ -21,3 +22,4 @@ class BuildModel:
     status: str = ""
     reason: Reason = Reason.NORMAL
     message: str = ""
+    build_force_packages: Optional[List[str]] = None  # 強制ビルドするパッケージ

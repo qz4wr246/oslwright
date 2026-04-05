@@ -71,7 +71,7 @@ class BuildService(FletXService):
 
     async def build_task(self, packages: List[PackageModel], model: BuildModel):
         try:
-            Post.gui(f"\n======= Build start: {datetime.now().strftime("%Y/%m/%d %H:%M:%S")} ==========")
+            Post.gui(f"\n======= Build start: {datetime.now().strftime('%Y/%m/%d %H:%M:%S')} ==========")
             self.model = model
             model.is_running = True
             deps = self.find_dependent_builds(packages)
@@ -90,12 +90,15 @@ class BuildService(FletXService):
                 if result != Reason.COMPLETED:
                     break
                 model.processed_count += 1
+            if result == Reason.COMPLETED:
+                Post.gui(f"Build Completed.")
         except Exception as e:
             Post.error(str(e))
             model.reason = Reason.EXCEPTION
         finally:
             model.is_running = False
             self.model = None
+            Post.gui(f"======= Build end:  {datetime.now().strftime('%Y/%m/%d %H:%M:%S')} ==========")
 
     def get_environment(self, pkg_env: dict, session: dict):
         environs = {}
@@ -167,6 +170,11 @@ class BuildService(FletXService):
         start_time = datetime.now()
         model.package_name = package.display
         model.stage_name = "---"
+
+        if model.build_force_packages and package.name in model.build_force_packages:
+            Post.gui(f"[{package.display}] force build")
+            self.package_service.revert_option(option)
+
         if option.versions[option.current_version].completed:
             Post.gui(f"[{package.display}] skip")
             result = Reason.COMPLETED
@@ -240,7 +248,6 @@ class BuildService(FletXService):
             if ret != Reason.COMPLETED:
                 break
             if self.is_killed:
-                Post.error(f"! User Interrupted !")
                 ret = Reason.USER_INTERRUPTED
                 break
         return ret
@@ -282,7 +289,7 @@ class BuildService(FletXService):
             if code:
                 if chdir:
                     os.chdir(chdir)
-                    Post.gui(f"[{session.get('display', 'Unknown')}] cd {chdir}")
+                    Post.gui(f"cd {chdir}")
                 Post.gui(code)
                 result = self.shell.exec(code, env=envs, shell=True)
                 if isinstance(ignore_errors, str):
@@ -290,7 +297,7 @@ class BuildService(FletXService):
                     ignore_errors = expand_envs_vars(ignore_errors, envs)
                     ignore_errors = evaluate_str(ignore_errors, session)
                 if result.killed:
-                    Post.error(f"[{session.get('display', 'Unknown')}] !! User Interrupted !!")
+                    Post.error(f"[{session.get('display', 'Unknown')}] ! User Interrupted !")
                     return Reason.USER_INTERRUPTED
                 elif result.exitcode and fallback:
                     Post.error(

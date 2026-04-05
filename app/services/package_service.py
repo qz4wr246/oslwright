@@ -41,7 +41,7 @@ class PackageService(FletXService):
         package_files = self.platform_service.get_package_files()
         Post.info(f"Package loading {len(package_files)} packages.")
         for path in package_files:
-            Post.info(f"[{path.parent.name}] loadinng...")
+            Post.info(f"[{path.parent.name}]")
             package = self.load_package_file(path)
             if package:
                 self.packages.append(package)

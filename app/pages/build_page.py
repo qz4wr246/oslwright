@@ -28,8 +28,9 @@ class BuildPage(FletXPage):
         self.init_count += 1
         if self.init_count > 1 and not self.initialized:
             routing_param_data = self.route_info.data
-            packages: list[PackageModel] = routing_param_data.get("packages")
-            self.controller.set_build_packages(packages)
+            packages: list[PackageModel] = routing_param_data.get("packages", [])
+            build_force = routing_param_data.get("build_force", False)
+            self.controller.set_build_packages(packages, build_force)
             self.controller.start_build()
             self.initialized = True
             self.modal_dialog = None

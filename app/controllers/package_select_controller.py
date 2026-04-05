@@ -75,4 +75,4 @@ class PackageSelectController(FletXController):
         for file_path in package_files:
             packages.append(self.package_service.load_package_file(file_path))
         if len(packages):
-            navigate(Routes.BUILD, data={"packages": packages})
+            navigate(Routes.BUILD, data={"packages": packages, "build_force": True})
