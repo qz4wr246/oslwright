@@ -123,7 +123,7 @@
               "script": "curl.exe --fail -L -s -o \"$zip_cache\" \"$zip_url\""
             },
             {
-              "message": "extruct $name",
+              "message": "extract $name",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($zip_cache)}}",
               "script": "7z x -aoa \"$zip_cache\" -o\"$source_dir\"",
               "fallback": "rmdir /q /s \"$source_dir\""

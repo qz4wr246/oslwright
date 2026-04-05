@@ -188,7 +188,7 @@
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "extruct from cache.",
+              "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
               "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
               "fallback": "rmdir /q /s \"$source_dir\""

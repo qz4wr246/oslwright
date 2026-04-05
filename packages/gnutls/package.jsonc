@@ -172,7 +172,7 @@
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "extruct from cache.",
+              "message": "extract from cache.",
               "when": "{{not os.path.isdir($gnutls_source_dir) and os.path.isfile($cache_file)}}",
               "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_dir}\" && del \"${cache_file}.temp.tar\"",
               "fallback": "rmdir /q /s \"$gnutls_source_dir\""

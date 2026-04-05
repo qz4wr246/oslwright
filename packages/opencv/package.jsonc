@@ -215,7 +215,7 @@
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "extruct from cache.",
+              "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
               "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\""
             },
@@ -243,7 +243,7 @@
               "fallback": "rmdir /q /s \"$contrib_dir\""
             },
             {
-              "message": "extruct from cache.",
+              "message": "extract from cache.",
               "when": "{{not os.path.isdir($contrib_dir) and os.path.isfile($contrib_cache_file)}}",
               "script": "7z x -aoa \"$contrib_cache_file\" -o\"$contrib_dir\""
             },
