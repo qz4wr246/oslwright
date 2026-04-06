@@ -63,12 +63,12 @@
             {
               "message": "Fix ucrt64.ini",
               "when": "{{os.path.exists($msys2_dir)}}",
-              "script": "echo \"MSYS=winsymlinks:nativestrict\" >> \"$msys2_dir\\ucrt64.ini\""
+              "script": "echo MSYS=winsymlinks:nativestrict >> \"$msys2_dir\\ucrt64.ini\""
             },
             {
               "message": "Fix msys2.ini",
               "when": "{{os.path.exists($msys2_dir)}}",
-              "script": "echo \"MSYS=winsymlinks:nativestrict\" >> \"$msys2_dir\\msys2.ini\""
+              "script": "echo MSYS=winsymlinks:nativestrict >> \"$msys2_dir\\msys2.ini\""
             },
             {
               "message": "Initalize msys2 system",
