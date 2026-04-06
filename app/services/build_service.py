@@ -144,7 +144,7 @@ class BuildService(FletXService):
             path = ";".join([environs["PATH"], path])
         toolpaths = self.platform_service.GetToolsPaths()
         if toolpaths:
-            path = ";".join([toolpaths, path])
+            path = ";".join([path, toolpaths])
 
         # スクリプトを実行したpythonをPATHへ追加
         if sys.executable:
