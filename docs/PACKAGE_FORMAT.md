@@ -127,11 +127,11 @@ package.jsonc は、json5で記述します。
 
 | キー | 型 | 必須 | 説明 |
 | :--- | :--- | :---: | :--- |
-| `script` | string | ○ | 実行するコマンド |
+| `script` | string | ○ | 実行するDOSコマンド |
 | `message` | string | - | 実行時に表示するメッセージ |
 | `chdir` | string | - | 実行時の作業ディレクトリ |
-| `when` | string / bool | - | 実行条件 |
-| `ignore_errors` | boolean | - | エラー発生時に無視して継続する |
+| `when` | string / bool | - | 実行条件 (判定に相対パスを含めてはならない) |
+| `ignore_errors` | string / bool | - | エラー発生時に無視して継続する |
 | `fallback` | string | - | エラー時に実行
 | `environments` | object | - | このスクリプト限定の環境変数 |
 
