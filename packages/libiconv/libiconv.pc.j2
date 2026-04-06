@@ -3,9 +3,9 @@ exec_prefix=${prefix}
 libdir=${prefix}/lib
 includedir=${prefix}/include
 
-Name: libraw
+Name: libiconv
 Description: A library and utility designed for converting text between different character encodings
 URL: https://www.gnu.org/software/libiconv/
 Version: {{LIBRAW_VERSION}}
-Libs: -L${libdir} -llibiconv
+Libs: -L${libdir} -llibiconv -llibcharset
 Cflags: -I${includedir}
