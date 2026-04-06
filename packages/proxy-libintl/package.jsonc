@@ -234,7 +234,6 @@
         },
         "install": {
           "meson_install_options": [
-            //"--tags devel,runtime,bin"
           ],
           "scripts": [
             {
@@ -269,25 +268,7 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
-            },
-            // {
-            //   "when": "{{'Debug' in $build_type}}",
-            //   "script": "mkdir $pkgconfig_dir_debug",
-            //   "ignore_errors": true
-            // },
-            // {
-            //   "when": "{{'Debug' in $build_type}}",
-            //   "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_debug\""
-            // },
-            // {
-            //   "when": "{{'Release' in $build_type}}",
-            //   "script": "mkdir $pkgconfig_dir_release",
-            //   "ignore_errors": true
-            // },
-            // {
-            //   "when": "{{'Release' in $build_type}}",
-            //   "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_release\""
-            // }
+            }
           ]
         }
       }

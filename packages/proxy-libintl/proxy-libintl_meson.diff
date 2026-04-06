@@ -13,10 +13,10 @@ index 0000000..8405fb0
 +    IMPORTED_LOCATION "${_IMPORT_PREFIX}/bin/@LIB_NAME@.dll"
 +)
 diff --git a/meson.build b/meson.build
-index 758feec..a54ce52 100644
+index 758feec..ebbcd59 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1,10 +1,13 @@
+@@ -1,17 +1,20 @@
  project('proxy-libintl', 'c',
    version : '1',
 -  meson_version : '>= 0.48.0',
@@ -31,6 +31,14 @@ index 758feec..a54ce52 100644
  if get_option('default_library') == 'static'
    add_project_arguments('-DG_INTL_STATIC_COMPILATION', language : 'c')
  endif
+ 
+ install_headers('libintl.h')
+ 
+-intl_lib = library('intl',
++intl_lib = library('libintl',
+   'libintl.c',
+   c_args: ['-DSTUB_ONLY'],
+   soversion : 8,
 @@ -26,3 +29,33 @@ endif
  intl_dep = declare_dependency(link_with : intl_lib,
    compile_args: c_args,
