@@ -28,21 +28,16 @@ from ..core.logger import PostLogger as Post
 from ..core.shell import PipedShell
 from ..core.exception import PackageValidationError
 
-DONT_REGIST_KEYS = ["options", "dependencies", "environments", "scripts"]
-
-RESERVED_KEYS = [
+DONT_REGIST_KEYS = [
     "options",
-    "versions",
-    "default",
     "dependencies",
-    "configure",
-    "stages",
+    "environments",
     "scripts",
+    "name",
     "when",
     "chdir",
     "message",
     "script",
-    "ignore_errors",
     "fallback",
 ]
 
@@ -191,8 +186,9 @@ class BuildService(FletXService):
             else:
                 raise Exception("Syntax Error : undefined stages in package.jsonc")
 
-            # order の順に辞書を再構成（d に存在するキーのみ抽出）
+            # stages をorder の順に辞書を再構成する。
             stages = {k: stages[k] for k in STAGES_ORDER if k in stages}
+
             result = Reason.NORMAL
             Post.gui(f"[{package.display}] build for {session.get("dist_name","")}")
             Post.gui(f"[{package.display}] process time: {seconds_to_hms(int(package.process_time))}")
@@ -277,9 +273,12 @@ class BuildService(FletXService):
             s = self.transform(v, session, envs)
             session[k] = s
 
-        message = evaluate_str(message, session) if isinstance(message, str) else message
         when = evaluate_str(when, session) if isinstance(when, str) else when
         chdir = evaluate_str(chdir, session) if isinstance(chdir, str) else chdir
+        if when and chdir:
+            os.chdir(chdir)
+            Post.gui(f"cd {chdir}")
+        message = evaluate_str(message, session) if isinstance(message, str) else message
         code = evaluate_str(code, session) if isinstance(code, str) else code
         fallback = evaluate_str(fallback, session) if isinstance(fallback, str) else fallback
 
@@ -287,9 +286,6 @@ class BuildService(FletXService):
             if message:
                 Post.gui(f"[{session.get('display', 'Unknown')}] {message}")
             if code:
-                if chdir:
-                    os.chdir(chdir)
-                    Post.gui(f"cd {chdir}")
                 Post.gui(code)
                 result = self.shell.exec(code, env=envs, shell=True)
                 if isinstance(ignore_errors, str):
@@ -368,7 +364,7 @@ class BuildService(FletXService):
                     nregist = False
                 n = self.transform(v, session, envs, nregist)
                 node[k] = n
-                if regist_vars:
+                if nregist:
                     session[k] = n
             return node
 

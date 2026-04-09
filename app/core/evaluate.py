@@ -1,5 +1,7 @@
 import os
 import re
+import glob
+import pathlib
 import copy
 from typing import Any
 
@@ -56,7 +58,7 @@ def replace_vars_in_text(text: str, variables: dict) -> str:
 def safe_eval_with_map(code, variables, s, match_start, mapping):
     try:
         variables = copy.deepcopy(variables)
-        variables.update({"os": os, "re": re})
+        variables.update({"os": os, "re": re, "glob": glob, "pathlib": pathlib})
         return eval(code, variables)
     except NameError as e:
         new_offset = e.args[0].find("'")  # 例: "name 'foo' is not defined" から 'foo' の位置を探す
