@@ -1,21 +1,36 @@
 {
-  "files.exclude": {
-  },
+  "files.exclude": {},
   "search.exclude": {
     "sources/**/.git": true,
-    "cache/**":true,
-    "dist/**":true,
-    ".venv/**":true
+    "cache/**": true,
+    "dist/**": true,
+    ".venv/**": true,
+    "tools/**": true
   },
   "files.watcherExclude": {
     "sources/**": true,
     "packages/**": true,
-    "cache/**":true,
-    "dist/**":true,
-    "tools/**":true,
-    ".venv/**":true
+    "cache/**": true,
+    "dist/**": true,
+    "tools/**": true,
+    ".venv/**": true
   },
-  "python.analysis.exclude": ["app/**/__pycache__", ".git/**", ".venv/**", "cahce/**", "packages/**","sources/**", "dist/**", "tools/**"],
-  "python.analysis.include": ["app/**"],
+  "python.analysis.exclude": [
+    "**/.git",
+    "**/node_modules",
+    "**/.*",
+    "**/__pycache__",
+    "app/**/__pycache__",
+    ".git/**",
+    ".venv/**",
+    "cahce/**",
+    "packages/**",
+    "sources/**",
+    "dist/**",
+    "tools/**"
+  ],
+  "python.analysis.include": [
+    "app/**"
+  ],
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe"
 }
