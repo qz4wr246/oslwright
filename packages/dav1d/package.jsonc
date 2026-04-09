@@ -141,16 +141,6 @@
             }
           ]
         },
-        // "patch": {
-        //   "patch_file_01": "${package_dir}\\patches\\file01.patch",
-        //   "scripts": [
-        //     {
-        //       "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
-        //       "chdir": "$source_dir",
-        //       "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
-        //     }
-        //   ]
-        // },
         "configure": {
           "meson_options": [
             "--vsenv",

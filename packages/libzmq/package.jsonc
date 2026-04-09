@@ -167,16 +167,6 @@
             }
           ]
         },
-        // "patch": {
-        //   "patch_file_01": "${package_dir}\\patches\\file01.patch",
-        //   "scripts": [
-        //     {
-        //       "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
-        //       "chdir": "$source_dir",
-        //       "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
-        //     }
-        //   ]
-        // },
         "configure": {
           "libsodium_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'libsodium' in x), '')}}",
           "libsodium_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'libsodium' in x), '')}}",

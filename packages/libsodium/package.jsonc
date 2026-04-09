@@ -220,13 +220,11 @@
             },
             {
               "when": "{{'Release' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"$libsodium_incdir\" \"$dist_dir_release\\include\" *.h /S /IS /IT /NP /NFL /NDL /NJH /NJS /R:0 /W:0"
+              "script": "xcopy \"$libsodium_incdir\\*.h\" \"$dist_dir_release\\include\" /s /e /i /y"
             },
             {
               "when": "{{'Debug' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"$libsodium_incdir\" \"$dist_dir_debug\\include\" *.h /S /IS /IT /NP /NFL /NDL /NJH /NJS /R:0 /W:0"
+              "script": "xcopy \"$libsodium_incdir\\*.h\" \"$dist_dir_debug\\include\" /s /e /i /y"
             },
             {
               "when": "{{'Release' in $build_type and 'shared' == $build_library}}",

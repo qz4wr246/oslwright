@@ -66,7 +66,7 @@
       "type": "choice",
       "items": [
         "Release",
-        "Debug",
+        "Debug"
       ],
       "default": "Release"
     },
@@ -137,6 +137,23 @@
         }
       },
       "environments": {
+        "LC_ALL": "C",
+        "MSYS": "winsymlinks:nativestrict",
+        "MSYSTEM": "MSYS",
+        "CHERE_INVOKING": "1",
+        "CC": "/ucrt64/bin/gcc.exe",
+        "CXX": "/ucrt64/bin/g++.exe",
+        "LD": "/ucrt64/bin/ld.exe",
+        "AR": "/ucrt64/bin/ar.exe",
+        "RANLIB": "/ucrt64/bin/ranlib.exe",
+        "STRIP": "/ucrt64/bin/strip.exe",
+        "NM": "/ucrt64/bin/nm.exe",
+        "OBJCOPY": "/ucrt64/bin/objcopy.exe",
+        "OBJDUMP": "/ucrt64/bin/objdump.exe",
+        "CPPFLAGS": "-I/opt/ucrt64/include",
+        "LDFLAGS": "-L/opt/ucrt64/lib",
+        "SED": "/usr/bin/sed.exe",
+        "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
         "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
       },
@@ -153,7 +170,8 @@
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'n' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
-      "msys2_bash_ob": "cmd.exe /c \"set \"MSYSTEM=UCRT64\" && set \"CHERE_INVOKING=1\" && \"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
+      "msys2_bash_ob": "cmd.exe /c \"\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "msys2_bash_cb": "\"",
       "stages": {
         "download": {
@@ -196,48 +214,45 @@
           "sdl_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'sdl' in x), '')}}",
           "openh264_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'openh264' in x), '')}}",
           "openh264_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'openh264' in x), '')}}",
+          "msys2_require_runtimes": [
+            {
+              "name": "zlib",
+              "add_prefix_lib": ["zlib.lib"]
+            },
+            {
+              "name": "sdl",
+              "add_prefix_lib": ["sdl2.lib"]
+            },
+            {
+              "name": "openh264",
+              "when": "$enable_openh264",
+              "remove_prefix_pc": ["libopenh264"]
+            }
+          ],
           "scripts": [
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
               "bash_script": "rm -rf /opt/ucrt64/*",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}",
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}",
               "ignore_errors": false
             },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"$zlib_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
+          {
+              // Copy runtime Script: with msys2_require_runtimes
+              "message": "Copy runtime libraries to MSYS2",
+              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'))}}",
+              "script": "{{' && '.join([f'xcopy \"{src_dir}\" \"{msys2_external_runtime_dir}\" /s /e /i /y' for dpr in [dependent_packages_release.split(';')] for item in msys2_require_runtimes if item.get('when', True) for src_dir in dpr if item['name'] in src_dir]+ [f'copy nul > \"{os.path.join(msys2_external_runtime_dir, \"__copied__\")}\"'])}}"
             },
             {
-              "when": "{{'Release' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"$zlib_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
+              // Rename runtime Script: with msys2_require_runtimes
+              "message": "Rename library files and rewrite pc files.",
+              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__renamed__'))}}",
+              "script": "{{' && '.join([cmd for item in $msys2_require_runtimes if item.get('when', True) for cmd in ([f'ren \"{p}\" \"lib{os.path.basename(p)}\"' for n in item.get('add_prefix_lib', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', n), recursive=True)] + [f'perl -i.bak -pe \"if(/^Libs:/){{ s/-l{n}\\\\b/-l{n[3:] if n.startswith(\"lib\") else n}/g }}\" \"{p}\"' for n in item.get('remove_prefix_pc', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', '*.pc'), recursive=True) if os.path.isfile(p) and any(re.search(rf'^Libs:.*-l{n}\\b', l) for l in [pathlib.Path(p).read_text(errors=\"ignore\")] for l in l.splitlines())])]+[f'copy nul > \"{os.path.join($msys2_external_runtime_dir, \"__renamed__\")}\"'])}}"
             },
             {
               "script": "perl -p -i -e \"s#^.+include <unistd.h>.*##g\" \"${msys2_dir}\\opt\\ucrt64\\include\\zconf.h\""
             },
             {
-              "when": "{{'Debug' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"$sdl_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"$sdl_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
-            },
-            {
               "script": "copy /Y \"${package_dir}\\sdl2-config\" \"${msys2_dir}\\opt\\ucrt64\\bin\\\""
-            },
-            {
-              "when": "{{'Debug' in $build_type and $enable_openh264}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"$openh264_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
-            },
-            {
-              "when": "{{'Release' in $build_type and $enable_openh264}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"$openh264_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np"
             }
           ]
         },
@@ -303,21 +318,21 @@
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_debug",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_release",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             }
           ]
         },
@@ -332,7 +347,7 @@
               },
               "chdir": "$build_dir_debug",
               "bash_script": "make -j4",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "build for release.",
@@ -343,7 +358,7 @@
               },
               "chdir": "$build_dir_release",
               "bash_script": "make -j4",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             }
           ]
         },
@@ -354,34 +369,56 @@
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
+              "message": "Copy ${name} files for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"${msys2_dir}\\opt\\ffmpeg\\debug\" \"$dist_dir_debug\" /e /is /njh /njs /ndl /nc /ns /np"
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\debug\" \"$dist_dir_debug\" /s /e /i /y"
             },
             {
+              "message": "Copy ${name} files for release.",
               "when": "{{'Release' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"${msys2_dir}\\opt\\ffmpeg\\release\" \"$dist_dir_release\" /e /is /njh /njs /ndl /nc /ns /np"
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /s /e /i /y"
             }
           ]
         },
         "post-install" :{
-          "j2_template_01": "${package_dir}\\activate.bat.j2",
-          "j2_output_01_release": "${dist_dir_release}\\bin\\activate.bat",
+          "template_files":[
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "${package_dir}\\activate.bat.j2",
+              "defines": [
+                "DEPENDENT_DLL_PATHS=\"{{${dependent_dlls_debug}.replace(${dist_rootdir} +'\\\\','')}}\""
+              ],
+              "output": "${dist_dir_release}\\bin\\activate.bat"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "${package_dir}\\activate.bat.j2",
+              "defines": [
+                "DEPENDENT_DLL_PATHS=\"{{${dependent_dlls_release}.replace(${dist_rootdir} +'\\\\','')}}\""
+              ],
+              "output": "${dist_dir_release}\\bin\\activate.bat"
+            }
+          ],
           "environments": {
             "PERLIO": "raw"
           },
           "scripts": [
+            {
+              // Template Script:
+              // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+            },
             {
               "ignore_errors": true,
               "when": "{{'Debug' in $build_type}}",
@@ -404,17 +441,11 @@
             },
             {
               "when": "{{'Debug' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"$dist_dir_debug\\bin\" \"$dist_dir_debug\\lib\" *.lib /MOV"
+              "script": "xcopy \"$dist_dir_debug\\bin\\*.lib\" \"$dist_dir_debug\\lib\" /s /e /i /y"
             },
             {
               "when": "{{'Release' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"$dist_dir_release\\bin\" \"$dist_dir_release\\lib\" *.lib /MOV"
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "script": "jinja2 -D DEPENDENT_DLL_PATHS=\"{{$dependent_dlls_release.replace($dist_rootdir +'\\\\','')}}\" \"$j2_template_01\" > \"$j2_output_01_release\""
+              "script": "xcopy \"$dist_dir_release\\bin\\*.lib\" \"$dist_dir_release\\lib\" /s /e /i /y"
             }
           ]
         }

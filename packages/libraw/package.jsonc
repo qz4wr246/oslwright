@@ -55,14 +55,14 @@
       "type": "choice",
       "items": [
         "shared",
-        "static",
-        "shared; static"
+        "static"
       ],
       "default": "shared"
     },
     {
       "display": "Build type",
       "name": "build_type",
+      "enable": false,
       "type": "choice",
       "items": [
         "Release",
@@ -73,6 +73,7 @@
     {
       "display": "Build layout",
       "name": "build_layout",
+      "enable": false,
       "type": "choice",
       "items": [
         "union",
@@ -103,7 +104,7 @@
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
         "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
       },
-      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "source_dir": "${source_rootdir}\\LibRaw-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
       "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
@@ -111,10 +112,8 @@
       "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
-      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/LibRaw/LibRaw.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
-      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "cache_file": "${cache_rootdir}\\LibRaw-${version}.tar.gz",
+      "download_url": "https://www.libraw.org/data/LibRaw-${version}.tar.gz",
       "stages": {
         "download": {
           "scripts": [
@@ -123,42 +122,19 @@
               "script": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "git clone.",
+              "message": "donloads",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
-              "fallback": "rmdir /q /s \"$source_dir\""
-            },
-            {
-              "message": "git checkout.",
-              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "chdir": "$source_dir",
-              "script": "git checkout $git_hash",
+              "script": "curl.exe --fail -L -s -o \"$cache_file\" \"$download_url\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_rootdir}\" && del \"${cache_file}.temp.tar\"",
               "fallback": "rmdir /q /s \"$source_dir\""
-            },
-            {
-              "message": "make cache.",
-              "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
-              "fallback": "del \"$cache_file\""
             }
           ]
         },
-        // "patch": {
-        //   "patch_file_01": "${package_dir}\\patches\\file01.patch",
-        //   "scripts": [
-        //     {
-        //       "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
-        //       "chdir": "$source_dir",
-        //       "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
-        //     }
-        //   ]
-        // },
         "configure": {
           "scripts": [
             {
@@ -183,20 +159,15 @@
             },
             {
               "message": "config for debug.",
-              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": ""
-            },
-            {
-              "message": "config for debug.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$source_dir",
-              "script": "perl -pe \"s#src\\\\#..\\\\{{os.path.basename($source_dir)}}\\\\src\\\\#g;s#/I\\.#/I..\\\\{{os.path.basename($source_dir)}}#g\" Makefile.msvc > \"$build_dir_debug/Makefile\""
+              "script": "perl -pe \"s@/I\\\\.@/I..\\\\\\\\{{os.path.basename($source_dir)}}@g; s@src\\\\\\\\@..\\\\\\\\{{os.path.basename($source_dir)}}\\\\\\\\src\\\\\\\\@g\" Makefile.msvc > \"$build_dir_debug/Makefile\""
             },
             {
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$source_dir",
-              "script": "perl -pe \"s#src\\\\#..\\\\{{os.path.basename($source_dir)}}\\\\src\\\\#g;s#/I\\.#/I..\\\\{{os.path.basename($source_dir)}}#g\" Makefile.msvc > \"$build_dir_release/Makefile\""
+              "script": "perl -pe \"s@/I\\\\.@/I..\\\\\\\\{{os.path.basename($source_dir)}}@g; s@src\\\\\\\\@..\\\\\\\\{{os.path.basename($source_dir)}}\\\\\\\\src\\\\\\\\@g\" Makefile.msvc > \"$build_dir_release/Makefile\""
             }
           ]
         },
@@ -232,62 +203,65 @@
         "install": {
           "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
           "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
-          "j2_template_01": "${package_dir}\\libraw.pc.j2",
-          "j2_output_01_release": "${pkgconfig_dir_release}\\libraw.pc",
-          "j2_output_01_debug": "${pkgconfig_dir_debug}\\libraw.pc",
+          "template_files": [
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "${package_dir}\\libraw.pc.j2",
+              "output": "${pkgconfig_dir_debug}\\libraw.pc",
+              "defines": [
+                "LIBRAW_VERSION=\"$version\""
+              ]
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "${package_dir}\\libraw.pc.j2",
+              "output": "${pkgconfig_dir_release}\\libraw.pc",
+              "defines": [
+                "LIBRAW_VERSION=\"$version\""
+              ]
+            }
+          ],
           "scripts": [
             {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "robocopy \"$source_dir\\libraw\" \"$dist_dir_debug\\include\" *.h /NFL /NDL /NJH /NJS /NP /NS /NC /XO",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
+              // Template Script:
+              // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             },
             {
               "when": "{{'Debug' in $build_type}}",
-              "script": "robocopy \"$build_dir_debug\\bin\" \"$dist_dir_debug\\bin\" *.* /E /NFL /NDL /NJH /NJS /NP /NS /NC",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "robocopy \"$build_dir_debug\\lib\" \"$dist_dir_debug\\lib\" *.* /E /NFL /NDL /NJH /NJS /NP /NS /NC",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "mkdir \"$pkgconfig_dir_debug\"",
+              "script": "xcopy \"$source_dir\\libraw\\*.h\" \"$dist_dir_debug\\include\" /s /e /i /y /q",
               "ignore_errors": true
             },
             {
               "when": "{{'Debug' in $build_type}}",
-              "script": "jinja2 -D LIBRAW_VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_debug\""
+              "script": "xcopy \"$build_dir_debug\\bin\\*\" \"$dist_dir_debug\\bin\" /s /e /i /y /q",
+              "ignore_errors": true
             },
             {
-              "when": "{{'Release' in $build_type}}",
-              "script": "robocopy \"$source_dir\\libraw\" \"$dist_dir_release\\include\" *.h /NFL /NDL /NJH /NJS /NP /NS /NC /XO",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "script": "robocopy \"$build_dir_release\\bin\" \"$dist_dir_release\\bin\" *.* /E /NFL /NDL /NJH /NJS /NP /NS /NC",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "script": "robocopy \"$build_dir_release\\lib\" \"$dist_dir_release\\lib\" *.* /E /NFL /NDL /NJH /NJS /NP /NS /NC",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "script": "mkdir \"$pkgconfig_dir_release\"",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "xcopy \"$build_dir_debug\\lib\\*\" \"$dist_dir_debug\\lib\" /s /e /i /y /q",
               "ignore_errors": true
             },
             {
               "when": "{{'Release' in $build_type}}",
-              "script": "jinja2 -D LIBRAW_VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_release\""
+              "script": "xcopy \"$source_dir\\libraw\\*.h\" \"$dist_dir_release\\include\" /s /e /i /y /q",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "xcopy \"$build_dir_release\\bin\\*\" \"$dist_dir_release\\bin\" /s /e /i /y /q",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "xcopy \"$build_dir_release\\lib\\*\" \"$dist_dir_release\\lib\" /s /e /i /y /q",
+              "ignore_errors": true
             }
           ]
         }
       }
     },
-    "0.22.0": {}
+    "0.22.1": {}
   }
 }

@@ -103,6 +103,22 @@
         }
       },
       "environments": {
+        "LC_ALL": "C",
+        "MSYS": "winsymlinks:nativestrict",
+        "MSYSTEM": "MSYS",
+        "CHERE_INVOKING": "1",
+        "CC": "/ucrt64/bin/gcc.exe",
+        "CXX": "/ucrt64/bin/g++.exe",
+        "LD": "/ucrt64/bin/ld.exe",
+        "AR": "/ucrt64/bin/ar.exe",
+        "RANLIB": "/ucrt64/bin/ranlib.exe",
+        "STRIP": "/ucrt64/bin/strip.exe",
+        "NM": "/ucrt64/bin/nm.exe",
+        "OBJCOPY": "/ucrt64/bin/objcopy.exe",
+        "OBJDUMP": "/ucrt64/bin/objdump.exe",
+        "CPPFLAGS": "-I/opt/ucrt64/include",
+        "LDFLAGS": "-L/opt/ucrt64/lib",
+        "SED": "/usr/bin/sed.exe",
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
         "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
@@ -118,7 +134,8 @@
       "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
       "download_url": "https://ftp.gnu.org/pub/gnu/gettext/gettext-${version}.tar.gz",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
-      "msys2_bash_ob": "cmd.exe /c \"set \"MSYSTEM=UCRT64\" && set \"CHERE_INVOKING=1\" && \"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
+      "msys2_bash_ob": "cmd.exe /c \"\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "msys2_bash_cb": "\"",
       "stages": {
         "download": {
@@ -142,12 +159,30 @@
           ]
         },
         "patch": {
+          "msys2_require_runtimes": [
+            {
+              "name": "libiconv",
+              "remove_prefix_pc": ["libiconv"]
+            }
+          ],
           "scripts": [
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
               "bash_script": "rm -rf /opt/ucrt64/*",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}",
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}",
               "ignore_errors": false
+            },
+            {
+              // Copy runtime Script: with msys2_require_runtimes
+              "message": "Copy runtime libraries to MSYS2",
+              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'))}}",
+              "script": "{{' && '.join([f'xcopy \"{src_dir}\" \"{msys2_external_runtime_dir}\" /s /e /i /y' for dpr in [dependent_packages_release.split(';')] for item in msys2_require_runtimes if item.get('when', True) for src_dir in dpr if item['name'] in src_dir]+ [f'copy nul > \"{os.path.join(msys2_external_runtime_dir, \"__copied__\")}\"'])}}"
+            },
+            {
+              // Rename runtime Script: with msys2_require_runtimes
+              "message": "Rename library files and rewrite pc files.",
+              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__renamed__'))}}",
+              "script": "{{' && '.join([cmd for item in $msys2_require_runtimes if item.get('when', True) for cmd in ([f'ren \"{p}\" \"lib{os.path.basename(p)}\"' for n in item.get('add_prefix_lib', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', n), recursive=True)] + [f'perl -i.bak -pe \"if(/^Libs:/){{ s/-l{n}\\\\b/-l{n[3:] if n.startswith(\"lib\") else n}/g }}\" \"{p}\"' for n in item.get('remove_prefix_pc', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', '*.pc'), recursive=True) if os.path.isfile(p) and any(re.search(rf'^Libs:.*-l{n}\\b', l) for l in [pathlib.Path(p).read_text(errors=\"ignore\")] for l in l.splitlines())])]+[f'copy nul > \"{os.path.join($msys2_external_runtime_dir, \"__renamed__\")}\"'])}}"
             }
           ]
         },
@@ -162,10 +197,10 @@
             "--with-included-libtextstyle"
           ],
           "config_options_debug": [
-            "--prefix=/opt/gettext/debug"
+            "--prefix=/opt/${name}/debug"
           ],
           "config_options_release": [
-            "--prefix=/opt/gettext/release"
+            "--prefix=/opt/${name}/release"
           ],
           "scripts": [
             {
@@ -196,7 +231,7 @@
               },
               "chdir": "$build_dir_debug",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "config for release.",
@@ -206,7 +241,7 @@
               },
               "chdir": "$build_dir_release",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             }
           ]
         },
@@ -221,7 +256,7 @@
               },
               "chdir": "$build_dir_debug",
               "bash_script": "rmake -j4",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "build for release.",
@@ -232,7 +267,7 @@
               },
               "chdir": "$build_dir_release",
               "bash_script": "rmake -j4",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             }
           ]
         },
@@ -243,66 +278,71 @@
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
+              "message": "Copy ${name} files for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"${msys2_root_dir}\\opt\\gettext\\debug\" \"$dist_dir_debug\" /e /is /njh /njs /ndl /nc /ns /np"
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\debug\" \"$dist_dir_debug\" /s /e /i /y"
             },
             {
+              "message": "Copy ${name} files for release.",
               "when": "{{'Release' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"${msys2_root_dir}\\opt\\gettext\\release\" \"$dist_dir_release\" /e /is /njh /njs /ndl /nc /ns /np"
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /s /e /i /y"
             }
           ]
         },
         "post-install": {
           "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
           "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
-          "j2_template_01": "${package_dir}\\libintl.pc.j2",
-          "j2_output_01_release": "${pkgconfig_dir_release}\\libintl.pc",
-          "j2_output_01_debug": "${pkgconfig_dir_debug}\\libintl.pc",
           "environments": {
             "PERLIO": "raw"
           },
+          "template_files":[
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "${package_dir}\\libintl.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_debug}\\libintl.pc"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "${package_dir}\\libintl.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_release}\\libintl.pc"
+            }
+          ],
           "scripts": [
             {
+              // Template Script:
+              // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+            },
+            {
+              "message": "Rename DLL files to be compatible with MSVC",
               "when":"{{'Debug' in $build_type}}",
               "chdir": "$dist_dir_debug\\lib",
-              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
               "ignore_errors": true
             },
             {
+              "message": "Rename DLL files to be compatible with MSVC",
               "when":"{{'Release' in $build_type }}",
               "chdir": "$dist_dir_release\\lib",
-              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
               "ignore_errors": true
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "mkdir $pkgconfig_dir_debug",
-              "ignore_errors": true
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_debug\""
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "script": "mkdir $pkgconfig_dir_release",
-              "ignore_errors": true
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_release\""
             }
           ]
         }

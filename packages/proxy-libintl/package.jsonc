@@ -249,11 +249,6 @@
           ]
         },
         "post-install": {
-          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
-          "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
-          "j2_template_01": "${package_dir}\\libintl.pc.j2",
-          "j2_output_01_release": "${pkgconfig_dir_release}\\libintl.pc",
-          "j2_output_01_debug": "${pkgconfig_dir_debug}\\libintl.pc",
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"

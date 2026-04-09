@@ -251,49 +251,62 @@
         "post-install" :{
           "pkgconfig_dir_release": "$dist_lib_release\\pkgconfig",
           "pkgconfig_dir_debug": "$dist_lib_debug\\pkgconfig",
-          "j2_template_01": "$package_dir\\icu-uc.pc.j2",
-          "j2_template_02": "$package_dir\\icu-i18n.pc.j2",
-          "j2_template_03": "$package_dir\\icu-io.pc.j2",
-          "j2_output_01_debug": "$pkgconfig_dir_debug\\icu-uc.pc",
-          "j2_output_01_release": "$pkgconfig_dir_release\\icu-uc.pc",
-          "j2_output_02_debug": "$pkgconfig_dir_debug\\icu-i18n.pc",
-          "j2_output_02_release": "$pkgconfig_dir_release\\icu-i18n.pc",
-          "j2_output_03_debug": "$pkgconfig_dir_debug\\icu-io.pc",
-          "j2_output_03_release": "$pkgconfig_dir_release\\icu-io.pc",
+          "template_files":[
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "$package_dir\\icu-uc.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_release}\\icu-uc.pc"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "$package_dir\\icu-uc.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_debug}\\icu-uc.pc"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "$package_dir\\icu-i18n.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_release}\\icu-i18n.pc"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "$package_dir\\icu-i18n.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_debug}\\icu-i18n.pc"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "$package_dir\\icu-io.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_release}\\icu-io.pc"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "$package_dir\\icu-io.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_debug}\\icu-io.pc"
+            }
+          ],
           "scripts": [
             {
-              "when": "{{'Release' in $build_type}}",
-              "ignore_errors": true,
-              "script": "mkdir \"$pkgconfig_dir_release\""
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "ignore_errors": true,
-              "script": "mkdir \"$pkgconfig_dir_debug\""
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_release\""
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_02\" > \"$j2_output_02_release\""
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_03\" > \"$j2_output_03_release\""
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01_debug\""
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_02\" > \"$j2_output_02_debug\""
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "script": "jinja2 -D VERSION=\"$version\" \"$j2_template_03\" > \"$j2_output_03_debug\""
+              // Template Script:
+              // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             }
           ]
         }

@@ -144,19 +144,24 @@
           ]
         },
         "patch": {
-          "j2_template_01": "$package_dir\\CMakeLists.txt.j2",
-          "j2_output_01": "$source_dir\\CMakeLists.txt",
-          "patch_file_02": "$package_dir\\Config.cmake.in",
+          "patch_file_01": "$package_dir\\Config.cmake.in",
+          "template_files":[
+            {
+              "template": "${package_dir}\\CMakeLists.txt.j2",
+              "defines": [
+                "GLAD_VERSION=\"$version\""
+              ],
+              "output": "$source_dir\\CMakeLists.txt"
+            }
+          ],
           "scripts": [
             {
-              "chdir": "$source_dir",
-              "when":"{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($j2_template_01)))}}",
-              "script": "jinja2 -D GLAD_VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01\" && copy nul > {{'__patched_' + os.path.basename($j2_template_01)}}"
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             },
             {
-              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_02)))}}",
               "chdir": "$source_dir",
-              "script": "copy /y \"$patch_file_02\" \"$source_dir\\\" && copy nul > {{'__patched_' + os.path.basename($patch_file_02)}}"
+              "script": "copy /y \"$patch_file_01\" \"$source_dir\\\"}}"
             }
           ]
         },

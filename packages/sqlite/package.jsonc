@@ -137,13 +137,19 @@
           ]
         },
         "patch": {
-          "j2_template_01": "$package_dir\\sqlite_CMakeLists.txt.j2",
-          "j2_output_01": "$source_dir\\CMakeLists.txt",
+          "template_files": [
+            {
+              "template": "$package_dir\\sqlite_CMakeLists.txt.j2",
+              "defines": [
+                "SQLITE_VERSION=\"$version\""
+              ],
+              "output": "$source_dir\\CMakeLists.txt"
+            }
+          ],
           "scripts": [
             {
-              "chdir": "$source_dir",
-              "when":"{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($j2_template_01)))}}",
-              "script": "jinja2 -D SQLITE_VERSION=\"$version\" \"$j2_template_01\" > \"$j2_output_01\" && copy nul > {{'__patched_' + os.path.basename($j2_template_01)}}"
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             }
           ]
         },

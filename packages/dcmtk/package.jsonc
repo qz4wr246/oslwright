@@ -167,16 +167,6 @@
             }
           ]
         },
-        // "patch": {
-        //   "patch_file_01": "${package_dir}\\patches\\file01.patch",
-        //   "scripts": [
-        //     {
-        //       "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
-        //       "chdir": "$source_dir",
-        //       "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
-        //     }
-        //   ]
-        // },
         "configure": {
           // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'x64' if ${build_arch} == 'x64' else 'Win32'}}",
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
