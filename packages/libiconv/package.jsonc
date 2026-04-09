@@ -118,8 +118,8 @@
         "NM": "/ucrt64/bin/nm.exe",
         "OBJCOPY": "/ucrt64/bin/objcopy.exe",
         "OBJDUMP": "/ucrt64/bin/objdump.exe",
-        "CPPFLAGS": "-I/ucrt64/include",
-        "LDFLAGS": "-L/ucrt64/lib",
+        "CPPFLAGS": "-I/opt/ucrt64/include",
+        "LDFLAGS": "-L/opt/ucrt64/lib",
         "SED": "/usr/bin/sed.exe",
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
@@ -136,6 +136,7 @@
       "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
       "download_url": "https://ftp.gnu.org/pub/gnu/${name}/${name}-${version}.tar.gz",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash_ob": "cmd.exe /c \"\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "msys2_bash_cb": "\"",
       "stages": {
@@ -160,15 +161,8 @@
           ]
         },
         "patch": {
-          "libintl_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'proxy-libintl' in x), '')}}",
-          "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
+          "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/${name}",
           "patch_files": [
-            // {
-            //   "when" : true, // You can set condition for each patch file, and skip it when the condition is not satisfied.
-            //   "chdir" : "$source_dir", // You can set current directory before applying patch. The default value is source directory.
-            //   "file": "${package_dir}\\foo.diff"   // You can specify patch file by local file or URL.
-            //   "url": "https://example.com/foo.diff" // You can specify patch file by local file or URL.
-            // },
             {
               "url": "$repo_url/0001-fixes-building-with-gcc-15.patch"
             },
@@ -182,46 +176,51 @@
               "file": "${package_dir}\\libiconv_make_in.diff"
             }
           ],
+          "msys2_require_runtimes" : [
+            {
+              "name": "proxy-libintl",
+              "remove_prefix_pc": ["libintl"]
+            }
+          ],
           "scripts": [
             {
-              "message": "Clean /opt/ucrt64 directory in msys2",
-              "bash_script": "rm -rf /opt/ucrt64/*",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}",
-              "ignore_errors": false
-            },
-            {
-              "message": "Copy libintl binary to MSYS2 for release.",
-              "script": "robocopy \"$libintl_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
-            {
-              "message": "Rewrite intl.pc",
-              "chdir": "${msys2_dir}\\opt\\ucrt64\\lib\\pkgconfig",
-              "script": "perl -pi -e 's/(^Libs:.*?)-llib([a-zA-Z0-9_\\.\\-]+)/$$1-l$$2/g' intl.pc"
-            },
-            {
               "message": "Patch ${name} source code",
-              // "when": "{{not all(os.path.exists(os.path.join(p.get('chdir', $source_dir), '__patched__' + os.path.basename(p.get('url') or p.get('file')))) for p in patch_files if p.get('when', True))}}",
+              "when": "{{'patch_files' in globals()}}",
               "chdir": "$source_dir",
               "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -b -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+            },
+            {
+              "message": "Clean /opt/ucrt64 directory in msys2",
+              "script": "del /q /s \"$msys2_external_runtime_dir\" > nul",
+              "ignore_errors": true
+            },
+            {
+              "message": "Copy runtime libraries to MSYS2",
+              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'))}}",
+              "script": "{{' && '.join([f'xcopy \"{src_dir}\" \"{msys2_external_runtime_dir}\" /s /e /i /y' for dpr in [dependent_packages_release.split(';')] for item in msys2_require_runtimes if item.get('when', True) for src_dir in dpr if item['name'] in src_dir]+ [f'copy nul > \"{os.path.join(msys2_external_runtime_dir, \"__copied__\")}\"'])}}"
+            },
+            {
+              "message": "Rename library files and rewrite pc files.",
+              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__renamed__'))}}",
+              "script": "{{' && '.join([cmd for item in $msys2_require_runtimes if item.get('when', True) for cmd in ([f'ren \"{p}\" \"lib{os.path.basename(p)}\"' for n in item.get('add_prefix_lib', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', n), recursive=True)] + [f'perl -i.bak -pe \"if(/^Libs:/){{ s/-l{n}\\\\b/-l{n[3:] if n.startswith(\"lib\") else n}/g }}\" \"{p}\"' for n in item.get('remove_prefix_pc', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', '*.pc'), recursive=True) if os.path.isfile(p) and any(re.search(rf'^Libs:.*-l{n}\\b', l) for l in [pathlib.Path(p).read_text(errors=\"ignore\")] for l in l.splitlines())])]+[f'copy nul > \"{os.path.join($msys2_external_runtime_dir, \"__renamed__\")}\"'])}}"
             },
             {
               "message": "copy m4",
               "chdir": "$source_dir",
               "bash_script": "cp -f srcm4/* m4/",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "reconfigure in libcharset",
               "chdir": "$source_dir\\libcharset",
               "bash_script": "autoreconf -vfi -I m4",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "reconfigure",
               "chdir": "$source_dir",
               "bash_script": "autoreconf -vfi -I m4",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             }
           ]
         },
@@ -268,7 +267,7 @@
               },
               "chdir": "$build_dir_debug",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "config for release.",
@@ -278,7 +277,7 @@
               },
               "chdir": "$build_dir_release",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             }
           ]
         },
@@ -287,7 +286,7 @@
             {
               "message": "Clean /opt/${name} directory in msys2",
               "bash_script": "rm -rf /opt/${name}/*",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}",
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}",
               "ignore_errors": false
             },
             {
@@ -299,7 +298,7 @@
               },
               "chdir": "$build_dir_debug",
               "bash_script": "make -j4",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "build for release.",
@@ -310,7 +309,7 @@
               },
               "chdir": "$build_dir_release",
               "bash_script": "make -j4",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             }
           ]
         },
@@ -321,33 +320,34 @@
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
+              "message": "Copy ${name} files for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"${msys2_dir}\\opt\\${name}\\debug\" \"$dist_dir_debug\" /e /is /njh /njs /ndl /nc /ns /np"
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\debug\" \"$dist_dir_debug\" /s /e /i"
             },
             {
+              "message": "Copy ${name} files for release.",
               "when": "{{'Release' in $build_type}}",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
-              "script": "robocopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /e /is /njh /njs /ndl /nc /ns /np"
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /s /e /i"
             }
           ]
         },
         "post-install": {
+          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
           },
-          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
-          "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
+          "pkgconfig_dir_release": "${dist_dir_release}\\lib\\pkgconfig",
+          "pkgconfig_dir_debug": "${dist_dir_debug}\\lib\\pkgconfig",
           "template_files":[
             {
               "when": "{{'Debug' in $build_type}}",
@@ -368,30 +368,22 @@
           ],
           "scripts": [
             {
-              "when": "{{'Debug' in $build_type and not os.path.isdir($pkgconfig_dir_debug)}}",
-              "script": "mkdir \"$pkgconfig_dir_debug\"",
-              "ignore_errors": true
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             },
             {
-              "when": "{{'Release' in $build_type and not os.path.isdir($pkgconfig_dir_release)}}",
-              "script": "mkdir \"$pkgconfig_dir_release\"",
-              "ignore_errors": true
-            },
-            {
+              "message": "Rename DLL files to be compatible with MSVC",
               "when":"{{'Debug' in $build_type}}",
               "chdir": "$dist_dir_debug\\lib",
-              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
               "ignore_errors": true
             },
             {
+              "message": "Rename DLL files to be compatible with MSVC",
               "when":"{{'Release' in $build_type }}",
               "chdir": "$dist_dir_release\\lib",
-              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
               "ignore_errors": true
-            },
-            {
-              "message": "generate libiconv.pc",
-              "script": "{{' && '.join([f\"jinja2 {' '.join(['-D ' + d for d in tp['defines']])} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             }
           ]
         }

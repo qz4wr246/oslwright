@@ -3,7 +3,7 @@
   "display": "GnuTLS",
   "description": "TLS/SSL and crypto library",
   "site": "https://www.gnutls.org/",
-  "license": "LGPL 2.1+",
+  "license": "GPL-3.0+ OR LGPL-2.1+",
   "info": "info.md",
   "process_time": 1800,
   "options": [
@@ -127,36 +127,76 @@
       "dependencies": {
         "zlib": {
           "enable": "{{$with_zlib}}",
-          "version": ">=1.3"
+          "version": ">=1.3",
+          "build_type":"Release"
         },
         "brotli": {
           "enable": "{{$with_brotli}}",
           "version": ">=1.1",
-          "build_library":"shared"
+          "build_library":"shared",
+          "build_type":"Release"
         },
         "zstd": {
           "enable": "{{$with_zstd}}",
           "version": ">=1.5",
-          "build_library":"shared"
+          "build_library":"shared",
+          "build_type":"Release"
+        },
+        "nettle": {
+          "version": "=3.10.2",
+          "build_library":"shared",
+          "build_type":"Release"
+        },
+        "libunistring": {
+          "version": ">=1.4",
+          "build_library":"shared",
+          "build_type":"Release"
+        },
+        "libtasn1": {
+          "version": ">=4.21.0",
+          "build_library":"shared",
+          "build_type":"Release"
+        },
+        "gmp": {
+          "version": ">=6.3",
+          "build_library":"shared",
+          "build_type":"Release"
         }
       },
       "environments": {
         "LC_ALL": "C",
-        "PERLIO": "raw"
+        "MSYS": "winsymlinks:nativestrict",
+        "MSYSTEM": "MSYS",
+        "CHERE_INVOKING": "1",
+        "CC": "/ucrt64/bin/gcc.exe",
+        "CXX": "/ucrt64/bin/g++.exe",
+        "LD": "/ucrt64/bin/ld.exe",
+        "AR": "/ucrt64/bin/ar.exe",
+        "RANLIB": "/ucrt64/bin/ranlib.exe",
+        "STRIP": "/ucrt64/bin/strip.exe",
+        "NM": "/ucrt64/bin/nm.exe",
+        "OBJCOPY": "/ucrt64/bin/objcopy.exe",
+        "OBJDUMP": "/ucrt64/bin/objdump.exe",
+        "CPPFLAGS": "-I/opt/ucrt64/include",
+        "LDFLAGS": "-L/opt/ucrt64/lib",
+        "SED": "/usr/bin/sed.exe",
+        "PERLIO": "raw",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}"
       },
       "source_dir": "${source_rootdir}\\${name}-${version}",
-      "gnutls_source_dir": "${source_dir}\\gnutls-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
       "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
-      "gnutls_build_dir_debug": "${source_rootdir}\\${dist_name}-debug\\gnutls",
-      "gnutls_build_dir_release": "${source_rootdir}\\${dist_name}-release\\gnutls",
+      "build_dir_debug": "${source_rootdir}\\${dist_name}-debug",
+      "build_dir_release": "${source_rootdir}\\${dist_name}-release",
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\gnutls-${version}.tar.xz",
       "download_url": "https://gnupg.org/ftp/gcrypt/gnutls/v{{$version.split('.')[0] + '.' + $version.split('.')[1]}}/gnutls-${version}.tar.xz",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
-      "msys2_bash_ob": "cmd.exe /c \"set \"MSYSTEM=UCRT64\" && set \"CHERE_INVOKING=1\" && \"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
+      "msys2_bash_ob": "cmd.exe /c \"\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "msys2_bash_cb": "\"",
       "stages": {
         "download": {
@@ -173,106 +213,87 @@
             },
             {
               "message": "extract from cache.",
-              "when": "{{not os.path.isdir($gnutls_source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_dir}\" && del \"${cache_file}.temp.tar\"",
-              "fallback": "rmdir /q /s \"$gnutls_source_dir\""
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_rootdir}\" && del \"${cache_file}.temp.tar\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
             }
           ]
         },
         "patch": {
-          "zlib_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'zlib' in x), '')}}",
-          "zlib_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'zlib' in x), '')}}",
-          "brotli_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'brotli' in x), '')}}",
-          "brotli_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'brotli' in x), '')}}",
-          "zstd_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'zstd' in x), '')}}",
-          "zstd_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'zstd' in x), '')}}",
-          "msys2_required_library":[
-            "mingw-w64-ucrt-x86_64-nettle",
-            "mingw-w64-ucrt-x86_64-gmp",
-            "mingw-w64-ucrt-x86_64-libtasn1",
-            "mingw-w64-ucrt-x86_64-libunistring"
+          "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/${name}",
+          "patch_files": [
+            {
+              "url": "$repo_url/0001-doc-fix-implicit-rule-build-failure.patch"
+            }
+          ],
+          "msys2_require_runtimes" : [
+            {
+              "name": "zlib",
+              "when": "{{$with_zlib}}",
+              "add_prefix_lib": ["zlib.lib"]
+            },
+            {
+              "name": "brotli",
+              "when": "{{$with_brotli}}",
+              "add_prefix_lib": ["brotlicommon.lib", "brotlidec.lib", "brotlienc.lib"]
+            },
+            {
+              "name": "zstd",
+              "when": "{{$with_zstd}}",
+              "add_prefix_lib": ["zstd.lib"]
+            },
+            {
+              "name": "nettle",
+              "remove_prefix_pc": ["libnettle","libhogweed"]
+            },
+            {
+              "name": "libunistring",
+              "remove_prefix_pc": ["libunistring"]
+            },
+            {
+              "name": "libtasn1",
+              "remove_prefix_pc": ["libtasn1"]
+            },
+            {
+              "name": "gmp",
+              "remove_prefix_pc": ["libgmp", "libgmpxx"]
+            }
           ],
           "scripts": [
             {
+              "message": "Patch ${name} source code",
+              "when": "{{'patch_files' in globals()}}",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -b -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+            },
+            {
               "message": "Clean /opt/ucrt64 directory in msys2",
-              "bash_script": "rm -rf /opt/ucrt64/*",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}",
+              "script": "del /q /s \"$msys2_external_runtime_dir\" > nul",
               "ignore_errors": true
             },
-            // Copy zlib binary to MSYS2
             {
-              "message": "Copy zlib binary to MSYS2 for debug.",
-              "when": "{{'Debug' in $build_type and $with_zlib}}",
-              "script": "robocopy \"$zlib_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
+              "message": "Copy runtime libraries to MSYS2",
+              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'))}}",
+              "script": "{{' && '.join([f'xcopy \"{src_dir}\" \"{msys2_external_runtime_dir}\" /s /e /i /y' for dpr in [dependent_packages_release.split(';')] for item in msys2_require_runtimes if item.get('when', True) for src_dir in dpr if item['name'] in src_dir]+ [f'copy nul > \"{os.path.join(msys2_external_runtime_dir, \"__copied__\")}\"'])}}"
             },
             {
-              "message": "Copy zlib binary to MSYS2 for release.",
-              "when": "{{'Release' in $build_type and $with_zlib}}",
-              "script": "robocopy \"$zlib_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
-            // Remove the inclusion of unistd.h in zconf.h. This gets erroneously included when building gnutl
-            {
-              "when": "{{$with_zlib}}",
-              "script": "perl -p -i -e \"s#^.+include <unistd.h>.*##g\" \"${msys2_dir}\\opt\\ucrt64\\include\\zconf.h\""
+              "message": "Rename library files and rewrite pc files.",
+              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__renamed__'))}}",
+              "script": "{{' && '.join([cmd for item in $msys2_require_runtimes if item.get('when', True) for cmd in ([f'ren \"{p}\" \"lib{os.path.basename(p)}\"' for n in item.get('add_prefix_lib', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', n), recursive=True)] + [f'perl -i.bak -pe \"if(/^Libs:/){{ s/-l{n}\\\\b/-l{n[3:] if n.startswith(\"lib\") else n}/g }}\" \"{p}\"' for n in item.get('remove_prefix_pc', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', '*.pc'), recursive=True) if os.path.isfile(p) and any(re.search(rf'^Libs:.*-l{n}\\b', l) for l in [pathlib.Path(p).read_text(errors=\"ignore\")] for l in l.splitlines())])]+[f'copy nul > \"{os.path.join($msys2_external_runtime_dir, \"__renamed__\")}\"'])}}"
             },
             {
-              "message": "Rename zlib library file.",
-              "when": "{{$with_zlib}}",
-              "chdir": "${msys2_dir}\\opt\\ucrt64\\lib",
-              "script": "for %f in (zlib*.lib) do ren \"%f\" \"lib%f\""
-            },
-            // Copy brotli binary to MSYS2
-            {
-              "message": "Copy brotli binary to MSYS2 for debug.",
-              "when": "{{'Debug' in $build_type and $with_brotli}}",
-              "script": "robocopy \"$brotli_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
-            {
-              "message": "Copy brotli binary to MSYS2 for release.",
-              "when": "{{'Release' in $build_type and $with_brotli}}",
-              "script": "robocopy \"$brotli_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
-            {
-              "message": "Rename brotli library file.",
-              "when": "{{$with_brotli}}",
-              "chdir": "${msys2_dir}\\opt\\ucrt64\\lib",
-              "script": "for %f in (brotli*.lib) do ren \"%f\" \"lib%f\""
-            },
-            // Copy zstd binary to MSYS2
-            {
-              "message": "Copy zstd binary to MSYS2 for debug.",
-              "when": "{{'Debug' in $build_type and $with_zstd}}",
-              "script": "robocopy \"$zstd_dir_debug\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
-            {
-              "message": "Copy zstd binary to MSYS2 for release.",
-              "when": "{{'Release' in $build_type and $with_zstd}}",
-              "script": "robocopy \"$zstd_dir_release\" \"${msys2_dir}\\opt\\ucrt64\" /e /is /njh /njs /ndl /nc /ns /np",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
-            {
-              "message": "Rename zstd library file.",
-              "when": "{{$with_zstd}}",
-              "chdir": "${msys2_dir}\\opt\\ucrt64\\lib",
-              "script": "for %f in (zstd*.lib) do ren \"%f\" \"lib%f\""
-            },
-            // Install required library
-            {
-              "when": "{{True if 'msys2_required_library' in globals() and $msys2_required_library else False}}",
-              "bash_script": "pacman -S --noconfirm {{' '.join($msys2_required_library)}}",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "message": "reconfigure",
+              "chdir": "$source_dir",
+              "bash_script": "autoreconf -vfi",
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             }
           ]
         },
         "configure": {
-          "gnutls_configure_options": [
+          "configure_options": [
             "--build=x86_64-w64-mingw32",
             "--disable-maintainer-mode",
+            "--enable-cxx",
             "--disable-gtk-doc",
             "--disable-doc",
             "--disable-manpages",
@@ -284,6 +305,8 @@
             "--disable-full-test-suite",
             "--disable-hardware-acceleration",
             "--enable-heartbeat-support",
+            "--with-default-trust-store-file=/usr/ssl/certs/ca-bundle.crt",
+            "gl_cv_clean_version_stddef=yes",
             "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
             "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}",
             "--without-p11-kit",
@@ -292,46 +315,46 @@
             "--with-brotli={{'link' if $with_brotli else 'no'}}",
             "--with-zstd={{'link' if $with_zstd else 'no'}}"
           ],
-          "gnutls_configure_options_release": [
-            "--prefix=/opt/gnutls/release"
+          "configure_options_release": [
+            "--prefix=/opt/${name}/release"
           ],
-          "gnutls_configure_options_debug": [
-            "--prefix=/opt/gnutls/debug"
+          "configure_options_debug": [
+            "--prefix=/opt/${name}/debug"
           ],
           "scripts": [
             {
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "del /q /s \"$gnutls_build_dir_debug\" > nul",
+              "script": "del /q /s \"$build_dir_debug\" > nul",
               "ignore_errors": true
             },
             {
               "when": "{{'Release' in $build_type}}",
-              "script": "del /q /s \"$gnutls_build_dir_release\" > nul",
+              "script": "del /q /s \"$build_dir_release\" > nul",
               "ignore_errors": true
             },
             {
-              "when": "{{'Debug' in $build_type and not os.path.isdir($gnutls_build_dir_debug)}}",
-              "script": "mkdir \"$gnutls_build_dir_debug\"",
+              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
+              "script": "mkdir \"$build_dir_debug\"",
               "ignore_errors": true
             },
             {
-              "when": "{{'Release' in $build_type and not os.path.isdir($gnutls_build_dir_release)}}",
-              "script": "mkdir \"$gnutls_build_dir_release\"",
+              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
+              "script": "mkdir \"$build_dir_release\"",
               "ignore_errors": true
             },
             {
               "message": "configure for release.",
               "when": "{{'Release' in $build_type}}",
-              "chdir": "$gnutls_build_dir_release",
-              "bash_script": "../../{{os.path.basename($source_dir)}}/gnutls-${version}/configure {{' '.join($gnutls_configure_options)}} {{' '.join($gnutls_configure_options_release)}}",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "chdir": "$build_dir_release",
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($configure_options)}} {{' '.join($configure_options_release)}}",
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "configure for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "chdir": "$gnutls_build_dir_debug",
-              "bash_script": "../../{{os.path.basename($source_dir)}}/gnutls-${version}/configure {{' '.join($gnutls_configure_options)}} {{' '.join($gnutls_configure_options_debug)}}",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "chdir": "$build_dir_debug",
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($configure_options)}} {{' '.join($configure_options_debug)}}",
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             }
           ]
         },
@@ -340,16 +363,16 @@
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "chdir": "$gnutls_build_dir_debug",
+              "chdir": "$build_dir_debug",
               "bash_script": "make -j 4",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
-              "chdir": "$gnutls_build_dir_release",
+              "chdir": "$build_dir_release",
               "bash_script": "make -j 4",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             }
           ]
         },
@@ -358,29 +381,27 @@
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "chdir": "$gnutls_build_dir_debug",
+              "chdir": "$build_dir_debug",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
-              "chdir": "$gnutls_build_dir_release",
+              "chdir": "$build_dir_release",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
-              "message": "Copy gnutls files for debug.",
+              "message": "Copy ${name} files for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "script": "robocopy \"${msys2_dir}\\opt\\gnutls\\debug\" \"$dist_dir_debug\" /e /is /njh /njs /ndl /nc /ns /np",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\debug\" \"$dist_dir_debug\" /s /e /i /y"
             },
             {
-              "message": "Copy gnutls files for release.",
+              "message": "Copy ${name} files for release.",
               "when": "{{'Release' in $build_type}}",
-              "script": "robocopy \"${msys2_dir}\\opt\\gnutls\\release\" \"$dist_dir_release\" /e /is /njh /njs /ndl /nc /ns /np",
-              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
-            },
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /s /e /i /y"
+            }
           ]
         },
         "post-install" :{
@@ -390,26 +411,40 @@
           },
           "scripts": [
             {
+              "message": "Rename DLL files to be compatible with MSVC",
               "when":"{{'Debug' in $build_type}}",
               "chdir": "$dist_dir_debug\\lib",
-              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
               "ignore_errors": true
             },
             {
+              "message": "Rename DLL files to be compatible with MSVC",
               "when":"{{'Release' in $build_type }}",
               "chdir": "$dist_dir_release\\lib",
-              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"ren \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
               "ignore_errors": true
             },
             {
+              "message": "Adjust paths and other configurations in *.pc",
               "when": "{{'Debug' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
             },
             {
+              "message": "Adjust paths and other configurations in *.pc",
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "message": "Rewriting library names for linker options in .pc files , with -llib prefix ",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -pi -e 's/(^Libs:.*?)-l([a-zA-Z0-9_\\.\\-]+)/$$1-llib$$2/g'  @PATH\""
+            },
+            {
+              "message": "Rewriting library names for linker options in .pc files",
+              "when": "{{'Release' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -pi -e 's/(^Libs:.*?)-l([a-zA-Z0-9_\\.\\-]+)/$$1-llib$$2/g'  @PATH\""
             }
           ]
         }
