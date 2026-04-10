@@ -223,6 +223,9 @@
           ]
         },
         "configure": {
+          "environments": {
+            "PERL5LIB": "${source_dir}\\util\\perl;${source_dir}\\external\\perl"
+          },
           "zlib_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'zlib' in x), '')}}",
           "zlib_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'zlib' in x), '')}}",
           "zlib_include_debug": "$zlib_dir_debug\\include",
