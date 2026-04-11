@@ -168,7 +168,7 @@ class BuildService(FletXService):
 
         if model.build_force_packages and package.name in model.build_force_packages:
             Post.gui(f"[{package.display}] force build")
-            self.package_service.revert_option(option)
+            self.package_service.revert_option(option, "download")
 
         if option.versions[option.current_version].completed:
             Post.gui(f"[{package.display}] skip")
