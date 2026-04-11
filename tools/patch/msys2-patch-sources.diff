@@ -1,0 +1,100 @@
+--- a/lib/euidaccess.c	2026-04-12 04:52:51.409288300 +0900
++++ b/lib/euidaccess.c	2026-04-12 01:44:44.352891500 +0900
+@@ -66,6 +66,12 @@
+ # define stat stat64
+
+ #endif
++#ifdef _WIN32
++static inline uid_t getuid(void) { return 0; }
++static inline gid_t getgid(void) { return 0; }
++static inline uid_t geteuid(void) { return 0; }
++static inline gid_t getegid(void) { return 0; }
++#endif
+
+ /* Return 0 if the user has permission of type MODE on FILE;
+    otherwise, return -1 and set 'errno'.
+
+--- a/lib/mbsinit.c	2018-02-03 21:41:53.000000000 +0900
++++ b/lib/mbsinit.c	2026-04-12 05:02:38.887048300 +0900
+@@ -56,13 +56,8 @@
+ {
+ # if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
+   /* Native Windows.  */
+-#  ifdef __MINGW32__
+-  /* On mingw, 'mbstate_t' is defined as 'int'.  */
+-  return ps == NULL || *ps == 0;
+-#  else
+   /* MSVC defines 'mbstate_t' as an 8-byte struct; the first 4-bytes matter.  */
+   return ps == NULL || *(const unsigned int *)ps == 0;
+-#  endif
+ # else
+   /* Minix, HP-UX 11.00, Solaris 2.6, Interix, ...  */
+   /* Maybe this definition works, maybe not...  */
+
+--- a/src/safe.c	2018-02-03 21:41:49.000000000 +0900
++++ b/src/safe.c	2026-04-12 05:41:34.344974000 +0900
+@@ -21,7 +21,9 @@
+ #include <config.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+-#include <sys/resource.h>
++#if !defined(_WIN32) && !defined(__MINGW32__)
++# include <sys/resource.h>
++#endif
+ #include <sys/time.h>
+ #include <fcntl.h>
+ #include <stdio.h>
+@@ -42,6 +44,12 @@
+ #include "util.h"
+ #include "list.h"
+
++#if defined(_WIN32) || defined(__MINGW32__)
++# define getrlimit(a,b) (-1)
++# define RLIMIT_NOFILE 0
++struct rlimit { int rlim_cur; int rlim_max; };
++#endif
++
+ #ifndef EFTYPE
+ # define EFTYPE 0
+ #endif
+
+--- a/lib/tzset copy.c	2018-02-03 21:42:19.000000000 +0900
++++ b/lib/tzset.c	2026-04-12 05:37:09.158391300 +0900
+@@ -29,6 +29,13 @@
+    Work around the bug in some systems whereby tzset clobbers the
+    static buffer that localtime uses for its return value.  The
+    tzset function from Solaris 2.5, 2.5.1, and 2.6 has this problem.  */
++#if defined(_WIN32) || defined(__MINGW32__)
++# include <stdlib.h>
++#include <string.h>
++# if !defined(putenv)
++#  define putenv _putenv
++# endif
++#endif
+
+ void
+ tzset (void)
+
+--- a/src/util.c	2018-02-03 21:41:49.000000000 +0900
++++ b/src/util.c	2026-04-12 05:49:20.419144200 +0900
+@@ -54,6 +54,10 @@
+
+ #include <safe.h>
+
++#if defined(_WIN32) || defined(__MINGW32__)
++#  define getegid() (0)
++#endif
++
+ static void makedirs (char const *);
+
+ typedef struct
+@@ -1214,7 +1218,9 @@
+   signal (sig, SIG_DFL);
+   sigemptyset (&s);
+   sigaddset (&s, sig);
++#if HAVE_SIGPROCMASK || HAVE_SIGSETMASK
+   sigprocmask (SIG_UNBLOCK, &s, (sigset_t *) 0);
++#endif
+   raise (sig);
+   exit (2);
+ }

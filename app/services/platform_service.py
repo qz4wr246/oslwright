@@ -79,6 +79,7 @@ class PlatformService(FletXService):
         self.msys2_exe: Path | None = None
         self.bison_flex_exe: Path | None = None
         self.yasm_exe: Path | None = None
+        self.patch_exe: Path | None = None
 
         self.rootdir = get_app_root()
         self.package_rootdir = get_data_path("packages")
@@ -189,6 +190,7 @@ class PlatformService(FletXService):
             or not self.msys2_exe
             or not self.bison_flex_exe
             or not self.yasm_exe
+            or not self.patch_exe
         ):
             mesg = ""
             mesg += "NASM not found.\n" if not self.nasm_exe else ""
@@ -201,6 +203,7 @@ class PlatformService(FletXService):
             mesg += "gn not found.\n" if not self.gn_exe else ""
             mesg += "MSYS2 not found.\n" if not self.msys2_exe else ""
             mesg += "Bison,Flex not found.\n" if not self.bison_flex_exe else ""
+            mesg += "Patch not found.\n" if not self.patch_exe else ""
             return PlatformReason(code=ReasonCode.MISSING_EMBEDDED_TOOLS, message=mesg)
 
         return PlatformReason(code=ReasonCode.COMPLETE)
@@ -387,12 +390,20 @@ class PlatformService(FletXService):
 
     def GetToolsPaths(self) -> str | None:
         path = str()
-        if self.git_exe:
-            path = ";".join([path, str(self.git_exe.parent)])
-            path = ";".join([path, str(self.git_exe.parent / ".." / "usr" / "bin")])
+        if self.pkg_config_exe:
+            path = ";".join([path, str(self.pkg_config_exe.parent)])
 
-        if self.gitlfs_exe:
-            path = ";".join([path, str(self.gitlfs_exe.parent)])
+        if self.perl_exe:
+            path = ";".join([path, str(self.perl_exe.parent)])
+            path = ";".join(
+                [
+                    path,
+                    str(self.perl_exe.parent / ".." / "site" / "bin"),
+                ]
+            )
+
+        if self.patch_exe:
+            path = ";".join([path, str(self.patch_exe.parent)])
 
         if self.cmake_exe:
             path = ";".join([path, str(self.cmake_exe.parent)])
@@ -409,27 +420,8 @@ class PlatformService(FletXService):
         if self.yasm_exe:
             path = ";".join([path, str(self.yasm_exe.parent)])
 
-        if self.pkg_config_exe:
-            path = ";".join([path, str(self.pkg_config_exe.parent)])
-
-        if self.perl_exe:
-            path = ";".join([path, str(self.perl_exe.parent)])
-            path = ";".join(
-                [
-                    path,
-                    str(self.perl_exe.parent / ".." / "site" / "bin"),
-                ]
-            )
-
         if self.gn_exe:
             path = ";".join([path, str(self.gn_exe.parent)])
-
-        if self.python_exe:
-            path = ";".join([path, str(self.python_exe.parent)])
-            path = ";".join([path, os.path.join(str(self.python_exe.parent), "Scripts")])
-
-        if self.py_exe:
-            path = ";".join([path, str(self.py_exe.parent)])
 
         if self.meson_exe:
             path = ";".join([path, str(self.meson_exe.parent)])
@@ -442,6 +434,19 @@ class PlatformService(FletXService):
 
         if self.bison_flex_exe:
             path = ";".join([path, str(self.bison_flex_exe.parent)])
+
+        if self.python_exe:
+            path = ";".join([path, str(self.python_exe.parent)])
+            path = ";".join([path, os.path.join(str(self.python_exe.parent), "Scripts")])
+
+        if self.py_exe:
+            path = ";".join([path, str(self.py_exe.parent)])
+
+        if self.git_exe:
+            path = ";".join([path, str(self.git_exe.parent)])
+
+        if self.gitlfs_exe:
+            path = ";".join([path, str(self.gitlfs_exe.parent)])
 
         return path[1:]
 
@@ -868,88 +873,130 @@ class PlatformService(FletXService):
             bison_flex_version = ver[3] if len(ver) >= 4 else None
         return (bison_flex_exe, bison_flex_version)
 
+    def _findPatch(self) -> Tuple[Path | None, str | None]:
+        patch_exe = None
+        patch_version = None
+        if not patch_exe:
+            _exe = self.tools_rootdir / "patch" / "bin" / "patch.exe"
+            if _exe.is_file():
+                patch_exe = _exe
+        if not patch_exe:
+            _exe = shutil.which("patch.exe")
+            if _exe and Path(_exe).is_file():
+                patch_exe = Path(_exe)
+        if not patch_exe:
+            return (None, None)
+        shell = Shell()
+        result = shell.exec(f'"{patch_exe}" --version 2>&1| findstr /C:"GNU patch"', with_content=True, shell=True)
+        if not result.exitcode:
+            _ver = result.stdout.split()
+            patch_version = _ver[2] if len(_ver) >= 3 else None
+        return (patch_exe, patch_version)
+
     def _updateToolPath(self) -> None:
         Post.info("Checking for tools...")
+
         self.git_exe, version = self._findGit()
         if self.git_exe:
             Post.info(f'Found Git: {self.git_exe} (found version "{version}")')
         else:
             Post.warning("Not found Git.")
+
         self.gitlfs_exe, version = self._findGitLFS()
         if self.gitlfs_exe:
             Post.info(f'Found Git-lfs: {self.gitlfs_exe} (found version "{version}")')
         else:
             Post.warning("Not found Git-lfs.")
+
         self.cmake_exe, version = self._findCMake()
         if self.cmake_exe:
             Post.info(f'Found CMake: {self.cmake_exe} (found version "{version}")')
         else:
             Post.warning("Not found CMake.")
+
         self.ninja_exe, version = self._findNinja()
         if self.ninja_exe:
             Post.info(f'Found Ninja: {self.ninja_exe} (found version "{version}")')
         else:
             Post.warning("Not found Ninja.")
+
         self.sevenzip_exe, version = self._find7zip()
         if self.sevenzip_exe:
             Post.info(f'Found 7z: {self.sevenzip_exe} (found version "{version}")')
         else:
             Post.warning("Not found 7z.")
+
         self.nasm_exe, version = self._findNasm()
         if self.nasm_exe:
             Post.info(f'Found NASM: {self.nasm_exe} (found version "{version}")')
         else:
             Post.warning("Not found NASM.")
+
         self.yasm_exe, version = self._findYasm()
         if self.yasm_exe:
             Post.info(f'Found YASM: {self.yasm_exe} (found version "{version}")')
         else:
             Post.warning("Not found YASM.")
+
         self.perl_exe, version = self._findPerl()
         if self.perl_exe:
             Post.info(f'Found Perl: {self.perl_exe} (found version "{version}")')
         else:
             Post.warning("Not found Perl.")
+
         self.pkg_config_exe, version = self._findPkgConfig()
         if self.pkg_config_exe:
             Post.info(f'Found pkg-config: {self.pkg_config_exe} (found version "{version}")')
         else:
             Post.warning("Not found pkg-config.")
+
         self.gn_exe, version = self._findGN()
         if self.gn_exe:
             Post.info(f'Found gn: {self.gn_exe} (found version "{version}")')
         else:
             Post.warning("Not found gn.")
+
         self.python_exe, version = self._findPython()
         if self.python_exe:
             Post.info(f'Found Python: {self.python_exe} (found version "{version}")')
         else:
             Post.warning("Not found Python.")
+
         self.py_exe, version = self._findPythonLauncher()
         if self.py_exe:
             Post.info(f'Found Python Launcher: {self.py_exe} (found version "{version}")')
         else:
             Post.warning("Not found Python Launcher.")
+
         self.meson_exe, version = self._findMeson()
         if self.meson_exe:
             Post.info(f'Found Meson: {self.meson_exe} (found version "{version}")')
         else:
             Post.warning("Not found Meson.")
+
         self.jinja2_exe, version = self._findJinja2()
         if self.jinja2_exe:
             Post.info(f'Found Jinja2: {self.jinja2_exe} (found version "{version}")')
         else:
             Post.warning("Not found Jinja2.")
+
         self.msys2_exe, version = self._findMsys2()
         if self.msys2_exe:
             Post.info(f'Found MYSYS2: {self.msys2_exe} (found version "{version}")')
         else:
             Post.warning("Not found MYSYS2.")
+
         self.bison_flex_exe, version = self._findBisonFlex()
         if self.bison_flex_exe:
             Post.info(f'Found Bison Flex: {self.bison_flex_exe} (found version "{version}")')
         else:
             Post.warning("Not found Bison Flex.")
+
+        self.patch_exe, version = self._findPatch()
+        if self.patch_exe:
+            Post.info(f'Found Patch: {self.patch_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Patch.")
 
     def get_package_files(self) -> list[Path]:
         files = list(self.package_rootdir.rglob("package.jsonc"))
@@ -973,6 +1020,8 @@ class PlatformService(FletXService):
             pkgs.append(self.tools_rootdir / "msys2" / "package.jsonc")
         if not self.bison_flex_exe:
             pkgs.append(self.tools_rootdir / "winflexbison" / "package.jsonc")
+        if not self.patch_exe:
+            pkgs.append(self.tools_rootdir / "patch" / "package.jsonc")
         return pkgs
 
     def create_session_base(self, package: PackageModel, msvc_version: str | None = None) -> dict:
