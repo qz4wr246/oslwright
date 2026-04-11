@@ -256,6 +256,16 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "message": "Rewriting library names for linker options in .pc files , with -llib prefix ",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -pi -e 's/(^Libs:.*?)-l([a-zA-Z0-9_\\.\\-]+)/$$1-llib$$2/g' @PATH\""
+            },
+            {
+              "message": "Rewriting library names for linker options in .pc files",
+              "when": "{{'Release' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -pi -e 's/(^Libs:.*?)-l([a-zA-Z0-9_\\.\\-]+)/$$1-llib$$2/g' @PATH\""
             }
           ]
         }

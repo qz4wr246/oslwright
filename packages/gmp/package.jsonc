@@ -105,6 +105,7 @@
         "MSYS": "winsymlinks:nativestrict",
         "MSYSTEM": "MSYS",
         "CHERE_INVOKING": "1",
+        "MSYS2_PATH_TYPE": "inherit",
         "CC": "/ucrt64/bin/gcc.exe",
         "CXX": "/ucrt64/bin/g++.exe",
         "LD": "/ucrt64/bin/ld.exe",
@@ -133,8 +134,8 @@
       "download_url": "https://ftp.gnu.org/gnu/gmp/gmp-${version}.tar.xz",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
-      "msys2_bash_ob": "cmd.exe /c \"\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
-      "msys2_bash_cb": "\"",
+      "msys2_bash_ob": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_bash_cb": "",
       "stages": {
         "download": {
           "scripts": [
@@ -168,7 +169,7 @@
               "message": "Patch ${name} source code",
               "when": "{{'patch_files' in globals()}}",
               "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -b -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -t -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
             },
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
@@ -277,12 +278,12 @@
             {
               "message": "Copy ${name} files for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\debug\" \"$dist_dir_debug\" /s /e /i"
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\debug\" \"$dist_dir_debug\" /s /e /i /y"
             },
             {
               "message": "Copy ${name} files for release.",
               "when": "{{'Release' in $build_type}}",
-              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /s /e /i"
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /s /e /i /y"
             }
           ]
         },

@@ -141,17 +141,7 @@
         "MSYS": "winsymlinks:nativestrict",
         "MSYSTEM": "MSYS",
         "CHERE_INVOKING": "1",
-        "CC": "/ucrt64/bin/gcc.exe",
-        "CXX": "/ucrt64/bin/g++.exe",
-        "LD": "/ucrt64/bin/ld.exe",
-        "AR": "/ucrt64/bin/ar.exe",
-        "RANLIB": "/ucrt64/bin/ranlib.exe",
-        "STRIP": "/ucrt64/bin/strip.exe",
-        "NM": "/ucrt64/bin/nm.exe",
-        "OBJCOPY": "/ucrt64/bin/objcopy.exe",
-        "OBJDUMP": "/ucrt64/bin/objdump.exe",
-        "CPPFLAGS": "-I/opt/ucrt64/include",
-        "LDFLAGS": "-L/opt/ucrt64/lib",
+        "MSYS2_PATH_TYPE": "inherit",
         "SED": "/usr/bin/sed.exe",
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
@@ -171,8 +161,8 @@
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
-      "msys2_bash_ob": "cmd.exe /c \"\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
-      "msys2_bash_cb": "\"",
+      "msys2_bash_ob": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_bash_cb": "",
       "stages": {
         "download": {
           "scripts": [
@@ -208,12 +198,6 @@
           // Copy SDL2 and zlib binary to MSYS2
           // Remove the inclusion of unistd.h in zconf.h. This gets erroneously included when building FFmpeg.
           //
-          "zlib_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'zlib' in x), '')}}",
-          "zlib_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'zlib' in x), '')}}",
-          "sdl_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'sdl' in x), '')}}",
-          "sdl_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'sdl' in x), '')}}",
-          "openh264_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'openh264' in x), '')}}",
-          "openh264_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'openh264' in x), '')}}",
           "msys2_require_runtimes": [
             {
               "name": "zlib",
@@ -417,7 +401,7 @@
               // Template Script:
               // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
               "message": "Generate files from templates.",
-              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             },
             {
               "ignore_errors": true,

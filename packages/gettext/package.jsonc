@@ -51,7 +51,7 @@
     {
       "display": "Build library",
       "name": "build_library",
-      "enable":false,
+      "enable": false,
       "type": "choice",
       "items": [
         "shared",
@@ -62,6 +62,7 @@
     {
       "display": "Build type",
       "name": "build_type",
+      "enable": false,
       "type": "choice",
       "items": [
         "Release",
@@ -72,6 +73,7 @@
     {
       "display": "Build layout",
       "name": "build_layout",
+      "enable": false,
       "type": "choice",
       "items": [
         "union",
@@ -98,8 +100,14 @@
   "versions": {
     "default": {
       "dependencies": {
-        "libiconv":{
+        "libiconv": {
           "version": ">=1.19"
+        },
+        "libxml2": {
+          "version": ">=2.11"
+        },
+        "libunistring": {
+          "version": ">=1.4"
         }
       },
       "environments": {
@@ -107,6 +115,7 @@
         "MSYS": "winsymlinks:nativestrict",
         "MSYSTEM": "MSYS",
         "CHERE_INVOKING": "1",
+        // "MSYS2_PATH_TYPE": "inherit",
         "CC": "/ucrt64/bin/gcc.exe",
         "CXX": "/ucrt64/bin/g++.exe",
         "LD": "/ucrt64/bin/ld.exe",
@@ -133,10 +142,10 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
       "download_url": "https://ftp.gnu.org/pub/gnu/gettext/gettext-${version}.tar.gz",
-      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "msys2_dir": "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
-      "msys2_bash_ob": "cmd.exe /c \"\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
-      "msys2_bash_cb": "\"",
+      "msys2_bash_ob": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_bash_cb": "",
       "stages": {
         "download": {
           "scripts": [
@@ -153,19 +162,110 @@
             {
               "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_dir}\" && del \"${cache_file}.temp.tar\"",
+              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_rootdir}\" && del \"${cache_file}.temp.tar\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             }
           ]
         },
         "patch": {
+          "repo_url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/gettext",
+          "patch_files": [
+            {
+              "url": "${repo_url}/gettext-tools-tests-locale-ll-es.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.21.1-autopoint-V.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.21.1-cygwin-ftm.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22-no-woe32dll-gettext-tools-configure-ac.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22-no-woe32dll-m4-woe32-dll-m4.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-gnulib-lib-localcharset-c.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-gnulib-lib-localename-h.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-gnulib-lib-localename-unsafe-c.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-intl-gnulib-lib-localcharset-c.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-intl-gnulib-lib-localename-h.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-intl-gnulib-lib-localename-unsafe-c.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22.5-gettext-tools-gnulib-lib-localcharset-c.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22.5-gettext-tools-gnulib-lib-localename-h.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22.5-gettext-tools-gnulib-lib-localename-unsafe-c.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.22-disable-libtextstyle.patch"
+            },
+            {
+              "url": "${repo_url}/gettext-0.19.8.1-msys2.patch"
+            }
+          ],
           "msys2_require_runtimes": [
             {
               "name": "libiconv",
-              "remove_prefix_pc": ["libiconv"]
+              "remove_prefix_pc": [
+                "libiconv"
+              ]
+            },
+            {
+              "name": "libxml2",
+              "remove_prefix_pc": [
+                "libxml2"
+              ]
+            },
+            {
+              "name": "libunistring",
+              "remove_prefix_pc": [
+                "libunistring"
+              ]
             }
           ],
           "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "when": "{{'patch_files' in globals()}}",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -t -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+            },
+            {
+              "chdir": "$source_dir",
+              "when": "{{not os.path.exists(os.path.join($source_dir, 'gettext-0.19.7-archive.patch'))}}",
+              "script": "curl.exe --fail -L -s -o \"gettext-0.19.7-archive.patch\" \"${repo_url}/gettext-0.19.7-archive.patch\""
+            },
+            {
+              "bash_script": "echo $$PATH; where mkdir ; mkdir --help",
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+            },
+            {
+              "chdir": "${source_dir}\\gettext-tools\\misc",
+              "bash_script": "where mkdir; mkdir -p ./archive && tar -xvf archive.dir.tar -C archive && rm -f archive.dir.tar",
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+            },
+            {
+              "chdir": "${source_dir}\\gettext-tools\\misc\\archive",
+              "bash_script": "patch -p1 -i \\\"${source_dir}/gettext-0.19.7-archive.patch\\\" && tar -cvf ../archive.dir.tar * && cd .. && rm -rf archive",
+              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+            },
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
               "bash_script": "rm -rf /opt/ucrt64/*",
@@ -183,18 +283,30 @@
               "message": "Rename library files and rewrite pc files.",
               "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__renamed__'))}}",
               "script": "{{' && '.join([cmd for item in $msys2_require_runtimes if item.get('when', True) for cmd in ([f'ren \"{p}\" \"lib{os.path.basename(p)}\"' for n in item.get('add_prefix_lib', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', n), recursive=True)] + [f'perl -i.bak -pe \"if(/^Libs:/){{ s/-l{n}\\\\b/-l{n[3:] if n.startswith(\"lib\") else n}/g }}\" \"{p}\"' for n in item.get('remove_prefix_pc', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', '*.pc'), recursive=True) if os.path.isfile(p) and any(re.search(rf'^Libs:.*-l{n}\\b', l) for l in [pathlib.Path(p).read_text(errors=\"ignore\")] for l in l.splitlines())])]+[f'copy nul > \"{os.path.join($msys2_external_runtime_dir, \"__renamed__\")}\"'])}}"
+            },
+            {
+              "message": "reconfigure in gettext",
+              "chdir": "$source_dir",
+              "bash_script": "libtoolize --copy --force && ./autogen.sh --skip-gnulib",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
         },
         "configure": {
-          "config_options":[
+          "config_options": [
             "--host=x86_64-w64-mingw32",
-            "--build=x86_64-w64-mingw32",
             "--disable-static",
             "--enable-shared",
+            "--with-included-libcroco",
+            "--with-included-libunistring",
+            "--with-included-libxml",
+            "--without-included-glib",
             "--with-included-gettext",
-            "--with-included-libintl",
-            "--with-included-libtextstyle"
+            "--without-emacs",
+            "--disable-java",
+            "--disable-native-java",
+            "--disable-csharp",
+            "--disable-openmp"
           ],
           "config_options_debug": [
             "--prefix=/opt/${name}/debug"
@@ -227,7 +339,7 @@
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+                "PATH": "{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_debug",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
@@ -237,7 +349,7 @@
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+                "PATH": "{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_release",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
@@ -255,7 +367,7 @@
                 "PERLIO": "raw"
               },
               "chdir": "$build_dir_debug",
-              "bash_script": "rmake -j4",
+              "bash_script": "make -j4",
               "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             },
             {
@@ -266,7 +378,7 @@
                 "PERLIO": "raw"
               },
               "chdir": "$build_dir_release",
-              "bash_script": "rmake -j4",
+              "bash_script": "make -j4",
               "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
             }
           ]
@@ -305,7 +417,7 @@
           "environments": {
             "PERLIO": "raw"
           },
-          "template_files":[
+          "template_files": [
             {
               "when": "{{'Debug' in $build_type}}",
               "template": "${package_dir}\\libintl.pc.j2",
@@ -328,26 +440,27 @@
               // Template Script:
               // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
               "message": "Generate files from templates.",
-              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             },
             {
               "message": "Rename DLL files to be compatible with MSVC",
-              "when":"{{'Debug' in $build_type}}",
+              "when": "{{'Debug' in $build_type}}",
               "chdir": "$dist_dir_debug\\lib",
-              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "script": "for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
               "ignore_errors": true
             },
             {
               "message": "Rename DLL files to be compatible with MSVC",
-              "when":"{{'Release' in $build_type }}",
+              "when": "{{'Release' in $build_type }}",
               "chdir": "$dist_dir_release\\lib",
-              "script":"for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
+              "script": "for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
               "ignore_errors": true
             }
           ]
         }
       }
     },
-    "1.0": {}
+    "0.22.5": {}
+    // "1.0": {}
   }
 }

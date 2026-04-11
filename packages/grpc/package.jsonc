@@ -313,7 +313,7 @@
           "scripts": [
             {
               "message": "Generate files from templates.",
-              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             },
             {
               "ignore_errors": true,

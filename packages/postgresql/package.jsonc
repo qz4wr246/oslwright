@@ -112,6 +112,9 @@
         "openssl": {
           "version": ">=3.3"
         },
+        "proxy-libintl": {
+          "version": ">=0.5"
+        },
         "icu4c": {
           "version": ">=75"
         },
@@ -148,7 +151,7 @@
             {
               "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_dir}\" && del \"${cache_file}.temp.tar\"",
+              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_rootdir}\" && del \"${cache_file}.temp.tar\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             }
           ]
@@ -198,7 +201,7 @@
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}};$msys2_bindir",
+                "PATH": "{{';'.join([$dependent_dlls_debug, '%PATH%', $msys2_bindir,])}}",
                 "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
                 "PERLIO": "raw"
@@ -209,7 +212,7 @@
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}};$msys2_bindir",
+                "PATH": "{{';'.join([$dependent_dlls_release, '%PATH%', $msys2_bindir])}}",
                 "CMAKE_PREFIX_PATH": "$dependent_packages_release",
                 "PKG_CONFIG_PATH": "$pkg_config_path_release",
                 "PERLIO": "raw"

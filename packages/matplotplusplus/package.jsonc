@@ -174,7 +174,7 @@
           ]
         },
         "configure": {
-          // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'x64' if ${build_arch} == 'x64' else 'Win32'}}",
+          // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
             "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",

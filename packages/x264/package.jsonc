@@ -104,6 +104,7 @@
         "MSYS": "winsymlinks:nativestrict",
         "MSYSTEM": "MSYS",
         "CHERE_INVOKING": "1",
+        "MSYS2_PATH_TYPE": "inherit",
         "CC": "/ucrt64/bin/gcc.exe",
         "CXX": "/ucrt64/bin/g++.exe",
         "LD": "/ucrt64/bin/ld.exe",
@@ -134,8 +135,8 @@
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
-      "msys2_bash_ob": "cmd.exe /c \"\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
-      "msys2_bash_cb": "\"",
+      "msys2_bash_ob": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_bash_cb": "",
       "stages": {
         "download": {
           "scripts": [
@@ -216,7 +217,7 @@
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_debug",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
@@ -226,7 +227,7 @@
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "PATH":"{{exec('import re') or re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_release",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",

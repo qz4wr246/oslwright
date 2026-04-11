@@ -1,0 +1,1716 @@
+Core properties:
+  Source dir C:\Users\y-mori\DevelopOSS\oslwright\sources\gstreamer-1.24.13
+  Build dir  C:\Users\y-mori\DevelopOSS\oslwright\sources\gstreamer-1.24.13-x64-vc143-md-release-build
+
+Global build options:
+
+  Core options                   Current Value                    Possible Values                  Description
+  --------------                 -------------                    ---------------                  -----------
+  auto_features                  auto                             [enabled, disabled, auto]        Override value of all 'auto' features
+  backend                        ninja                            [ninja, vs, vs2010, vs2012,      Backend to use
+                                                                   vs2013, vs2015, vs2017, vs2019,
+                                                                   vs2022, xcode, none]
+  genvslite                      vs2022                           [vs2022]                         Setup multiple buildtype-suffixed ninja-backend build
+                                                                                                   directories, and a [builddir]_vs containing a Visual Studio
+                                                                                                   meta-backend with multiple configurations that calls into
+                                                                                                   them
+  buildtype                      release                          [plain, debug, debugoptimized,   Build type to use
+                                                                   release, minsize, custom]
+  debug                          false                            [True, False]                    Enable debug symbols and other information
+  default_library                shared                           [shared, static, both]           Default library type
+  default_both_libraries         shared                           [shared, static, auto]           Default library type for both_libraries
+  install_umask                  0022                             [>= 0, <= 511]                   Default umask to apply on permissions of installed files
+  layout                         mirror                           [mirror, flat]                   Build directory layout
+  optimization                   3                                [plain, 0, g, 1, 2, 3, s]        Optimization level
+  prefer_static                  false                            [True, False]                    Whether to try static linking before shared linking
+  strip                          false                            [True, False]                    Strip targets on install
+  unity                          off                              [on, off, subprojects]           Unity build
+  unity_size                     4                                [>= 2]                           Unity block size
+  warning_level                  1                                [0, 1, 2, 3, everything]         Compiler warning level to use
+  werror                         false                            [True, False]                    Treat warnings as errors
+  wrap_mode                      default                          [default, nofallback,            Wrap mode
+                                                                   nodownload, forcefallback,
+                                                                   nopromote]
+  force_fallback_for             []                                                                Force fallback for those subprojects
+  vsenv                          true                             [True, False]                    Activate Visual Studio environment
+  pkg_config_path                [C:\Users\y-                                                      List of additional paths for pkg-config to search
+                                  mori\DevelopOSS\oslwright\dist\
+                                  sdl-2.32.10-x64-vc143-
+                                  md\lib\pkgconfig, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  libpng-1.6.43-x64-vc143-
+                                  md\lib\pkgconfig, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  brotli-1.1.0-x64-vc143-
+                                  md\lib\pkgconfig, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  icu4c-75.1-x64-vc143-
+                                  md\lib\pkgconfig, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  ffmpeg-6.1.4-x64-vc143-md-
+                                  release\lib\pkgconfig, C:\Users
+                                  \y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  harfbuzz-10.1.0-x64-vc143-md-
+                                  release\lib\pkgconfig, C:\Users
+                                  \y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  zstd-1.5.6-x64-vc143-
+                                  md\lib\pkgconfig, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  freetype-2.13.2-x64-vc143-
+                                  md\lib\pkgconfig, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  libxml2-2.11.9-x64-vc143-
+                                  md\lib\pkgconfig, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  cairo-1.18.0-x64-vc143-md-
+                                  release\lib\pkgconfig, C:\Users
+                                  \y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  pixman-0.43.4-x64-vc143-md-
+                                  release\lib\pkgconfig, C:\Users
+                                  \y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  zlib-1.3.1-x64-vc143-
+                                  md\share\pkgconfig, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  libjpeg-turbo-3.1.3-x64-vc143-
+                                  md\lib\pkgconfig]
+  cmake_prefix_path              [C:\Users\y-                                                      List of additional prefixes for cmake to search
+                                  mori\DevelopOSS\oslwright\dist\
+                                  zlib-1.3.1-x64-vc143-md, C:\Use
+                                  rs\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  libpng-1.6.43-x64-vc143-md, C:\
+                                  Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  bzip2-1.0.8-x64-vc143-md, C:\Us
+                                  ers\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  brotli-1.1.0-x64-vc143-md, C:\U
+                                  sers\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  pixman-0.43.4-x64-vc143-md-
+                                  release, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  freetype-2.13.2-x64-vc143-md, C
+                                  :\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  libjpeg-
+                                  turbo-3.1.3-x64-vc143-md, C:\Us
+                                  ers\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  sdl-2.32.10-x64-vc143-md, C:\Us
+                                  ers\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  cairo-1.18.0-x64-vc143-md-
+                                  release, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  icu4c-75.1-x64-vc143-md, C:\Use
+                                  rs\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  xz-5.6.2-x64-vc143-md, C:\Users
+                                  \y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  zstd-1.5.6-x64-vc143-md, C:\Use
+                                  rs\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  ffmpeg-6.1.4-x64-vc143-md-
+                                  release, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  harfbuzz-10.1.0-x64-vc143-md-
+                                  release, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  libxml2-2.11.9-x64-vc143-md, C:
+                                  \Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  openssl-3.6.1-x64-vc143-md-
+                                  release, C:\Users\y-
+                                  mori\DevelopOSS\oslwright\dist\
+                                  sqlite-3.45.3-x64-vc143-md]
+
+  Backend options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  backend_max_links              0                                [>= 0]                           Maximum number of linker processes to run or 0 for no limit
+
+  Base options                   Current Value                    Possible Values                  Description
+  --------------                 -------------                    ---------------                  -----------
+  b_pch                          true                             [True, False]                    Use precompiled headers
+  b_vscrt                        from_buildtype                   [none, md, mdd, mt, mtd,         VS run-time library type to use.
+                                                                   from_buildtype,
+                                                                   static_from_buildtype]
+  b_ndebug                       false                            [true, false, if-release]        Disable asserts
+  b_sanitize                     []                                                                Code sanitizer to use
+  b_colorout                     always                           [auto, always, never]            Use colored output
+
+  Compiler options               Current Value                    Possible Values                  Description
+  ------------------             -------------                    ---------------                  -----------
+  c_args                         []                                                                Extra arguments passed to the c compiler
+  c_link_args                    []                                                                Extra arguments passed to the c linker
+  c_std                          none                             [none, c89, c99, c11, c17, c18]  c language standard to use
+  c_winlibs                      [kernel32.lib, user32.lib,                                        Standard Windows libraries to link against
+                                  gdi32.lib, winspool.lib,
+                                  shell32.lib, ole32.lib,
+                                  oleaut32.lib, uuid.lib,
+                                  comdlg32.lib, advapi32.lib]
+  cpp_args                       []                                                                Extra arguments passed to the cpp compiler
+  cpp_link_args                  []                                                                Extra arguments passed to the cpp linker
+  cpp_std                        c++14                            [none, none, c++11, vc++11,      cpp language standard to use
+                                                                   c++14, c++latest, vc++latest,
+                                                                   vc++14, c++17, vc++17, c++20,
+                                                                   vc++20]
+  cpp_eh                         default                          [none, default, a, s, sc]        C++ exception handling type.
+  cpp_rtti                       true                             [True, False]                    Enable RTTI
+  cpp_winlibs                    [kernel32.lib, user32.lib,                                        Standard Win libraries to link against
+                                  gdi32.lib, winspool.lib,
+                                  shell32.lib, ole32.lib,
+                                  oleaut32.lib, uuid.lib,
+                                  comdlg32.lib, advapi32.lib]
+  rust_args                      []                                                                Extra arguments passed to the rust compiler
+  rust_link_args                 []                                                                Extra arguments passed to the rust linker
+  rust_std                       none                             [none, 2015, 2018, 2021, 2024]   Rust edition to use
+
+  pkgconfig module options       Current Value                    Possible Values                  Description
+  --------------------------     -------------                    ---------------                  -----------
+  pkgconfig.relocatable          true                             [True, False]                    Generate pkgconfig files as relocatable
+
+  python module options          Current Value                    Possible Values                  Description
+  -----------------------        -------------                    ---------------                  -----------
+  python.bytecompile             0                                [>= -1, <= 2]                    Whether to compile bytecode
+  python.install_env             prefix                           [auto, prefix, system, venv]     Which python environment to install to
+  python.platlibdir                                                                                Directory for site-specific, platform-specific files.
+  python.purelibdir                                                                                Directory for site-specific, non-platform-specific files.
+  python.allow_limited_api       true                             [True, False]                    Whether to allow use of the Python Limited API
+
+  Directories                    Current Value                    Possible Values                  Description
+  -------------                  -------------                    ---------------                  -----------
+  prefix                         C:\Users\y-                                                       Installation prefix
+                                 mori\DevelopOSS\oslwright\dist\g
+                                 streamer-1.24.13-x64-vc143-md-
+                                 release
+  bindir                         bin                                                               Executable directory
+  datadir                        share                                                             Data file directory
+  includedir                     include                                                           Header file directory
+  infodir                        share/info                                                        Info page directory
+  libdir                         lib                                                               Library directory
+  licensedir                                                                                       Licenses directory
+  libexecdir                     libexec                                                           Library executable directory
+  localedir                      share/locale                                                      Locale data directory
+  localstatedir                  var                                                               Localstate data directory
+  mandir                         share/man                                                         Manual page directory
+  sbindir                        sbin                                                              System executable directory
+  sharedstatedir                 com                                                               Architecture-independent data directory
+  sysconfdir                     etc                                                               Sysconf data directory
+
+  Testing options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  errorlogs                      true                             [True, False]                    Whether to print the logs from failing tests
+  stdsplit                       true                             [True, False]                    Split stdout and stderr in test logs
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bad                            enabled                          [enabled, disabled, auto]        bad
+  base                           enabled                          [enabled, disabled, auto]        base
+  build-tools-source             subproject                       [system, subproject]             build-tools-source
+  custom_subprojects                                                                               Comma-separated project names
+  devtools                       disabled                         [enabled, disabled, auto]        devtools
+  doc                            disabled                         [enabled, disabled, auto]        Generate API documentation with hotdoc
+  examples                       auto                             [enabled, disabled, auto]        Build examples
+  ges                            auto                             [enabled, disabled, auto]        ges
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  good                           enabled                          [enabled, disabled, auto]        good
+  gpl                            disabled                         [enabled, disabled, auto]        Allow build of plugins that have (A)GPL-licensed dependencies
+  gst-examples                   auto                             [enabled, disabled, auto]        Build gst-examples subproject
+  gst-full                       auto                             [enabled, disabled, auto]        Enable the gstreamer-full library feature
+  gst-full-device-providers                                                                        List of device providers to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin1:dp1;plugin2:dp1:dp2. By default ''
+                                                                                                   will export all device provider of the enabled plugin.
+  gst-full-dynamic-types                                                                           List of dynamic types to expose in gstreamer-full's ABI with
+                                                                                                   the syntax plugin:dt1,dt2. By default '' will export all
+                                                                                                   device provider of the enabled plugin.
+  gst-full-elements                                                                                List of elements to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2:element1,element2. By default '' will
+                                                                                                   export all element of the enabled plugin.
+  gst-full-libraries             []                               []                               List of libraries to expose in gstreamer-full's ABI.
+                                                                                                   gstreamer, glib and gobject are always included.
+  gst-full-plugins               *                                                                 List of plugins to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2. By default '*' will export all
+                                                                                                   plugins enabled by the build process.
+  gst-full-target-type           shared_library                   [static_library, shared_library] The type of library of gstreamer-full-1.0.
+  gst-full-typefind-functions                                                                      List of typefind functions to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin:func1,func2. By default '' will export
+                                                                                                   all typefind functions of the enabled plugin.
+  gst-full-version-script        data/misc/gstreamer-full-                                         path of the version script to be used by the linker, see
+                                 default.map                                                       https://www.gnu.org/software/gnulib/manual/html_node/LD-
+                                                                                                   Version-Scripts.html
+  gstreamer-full-license         unknown                                                           gstreamer-full license (default unknown)
+  gtk_doc                        disabled                         [enabled, disabled, auto]        Generate API documentation with gtk-doc
+  introspection                  auto                             [enabled, disabled, auto]        Generate introspection data
+  libav                          auto                             [enabled, disabled, auto]        libav
+  libnice                        auto                             [enabled, disabled, auto]        ICE support using libnice as a subproject
+  nls                            auto                             [enabled, disabled, auto]        Native language support (translations)
+  orc                            auto                             [enabled, disabled, auto]        Optimized Inner Loop Runtime Compiler (SIMD)
+  orc-source                     subproject                       [system, subproject, auto]       orc-source
+  oss_fuzz                       disabled                         [enabled, disabled, auto]        Use fuzzing build environment
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  python                         disabled                         [enabled, disabled, auto]        python
+  qt5                            disabled                         [enabled, disabled, auto]        Qt5 toolkit support
+  qt6                            auto                             [enabled, disabled, auto]        Qt6 toolkit support
+  rs                             disabled                         [enabled, disabled, auto]        rs
+  rtsp_server                    enabled                          [enabled, disabled, auto]        rtsp_server
+  sharp                          disabled                         [enabled, disabled, auto]        sharp
+  tests                          disabled                         [enabled, disabled, auto]        Build tests
+  tls                            enabled                          [enabled, disabled, auto]        TLS support using glib-networking as a subproject
+  tools                          auto                             [enabled, disabled, auto]        Build command line tools
+  ugly                           enabled                          [enabled, disabled, auto]        ugly
+  vaapi                          disabled                         [enabled, disabled, auto]        vaapi
+  virtme_kernel_image                                                                              Path to a Linux kernel image to be used for virtme testing
+  webrtc                         auto                             [enabled, disabled, auto]        WebRTC support
+
+Subproject DirectX-Headers:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  build-test                     true                             [True, False]                    Build the test
+
+Subproject dv:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  asm                            auto                             [enabled, disabled, auto]        Use architecture specific assembly code (probably only works
+                                                                                                   with GCC/clang)
+  popt                           auto                             [enabled, disabled, auto]        popt
+  tests                          auto                             [enabled, disabled, auto]        Build tests
+  tools                          disabled                         [enabled, disabled, auto]        Build playdv and encodedv tools
+  utils                          disabled                         [enabled, disabled, auto]        Build uninstalled utilities
+  yuv-format                     YUY2                             [YV12, YUY2]                     YUV format
+
+Subproject fdk-aac:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  build-programs                 auto                             [enabled, disabled, auto]        build-programs
+  remove-date                    false                            [True, False]                    remove-date
+
+Subproject flac:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bad                            enabled                          [enabled, disabled, auto]        bad
+  base                           enabled                          [enabled, disabled, auto]        base
+  build-tools-source             subproject                       [system, subproject]             build-tools-source
+  custom_subprojects                                                                               Comma-separated project names
+  devtools                       auto                             [enabled, disabled, auto]        devtools
+  doc                            disabled                         [enabled, disabled, auto]        Generate API documentation with hotdoc
+  examples                       auto                             [enabled, disabled, auto]        Build examples
+  ges                            auto                             [enabled, disabled, auto]        ges
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  good                           enabled                          [enabled, disabled, auto]        good
+  gpl                            disabled                         [enabled, disabled, auto]        Allow build of plugins that have (A)GPL-licensed dependencies
+  gst-examples                   auto                             [enabled, disabled, auto]        Build gst-examples subproject
+  gst-full                       auto                             [enabled, disabled, auto]        Enable the gstreamer-full library feature
+  gst-full-device-providers                                                                        List of device providers to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin1:dp1;plugin2:dp1:dp2. By default ''
+                                                                                                   will export all device provider of the enabled plugin.
+  gst-full-dynamic-types                                                                           List of dynamic types to expose in gstreamer-full's ABI with
+                                                                                                   the syntax plugin:dt1,dt2. By default '' will export all
+                                                                                                   device provider of the enabled plugin.
+  gst-full-elements                                                                                List of elements to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2:element1,element2. By default '' will
+                                                                                                   export all element of the enabled plugin.
+  gst-full-libraries             []                               []                               List of libraries to expose in gstreamer-full's ABI.
+                                                                                                   gstreamer, glib and gobject are always included.
+  gst-full-plugins               *                                                                 List of plugins to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2. By default '*' will export all
+                                                                                                   plugins enabled by the build process.
+  gst-full-target-type           shared_library                   [static_library, shared_library] The type of library of gstreamer-full-1.0.
+  gst-full-typefind-functions                                                                      List of typefind functions to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin:func1,func2. By default '' will export
+                                                                                                   all typefind functions of the enabled plugin.
+  gst-full-version-script        data/misc/gstreamer-full-                                         path of the version script to be used by the linker, see
+                                 default.map                                                       https://www.gnu.org/software/gnulib/manual/html_node/LD-
+                                                                                                   Version-Scripts.html
+  gstreamer-full-license         unknown                                                           gstreamer-full license (default unknown)
+  gtk_doc                        disabled                         [enabled, disabled, auto]        Generate API documentation with gtk-doc
+  introspection                  auto                             [enabled, disabled, auto]        Generate introspection data
+  libav                          auto                             [enabled, disabled, auto]        libav
+  libnice                        auto                             [enabled, disabled, auto]        ICE support using libnice as a subproject
+  nls                            auto                             [enabled, disabled, auto]        Native language support (translations)
+  orc                            auto                             [enabled, disabled, auto]        Optimized Inner Loop Runtime Compiler (SIMD)
+  orc-source                     subproject                       [system, subproject, auto]       orc-source
+  oss_fuzz                       disabled                         [enabled, disabled, auto]        Use fuzzing build environment
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  python                         auto                             [enabled, disabled, auto]        python
+  qt5                            auto                             [enabled, disabled, auto]        Qt5 toolkit support
+  qt6                            auto                             [enabled, disabled, auto]        Qt6 toolkit support
+  rs                             disabled                         [enabled, disabled, auto]        rs
+  rtsp_server                    auto                             [enabled, disabled, auto]        rtsp_server
+  sharp                          disabled                         [enabled, disabled, auto]        sharp
+  tests                          auto                             [enabled, disabled, auto]        Build tests
+  tls                            auto                             [enabled, disabled, auto]        TLS support using glib-networking as a subproject
+  tools                          auto                             [enabled, disabled, auto]        Build command line tools
+  ugly                           enabled                          [enabled, disabled, auto]        ugly
+  vaapi                          disabled                         [enabled, disabled, auto]        vaapi
+  virtme_kernel_image                                                                              Path to a Linux kernel image to be used for virtme testing
+  webrtc                         auto                             [enabled, disabled, auto]        WebRTC support
+
+Subproject fribidi:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bin                            true                             [True, False]                    Build binaries
+  deprecated                     true                             [True, False]                    Build deprecated functionality
+  docs                           false                            [True, False]                    Build documentation
+  fuzzer_ldflags                                                                                   Extra LDFLAGS used during linking of fuzzing binaries
+  tests                          true                             [True, False]                    Build tests
+
+Subproject gl-headers:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  glext                          auto                             [enabled, disabled, auto]        Install and use the GL/glext.h header
+  wglext                         auto                             [enabled, disabled, auto]        Install and use the GL/wglext.h header
+
+Subproject glib:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bsymbolic_functions            true                             [True, False]                    link with -Bsymbolic-functions if supported
+  charsetalias_dir                                                                                 directory for charset.alias dir (default to 'libdir' if
+                                                                                                   unset)
+  dtrace                         false                            [True, False]                    include tracing support for dtrace
+  force_posix_threads            false                            [True, False]                    Also use posix threads in case the platform defaults to
+                                                                                                   another implementation (on Windows for example)
+  gio_module_dir                                                                                   load gio modules from this directory (default to
+                                                                                                   'libdir/gio/modules' if unset)
+  glib_assert                    true                             [True, False]                    Enable GLib assertion (see docs/macros.txt)
+  glib_checks                    true                             [True, False]                    Enable GLib checks such as API guards (see docs/macros.txt)
+  glib_debug                     auto                             [enabled, disabled, auto]        Enable GLib debug infrastructure (see docs/macros.txt)
+  gtk_doc                        false                            [True, False]                    use gtk-doc to build documentation
+  installed_tests                false                            [True, False]                    enable installed tests
+  libelf                         auto                             [enabled, disabled, auto]        Enable support for listing and extracting from ELF resource
+                                                                                                   files with gresource tool
+  libmount                       auto                             [enabled, disabled, auto]        build with libmount support
+  man                            false                            [True, False]                    generate man pages (requires xsltproc)
+  multiarch                      false                            [True, False]                    Install some helper executables in per-architecture locations
+  nls                            auto                             [enabled, disabled, auto]        Enable native language support (translations)
+  oss_fuzz                       disabled                         [enabled, disabled, auto]        Indicate oss-fuzz build environment
+  runtime_dir                                                                                      Directory for transient runtime state [default: /run]
+  runtime_libdir                                                                                   install runtime libraries relative to libdir
+  selinux                        auto                             [enabled, disabled, auto]        build with selinux support
+  sysprof                        disabled                         [enabled, disabled, auto]        include tracing support for sysprof
+  systemtap                      false                            [True, False]                    include tracing support for systemtap
+  tapset_install_dir                                                                               path where systemtap tapsets are installed
+  tests                          false                            [True, False]                    build tests
+  xattr                          true                             [True, False]                    build with xattr support
+
+Subproject glib-networking:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  debug_logs                     false                            [True, False]                    enable debug log messages (slow)
+  environment_proxy              auto                             [enabled, disabled, auto]        support for environment variable proxy configuration
+  gnome_proxy                    auto                             [enabled, disabled, auto]        support for GNOME desktop proxy configuration
+  gnutls                         auto                             [enabled, disabled, auto]        support for GnuTLS networking configration
+  installed_tests                false                            [True, False]                    enable installed tests
+  libproxy                       auto                             [enabled, disabled, auto]        support for libproxy proxy configration
+  openssl                        enabled                          [enabled, disabled, auto]        support for OpenSSL networking configration
+  static_modules                 false                            [True, False]                    build static modules
+
+Subproject graphene:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  arm_neon                       true                             [True, False]                    Enable ARM NEON fast paths (requires ARM)
+  gcc_vector                     true                             [True, False]                    Enable GCC vector fast paths (requires GCC)
+  gobject_types                  true                             [True, False]                    Enable GObject types (depends on GObject)
+  gtk_doc                        false                            [True, False]                    Enable generating the API reference (depends on GTK-Doc)
+  installed_tests                false                            [True, False]                    Install tests
+  introspection                  disabled                         [enabled, disabled, auto]        Enable GObject Introspection (depends on GObject)
+  sse2                           true                             [True, False]                    Enable SSE2 fast paths (requires SSE2 or later)
+  tests                          false                            [True, False]                    Build the test suite (requires GObject)
+
+Subproject gst-editing-services:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bash-completion                auto                             [enabled, disabled, auto]        Install bash completion files
+  doc                            auto                             [enabled, disabled, auto]        Enable documentation.
+  examples                       auto                             [enabled, disabled, auto]        Build examples
+  introspection                  auto                             [enabled, disabled, auto]        Generate gobject-introspection bindings
+  libpython-dir                                                                                    Path to find libpythonXX.so
+  pygi-overrides-dir                                                                               Path to pygobject overrides directory
+  python                         auto                             [enabled, disabled, auto]        Enable python formatters.
+  tests                          auto                             [enabled, disabled, auto]        Build and enable unit tests
+  tools                          auto                             [enabled, disabled, auto]        Build ges-launch command line tool
+  validate                       auto                             [enabled, disabled, auto]        Enable GstValidate integration.
+  xptv                           auto                             [enabled, disabled, auto]        Build the deprecated xptv formater
+
+Subproject gst-examples:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  tests                          auto                             [enabled, disabled, auto]        Build tests
+
+Subproject gst-libav:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  doc                            auto                             [enabled, disabled, auto]        Enable documentation.
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  tests                          auto                             [enabled, disabled, auto]        tests
+
+Subproject gst-plugins-bad:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  accurip                        auto                             [enabled, disabled, auto]        accurip
+  adpcmdec                       auto                             [enabled, disabled, auto]        adpcmdec
+  adpcmenc                       auto                             [enabled, disabled, auto]        adpcmenc
+  aes                            auto                             [enabled, disabled, auto]        AES encryption/decryption plugin
+  aiff                           auto                             [enabled, disabled, auto]        aiff
+  aja                            auto                             [enabled, disabled, auto]        AJA audio/video source/sink plugin
+  aja-sdk-dir                                                                                      Directory with AJA SDK, e.g. ntv2sdklinux_16.0.0.4
+  amfcodec                       auto                             [enabled, disabled, auto]        AMD AMF codec plugin
+  analyticsoverlay               auto                             [enabled, disabled, auto]        analyticsoverlay
+  androidmedia                   auto                             [enabled, disabled, auto]        Video capture and codec plugins for Android
+  aom                            auto                             [enabled, disabled, auto]        AOM AV1 video codec plugin
+  applemedia                     auto                             [enabled, disabled, auto]        Video capture and codec access plugins for macOS and iOS
+  asfmux                         auto                             [enabled, disabled, auto]        asfmux
+  asio                           auto                             [enabled, disabled, auto]        Steinberg Audio Streaming Input Output (ASIO) plugin
+  asio-sdk-path                                                                                    Full path to Steinberg Audio Streaming Input Output (ASIO)
+                                                                                                   SDK
+  assrender                      auto                             [enabled, disabled, auto]        ASS/SSA subtitle renderer plugin
+  audiobuffersplit               auto                             [enabled, disabled, auto]        audiobuffersplit
+  audiofxbad                     auto                             [enabled, disabled, auto]        audiofxbad
+  audiolatency                   auto                             [enabled, disabled, auto]        audiolatency
+  audiomixmatrix                 auto                             [enabled, disabled, auto]        audiomixmatrix
+  audiovisualizers               auto                             [enabled, disabled, auto]        audiovisualizers
+  autoconvert                    auto                             [enabled, disabled, auto]        autoconvert
+  avtp                           auto                             [enabled, disabled, auto]        Audio/Video Transport Protocol (AVTP) plugin
+  bayer                          auto                             [enabled, disabled, auto]        bayer
+  bluez                          auto                             [enabled, disabled, auto]        Bluetooth audio A2DP/AVDTP sink, AVDTP source plugin
+  bs2b                           auto                             [enabled, disabled, auto]        Bauer stereophonic-to-binaural audio plugin
+  bz2                            auto                             [enabled, disabled, auto]        bz2 stream encoder and decoder plugin
+  camerabin2                     auto                             [enabled, disabled, auto]        camerabin2
+  chromaprint                    auto                             [enabled, disabled, auto]        Chromaprint fingerprint audio plugin
+  closedcaption                  auto                             [enabled, disabled, auto]        Closed caption extractor, decoder, and overlay plugin
+  codec2json                     auto                             [enabled, disabled, auto]        codec2json
+  codecalpha                     auto                             [enabled, disabled, auto]        codecalpha
+  codectimestamper               auto                             [enabled, disabled, auto]        codectimestamper
+  coloreffects                   auto                             [enabled, disabled, auto]        coloreffects
+  colormanagement                auto                             [enabled, disabled, auto]        Color management correction plugin
+  curl                           auto                             [enabled, disabled, auto]        cURL network source and sink plugin
+  curl-ssh2                      auto                             [enabled, disabled, auto]        cURL network source and sink plugin libssh2 support
+  d3d11                          auto                             [enabled, disabled, auto]        Direct3D11 plugin
+  d3d11-hlsl-precompile          auto                             [enabled, disabled, auto]        Enable buildtime HLSL compile for d3d11 library/plugin
+  d3d11-math                     auto                             [enabled, disabled, auto]        Enable DirectX SIMD Math support
+  d3d11-wgc                      auto                             [enabled, disabled, auto]        Windows Graphics Capture API support in d3d11 plugin
+  d3d12                          auto                             [enabled, disabled, auto]        Direct3D12 plugin
+  d3dvideosink                   auto                             [enabled, disabled, auto]        Direct3D video sink plugin
+  dash                           auto                             [enabled, disabled, auto]        DASH demuxer plugin
+  dc1394                         auto                             [enabled, disabled, auto]        libdc1394 IIDC camera source plugin
+  debugutils                     auto                             [enabled, disabled, auto]        debugutils
+  decklink                       auto                             [enabled, disabled, auto]        DeckLink audio/video source/sink plugin
+  directfb                       auto                             [enabled, disabled, auto]        DirectFB video sink plugin
+  directshow                     auto                             [enabled, disabled, auto]        Directshow audio/video plugins
+  directsound                    auto                             [enabled, disabled, auto]        Directsound audio source plugin
+  doc                            auto                             [enabled, disabled, auto]        Enable documentation.
+  drm                            auto                             [enabled, disabled, auto]        libdrm support in the GstVA library
+  dtls                           auto                             [enabled, disabled, auto]        DTLS encoder and decoder plugin
+  dts                            auto                             [enabled, disabled, auto]        DTS audio decoder plugin (GPL - only built if gpl option is
+                                                                                                   also enabled!)
+  dvb                            auto                             [enabled, disabled, auto]        DVB video bin and source plugin
+  dvbsubenc                      auto                             [enabled, disabled, auto]        dvbsubenc
+  dvbsuboverlay                  auto                             [enabled, disabled, auto]        dvbsuboverlay
+  dvdspu                         auto                             [enabled, disabled, auto]        dvdspu
+  dwrite                         auto                             [enabled, disabled, auto]        DirectWrite plugin
+  examples                       auto                             [enabled, disabled, auto]        examples
+  extra-checks                   enabled                          [enabled, disabled, auto]        Enable extra runtime checks
+  faac                           auto                             [enabled, disabled, auto]        Free AAC audio encoder plugin
+  faad                           auto                             [enabled, disabled, auto]        Free AAC audio decoder plugin (GPL - only built if gpl option
+                                                                                                   is also enabled!)
+  faceoverlay                    auto                             [enabled, disabled, auto]        faceoverlay
+  fbdev                          auto                             [enabled, disabled, auto]        Framebuffer video sink plugin
+  fdkaac                         auto                             [enabled, disabled, auto]        Fraunhofer AAC audio codec plugin
+  festival                       auto                             [enabled, disabled, auto]        festival
+  fieldanalysis                  auto                             [enabled, disabled, auto]        fieldanalysis
+  flite                          auto                             [enabled, disabled, auto]        Flite speech synthesizer source plugin
+  fluidsynth                     auto                             [enabled, disabled, auto]        Fluidsynth MIDI decoder plugin
+  freeverb                       auto                             [enabled, disabled, auto]        freeverb
+  frei0r                         auto                             [enabled, disabled, auto]        frei0r
+  gaudieffects                   auto                             [enabled, disabled, auto]        gaudieffects
+  gdp                            auto                             [enabled, disabled, auto]        gdp
+  geometrictransform             auto                             [enabled, disabled, auto]        geometrictransform
+  gl                             auto                             [enabled, disabled, auto]        GStreamer OpenGL integration support (used by various
+                                                                                                   plugins)
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gme                            auto                             [enabled, disabled, auto]        libgme gaming console music file decoder plugin
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gpl                            disabled                         [enabled, disabled, auto]        Allow build plugins that have (A)GPL-licensed dependencies
+  gs                             auto                             [enabled, disabled, auto]        Google Cloud Storage source and sink plugin
+  gsm                            auto                             [enabled, disabled, auto]        GSM encoder/decoder plugin
+  gst_play_tests                 false                            [True, False]                    Enable GstPlay tests that need network access
+  gtk3                           auto                             [enabled, disabled, auto]        GTK+ video sink plugin
+  hls                            auto                             [enabled, disabled, auto]        HTTP Live Streaming plugin
+  hls-crypto                     auto                             [auto, nettle, libgcrypt,        Crypto library to use for HLS plugin
+                                                                   openssl]
+  id3tag                         auto                             [enabled, disabled, auto]        id3tag
+  insertbin                      auto                             [enabled, disabled, auto]        insertbin
+  inter                          auto                             [enabled, disabled, auto]        inter
+  interlace                      auto                             [enabled, disabled, auto]        interlace
+  introspection                  auto                             [enabled, disabled, auto]        Generate gobject-introspection bindings
+  ipcpipeline                    auto                             [enabled, disabled, auto]        Inter-process communication plugin
+  iqa                            auto                             [enabled, disabled, auto]        Image quality assessment plugin (AGPL - only built if gpl
+                                                                                                   option is also enabled!)
+  isac                           auto                             [enabled, disabled, auto]        iSAC plugin
+  ivfparse                       auto                             [enabled, disabled, auto]        ivfparse
+  ivtc                           auto                             [enabled, disabled, auto]        ivtc
+  jp2kdecimator                  auto                             [enabled, disabled, auto]        jp2kdecimator
+  jpegformat                     auto                             [enabled, disabled, auto]        jpegformat
+  kms                            auto                             [enabled, disabled, auto]        KMS video sink plugin
+  ladspa                         auto                             [enabled, disabled, auto]        LADSPA plugin bridge
+  ladspa-rdf                     auto                             [enabled, disabled, auto]        LADSPA plugin bridge RDF support
+  lc3                            auto                             [enabled, disabled, auto]        LC3 (Bluetooth) LE audio codec plugin
+  ldac                           auto                             [enabled, disabled, auto]        LDAC bluetooth audio codec plugin
+  libde265                       auto                             [enabled, disabled, auto]        HEVC/H.265 video decoder plugin
+  librfb                         auto                             [enabled, disabled, auto]        librfb
+  lv2                            auto                             [enabled, disabled, auto]        LV2 audio plugin bridge
+  magicleap                      auto                             [enabled, disabled, auto]        Magic Leap platform support
+  mediafoundation                auto                             [enabled, disabled, auto]        Microsoft Media Foundation plugin
+  mfx-modules-dir                                                                                  libmfx runtime module dir, linux only
+  mfx_api                        auto                             [MSDK, oneVPL, auto]             Select MFX API to build against
+  microdns                       auto                             [enabled, disabled, auto]        libmicrodns-based device provider
+  midi                           auto                             [enabled, disabled, auto]        midi
+  modplug                        auto                             [enabled, disabled, auto]        ModPlug audio decoder plugin
+  mpeg2enc                       auto                             [enabled, disabled, auto]        mpeg2enc video encoder plugin (GPL - only built if gpl option
+                                                                                                   is also enabled!)
+  mpegdemux                      auto                             [enabled, disabled, auto]        mpegdemux
+  mpegpsmux                      auto                             [enabled, disabled, auto]        mpegpsmux
+  mpegtsdemux                    auto                             [enabled, disabled, auto]        mpegtsdemux
+  mpegtsmux                      auto                             [enabled, disabled, auto]        mpegtsmux
+  mplex                          auto                             [enabled, disabled, auto]        mplex audio/video multiplexer plugin (GPL - only built if gpl
+                                                                                                   option is also enabled!)
+  msdk                           auto                             [enabled, disabled, auto]        Intel Media SDK video encoder/decoder plugin
+  mse                            auto                             [enabled, disabled, auto]        mse
+  musepack                       auto                             [enabled, disabled, auto]        libmpcdec Musepack decoder plugin
+  mxf                            auto                             [enabled, disabled, auto]        mxf
+  neon                           auto                             [enabled, disabled, auto]        NEON HTTP source plugin
+  netsim                         auto                             [enabled, disabled, auto]        netsim
+  nls                            auto                             [enabled, disabled, auto]        Enable native language support (translations)
+  nvcodec                        disabled                         [enabled, disabled, auto]        NVIDIA GPU codec plugin
+  onnx                           auto                             [enabled, disabled, auto]        ONNX neural network plugin
+  onvif                          auto                             [enabled, disabled, auto]        onvif
+  openal                         auto                             [enabled, disabled, auto]        OpenAL plugin
+  openaptx                       auto                             [enabled, disabled, auto]        Open Source implementation of Audio Processing Technology
+                                                                                                   codec (aptX) plugin
+  opencv                         auto                             [enabled, disabled, auto]        OpenCV computer vision library support
+  openexr                        auto                             [enabled, disabled, auto]        OpenEXR plugin
+  openh264                       disabled                         [enabled, disabled, auto]        H.264 video codec plugin
+  openjpeg                       auto                             [enabled, disabled, auto]        JPEG2000 image codec plugin
+  openmpt                        auto                             [enabled, disabled, auto]        OpenMPT module music library plugin
+  openni2                        auto                             [enabled, disabled, auto]        OpenNI2 library plugin
+  opensles                       auto                             [enabled, disabled, auto]        OpenSL ES audio source/sink plugin
+  opus                           auto                             [enabled, disabled, auto]        OPUS audio parser plugin
+  orc                            auto                             [enabled, disabled, auto]        orc
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  pcapparse                      auto                             [enabled, disabled, auto]        pcapparse
+  pnm                            auto                             [enabled, disabled, auto]        pnm
+  proxy                          auto                             [enabled, disabled, auto]        proxy
+  qroverlay                      auto                             [enabled, disabled, auto]        Element to set random data on a qroverlay
+  qsv                            auto                             [enabled, disabled, auto]        Intel Quick Sync Video plugin
+  qt6d3d11                       auto                             [enabled, disabled, auto]        Qt6 Direct3D11 plugin
+  rawparse                       auto                             [enabled, disabled, auto]        rawparse
+  removesilence                  auto                             [enabled, disabled, auto]        removesilence
+  resindvd                       auto                             [enabled, disabled, auto]        Resin DVD playback plugin (GPL - only built if gpl option is
+                                                                                                   also enabled!)
+  rist                           auto                             [enabled, disabled, auto]        rist
+  rsvg                           auto                             [enabled, disabled, auto]        SVG overlayer and image decoder plugin
+  rtmp                           auto                             [enabled, disabled, auto]        RTMP video network source and sink plugin
+  rtmp2                          auto                             [enabled, disabled, auto]        rtmp2
+  rtp                            auto                             [enabled, disabled, auto]        rtp
+  sbc                            auto                             [enabled, disabled, auto]        SBC bluetooth audio codec plugin
+  sctp                           auto                             [enabled, disabled, auto]        SCTP plugin
+  sctp-internal-usrsctp          enabled                          [enabled, disabled, auto]        Whether to use the bundled usrsctp library or the system one
+  sdp                            auto                             [enabled, disabled, auto]        sdp
+  segmentclip                    auto                             [enabled, disabled, auto]        segmentclip
+  shm                            auto                             [enabled, disabled, auto]        Shared memory source/sink plugin
+  siren                          auto                             [enabled, disabled, auto]        siren
+  smooth                         auto                             [enabled, disabled, auto]        smooth
+  smoothstreaming                auto                             [enabled, disabled, auto]        Microsoft Smooth Streaming demuxer plugin
+  sndfile                        auto                             [enabled, disabled, auto]        libsndfile plugin
+  soundtouch                     auto                             [enabled, disabled, auto]        Audio pitch controller & BPM detection plugin
+  spandsp                        auto                             [enabled, disabled, auto]        Packet loss concealment audio plugin
+  speed                          auto                             [enabled, disabled, auto]        speed
+  srt                            auto                             [enabled, disabled, auto]        Secure, Reliable, Transport client/server network source/sink
+                                                                                                   plugin
+  srtp                           auto                             [enabled, disabled, auto]        Secure RTP codec plugin
+  subenc                         auto                             [enabled, disabled, auto]        subenc
+  svtav1                         auto                             [enabled, disabled, auto]        Scalable Video Technology for AV1 plugin
+  svthevcenc                     auto                             [enabled, disabled, auto]        Scalable Video Technology for HEVC encoder plugin
+  switchbin                      auto                             [enabled, disabled, auto]        switchbin
+  teletext                       auto                             [enabled, disabled, auto]        Teletext plugin
+  tests                          auto                             [enabled, disabled, auto]        tests
+  timecode                       auto                             [enabled, disabled, auto]        timecode
+  tinyalsa                       auto                             [enabled, disabled, auto]        TinyALSA plugin
+  tools                          auto                             [enabled, disabled, auto]        tools
+  transcode                      auto                             [enabled, disabled, auto]        Transcode plugin
+  ttml                           auto                             [enabled, disabled, auto]        TTML subtitle parser and renderer plugin
+  udev                           auto                             [enabled, disabled, auto]        gudev support in the new VA-API plugin
+  unixfd                         auto                             [enabled, disabled, auto]        unixfd
+  uvcgadget                      auto                             [enabled, disabled, auto]        uvc video gadget plugin
+  uvch264                        auto                             [enabled, disabled, auto]        UVC compliant H.264 camera source plugin
+  v4l2codecs                     auto                             [enabled, disabled, auto]        Video4Linux Stateless CODECs support
+  va                             auto                             [enabled, disabled, auto]        VA-API new plugin
+  videofilters                   auto                             [enabled, disabled, auto]        videofilters
+  videoframe_audiolevel          auto                             [enabled, disabled, auto]        videoframe_audiolevel
+  videoparsers                   enabled                          [enabled, disabled, auto]        videoparsers
+  videosignal                    auto                             [enabled, disabled, auto]        videosignal
+  vmnc                           auto                             [enabled, disabled, auto]        vmnc
+  voaacenc                       auto                             [enabled, disabled, auto]        AAC audio encoder plugin
+  voamrwbenc                     auto                             [enabled, disabled, auto]        AMR-WB audio encoder plugin
+  vulkan                         auto                             [enabled, disabled, auto]        Vulkan video sink plugin
+  vulkan-video                   auto                             [enabled, disabled, auto]        Whether to use Vulkan Video Extensions
+  wasapi                         auto                             [enabled, disabled, auto]        Windows Audio Session API source/sink plugin
+  wasapi2                        auto                             [enabled, disabled, auto]        Windows Audio Session API source/sink plugin with WinRT API
+  wayland                        auto                             [enabled, disabled, auto]        Wayland plugin/library, support in the Vulkan plugin
+  webp                           auto                             [enabled, disabled, auto]        WebP image codec plugin
+  webrtc                         auto                             [enabled, disabled, auto]        WebRTC audio/video network bin plugin
+  webrtcdsp                      auto                             [enabled, disabled, auto]        Plugin with various audio filters provided by the WebRTC
+                                                                                                   audio processing library
+  wic                            auto                             [enabled, disabled, auto]        Windows Imaging Component plugin
+  wildmidi                       auto                             [enabled, disabled, auto]        WildMidi midi soft synth plugin
+  win32ipc                       auto                             [enabled, disabled, auto]        Windows IPC plugin
+  winks                          auto                             [enabled, disabled, auto]        Windows Kernel Streaming video source plugin
+  winscreencap                   auto                             [enabled, disabled, auto]        Windows Screen Capture video source plugin
+  wpe                            auto                             [enabled, disabled, auto]        WPE Web browser plugin
+  wpe_api                        auto                             [auto, 1.0, 1.1, 2.0]            WPE WebKit API to target (1.0 = soup2, 1.1/2.0 = soup3)
+  x11                            auto                             [enabled, disabled, auto]        X11 support in Vulkan, GL and rfb plugins
+  x265                           auto                             [enabled, disabled, auto]        HEVC/H.265 video encoder plugin (GPL - only built if gpl
+                                                                                                   option is also enabled!)
+  y4m                            auto                             [enabled, disabled, auto]        y4m
+  zbar                           auto                             [enabled, disabled, auto]        Barcode image scanner plugin using zbar library
+  zxing                          auto                             [enabled, disabled, auto]        Barcode image scanner plugin using zxing-cpp library
+
+Subproject gst-plugins-base:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  adder                          auto                             [enabled, disabled, auto]        adder
+  alsa                           auto                             [enabled, disabled, auto]        ALSA audio source/sink plugin
+  app                            auto                             [enabled, disabled, auto]        app
+  audioconvert                   auto                             [enabled, disabled, auto]        audioconvert
+  audiomixer                     auto                             [enabled, disabled, auto]        audiomixer
+  audiorate                      auto                             [enabled, disabled, auto]        audiorate
+  audioresample                  auto                             [enabled, disabled, auto]        audioresample
+  audioresample_format           auto                             [int, float, auto]               audioresample_format
+  audiotestsrc                   auto                             [enabled, disabled, auto]        audiotestsrc
+  cdparanoia                     auto                             [enabled, disabled, auto]        cdparanoia plugin
+  compositor                     auto                             [enabled, disabled, auto]        compositor
+  debugutils                     auto                             [enabled, disabled, auto]        debugutils
+  doc                            auto                             [enabled, disabled, auto]        Enable documentation.
+  drm                            auto                             [enabled, disabled, auto]        drm
+  dsd                            auto                             [enabled, disabled, auto]        dsd
+  egl_module_name                                                                                  The file to pass to g_module_open to open the libEGL library
+                                                                                                   (default: libEGL)
+  encoding                       auto                             [enabled, disabled, auto]        encoding
+  examples                       auto                             [enabled, disabled, auto]        examples
+  gio                            auto                             [enabled, disabled, auto]        gio
+  gio-typefinder                 auto                             [enabled, disabled, auto]        gio-typefinder
+  gl                             auto                             [enabled, disabled, auto]        OpenGL integration library and OpenGL plugin
+  gl-graphene                    auto                             [enabled, disabled, auto]        Use Graphene in OpenGL plugin
+  gl-jpeg                        auto                             [enabled, disabled, auto]        Use libjpeg in OpenGL plugin
+  gl-png                         auto                             [enabled, disabled, auto]        Use libpng in OpenGL plugin
+  gl_api                         [auto]                           [opengl, gles2, auto]            A comma separated list of opengl APIs to enable building
+                                                                                                   against
+  gl_platform                    [auto]                           [glx, egl, cgl, wgl, eagl, auto] A comma separated list of opengl platforms to enable building
+                                                                                                   against
+  gl_winsys                      [auto]                           [x11, wayland, win32, winrt,     A comma separated list of opengl windows systems to enable
+                                                                   cocoa, dispmanx, egl,           building against. Supported values are x11, wayland, win32,
+                                                                   surfaceless, viv-fb, gbm,       winrt, cocoa, dispmanx, egl, viv-fb, gbm, and android
+                                                                   android, auto]
+  gles2_module_name                                                                                The file to pass to g_module_open to open the libGLESv2
+                                                                                                   library (default: libGLESv2)
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  install_plugins_helper                                                                           Path of distro helper script to call to install missing
+                                                                                                   plugins
+  introspection                  auto                             [enabled, disabled, auto]        Generate gobject-introspection bindings
+  iso-codes                      auto                             [enabled, disabled, auto]        Use iso-codes in libgsttag (for language names)
+  libvisual                      auto                             [enabled, disabled, auto]        libvisual audio visualization plugin
+  nls                            auto                             [enabled, disabled, auto]        Enable native language support (translations)
+  ogg                            auto                             [enabled, disabled, auto]        ogg parser, muxer, demuxer plugin
+  opengl_module_name                                                                               The file to pass to g_module_open to open the libGL library
+                                                                                                   (default: libGL)
+  opus                           auto                             [enabled, disabled, auto]        OPUS audio codec plugin
+  orc                            auto                             [enabled, disabled, auto]        orc
+  overlaycomposition             auto                             [enabled, disabled, auto]        overlaycomposition
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  pango                          auto                             [enabled, disabled, auto]        Pango text rendering and overlay plugin
+  pbtypes                        auto                             [enabled, disabled, auto]        pbtypes
+  playback                       auto                             [enabled, disabled, auto]        playback
+  qt5                            auto                             [enabled, disabled, auto]        Qt5 QML examples
+  rawparse                       auto                             [enabled, disabled, auto]        rawparse
+  subparse                       auto                             [enabled, disabled, auto]        subparse
+  tcp                            auto                             [enabled, disabled, auto]        tcp
+  tests                          auto                             [enabled, disabled, auto]        tests
+  theora                         auto                             [enabled, disabled, auto]        Theora video parser and codec plugin
+  tools                          auto                             [enabled, disabled, auto]        tools
+  tremor                         auto                             [enabled, disabled, auto]        Integer Vorbis decoder plugin for devices without floating
+                                                                                                   point
+  typefind                       auto                             [enabled, disabled, auto]        typefind
+  videoconvertscale              auto                             [enabled, disabled, auto]        videoconvertscale
+  videorate                      auto                             [enabled, disabled, auto]        videorate
+  videotestsrc                   auto                             [enabled, disabled, auto]        videotestsrc
+  volume                         auto                             [enabled, disabled, auto]        volume
+  vorbis                         auto                             [enabled, disabled, auto]        Vorbis audio parser, tagger, and codec plugin
+  x11                            auto                             [enabled, disabled, auto]        X11 ximagesink plugin, and X11 support in libraries, plugins,
+                                                                                                   examples
+  xi                             auto                             [enabled, disabled, auto]        X11 input extension for touch support in ximagesink
+  xshm                           auto                             [enabled, disabled, auto]        X11 shared memory support for X11 plugins
+  xvideo                         auto                             [enabled, disabled, auto]        X11 XVideo xvimagesink plugin
+
+Subproject gst-plugins-good:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  aalib                          auto                             [enabled, disabled, auto]        aalib text console video sink plugin
+  adaptivedemux2                 auto                             [enabled, disabled, auto]        2nd generation adaptive demuxer plugin
+  alpha                          auto                             [enabled, disabled, auto]        alpha
+  amrnb                          auto                             [enabled, disabled, auto]        Adaptive Multi-Rate Narrow-Band audio codec plugin
+  amrwbdec                       auto                             [enabled, disabled, auto]        Adaptive Multi-Rate Wide-Band audio decoder plugin
+  apetag                         auto                             [enabled, disabled, auto]        apetag
+  asm                            auto                             [enabled, disabled, auto]        asm
+  audiofx                        auto                             [enabled, disabled, auto]        audiofx
+  audioparsers                   auto                             [enabled, disabled, auto]        audioparsers
+  auparse                        auto                             [enabled, disabled, auto]        auparse
+  autodetect                     auto                             [enabled, disabled, auto]        autodetect
+  avi                            auto                             [enabled, disabled, auto]        avi
+  bz2                            auto                             [enabled, disabled, auto]        libbz2 support in the matroska plugin
+  cairo                          auto                             [enabled, disabled, auto]        Cairo overlay plugin
+  cutter                         auto                             [enabled, disabled, auto]        cutter
+  debugutils                     auto                             [enabled, disabled, auto]        debugutils
+  deinterlace                    auto                             [enabled, disabled, auto]        deinterlace
+  directsound                    auto                             [enabled, disabled, auto]        Directsound audio source/sink plugin
+  doc                            auto                             [enabled, disabled, auto]        Enable documentation.
+  dtmf                           auto                             [enabled, disabled, auto]        dtmf
+  dv                             auto                             [enabled, disabled, auto]        Digital video decoder and demuxer plugin
+  dv1394                         auto                             [enabled, disabled, auto]        Digital IEEE1394 interface video source plugin
+  effectv                        auto                             [enabled, disabled, auto]        effectv
+  equalizer                      auto                             [enabled, disabled, auto]        equalizer
+  examples                       auto                             [enabled, disabled, auto]        examples
+  flac                           auto                             [enabled, disabled, auto]        FLAC audio codec plugin
+  flv                            auto                             [enabled, disabled, auto]        flv
+  flx                            auto                             [enabled, disabled, auto]        flx
+  gdk-pixbuf                     auto                             [enabled, disabled, auto]        gdk-pixbuf image decoder, overlay, and sink plugin
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  goom                           auto                             [enabled, disabled, auto]        goom
+  goom2k1                        auto                             [enabled, disabled, auto]        goom2k1
+  gtk3                           auto                             [enabled, disabled, auto]        GTK+ video sink plugin
+  hls-crypto                     auto                             [auto, nettle, libgcrypt,        Crypto library to use for HLS plugin
+                                                                   openssl]
+  icydemux                       auto                             [enabled, disabled, auto]        icydemux
+  id3demux                       auto                             [enabled, disabled, auto]        id3demux
+  imagefreeze                    auto                             [enabled, disabled, auto]        imagefreeze
+  interleave                     auto                             [enabled, disabled, auto]        interleave
+  isomp4                         auto                             [enabled, disabled, auto]        isomp4
+  jack                           auto                             [enabled, disabled, auto]        JACK audio source/sink plugin
+  jpeg                           auto                             [enabled, disabled, auto]        JPEG image codec plugin
+  lame                           auto                             [enabled, disabled, auto]        LAME mp3 audio encoder plugin
+  law                            auto                             [enabled, disabled, auto]        law
+  level                          auto                             [enabled, disabled, auto]        level
+  libcaca                        auto                             [enabled, disabled, auto]        libcaca text console video sink plugin
+  matroska                       auto                             [enabled, disabled, auto]        matroska
+  monoscope                      auto                             [enabled, disabled, auto]        monoscope
+  mpg123                         auto                             [enabled, disabled, auto]        mpg123 mp3 audio decoder plugin
+  multifile                      auto                             [enabled, disabled, auto]        multifile
+  multipart                      auto                             [enabled, disabled, auto]        multipart
+  nls                            auto                             [enabled, disabled, auto]        Enable native language support (translations)
+  orc                            auto                             [enabled, disabled, auto]        orc
+  oss                            auto                             [enabled, disabled, auto]        OSS audio source/sink plugin
+  oss4                           auto                             [enabled, disabled, auto]        OSSv4 audio source/sink plugin
+  osxaudio                       auto                             [enabled, disabled, auto]        macOS/iOS CoreAudio source/sink plugin
+  osxvideo                       auto                             [enabled, disabled, auto]        macOS Cocoa video sink plugin
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  png                            auto                             [enabled, disabled, auto]        PNG image codec plugin
+  pulse                          auto                             [enabled, disabled, auto]        Pulseaudio audio source/sink plugin
+  qt-egl                         auto                             [enabled, disabled, auto]        EGLFS support in the Qt plugins
+  qt-method                      auto                             [auto, pkg-config, qmake]        Method to use to find Qt
+  qt-wayland                     auto                             [enabled, disabled, auto]        Wayland support in the Qt plugins
+  qt-x11                         auto                             [enabled, disabled, auto]        X11 support in the Qt plugins
+  qt5                            auto                             [enabled, disabled, auto]        Qt5 QML video sink plugin
+  qt6                            auto                             [enabled, disabled, auto]        Qt6 QML video sink plugin
+  replaygain                     auto                             [enabled, disabled, auto]        replaygain
+  rpi-header-dir                 /opt/vc/include                                                   Directory where VideoCore/MMAL headers and bcm_host.h can be
+                                                                                                   found
+  rpi-lib-dir                    /opt/vc/lib                                                       Directory where VideoCore/MMAL libraries can be found
+  rpicamsrc                      auto                             [enabled, disabled, auto]        Raspberry Pi camera module plugin
+  rtp                            auto                             [enabled, disabled, auto]        rtp
+  rtpmanager                     auto                             [enabled, disabled, auto]        rtpmanager
+  rtsp                           auto                             [enabled, disabled, auto]        rtsp
+  shapewipe                      auto                             [enabled, disabled, auto]        shapewipe
+  shout2                         auto                             [enabled, disabled, auto]        Shout-casting network sink plugin based on libshout2
+  smpte                          auto                             [enabled, disabled, auto]        smpte
+  soup                           auto                             [enabled, disabled, auto]        libsoup HTTP client source/sink plugin
+  soup-lookup-dep                false                            [True, False]                    Lookup libsoup dep at build time even when building a shared
+                                                                                                   plugin
+  soup-version                   auto                             [auto, 2, 3]                     Force a specific libsoup version if linking to it (N/A for
+                                                                                                   shared builds on Linux)
+  spectrum                       auto                             [enabled, disabled, auto]        spectrum
+  speex                          auto                             [enabled, disabled, auto]        Speex audio codec plugin
+  taglib                         auto                             [enabled, disabled, auto]        Tag-writing plugin based on taglib
+  tests                          auto                             [enabled, disabled, auto]        tests
+  twolame                        auto                             [enabled, disabled, auto]        twolame mp2 audio encoder plugin
+  udp                            auto                             [enabled, disabled, auto]        udp
+  v4l2                           auto                             [enabled, disabled, auto]        Build video4linux2 source/sink plugin
+  v4l2-gudev                     auto                             [enabled, disabled, auto]        Use libgudev for probing v4l2 devices
+  v4l2-libv4l2                   auto                             [enabled, disabled, auto]        Use libv4l2 for some obscure format conversions
+  v4l2-probe                     true                             [True, False]                    Probe v4l2 devices when the v4l2 plugin is loaded
+  videobox                       auto                             [enabled, disabled, auto]        videobox
+  videocrop                      auto                             [enabled, disabled, auto]        videocrop
+  videofilter                    auto                             [enabled, disabled, auto]        videofilter
+  videomixer                     auto                             [enabled, disabled, auto]        videomixer
+  vpx                            disabled                         [enabled, disabled, auto]        VP8 and VP9 video codec plugin
+  waveform                       auto                             [enabled, disabled, auto]        Windows waveform audio sink plugin
+  wavenc                         auto                             [enabled, disabled, auto]        wavenc
+  wavpack                        auto                             [enabled, disabled, auto]        Wavpack audio codec plugin
+  wavparse                       auto                             [enabled, disabled, auto]        wavparse
+  ximagesrc                      auto                             [enabled, disabled, auto]        X11 ximagesrc plugin
+  ximagesrc-navigation           auto                             [enabled, disabled, auto]        X11 ximagesrc plugin (Navigation support)
+  ximagesrc-xdamage              auto                             [enabled, disabled, auto]        X11 ximagesrc plugin (XDamage support)
+  ximagesrc-xfixes               auto                             [enabled, disabled, auto]        X11 ximagesrc plugin (XFixes support)
+  ximagesrc-xshm                 auto                             [enabled, disabled, auto]        X11 ximagesrc plugin (XSHM support)
+  xingmux                        auto                             [enabled, disabled, auto]        xingmux
+  y4m                            auto                             [enabled, disabled, auto]        y4m
+
+Subproject gst-plugins-ugly:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  a52dec                         auto                             [enabled, disabled, auto]        Dolby Digital (AC-3) audio decoder plugin based on liba52
+                                                                                                   (GPL - only built if gpl option is also enabled!)
+  asfdemux                       auto                             [enabled, disabled, auto]        asfdemux
+  cdio                           auto                             [enabled, disabled, auto]        CD audio source plugin based on libcdio (GPL - only built if
+                                                                                                   gpl option is also enabled!)
+  doc                            auto                             [enabled, disabled, auto]        Enable documentation.
+  dvdlpcmdec                     auto                             [enabled, disabled, auto]        dvdlpcmdec
+  dvdread                        auto                             [enabled, disabled, auto]        DVD video source plugin based on libdvdread (GPL - only built
+                                                                                                   if gpl option is also enabled!)
+  dvdsub                         auto                             [enabled, disabled, auto]        dvdsub
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gpl                            disabled                         [enabled, disabled, auto]        Allow build plugins that have GPL-licensed dependencies
+  mpeg2dec                       auto                             [enabled, disabled, auto]        MPEG 2 video decoder plugin based on libmpeg2 (GPL - only
+                                                                                                   built if gpl option is also enabled!)
+  nls                            auto                             [enabled, disabled, auto]        Enable native language support (translations)
+  orc                            auto                             [enabled, disabled, auto]        orc
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  realmedia                      auto                             [enabled, disabled, auto]        realmedia
+  sidplay                        auto                             [enabled, disabled, auto]        Commodore 64 audio decoder plugin based on libsidplay (GPL -
+                                                                                                   only built if gpl option is also enabled!)
+  tests                          auto                             [enabled, disabled, auto]        tests
+  x264                           auto                             [enabled, disabled, auto]        H.264 video encoder plugin based on libx264 (GPL - only built
+                                                                                                   if gpl option is also enabled!)
+  x264_libraries                                                                                   Colon separated list of additional x264 library paths, e.g.
+                                                                                                   for 10-bit version
+
+Subproject gst-rtsp-server:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  doc                            auto                             [enabled, disabled, auto]        Enable documentation.
+  examples                       auto                             [enabled, disabled, auto]        Build the examples
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  introspection                  auto                             [enabled, disabled, auto]        Generate gobject-introspection bindings
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  rtspclientsink                 auto                             [enabled, disabled, auto]        rtspclientsink
+  tests                          auto                             [enabled, disabled, auto]        Build and enable unit tests
+
+Subproject gstreamer:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bash-completion                auto                             [enabled, disabled, auto]        Install bash completion files
+  benchmarks                     auto                             [enabled, disabled, auto]        benchmarks
+  check                          auto                             [enabled, disabled, auto]        Build unit test libraries
+  coretracers                    auto                             [enabled, disabled, auto]        Build coretracers plugin
+  dbghelp                        auto                             [enabled, disabled, auto]        Use dbghelp to generate backtraces
+  doc                            auto                             [enabled, disabled, auto]        Enable documentation.
+  examples                       auto                             [enabled, disabled, auto]        examples
+  extra-checks                   enabled                          [enabled, disabled, auto]        Enable extra runtime checks
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gst_debug                      true                             [True, False]                    gst_debug
+  gst_parse                      true                             [True, False]                    Enable pipeline string parser
+  gstreamer-static-full          false                            [True, False]                    Enable static support of gstreamer-full.
+  introspection                  auto                             [enabled, disabled, auto]        Generate gobject-introspection bindings
+  libdw                          auto                             [enabled, disabled, auto]        Use libdw to generate better backtraces from libunwind
+  libunwind                      auto                             [enabled, disabled, auto]        Use libunwind to generate backtraces
+  memory-alignment               malloc                           [1, 2, 4, 8, 16, 32, 64, 128,    memory-alignment
+                                                                   256, 512, 1024, 2048, 4096,
+                                                                   8192, malloc, pagesize]
+  nls                            auto                             [enabled, disabled, auto]        Enable native language support (translations)
+  option-parsing                 true                             [True, False]                    Enable command line option parsing
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  poisoning                      false                            [True, False]                    Enable poisoning of deallocated objects
+  ptp-helper                     auto                             [enabled, disabled, auto]        Build gst-ptp-helper
+  ptp-helper-permissions         auto                             [none, setuid-root,              ptp-helper-permissions
+                                                                   capabilities, auto]
+  ptp-helper-setuid-group                                                                          Group to switch to when installing gst-ptp-helper setuid root
+  ptp-helper-setuid-user                                                                           User to switch to when installing gst-ptp-helper setuid root
+  registry                       true                             [True, False]                    registry
+  tests                          auto                             [enabled, disabled, auto]        tests
+  tools                          disabled                         [enabled, disabled, auto]        tools
+  tracer_hooks                   true                             [True, False]                    Enable tracer usage
+
+Subproject gvdb:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bad                            enabled                          [enabled, disabled, auto]        bad
+  base                           enabled                          [enabled, disabled, auto]        base
+  build-tools-source             subproject                       [system, subproject]             build-tools-source
+  custom_subprojects                                                                               Comma-separated project names
+  devtools                       auto                             [enabled, disabled, auto]        devtools
+  doc                            disabled                         [enabled, disabled, auto]        Generate API documentation with hotdoc
+  examples                       auto                             [enabled, disabled, auto]        Build examples
+  ges                            auto                             [enabled, disabled, auto]        ges
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  good                           enabled                          [enabled, disabled, auto]        good
+  gpl                            disabled                         [enabled, disabled, auto]        Allow build of plugins that have (A)GPL-licensed dependencies
+  gst-examples                   auto                             [enabled, disabled, auto]        Build gst-examples subproject
+  gst-full                       auto                             [enabled, disabled, auto]        Enable the gstreamer-full library feature
+  gst-full-device-providers                                                                        List of device providers to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin1:dp1;plugin2:dp1:dp2. By default ''
+                                                                                                   will export all device provider of the enabled plugin.
+  gst-full-dynamic-types                                                                           List of dynamic types to expose in gstreamer-full's ABI with
+                                                                                                   the syntax plugin:dt1,dt2. By default '' will export all
+                                                                                                   device provider of the enabled plugin.
+  gst-full-elements                                                                                List of elements to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2:element1,element2. By default '' will
+                                                                                                   export all element of the enabled plugin.
+  gst-full-libraries             []                               []                               List of libraries to expose in gstreamer-full's ABI.
+                                                                                                   gstreamer, glib and gobject are always included.
+  gst-full-plugins               *                                                                 List of plugins to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2. By default '*' will export all
+                                                                                                   plugins enabled by the build process.
+  gst-full-target-type           shared_library                   [static_library, shared_library] The type of library of gstreamer-full-1.0.
+  gst-full-typefind-functions                                                                      List of typefind functions to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin:func1,func2. By default '' will export
+                                                                                                   all typefind functions of the enabled plugin.
+  gst-full-version-script        data/misc/gstreamer-full-                                         path of the version script to be used by the linker, see
+                                 default.map                                                       https://www.gnu.org/software/gnulib/manual/html_node/LD-
+                                                                                                   Version-Scripts.html
+  gstreamer-full-license         unknown                                                           gstreamer-full license (default unknown)
+  gtk_doc                        disabled                         [enabled, disabled, auto]        Generate API documentation with gtk-doc
+  introspection                  auto                             [enabled, disabled, auto]        Generate introspection data
+  libav                          auto                             [enabled, disabled, auto]        libav
+  libnice                        auto                             [enabled, disabled, auto]        ICE support using libnice as a subproject
+  nls                            auto                             [enabled, disabled, auto]        Native language support (translations)
+  orc                            auto                             [enabled, disabled, auto]        Optimized Inner Loop Runtime Compiler (SIMD)
+  orc-source                     subproject                       [system, subproject, auto]       orc-source
+  oss_fuzz                       disabled                         [enabled, disabled, auto]        Use fuzzing build environment
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  python                         auto                             [enabled, disabled, auto]        python
+  qt5                            auto                             [enabled, disabled, auto]        Qt5 toolkit support
+  qt6                            auto                             [enabled, disabled, auto]        Qt6 toolkit support
+  rs                             disabled                         [enabled, disabled, auto]        rs
+  rtsp_server                    auto                             [enabled, disabled, auto]        rtsp_server
+  sharp                          disabled                         [enabled, disabled, auto]        sharp
+  tests                          auto                             [enabled, disabled, auto]        Build tests
+  tls                            auto                             [enabled, disabled, auto]        TLS support using glib-networking as a subproject
+  tools                          auto                             [enabled, disabled, auto]        Build command line tools
+  ugly                           enabled                          [enabled, disabled, auto]        ugly
+  vaapi                          disabled                         [enabled, disabled, auto]        vaapi
+  virtme_kernel_image                                                                              Path to a Linux kernel image to be used for virtme testing
+  webrtc                         auto                             [enabled, disabled, auto]        WebRTC support
+
+Subproject json-glib:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  gtk_doc                        auto                             [enabled, disabled, auto]        Build the API reference (requires gtk-doc)
+  introspection                  auto                             [enabled, disabled, auto]        Build the introspection data (requires gobject-introspection)
+  man                            false                            [True, False]                    Build the man pages (requires xsltproc)
+  tests                          false                            [True, False]                    Build the tests
+
+Subproject lame:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  decoder                        true                             [True, False]                    Build the mpg123 decoder
+  iconv                          auto                             [enabled, disabled, auto]        Build tools with iconv support
+  tools                          auto                             [enabled, disabled, auto]        Build command-line tools
+
+Subproject libffi:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  ffi-build-versioned            true                             [True, False]                    ffi-build-versioned
+  ffi-debug                      false                            [True, False]                    ffi-debug
+  pax_emutramp                   false                            [True, False]                    pax_emutramp
+  purify_safety                  false                            [True, False]                    purify_safety
+  raw_api                        true                             [True, False]                    raw_api
+  structs                        true                             [True, False]                    structs
+
+Subproject libgudev:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  gtk_doc                        false                            [True, False]                    Build reference manual (requires gtk-doc)
+  introspection                  auto                             [enabled, disabled, auto]        Generate introspection data (requires gobject-introspection)
+  tests                          auto                             [enabled, disabled, auto]        Build tests (requires umockdev)
+  vapi                           auto                             [enabled, disabled, auto]        Generate vapi file (requires vapigen)
+
+Subproject libmicrodns:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  examples                       auto                             [enabled, disabled, auto]        examples
+  fuzzing                        false                            [True, False]                    fuzzing
+  tests                          auto                             [enabled, disabled, auto]        tests
+
+Subproject libnice:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  crypto-library                 auto                             [auto, gnutls, openssl]          crypto-library
+  examples                       auto                             [enabled, disabled, auto]        Build examples
+  gstreamer                      auto                             [enabled, disabled, auto]        Enable or disable build of GStreamer plugins
+  gtk_doc                        disabled                         [enabled, disabled, auto]        Generate API documentation with gtk-doc
+  gupnp                          auto                             [enabled, disabled, auto]        Enable or disable GUPnP IGD support
+  ignored-network-interface-     [docker, veth, virbr, vnet]      []                               Ignore network interfaces whose name starts with a string
+prefix                                                                                             from this list in the ICE connection check algorithm. For
+                                                                                                   example, "virbr" to ignore virtual bridge interfaces added by
+                                                                                                   virtd, which do not help in finding connectivity.
+  introspection                  auto                             [enabled, disabled, auto]        Generate gobject-introspection bindings
+  tests                          auto                             [enabled, disabled, auto]        Enable or disable unit tests
+
+Subproject libopenjp2:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bin_lcms2                      auto                             [enabled, disabled, auto]        Build binaries with liblcms2
+  bin_png                        auto                             [enabled, disabled, auto]        Build binaries with libpng
+  bin_tiff                       auto                             [enabled, disabled, auto]        Build binaries with libtiff
+  build_codec_apps               false                            [True, False]                    Build the CODEC executables
+  build_jpip                     false                            [True, False]                    Build the JPIP library and executables.
+  build_jpip_server              false                            [True, False]                    Build the JPIP server.
+  build_luts_generator           false                            [True, False]                    Build utility to generate t1_luts.h
+  build_unit_tests               false                            [True, False]                    Build unit tests (bench_dwt, test_sparse_array, etc..)
+  build_viewer                   auto                             [enabled, disabled, auto]        Build the OPJViewer executable (C++)
+  opj_disable_tpsot_fix          false                            [True, False]                    Disable TPsot==TNsot fix. See
+                                                                                                   https://github.com/uclouvain/openjpeg/issues/254.
+  opj_use_thread                 true                             [True, False]                    Build with thread/mutex support
+
+Subproject libpsl:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  builtin                        true                             [True, False]                    Specify whether libpsl will include built-in PSL data
+  docs                           false                            [True, False]                    Build the API reference (requires gtk-doc)
+  psl_distfile                                                                                     path to distribution-wide PSL file
+  psl_file                                                                                         path to PSL file
+  psl_testfile                                                                                     path to PSL test file
+  runtime                        auto                             [libidn2, libicu, libidn, no,    Specify the IDNA library used for libpsl run-time conversions
+                                                                   auto]
+
+Subproject libsoup:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  brotli                         auto                             [enabled, disabled, auto]        Build with Brotli decompression support
+  gnome                          true                             [True, False]                    Build libsoup with GNOME support
+  gssapi                         auto                             [enabled, disabled, auto]        Build with GSSAPI support
+  gtk_doc                        false                            [True, False]                    Enable generating the API reference
+  installed_tests                false                            [True, False]                    Install tests for as-installed testing
+  introspection                  auto                             [enabled, disabled, auto]        Build GObject Introspection data
+  krb5_config                                                                                      Where to look for krb5-config, path points to krb5-config
+                                                                                                   installation (defaultly looking in PATH)
+  ntlm                           auto                             [enabled, disabled, auto]        Build with NTLM support
+  ntlm_auth                      ntlm_auth                                                         Where to look for ntlm_auth, path points to ntlm_auth
+                                                                                                   installation (defaultly looking in PATH)
+  sysprof                        disabled                         [enabled, disabled, auto]        enable sysprof-capture support for profiling
+  tests                          true                             [True, False]                    Enable unit tests compilation
+  tls_check                      true                             [True, False]                    Enable TLS support through glib-networking. If you are
+                                                                                                   building a package, you can disable this to allow building
+                                                                                                   libsoup anyway (since glib-networking is not actually
+                                                                                                   required at compile time), but you should be sure to add a
+                                                                                                   runtime dependency on it.
+  vapi                           auto                             [enabled, disabled, auto]        Build Vala bindings
+
+Subproject libsrtp2:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  crypto-library                 none                             [none, openssl, nss]             What external crypto library to leverage, if any (OpenSSL or
+                                                                                                   NSS)
+  crypto-library-kdf             auto                             [enabled, disabled, auto]        Use the external crypto library for Key Derivation Function
+                                                                                                   support
+  debug-logging                  false                            [True, False]                    Enable debug logging in all modules
+  doc                            auto                             [enabled, disabled, auto]        Generate API documentation with doxygen
+  fuzzer                         disabled                         [enabled, disabled, auto]        Build libsrtp2 fuzzer (requires build with clang)
+  log-file                                                                                         Write logging output into this file
+  log-stdout                     false                            [True, False]                    Redirect logging to stdout
+  pcap-tests                     auto                             [enabled, disabled, auto]        Build test application that require libpcap
+  tests                          auto                             [enabled, disabled, auto]        Build test applications
+
+Subproject ogg:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bad                            enabled                          [enabled, disabled, auto]        bad
+  base                           enabled                          [enabled, disabled, auto]        base
+  build-tools-source             subproject                       [system, subproject]             build-tools-source
+  custom_subprojects                                                                               Comma-separated project names
+  devtools                       auto                             [enabled, disabled, auto]        devtools
+  doc                            disabled                         [enabled, disabled, auto]        Generate API documentation with hotdoc
+  examples                       auto                             [enabled, disabled, auto]        Build examples
+  ges                            auto                             [enabled, disabled, auto]        ges
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  good                           enabled                          [enabled, disabled, auto]        good
+  gpl                            disabled                         [enabled, disabled, auto]        Allow build of plugins that have (A)GPL-licensed dependencies
+  gst-examples                   auto                             [enabled, disabled, auto]        Build gst-examples subproject
+  gst-full                       auto                             [enabled, disabled, auto]        Enable the gstreamer-full library feature
+  gst-full-device-providers                                                                        List of device providers to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin1:dp1;plugin2:dp1:dp2. By default ''
+                                                                                                   will export all device provider of the enabled plugin.
+  gst-full-dynamic-types                                                                           List of dynamic types to expose in gstreamer-full's ABI with
+                                                                                                   the syntax plugin:dt1,dt2. By default '' will export all
+                                                                                                   device provider of the enabled plugin.
+  gst-full-elements                                                                                List of elements to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2:element1,element2. By default '' will
+                                                                                                   export all element of the enabled plugin.
+  gst-full-libraries             []                               []                               List of libraries to expose in gstreamer-full's ABI.
+                                                                                                   gstreamer, glib and gobject are always included.
+  gst-full-plugins               *                                                                 List of plugins to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2. By default '*' will export all
+                                                                                                   plugins enabled by the build process.
+  gst-full-target-type           shared_library                   [static_library, shared_library] The type of library of gstreamer-full-1.0.
+  gst-full-typefind-functions                                                                      List of typefind functions to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin:func1,func2. By default '' will export
+                                                                                                   all typefind functions of the enabled plugin.
+  gst-full-version-script        data/misc/gstreamer-full-                                         path of the version script to be used by the linker, see
+                                 default.map                                                       https://www.gnu.org/software/gnulib/manual/html_node/LD-
+                                                                                                   Version-Scripts.html
+  gstreamer-full-license         unknown                                                           gstreamer-full license (default unknown)
+  gtk_doc                        disabled                         [enabled, disabled, auto]        Generate API documentation with gtk-doc
+  introspection                  auto                             [enabled, disabled, auto]        Generate introspection data
+  libav                          auto                             [enabled, disabled, auto]        libav
+  libnice                        auto                             [enabled, disabled, auto]        ICE support using libnice as a subproject
+  nls                            auto                             [enabled, disabled, auto]        Native language support (translations)
+  orc                            auto                             [enabled, disabled, auto]        Optimized Inner Loop Runtime Compiler (SIMD)
+  orc-source                     subproject                       [system, subproject, auto]       orc-source
+  oss_fuzz                       disabled                         [enabled, disabled, auto]        Use fuzzing build environment
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  python                         auto                             [enabled, disabled, auto]        python
+  qt5                            auto                             [enabled, disabled, auto]        Qt5 toolkit support
+  qt6                            auto                             [enabled, disabled, auto]        Qt6 toolkit support
+  rs                             disabled                         [enabled, disabled, auto]        rs
+  rtsp_server                    auto                             [enabled, disabled, auto]        rtsp_server
+  sharp                          disabled                         [enabled, disabled, auto]        sharp
+  tests                          auto                             [enabled, disabled, auto]        Build tests
+  tls                            auto                             [enabled, disabled, auto]        TLS support using glib-networking as a subproject
+  tools                          auto                             [enabled, disabled, auto]        Build command line tools
+  ugly                           enabled                          [enabled, disabled, auto]        ugly
+  vaapi                          disabled                         [enabled, disabled, auto]        vaapi
+  virtme_kernel_image                                                                              Path to a Linux kernel image to be used for virtme testing
+  webrtc                         auto                             [enabled, disabled, auto]        WebRTC support
+
+Subproject opus:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  asm                            auto                             [enabled, disabled, auto]        Assembly optimizations for ARM (fixed-point)
+  assertions                     false                            [True, False]                    Additional software error checking
+  check-asm                      false                            [True, False]                    Run bit-exactness checks between optimized and c
+                                                                                                   implementations
+  custom-modes                   false                            [True, False]                    Enable non-Opus modes, e.g. 44.1 kHz & 2^n frames
+  docdir                         doc/opus                                                          Directory to install documentation into (default:
+                                                                                                   DATADIR/doc/opus
+  docs                           disabled                         [enabled, disabled, auto]        Build API documentation
+  extra-programs                 auto                             [enabled, disabled, auto]        Extra programs (demo and tests)
+  fixed-point                    false                            [True, False]                    Compile without floating point (for machines without a fast
+                                                                                                   enough FPU
+  fixed-point-debug              false                            [True, False]                    Debug fixed-point implementation
+  float-api                      true                             [True, False]                    Compile with or without the floating point API (for machines
+                                                                                                   with no float library
+  float-approx                   false                            [True, False]                    Enable fast approximations for floating point (not supported
+                                                                                                   on all platforms)
+  fuzzing                        false                            [True, False]                    Causes the encoder to make random decisions
+  hardening                      true                             [True, False]                    Run-time checks that are cheap and safe for use in production
+  intrinsics                     auto                             [enabled, disabled, auto]        Intrinsics optimizations for ARM NEON or x86
+  rtcd                           auto                             [enabled, disabled, auto]        Run-time CPU capabilities detection
+  tests                          auto                             [enabled, disabled, auto]        Build tests
+
+Subproject orc:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  benchmarks                     auto                             [enabled, disabled, auto]        benchmarks
+  examples                       auto                             [enabled, disabled, auto]        examples
+  gtk_doc                        auto                             [enabled, disabled, auto]        Generate API documentation with gtk-doc
+  orc-backend                    all                              [avx, sse, mmx, neon, mips,      orc-backend
+                                                                   altivec, c64x, all]
+  orc-test                       auto                             [enabled, disabled, auto]        Build the orc-test library used for unit testing and by the
+                                                                                                   orc-bugreport tool
+  tests                          auto                             [enabled, disabled, auto]        tests
+  tools                          auto                             [enabled, disabled, auto]        tools
+
+Subproject pango:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  cairo                          enabled                          [enabled, disabled, auto]        Build with cairo support
+  fontconfig                     auto                             [enabled, disabled, auto]        Build with FontConfig support. Passing 'auto' or 'disabled'
+                                                                                                   disables fontconfig where it is optional, i.e. on Windows and
+                                                                                                   macOS. Passing 'disabled' on platforms where fontconfig is
+                                                                                                   required results in error.
+  freetype                       auto                             [enabled, disabled, auto]        Build with freetype support
+  gtk_doc                        false                            [True, False]                    Build API reference for Pango using GTK-Doc
+  install-tests                  false                            [True, False]                    Install tests
+  introspection                  auto                             [enabled, disabled, auto]        Build the GObject introspection data for Pango
+  libthai                        auto                             [enabled, disabled, auto]        Build with libthai support
+  sysprof                        disabled                         [enabled, disabled, auto]        include tracing support for sysprof
+  xft                            auto                             [enabled, disabled, auto]        Build with xft support
+
+Subproject pcre2:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  grep                           true                             [True, False]                    Compile the PCRE2 grep executable
+  jit                            enabled                          [enabled, disabled, auto]        Support for Just-in-time compiling
+  jit_sealloc                    enabled                          [enabled, disabled, auto]        SELinux compatible execmem allocator in JIT (experimental)
+  test                           true                             [True, False]                    Compile the test executable and enable tests
+
+Subproject proxy-libintl:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bad                            enabled                          [enabled, disabled, auto]        bad
+  base                           enabled                          [enabled, disabled, auto]        base
+  build-tools-source             subproject                       [system, subproject]             build-tools-source
+  custom_subprojects                                                                               Comma-separated project names
+  devtools                       auto                             [enabled, disabled, auto]        devtools
+  doc                            disabled                         [enabled, disabled, auto]        Generate API documentation with hotdoc
+  examples                       auto                             [enabled, disabled, auto]        Build examples
+  ges                            auto                             [enabled, disabled, auto]        ges
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  good                           enabled                          [enabled, disabled, auto]        good
+  gpl                            disabled                         [enabled, disabled, auto]        Allow build of plugins that have (A)GPL-licensed dependencies
+  gst-examples                   auto                             [enabled, disabled, auto]        Build gst-examples subproject
+  gst-full                       auto                             [enabled, disabled, auto]        Enable the gstreamer-full library feature
+  gst-full-device-providers                                                                        List of device providers to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin1:dp1;plugin2:dp1:dp2. By default ''
+                                                                                                   will export all device provider of the enabled plugin.
+  gst-full-dynamic-types                                                                           List of dynamic types to expose in gstreamer-full's ABI with
+                                                                                                   the syntax plugin:dt1,dt2. By default '' will export all
+                                                                                                   device provider of the enabled plugin.
+  gst-full-elements                                                                                List of elements to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2:element1,element2. By default '' will
+                                                                                                   export all element of the enabled plugin.
+  gst-full-libraries             []                               []                               List of libraries to expose in gstreamer-full's ABI.
+                                                                                                   gstreamer, glib and gobject are always included.
+  gst-full-plugins               *                                                                 List of plugins to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2. By default '*' will export all
+                                                                                                   plugins enabled by the build process.
+  gst-full-target-type           shared_library                   [static_library, shared_library] The type of library of gstreamer-full-1.0.
+  gst-full-typefind-functions                                                                      List of typefind functions to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin:func1,func2. By default '' will export
+                                                                                                   all typefind functions of the enabled plugin.
+  gst-full-version-script        data/misc/gstreamer-full-                                         path of the version script to be used by the linker, see
+                                 default.map                                                       https://www.gnu.org/software/gnulib/manual/html_node/LD-
+                                                                                                   Version-Scripts.html
+  gstreamer-full-license         unknown                                                           gstreamer-full license (default unknown)
+  gtk_doc                        disabled                         [enabled, disabled, auto]        Generate API documentation with gtk-doc
+  introspection                  auto                             [enabled, disabled, auto]        Generate introspection data
+  libav                          auto                             [enabled, disabled, auto]        libav
+  libnice                        auto                             [enabled, disabled, auto]        ICE support using libnice as a subproject
+  nls                            auto                             [enabled, disabled, auto]        Native language support (translations)
+  orc                            auto                             [enabled, disabled, auto]        Optimized Inner Loop Runtime Compiler (SIMD)
+  orc-source                     subproject                       [system, subproject, auto]       orc-source
+  oss_fuzz                       disabled                         [enabled, disabled, auto]        Use fuzzing build environment
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  python                         auto                             [enabled, disabled, auto]        python
+  qt5                            auto                             [enabled, disabled, auto]        Qt5 toolkit support
+  qt6                            auto                             [enabled, disabled, auto]        Qt6 toolkit support
+  rs                             disabled                         [enabled, disabled, auto]        rs
+  rtsp_server                    auto                             [enabled, disabled, auto]        rtsp_server
+  sharp                          disabled                         [enabled, disabled, auto]        sharp
+  tests                          auto                             [enabled, disabled, auto]        Build tests
+  tls                            auto                             [enabled, disabled, auto]        TLS support using glib-networking as a subproject
+  tools                          auto                             [enabled, disabled, auto]        Build command line tools
+  ugly                           enabled                          [enabled, disabled, auto]        ugly
+  vaapi                          disabled                         [enabled, disabled, auto]        vaapi
+  virtme_kernel_image                                                                              Path to a Linux kernel image to be used for virtme testing
+  webrtc                         auto                             [enabled, disabled, auto]        WebRTC support
+
+Subproject vorbis:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bad                            enabled                          [enabled, disabled, auto]        bad
+  base                           enabled                          [enabled, disabled, auto]        base
+  build-tools-source             subproject                       [system, subproject]             build-tools-source
+  custom_subprojects                                                                               Comma-separated project names
+  devtools                       auto                             [enabled, disabled, auto]        devtools
+  doc                            disabled                         [enabled, disabled, auto]        Generate API documentation with hotdoc
+  examples                       auto                             [enabled, disabled, auto]        Build examples
+  ges                            auto                             [enabled, disabled, auto]        ges
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  good                           enabled                          [enabled, disabled, auto]        good
+  gpl                            disabled                         [enabled, disabled, auto]        Allow build of plugins that have (A)GPL-licensed dependencies
+  gst-examples                   auto                             [enabled, disabled, auto]        Build gst-examples subproject
+  gst-full                       auto                             [enabled, disabled, auto]        Enable the gstreamer-full library feature
+  gst-full-device-providers                                                                        List of device providers to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin1:dp1;plugin2:dp1:dp2. By default ''
+                                                                                                   will export all device provider of the enabled plugin.
+  gst-full-dynamic-types                                                                           List of dynamic types to expose in gstreamer-full's ABI with
+                                                                                                   the syntax plugin:dt1,dt2. By default '' will export all
+                                                                                                   device provider of the enabled plugin.
+  gst-full-elements                                                                                List of elements to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2:element1,element2. By default '' will
+                                                                                                   export all element of the enabled plugin.
+  gst-full-libraries             []                               []                               List of libraries to expose in gstreamer-full's ABI.
+                                                                                                   gstreamer, glib and gobject are always included.
+  gst-full-plugins               *                                                                 List of plugins to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2. By default '*' will export all
+                                                                                                   plugins enabled by the build process.
+  gst-full-target-type           shared_library                   [static_library, shared_library] The type of library of gstreamer-full-1.0.
+  gst-full-typefind-functions                                                                      List of typefind functions to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin:func1,func2. By default '' will export
+                                                                                                   all typefind functions of the enabled plugin.
+  gst-full-version-script        data/misc/gstreamer-full-                                         path of the version script to be used by the linker, see
+                                 default.map                                                       https://www.gnu.org/software/gnulib/manual/html_node/LD-
+                                                                                                   Version-Scripts.html
+  gstreamer-full-license         unknown                                                           gstreamer-full license (default unknown)
+  gtk_doc                        disabled                         [enabled, disabled, auto]        Generate API documentation with gtk-doc
+  introspection                  auto                             [enabled, disabled, auto]        Generate introspection data
+  libav                          auto                             [enabled, disabled, auto]        libav
+  libnice                        auto                             [enabled, disabled, auto]        ICE support using libnice as a subproject
+  nls                            auto                             [enabled, disabled, auto]        Native language support (translations)
+  orc                            auto                             [enabled, disabled, auto]        Optimized Inner Loop Runtime Compiler (SIMD)
+  orc-source                     subproject                       [system, subproject, auto]       orc-source
+  oss_fuzz                       disabled                         [enabled, disabled, auto]        Use fuzzing build environment
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  python                         auto                             [enabled, disabled, auto]        python
+  qt5                            auto                             [enabled, disabled, auto]        Qt5 toolkit support
+  qt6                            auto                             [enabled, disabled, auto]        Qt6 toolkit support
+  rs                             disabled                         [enabled, disabled, auto]        rs
+  rtsp_server                    auto                             [enabled, disabled, auto]        rtsp_server
+  sharp                          disabled                         [enabled, disabled, auto]        sharp
+  tests                          auto                             [enabled, disabled, auto]        Build tests
+  tls                            auto                             [enabled, disabled, auto]        TLS support using glib-networking as a subproject
+  tools                          auto                             [enabled, disabled, auto]        Build command line tools
+  ugly                           enabled                          [enabled, disabled, auto]        ugly
+  vaapi                          disabled                         [enabled, disabled, auto]        vaapi
+  virtme_kernel_image                                                                              Path to a Linux kernel image to be used for virtme testing
+  webrtc                         auto                             [enabled, disabled, auto]        WebRTC support
+
+Subproject win-flex-bison-binaries:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bad                            enabled                          [enabled, disabled, auto]        bad
+  base                           enabled                          [enabled, disabled, auto]        base
+  build-tools-source             subproject                       [system, subproject]             build-tools-source
+  custom_subprojects                                                                               Comma-separated project names
+  devtools                       auto                             [enabled, disabled, auto]        devtools
+  doc                            disabled                         [enabled, disabled, auto]        Generate API documentation with hotdoc
+  examples                       auto                             [enabled, disabled, auto]        Build examples
+  ges                            auto                             [enabled, disabled, auto]        ges
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  good                           enabled                          [enabled, disabled, auto]        good
+  gpl                            disabled                         [enabled, disabled, auto]        Allow build of plugins that have (A)GPL-licensed dependencies
+  gst-examples                   auto                             [enabled, disabled, auto]        Build gst-examples subproject
+  gst-full                       auto                             [enabled, disabled, auto]        Enable the gstreamer-full library feature
+  gst-full-device-providers                                                                        List of device providers to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin1:dp1;plugin2:dp1:dp2. By default ''
+                                                                                                   will export all device provider of the enabled plugin.
+  gst-full-dynamic-types                                                                           List of dynamic types to expose in gstreamer-full's ABI with
+                                                                                                   the syntax plugin:dt1,dt2. By default '' will export all
+                                                                                                   device provider of the enabled plugin.
+  gst-full-elements                                                                                List of elements to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2:element1,element2. By default '' will
+                                                                                                   export all element of the enabled plugin.
+  gst-full-libraries             []                               []                               List of libraries to expose in gstreamer-full's ABI.
+                                                                                                   gstreamer, glib and gobject are always included.
+  gst-full-plugins               *                                                                 List of plugins to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2. By default '*' will export all
+                                                                                                   plugins enabled by the build process.
+  gst-full-target-type           shared_library                   [static_library, shared_library] The type of library of gstreamer-full-1.0.
+  gst-full-typefind-functions                                                                      List of typefind functions to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin:func1,func2. By default '' will export
+                                                                                                   all typefind functions of the enabled plugin.
+  gst-full-version-script        data/misc/gstreamer-full-                                         path of the version script to be used by the linker, see
+                                 default.map                                                       https://www.gnu.org/software/gnulib/manual/html_node/LD-
+                                                                                                   Version-Scripts.html
+  gstreamer-full-license         unknown                                                           gstreamer-full license (default unknown)
+  gtk_doc                        disabled                         [enabled, disabled, auto]        Generate API documentation with gtk-doc
+  introspection                  auto                             [enabled, disabled, auto]        Generate introspection data
+  libav                          auto                             [enabled, disabled, auto]        libav
+  libnice                        auto                             [enabled, disabled, auto]        ICE support using libnice as a subproject
+  nls                            auto                             [enabled, disabled, auto]        Native language support (translations)
+  orc                            auto                             [enabled, disabled, auto]        Optimized Inner Loop Runtime Compiler (SIMD)
+  orc-source                     subproject                       [system, subproject, auto]       orc-source
+  oss_fuzz                       disabled                         [enabled, disabled, auto]        Use fuzzing build environment
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  python                         auto                             [enabled, disabled, auto]        python
+  qt5                            auto                             [enabled, disabled, auto]        Qt5 toolkit support
+  qt6                            auto                             [enabled, disabled, auto]        Qt6 toolkit support
+  rs                             disabled                         [enabled, disabled, auto]        rs
+  rtsp_server                    auto                             [enabled, disabled, auto]        rtsp_server
+  sharp                          disabled                         [enabled, disabled, auto]        sharp
+  tests                          auto                             [enabled, disabled, auto]        Build tests
+  tls                            auto                             [enabled, disabled, auto]        TLS support using glib-networking as a subproject
+  tools                          auto                             [enabled, disabled, auto]        Build command line tools
+  ugly                           enabled                          [enabled, disabled, auto]        ugly
+  vaapi                          disabled                         [enabled, disabled, auto]        vaapi
+  virtme_kernel_image                                                                              Path to a Linux kernel image to be used for virtme testing
+  webrtc                         auto                             [enabled, disabled, auto]        WebRTC support
+
+Subproject win-nasm:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bad                            enabled                          [enabled, disabled, auto]        bad
+  base                           enabled                          [enabled, disabled, auto]        base
+  build-tools-source             subproject                       [system, subproject]             build-tools-source
+  custom_subprojects                                                                               Comma-separated project names
+  devtools                       auto                             [enabled, disabled, auto]        devtools
+  doc                            disabled                         [enabled, disabled, auto]        Generate API documentation with hotdoc
+  examples                       auto                             [enabled, disabled, auto]        Build examples
+  ges                            auto                             [enabled, disabled, auto]        ges
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  good                           enabled                          [enabled, disabled, auto]        good
+  gpl                            disabled                         [enabled, disabled, auto]        Allow build of plugins that have (A)GPL-licensed dependencies
+  gst-examples                   auto                             [enabled, disabled, auto]        Build gst-examples subproject
+  gst-full                       auto                             [enabled, disabled, auto]        Enable the gstreamer-full library feature
+  gst-full-device-providers                                                                        List of device providers to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin1:dp1;plugin2:dp1:dp2. By default ''
+                                                                                                   will export all device provider of the enabled plugin.
+  gst-full-dynamic-types                                                                           List of dynamic types to expose in gstreamer-full's ABI with
+                                                                                                   the syntax plugin:dt1,dt2. By default '' will export all
+                                                                                                   device provider of the enabled plugin.
+  gst-full-elements                                                                                List of elements to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2:element1,element2. By default '' will
+                                                                                                   export all element of the enabled plugin.
+  gst-full-libraries             []                               []                               List of libraries to expose in gstreamer-full's ABI.
+                                                                                                   gstreamer, glib and gobject are always included.
+  gst-full-plugins               *                                                                 List of plugins to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2. By default '*' will export all
+                                                                                                   plugins enabled by the build process.
+  gst-full-target-type           shared_library                   [static_library, shared_library] The type of library of gstreamer-full-1.0.
+  gst-full-typefind-functions                                                                      List of typefind functions to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin:func1,func2. By default '' will export
+                                                                                                   all typefind functions of the enabled plugin.
+  gst-full-version-script        data/misc/gstreamer-full-                                         path of the version script to be used by the linker, see
+                                 default.map                                                       https://www.gnu.org/software/gnulib/manual/html_node/LD-
+                                                                                                   Version-Scripts.html
+  gstreamer-full-license         unknown                                                           gstreamer-full license (default unknown)
+  gtk_doc                        disabled                         [enabled, disabled, auto]        Generate API documentation with gtk-doc
+  introspection                  auto                             [enabled, disabled, auto]        Generate introspection data
+  libav                          auto                             [enabled, disabled, auto]        libav
+  libnice                        auto                             [enabled, disabled, auto]        ICE support using libnice as a subproject
+  nls                            auto                             [enabled, disabled, auto]        Native language support (translations)
+  orc                            auto                             [enabled, disabled, auto]        Optimized Inner Loop Runtime Compiler (SIMD)
+  orc-source                     subproject                       [system, subproject, auto]       orc-source
+  oss_fuzz                       disabled                         [enabled, disabled, auto]        Use fuzzing build environment
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  python                         auto                             [enabled, disabled, auto]        python
+  qt5                            auto                             [enabled, disabled, auto]        Qt5 toolkit support
+  qt6                            auto                             [enabled, disabled, auto]        Qt6 toolkit support
+  rs                             disabled                         [enabled, disabled, auto]        rs
+  rtsp_server                    auto                             [enabled, disabled, auto]        rtsp_server
+  sharp                          disabled                         [enabled, disabled, auto]        sharp
+  tests                          auto                             [enabled, disabled, auto]        Build tests
+  tls                            auto                             [enabled, disabled, auto]        TLS support using glib-networking as a subproject
+  tools                          auto                             [enabled, disabled, auto]        Build command line tools
+  ugly                           enabled                          [enabled, disabled, auto]        ugly
+  vaapi                          disabled                         [enabled, disabled, auto]        vaapi
+  virtme_kernel_image                                                                              Path to a Linux kernel image to be used for virtme testing
+  webrtc                         auto                             [enabled, disabled, auto]        WebRTC support
+
+Subproject win-pkgconfig:
+
+  Project options                Current Value                    Possible Values                  Description
+  -----------------              -------------                    ---------------                  -----------
+  bad                            enabled                          [enabled, disabled, auto]        bad
+  base                           enabled                          [enabled, disabled, auto]        base
+  build-tools-source             subproject                       [system, subproject]             build-tools-source
+  custom_subprojects                                                                               Comma-separated project names
+  devtools                       auto                             [enabled, disabled, auto]        devtools
+  doc                            disabled                         [enabled, disabled, auto]        Generate API documentation with hotdoc
+  examples                       auto                             [enabled, disabled, auto]        Build examples
+  ges                            auto                             [enabled, disabled, auto]        ges
+  glib-asserts                   enabled                          [enabled, disabled, auto]        Enable GLib assertion (auto = enabled for development,
+                                                                                                   disabled for stable releases)
+  glib-checks                    enabled                          [enabled, disabled, auto]        Enable GLib checks such as API guards (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  gobject-cast-checks            auto                             [enabled, disabled, auto]        Enable run-time GObject cast checks (auto = enabled for
+                                                                                                   development, disabled for stable releases)
+  good                           enabled                          [enabled, disabled, auto]        good
+  gpl                            disabled                         [enabled, disabled, auto]        Allow build of plugins that have (A)GPL-licensed dependencies
+  gst-examples                   auto                             [enabled, disabled, auto]        Build gst-examples subproject
+  gst-full                       auto                             [enabled, disabled, auto]        Enable the gstreamer-full library feature
+  gst-full-device-providers                                                                        List of device providers to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin1:dp1;plugin2:dp1:dp2. By default ''
+                                                                                                   will export all device provider of the enabled plugin.
+  gst-full-dynamic-types                                                                           List of dynamic types to expose in gstreamer-full's ABI with
+                                                                                                   the syntax plugin:dt1,dt2. By default '' will export all
+                                                                                                   device provider of the enabled plugin.
+  gst-full-elements                                                                                List of elements to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2:element1,element2. By default '' will
+                                                                                                   export all element of the enabled plugin.
+  gst-full-libraries             []                               []                               List of libraries to expose in gstreamer-full's ABI.
+                                                                                                   gstreamer, glib and gobject are always included.
+  gst-full-plugins               *                                                                 List of plugins to expose in gstreamer-full's ABI with the
+                                                                                                   syntax plugin1;plugin2. By default '*' will export all
+                                                                                                   plugins enabled by the build process.
+  gst-full-target-type           shared_library                   [static_library, shared_library] The type of library of gstreamer-full-1.0.
+  gst-full-typefind-functions                                                                      List of typefind functions to expose in gstreamer-full's ABI
+                                                                                                   with the syntax plugin:func1,func2. By default '' will export
+                                                                                                   all typefind functions of the enabled plugin.
+  gst-full-version-script        data/misc/gstreamer-full-                                         path of the version script to be used by the linker, see
+                                 default.map                                                       https://www.gnu.org/software/gnulib/manual/html_node/LD-
+                                                                                                   Version-Scripts.html
+  gstreamer-full-license         unknown                                                           gstreamer-full license (default unknown)
+  gtk_doc                        disabled                         [enabled, disabled, auto]        Generate API documentation with gtk-doc
+  introspection                  auto                             [enabled, disabled, auto]        Generate introspection data
+  libav                          auto                             [enabled, disabled, auto]        libav
+  libnice                        auto                             [enabled, disabled, auto]        ICE support using libnice as a subproject
+  nls                            auto                             [enabled, disabled, auto]        Native language support (translations)
+  orc                            auto                             [enabled, disabled, auto]        Optimized Inner Loop Runtime Compiler (SIMD)
+  orc-source                     subproject                       [system, subproject, auto]       orc-source
+  oss_fuzz                       disabled                         [enabled, disabled, auto]        Use fuzzing build environment
+  package-name                                                                                     package name to use in plugins
+  package-origin                 Unknown package origin                                            package origin URL to use in plugins
+  python                         auto                             [enabled, disabled, auto]        python
+  qt5                            auto                             [enabled, disabled, auto]        Qt5 toolkit support
+  qt6                            auto                             [enabled, disabled, auto]        Qt6 toolkit support
+  rs                             disabled                         [enabled, disabled, auto]        rs
+  rtsp_server                    auto                             [enabled, disabled, auto]        rtsp_server
+  sharp                          disabled                         [enabled, disabled, auto]        sharp
+  tests                          auto                             [enabled, disabled, auto]        Build tests
+  tls                            auto                             [enabled, disabled, auto]        TLS support using glib-networking as a subproject
+  tools                          auto                             [enabled, disabled, auto]        Build command line tools
+  ugly                           enabled                          [enabled, disabled, auto]        ugly
+  vaapi                          disabled                         [enabled, disabled, auto]        vaapi
+  virtme_kernel_image                                                                              Path to a Linux kernel image to be used for virtme testing
+  webrtc                         auto                             [enabled, disabled, auto]        WebRTC support
+
+Currently set option augments:
+orc:warning_level    1
+gstreamer:warning_level1
+glib:warning_level   3
+glib:c_std           c99
+pcre2:default_librarystatic
+libffi:warning_level 1
+proxy-libintl:warning_level1
+proxy-libintl:c_std  c99
+gst-plugins-base:warning_level1
+gl-headers:warning_level1
+graphene:c_std       c99
+graphene:warning_level1
+opus:warning_level   2
+opus:c_std           c99
+pango:warning_level  1
+pango:c_std          c99
+gst-plugins-good:warning_level1
+libsoup:c_std        c99
+lame:warning_level   0
+libnice:warning_level1
+gst-plugins-bad:warning_level1
+DirectX-Headers:cpp_stdc++14
+json-glib:warning_level1
+json-glib:c_std      c99
+libmicrodns:warning_level2
+libmicrodns:b_ndebug if-release
+libopenjp2:c_std     c99
+gst-plugins-ugly:warning_level1
+gst-libav:warning_level1
+gst-rtsp-server:warning_level1
+gst-editing-services:warning_level1
+glib-networking:c_stdc99

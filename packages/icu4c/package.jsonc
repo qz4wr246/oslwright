@@ -158,19 +158,19 @@
         },
         "install": {
           "dll_bs" : "{{exec('import re;import glob') or re.findall(r'(\\w+).dll', ''.join(glob.glob('*.dll', root_dir=$build_bin_dir)))}}",
-          "dll_dd": "{{exec('import re') or re.findall(r'\\'(\\w+)d\\'', str($dll_bs))}}",
+          "dll_dd": "{{re.findall(r'\\'(\\w+)d\\'', str($dll_bs))}}",
           "dll_dbg_bs": "{{[f'{a}d' for a in list(set($dll_dd) - set([b for b in $dll_dd if b not in $dll_bs]))]}}",
           "dll_rel_bs": "{{list(set($dll_bs) - set($dll_dbg_bs))}}",
           "dlls_debug": "{{' '.join([f'{f}.dll' for f in $dll_dbg_bs])}}",
           "dlls_release": "{{' '.join([f'{f}.dll' for f in $dll_rel_bs])}}",
           "lib_bs" : "{{exec('import re;import glob') or re.findall(r'(\\w+).lib', ''.join(glob.glob('*.lib', root_dir=$build_lib_dir)))}}",
-          "lib_dd": "{{exec('import re') or re.findall(r'\\'(\\w+)d\\'', str($lib_bs))}}",
+          "lib_dd": "{{re.findall(r'\\'(\\w+)d\\'', str($lib_bs))}}",
           "lib_dbg_bs": "{{[f'{a}d' for a in list(set($lib_dd) - set([b for b in $lib_dd if b not in $lib_bs]))]}}",
           "lib_rel_bs": "{{list(set($lib_bs) - set($lib_dbg_bs))}}",
           "libs_debug": "{{' '.join([f'{f}.lib' for f in $lib_dbg_bs])}}",
           "libs_release": "{{' '.join([f'{f}.lib' for f in $lib_rel_bs])}}",
           "exe_bs" : "{{exec('import re;import glob') or re.findall(r'(\\w+).exe', ''.join(glob.glob('*.exe', root_dir=$build_bin_dir)))}}",
-          "exe_dd": "{{exec('import re') or re.findall(r'\\'(\\w+)d\\'', str($exe_bs))}}",
+          "exe_dd": "{{re.findall(r'\\'(\\w+)d\\'', str($exe_bs))}}",
           "exe_dbg_bs": "{{[f'{a}d' for a in list(set($exe_dd) - set([b for b in $exe_dd if b not in $exe_bs]))]}}",
           "exe_rel_bs": "{{list(set($exe_bs) - set($exe_dbg_bs))}}",
           "exes_debug": "{{' '.join([f'{f}.exe' for f in $exe_dbg_bs])}}",
@@ -306,7 +306,7 @@
               // Template Script:
               // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
               "message": "Generate files from templates.",
-              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             }
           ]
         }

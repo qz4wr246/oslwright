@@ -161,13 +161,13 @@
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$source_dir",
-              "script": "perl -pe \"s@/I\\\\.@/I..\\\\\\\\{{os.path.basename($source_dir)}}@g; s@src\\\\\\\\@..\\\\\\\\{{os.path.basename($source_dir)}}\\\\\\\\src\\\\\\\\@g\" Makefile.msvc > \"$build_dir_debug/Makefile\""
+              "script": "perl -pe \"s@/I\\.@/I..\\\\{{os.path.basename($source_dir)}}@g; s@src\\\\@..\\\\{{os.path.basename($source_dir)}}\\\\src\\\\@g\" Makefile.msvc > \"$build_dir_debug/Makefile\""
             },
             {
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$source_dir",
-              "script": "perl -pe \"s@/I\\\\.@/I..\\\\\\\\{{os.path.basename($source_dir)}}@g; s@src\\\\\\\\@..\\\\\\\\{{os.path.basename($source_dir)}}\\\\\\\\src\\\\\\\\@g\" Makefile.msvc > \"$build_dir_release/Makefile\""
+              "script": "perl -pe \"s@/I\\.@/I..\\\\{{os.path.basename($source_dir)}}@g; s@src\\\\@..\\\\{{os.path.basename($source_dir)}}\\\\src\\\\@g\" Makefile.msvc > \"$build_dir_release/Makefile\""
             }
           ]
         },
@@ -226,7 +226,7 @@
               // Template Script:
               // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
               "message": "Generate files from templates.",
-              "script": "{{' && '.join([f\"mkdir \\\"{os.path.dirname(tp['output'])}\\\" && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             },
             {
               "when": "{{'Debug' in $build_type}}",

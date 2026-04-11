@@ -337,20 +337,20 @@
         },
         "build": {
           "scripts": [
-            // {
-            //   "message": "build for debug.",
-            //   "when": "{{'Debug' in $build_type}}",
-            //   "chdir": "$build_dir_debug",
-            //   "script": "nmake /NOLOGO clean",
-            //   "ignore_errors": true
-            // },
-            // {
-            //   "message": "build for release.",
-            //   "when": "{{'Release' in $build_type}}",
-            //   "chdir": "$build_dir_release",
-            //   "script": "nmake /NOLOGO clean",
-            //   "ignore_errors": true
-            // },
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$build_dir_debug",
+              "script": "nmake /NOLOGO clean",
+              "ignore_errors": true
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$build_dir_release",
+              "script": "nmake /NOLOGO clean",
+              "ignore_errors": true
+            },
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
