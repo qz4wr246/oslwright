@@ -135,8 +135,7 @@
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
-      "msys2_bash_ob": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
-      "msys2_bash_cb": "",
+      "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "stages": {
         "download": {
           "scripts": [
@@ -176,7 +175,7 @@
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
               "bash_script": "rm -rf /opt/ucrt64/*",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}",
+              "script": "${msys2_bash} \"${bash_script}\"",
               "ignore_errors": false
             }
           ]
@@ -221,7 +220,7 @@
               },
               "chdir": "$build_dir_debug",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "config for release.",
@@ -231,7 +230,7 @@
               },
               "chdir": "$build_dir_release",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
@@ -246,7 +245,7 @@
               },
               "chdir": "$build_dir_debug",
               "bash_script": "make lib-shared",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "build for release.",
@@ -257,7 +256,7 @@
               },
               "chdir": "$build_dir_release",
               "bash_script": "make lib-shared",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
@@ -268,14 +267,14 @@
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
               "bash_script": "make install-lib-shared",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
               "bash_script": "make install-lib-shared",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "Copy ${name} files for debug.",

@@ -134,8 +134,7 @@
       "download_url": "https://ftp.gnu.org/gnu/gmp/gmp-${version}.tar.xz",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
-      "msys2_bash_ob": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
-      "msys2_bash_cb": "",
+      "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "stages": {
         "download": {
           "scripts": [
@@ -169,19 +168,19 @@
               "message": "Patch ${name} source code",
               "when": "{{'patch_files' in globals()}}",
               "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -t -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -t -b -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
             },
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
               "bash_script": "rm -rf /opt/ucrt64/*",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}",
+              "script": "${msys2_bash} \"${bash_script}\"",
               "ignore_errors": true
             },
             {
               "message": "reconfigure",
               "chdir": "$source_dir",
               "bash_script": "autoreconf -vfi",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
@@ -230,14 +229,14 @@
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($configure_options)}} {{' '.join($configure_options_release)}}",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "configure for debug.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($configure_options)}} {{' '.join($configure_options_debug)}}",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
@@ -248,14 +247,14 @@
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
               "bash_script": "make",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
               "bash_script": "make",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
@@ -266,14 +265,14 @@
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "Copy ${name} files for debug.",
