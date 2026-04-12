@@ -127,6 +127,7 @@
         "OBJDUMP": "/ucrt64/bin/objdump.exe",
         "CPPFLAGS": "-I/opt/ucrt64/include",
         "LDFLAGS": "-L/opt/ucrt64/lib",
+        "CFLAGS": "-DLIBTEXTSTYLE_STATIC",
         "SED": "/usr/bin/sed.exe",
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
@@ -144,8 +145,7 @@
       "download_url": "https://ftp.gnu.org/pub/gnu/gettext/gettext-${version}.tar.gz",
       "msys2_dir": "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
-      "msys2_bash_ob": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
-      "msys2_bash_cb": "",
+      "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "stages": {
         "download": {
           "scripts": [
@@ -245,7 +245,7 @@
               "message": "Patch ${name} source code",
               "when": "{{'patch_files' in globals()}}",
               "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -t -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -t -b -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
             },
             {
               "chdir": "$source_dir",
@@ -253,23 +253,29 @@
               "script": "curl.exe --fail -L -s -o \"gettext-0.19.7-archive.patch\" \"${repo_url}/gettext-0.19.7-archive.patch\""
             },
             {
-              "bash_script": "echo $$PATH; where mkdir ; mkdir --help",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
-            },
-            {
               "chdir": "${source_dir}\\gettext-tools\\misc",
-              "bash_script": "where mkdir; mkdir -p ./archive && tar -xvf archive.dir.tar -C archive && rm -f archive.dir.tar",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "bash_script": "mkdir -p ./archive && tar -xvf archive.dir.tar -C archive && rm -f archive.dir.tar",
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "chdir": "${source_dir}\\gettext-tools\\misc\\archive",
-              "bash_script": "patch -p1 -i \\\"${source_dir}/gettext-0.19.7-archive.patch\\\" && tar -cvf ../archive.dir.tar * && cd .. && rm -rf archive",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "bash_script": "patch -p1 -i ../../../gettext-0.19.7-archive.patch",
+              "script": "${msys2_bash} \"${bash_script}\""
+            },
+            {
+              "chdir": "${source_dir}\\gettext-tools\\misc\\archive",
+              "bash_script": "tar -cvf ../archive.dir.tar *",
+              "script": "${msys2_bash} \"${bash_script}\""
+            },
+            {
+              "chdir": "${source_dir}\\gettext-tools\\misc",
+              "bash_script": "rm -rf archive",
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
               "bash_script": "rm -rf /opt/ucrt64/*",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}",
+              "script": "${msys2_bash} \"${bash_script}\"",
               "ignore_errors": false
             },
             {
@@ -288,7 +294,7 @@
               "message": "reconfigure in gettext",
               "chdir": "$source_dir",
               "bash_script": "libtoolize --copy --force && ./autogen.sh --skip-gnulib",
-              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
@@ -343,7 +349,7 @@
               },
               "chdir": "$build_dir_debug",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "config for release.",
@@ -353,7 +359,7 @@
               },
               "chdir": "$build_dir_release",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
@@ -368,7 +374,7 @@
               },
               "chdir": "$build_dir_debug",
               "bash_script": "make -j4",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "build for release.",
@@ -379,7 +385,7 @@
               },
               "chdir": "$build_dir_release",
               "bash_script": "make -j4",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
@@ -390,14 +396,14 @@
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
               "bash_script": "make install",
-              "script": "${msys2_bash_ob} \"${bash_script}\" ${msys2_bash_cb}"
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "Copy ${name} files for debug.",
