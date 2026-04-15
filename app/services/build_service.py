@@ -730,7 +730,7 @@ class BuildService(FletXService):
         return option_ui
 
     def _find_request_version(self, versions: List[str], req_ver: str | None = None) -> str | None:
-        reg = r"([><=]=?)?([^\s,;]+)(\s*[,;]+\s*([><]=?)([\w.-]+))?"
+        reg = r"\s*([><=]=?)?\s*([^\s,;]+)(\s*[,;]+\s*([><]=?)([\w.-]+))?"
 
         if not len(versions):
             return None
