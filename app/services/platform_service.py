@@ -1002,7 +1002,7 @@ class PlatformService(FletXService):
         files = list(self.package_rootdir.rglob("package.jsonc"))
         exclude_package_root = self.package_rootdir / "__sample__"
         files = [f for f in files if not f.is_relative_to(exclude_package_root)]
-        return files
+        return sorted(files, key=lambda x: str(x).casefold())
 
     def get_tool_package_files(self) -> list[Path]:
         pkgs = []

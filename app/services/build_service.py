@@ -95,7 +95,7 @@ class BuildService(FletXService):
             self.model = None
             Post.gui(f"======= Build end:  {datetime.now().strftime('%Y/%m/%d %H:%M:%S')} ==========")
 
-    def get_environment(self, pkg_env: dict, session: dict):
+    def get_environment(self, session: dict):
         environs = {}
         os.environ["CUDA_PATH"] = ""
         os.environ["CUDNN_PATH"] = ""
@@ -128,10 +128,6 @@ class BuildService(FletXService):
         filtered_list = [p for p in path_list if p.strip() and not any(word.lower() in p.lower() for word in malwords)]
 
         environs["PATH"] = ";".join(filtered_list)
-
-        # パッケージの環境変数を反映
-        if pkg_env:
-            environs |= pkg_env
 
         # Windows標準PATHを先頭へ
         path = os.path.expandvars(SYSTEM_PATH)
@@ -179,12 +175,21 @@ class BuildService(FletXService):
             current = MergeDict(default, package.versions[option.current_version])
             dist_paths = self.get_package_depedency_paths(package, option)
             self.update_dependency_path(dist_paths, session)
-            environs = self.get_environment(current.get("environments", {}), session)
-            current = self.transform(current, session, environs)
+            sys_env = self.get_environment(session)
+
+            current = self.transform(current, session, sys_env)
             if isinstance(current, dict):
                 stages = current["stages"]
             else:
                 raise Exception("Syntax Error : undefined stages in package.jsonc")
+
+            def_envs = current.get("environments", None)
+            if def_envs:
+                for k, v in def_envs.items():
+                    def_envs[k] = evaluate_str(v, session) if isinstance(v, str) else v
+                for k, v in def_envs.items():
+                    def_envs[k] = expand_envs_vars(v, sys_env)
+                sys_env |= def_envs
 
             # stages をorder の順に辞書を再構成する。
             stages = {k: stages[k] for k in STAGES_ORDER if k in stages}
@@ -197,7 +202,7 @@ class BuildService(FletXService):
                 if not self.isfinished(stage, option):
                     model.stage_name = stage
                     Post.gui(f"[{package.display}] '{stage}' stage ...")
-                    result = self.execute_stage(body, session, environs)
+                    result = self.execute_stage(body, session, sys_env)
                     if result == Reason.COMPLETED:
                         self.update_stage(stage, option)
                         self.package_service.save_option(option)
@@ -234,9 +239,13 @@ class BuildService(FletXService):
         option.versions[option.current_version].stages = stages
 
     def execute_stage(self, stage: dict, session: dict, environs: dict):
-        if "environments" in stage:
-            for k, v in stage["environments"].items():
-                environs[k] = v
+        environments = stage.get("environments", None)
+        if environments:
+            for k, v in environments.items():
+                environments[k] = evaluate_str(v, session) if isinstance(v, str) else v
+            for k, v in environments.items():
+                environments[k] = expand_envs_vars(v, environs)
+            environs |= environments
 
         ret = Reason.COMPLETED
         for script in stage["scripts"]:
@@ -357,6 +366,8 @@ class BuildService(FletXService):
         # dict の場合は、値を再帰的に処理
         if isinstance(node, dict):
             for k, v in node.items():
+                if k == "environments":
+                    continue
                 if k == "scripts":  #  execute_script() で再評価する
                     continue
                 nregist = regist_vars
