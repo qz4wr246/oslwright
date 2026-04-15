@@ -16,7 +16,9 @@ if not exist "%VENV_DIR%" (
   echo #================================================
   python -m venv .venv
   "%VENV_DIR%\Scripts\python.exe" -m pip install --upgrade pip
-  "%VENV_DIR%\Scripts\python.exe" -m pip install -r "%SCRIPT_DIR%\requirements.txt"
+  "%VENV_DIR%\Scripts\pip install ux
+  "%VENV_DIR%\Scripts\uv pip install fletxr==0.1.4rc1 --pre
+  "%VENV_DIR%\Scripts\pip install .
 )
 if not exist "%VENV_DIR%\Scripts\python3.exe" (
   pushd "%VENV_DIR%\Scripts"
