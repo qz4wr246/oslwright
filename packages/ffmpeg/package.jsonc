@@ -4,7 +4,7 @@
   "description": "The leading multimedia framework",
   "site": "https://www.ffmpeg.org",
   "license": "LGPL 2.1+, GPL 2+",
-  "info":"info.md",
+  "info": "info.md",
   "process_time": 3000,
   "options": [
     {
@@ -103,8 +103,20 @@
       "default": true
     },
     {
+      "display": "Enable version3 (LGPLv3,GPLv3)",
+      "name": "enable_version3",
+      "type": "bool",
+      "default": true
+    },
+    {
       "display": "Enable GPL",
       "name": "enable_gpl",
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "Enable non free",
+      "name": "enable_nonfree",
       "type": "bool",
       "default": false
     },
@@ -120,32 +132,46 @@
       "enable": "{{$cuda_enable}}",
       "type": "bool",
       "default": false
+    },
+    {
+      "display": "Enable vaapi",
+      "name": "enable_vaapi",
+      "type": "bool",
+      "default": false
     }
   ],
   "versions": {
     "default": {
       "dependencies": {
+        "aom": {
+          "version": ">=3.13"
+        },
+        "SVT-AV1": {
+          "version": ">=4.1"
+        },
+        "x264": {
+          "enable": "{{$enable_gpl}}"
+        },
+        "x265": {
+          "enable": "{{$enable_gpl}}",
+          "version": "3.4"
+        },
         "openh264": {
           "enable": "{{$enable_openh264}}",
           "version": ">=2.6.0"
         },
+        "libass": {
+          "version": ">=0.17"
+        },
+        "lame": {
+          "version": ">=3.100"
+        },
         "sdl": {
-          "version": ">=2.30;<3.0"  // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
+          "version": ">=2.30;<3.0" // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
         },
         "zlib": {
           "version": ">=1.3"
         }
-      },
-      "environments": {
-        "LC_ALL": "C",
-        "MSYS": "winsymlinks:nativestrict",
-        "MSYSTEM": "MSYS",
-        "CHERE_INVOKING": "1",
-        "MSYS2_PATH_TYPE": "inherit",
-        "SED": "/usr/bin/sed.exe",
-        "PERLIO": "raw",
-        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
       },
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
@@ -159,12 +185,25 @@
       "git_url": "https://git.ffmpeg.org/ffmpeg.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'n' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
-      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "msys2_dir": "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "environments": {
+        "LC_ALL": "C",
+        "MSYS": "winsymlinks:nativestrict",
+        "MSYSTEM": "UCRT64",
+        "CHERE_INVOKING": "1",
+        "MSYS2_PATH_TYPE": "inherit",
+        "PERLIO": "raw",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+      },
       "stages": {
         "download": {
           "scripts": [
+            {
+              "script": "rmdir /q /s \"$source_dir\" > nul"
+            },
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
@@ -200,16 +239,49 @@
           "msys2_require_runtimes": [
             {
               "name": "zlib",
-              "add_prefix_lib": ["zlib.lib"]
+              // "add_prefix_lib": ["zlib.lib"]
             },
             {
               "name": "sdl",
-              "add_prefix_lib": ["sdl2.lib"]
+              // "add_prefix_lib": ["sdl2.lib"]
+            },
+            {
+              "name": "libass"
+            },
+            {
+              "name": "freetype"
+            },
+            {
+              "name": "libpng"
+            },
+            {
+              "name": "fribidi"
+            },
+            {
+              "name": "harfbuzz"
             },
             {
               "name": "openh264",
               "when": "$enable_openh264",
-              "remove_prefix_pc": ["libopenh264"]
+              // "remove_prefix_pc": ["libopenh264"]
+            },
+            {
+              "name": "aom"
+            },
+            {
+              "name": "SVT-AV1",
+              // "add_prefix_lib": ["SvtAv1Enc.lib"]
+            },
+            {
+              "name": "lame"
+            },
+            {
+              "name": "x264",
+              // "remove_prefix_pc": ["libx264"]
+            },
+            {
+              "name": "x265",
+              // "remove_prefix_pc": ["libx265"]
             }
           ],
           "scripts": [
@@ -219,7 +291,7 @@
               "script": "${msys2_bash} \"${bash_script}\"",
               "ignore_errors": false
             },
-          {
+            {
               // Copy runtime Script: with msys2_require_runtimes
               "message": "Copy runtime libraries to MSYS2",
               "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'))}}",
@@ -244,31 +316,90 @@
             "--toolchain=msvc",
             "--arch=x86_64",
             "--enable-w32threads",
-            "{{'--enable-shared --disable-static' if 'shared' in $build_library else ''}}",
-            "{{'--extra-cflags=\"-MD\" --extra-cxxflags=\"-MD\" --extra-ldflags=\"/nodefaultlib:libcmt.lib\"' if 'md' == $msvc_runtime_library else '--extra-cflags=\"-MT\" --extra-cxxflags=\"-MT\" --extra-ldflags=\"/nodefaultlib:msvcrt.lib\"'}}",
+            "{{'--enable-shared' if 'shared' in $build_library else '--enable-static --pkg-config-flags=--static'}}",
+            "{{'--extra-cflags=\\'-DZLIB_DLL -MD\\' --extra-cxxflags=\\'-DZLIB_DLL -MD\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:libcmt.lib\\'' if 'md' == $msvc_runtime_library else '--extra-cflags=\\'-DZLIB_DLL -MT\\' --extra-cxxflags=\\'-DZLIB_DLL -MT\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:msvcrt.lib\\''}}",
+            "--disable-debug",
+            "--disable-stripping",
             "--disable-doc",
             "--disable-htmlpages",
             "--disable-manpages",
             "--disable-podpages",
             "--disable-txtpages",
-            "--disable-postproc",
-            "--disable-iconv",
-            "--disable-nonfree",
+            "{{'--enable-version3' if $enable_version3 else '--disable-version3'}}",
             "{{'--enable-gpl' if $enable_gpl else '--disable-gpl'}}",
-            "{{'--enable-libopenh264' if $enable_openh264 else '--disable-libopenh264'}}",
-            "{{'--enable-nvenc' if $enable_nvenc else '--disable-nvenc'}}",
+            "{{'--enable-nonfree' if $enable_nonfree else '--disable-nonfree'}}",
+            "{{'--disable-postproc' if ${version}[0] == '6' else ''}}",
             "--disable-cuda-nvcc",
+            "--enable-gnutls",
+            "--disable-iconv",
             "--disable-libnpp",
-            "--extra-cflags=-DZLIB_DLL"
+            // codec
+            "{{'--enable-libx264' if $enable_gpl else ''}}",
+            "{{'--enable-libx265' if $enable_gpl else ''}}",
+            "{{'--enable-libopenh264' if $enable_openh264 else ''}}",
+            "--enable-libaom",
+            "--enable-libsvtav1",
+            "{{'--enable-libfdk-aac' if $enable_nonfree else ''}}",
+            "--enable-libmp3lame",
+            "--enable-libopus",
+            "{{'--enable-nvenc' if $enable_nvenc else ''}}",
+            "{{'--enable-vaapi' if $enable_vaapi else ''}}",
+            // "--enable-amf",
+            "--enable-libvpx",
+            "--enable-libass",
+            "--enable-dxva2",
+            "--enable-d3d11va",
+            "--enable-d3d12va",
+            "--enable-frei0r",
+            "--enable-gmp",
+            "--enable-libbluray",
+            "--enable-libcaca",
+            "--enable-libdav1d",
+            // "--enable-libfontconfig",
+            // "--enable-libfreetype",
+            "--enable-libfribidi",
+            "--enable-libgme",
+            "--enable-libgsm",
+            "--enable-libharfbuzz",
+            "--enable-libjxl",
+            "--enable-libmodplug",
+            "--enable-libopencore_amrnb",
+            "--enable-libopencore_amrwb",
+            "--enable-libopenjpeg",
+            "--enable-librtmp",
+            "--disable-libssh",
+            "--enable-libsoxr",
+            "--enable-libspeex",
+            "--enable-libsrt",
+            "--enable-libtheora",
+            "--enable-libvidstab",
+            "--enable-libvorbis",
+            "--enable-libxvid",
+            "--enable-libwebp",
+            "--enable-libxml2",
+            "--enable-libzimg",
+            "--enable-libzvbi",
+            "--enable-openal",
+            // "--enable-pic",
+            // "--enable-runtime-cpudetect",
+            // "--enable-swresample",
+            "--enable-vulkan",
+            "--enable-zlib",
+            "--enable-libvpl",
+            "--enable-liblc3",
+            "--enable-libplacebo",
+            "--enable-librav1e",
+            "--enable-librsvg",
+            "--enable-libshaderc"
           ],
-          "config_options_debug" : [
+          "config_options_debug": [
             "--prefix=/opt/ffmpeg/debug",
             "--enable-debug",
             "--disable-ffplay",
             "--disable-ffmpeg",
             "--disable-ffprobe"
           ],
-          "config_options_release" : [
+          "config_options_release": [
             "--prefix=/opt/ffmpeg/release",
             "--disable-debug",
             "--enable-small",
@@ -277,6 +408,17 @@
             "--{{'enable' if $build_apps else 'disable'}}-ffprobe"
           ],
           "scripts": [
+            // {
+            //   "bash_script": "type pkg-config",
+            //   "script": "${msys2_bash} \"${bash_script}\""
+            // },
+            // {
+            //   "bash_script": "pkg-config --libs aom",
+            //   "script": "${msys2_bash} \"${bash_script}\""
+            // },
+            // {
+            //   "script": "exit 99"
+            // },
             {
               "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
@@ -301,7 +443,7 @@
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+                "PATH": "{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_debug",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
@@ -311,7 +453,8 @@
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+                "PATH": "{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}",
+                // "PKG_CONFIG_PATH": "$pkg_config_path_release"
               },
               "chdir": "$build_dir_release",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
@@ -373,8 +516,8 @@
             }
           ]
         },
-        "post-install" :{
-          "template_files":[
+        "post-install": {
+          "template_files": [
             {
               "when": "{{'Debug' in $build_type}}",
               "template": "${package_dir}\\activate.bat.j2",
@@ -434,13 +577,19 @@
         }
       }
     },
-    "6.1.4": { // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
+    "6.1.4": {
       "dependencies": {
         "sdl": {
-          "version": ">=2.30;<3.0"  // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
+          "version": ">=2.30;<3.0" // GStreamer 1.24.5, ffmpeg 6.x is compatible with sdl 2.x.
+        }
+      }
+    },
+    "8.1": {
+      "dependencies": {
+        "sdl": {
+          "version": ">=2.30;<3.0" // GStreamer 1.28.2, ffmpeg 8.x is compatible with sdl 2.x.
         }
       }
     }
-    // "7.1": {}
   }
 }
