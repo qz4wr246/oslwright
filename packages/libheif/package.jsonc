@@ -135,7 +135,7 @@
           "version": ">=3.0"
         },
         // https://github.com/xiph/rav1e (rust)
-        "SVT-AV1":{
+        "svt-av1":{
           "version": ">=4.1"
         },
         "aom":{

@@ -1,5 +1,5 @@
 {
-  "name": "SVT-AV1",
+  "name": "svt-av1",
   "display": "SVT-AV1",
   "description": "An AV1-compliant software encoder library.",
   "site": "https://gitlab.com/AOMediaCodec/SVT-AV1",
