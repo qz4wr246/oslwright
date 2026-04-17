@@ -98,6 +98,19 @@
   ],
   "versions": {
     "default": {
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
+      "download_url": "https://ftp.gnu.org/pub/gnu/${name}/${name}-${version}.tar.gz",
+      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
+      "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "dependencies": {
         "proxy-libintl": {
           "version": ">=0.5",
@@ -126,19 +139,6 @@
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
         "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
       },
-      "source_dir": "${source_rootdir}\\${name}-${version}",
-      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
-      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
-      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
-      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
-      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
-      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
-      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
-      "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
-      "download_url": "https://ftp.gnu.org/pub/gnu/${name}/${name}-${version}.tar.gz",
-      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
-      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
-      "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "stages": {
         "download": {
           "scripts": [
