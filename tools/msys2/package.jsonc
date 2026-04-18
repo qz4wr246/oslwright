@@ -26,6 +26,7 @@
         "ucrt64/mingw-w64-ucrt-x86_64-ninja",
         "ucrt64/mingw-w64-ucrt-x86_64-yasm",
         "ucrt64/mingw-w64-ucrt-x86_64-nasm",
+        "ucrt64/mingw-w64-ucrt-x86_64-meson",
         "base-devel",
         "diffutils",
         "pkg-config",
