@@ -80,6 +80,8 @@ class PlatformService(FletXService):
         self.bison_flex_exe: Path | None = None
         self.yasm_exe: Path | None = None
         self.patch_exe: Path | None = None
+        self.cargoc_exe: Path | None = None
+        self.rustc_exe: Path | None = None
 
         self.rootdir = get_app_root()
         self.package_rootdir = get_data_path("packages")
@@ -191,6 +193,8 @@ class PlatformService(FletXService):
             or not self.bison_flex_exe
             or not self.yasm_exe
             or not self.patch_exe
+            or not self.cargoc_exe
+            or not self.rustc_exe
         ):
             mesg = ""
             mesg += "NASM not found.\n" if not self.nasm_exe else ""
@@ -204,6 +208,8 @@ class PlatformService(FletXService):
             mesg += "MSYS2 not found.\n" if not self.msys2_exe else ""
             mesg += "Bison,Flex not found.\n" if not self.bison_flex_exe else ""
             mesg += "Patch not found.\n" if not self.patch_exe else ""
+            mesg += "Cargo-C not found.\n" if not self.cargoc_exe else ""
+            mesg += "Rustc not found.\n" if not self.rustc_exe else ""
             return PlatformReason(code=ReasonCode.MISSING_EMBEDDED_TOOLS, message=mesg)
 
         return PlatformReason(code=ReasonCode.COMPLETE)
@@ -893,6 +899,46 @@ class PlatformService(FletXService):
             patch_version = _ver[2] if len(_ver) >= 3 else None
         return (patch_exe, patch_version)
 
+    def _findCargoC(self) -> Tuple[Path | None, str | None]:
+        cargoc_exe = None
+        cargoc_version = None
+        if not cargoc_exe:
+            _exe = Path(os.environ.get("USERPROFILE")) / ".cargo" / "bin" / "cargo-cbuild.exe"  # type: ignore
+            if _exe.is_file():
+                cargoc_exe = _exe
+        if not cargoc_exe:
+            _exe = shutil.which("cargo-cbuild.exe")
+            if _exe and Path(_exe).is_file():
+                cargoc_exe = Path(_exe)
+        if not cargoc_exe:
+            return (None, None)
+        shell = Shell()
+        result = shell.exec(f'"{cargoc_exe}" --version')
+        if not result.exitcode:
+            _ver = result.stdout.split()
+            cargoc_version = _ver[1] if len(_ver) >= 2 else None
+        return (cargoc_exe, cargoc_version)
+
+    def _findRustc(self) -> Tuple[Path | None, str | None]:
+        rustc_exe = None
+        rustc_version = None
+        if not rustc_exe:
+            _exe = Path(os.environ.get("USERPROFILE")) / ".cargo" / "bin" / "rustc.exe"  # type: ignore
+            if _exe.is_file():
+                rustc_exe = _exe
+        if not rustc_exe:
+            _exe = shutil.which("rustc.exe")
+            if _exe and Path(_exe).is_file():
+                rustc_exe = Path(_exe)
+        if not rustc_exe:
+            return (None, None)
+        shell = Shell()
+        result = shell.exec(f'"{rustc_exe}" --version')
+        if not result.exitcode:
+            _ver = result.stdout.split()
+            rustc_version = _ver[1] if len(_ver) >= 2 else None
+        return (rustc_exe, rustc_version)
+
     def _updateToolPath(self) -> None:
         Post.info("Checking for tools...")
 
@@ -998,6 +1044,18 @@ class PlatformService(FletXService):
         else:
             Post.warning("Not found Patch.")
 
+        self.cargoc_exe, version = self._findCargoC()
+        if self.cargoc_exe:
+            Post.info(f'Found Cargo-C: {self.cargoc_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Cargo-C.")
+
+        self.rustc_exe, version = self._findRustc()
+        if self.rustc_exe:
+            Post.info(f'Found Rustc: {self.rustc_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found Rustc.")
+
     def get_package_files(self) -> list[Path]:
         files = list(self.package_rootdir.rglob("package.jsonc"))
         exclude_package_root = self.package_rootdir / "__sample__"
@@ -1022,6 +1080,8 @@ class PlatformService(FletXService):
             pkgs.append(self.tools_rootdir / "winflexbison" / "package.jsonc")
         if not self.patch_exe:
             pkgs.append(self.tools_rootdir / "patch" / "package.jsonc")
+        if not self.cargoc_exe:
+            pkgs.append(self.tools_rootdir / "cargo" / "package.jsonc")
         return pkgs
 
     def create_session_base(self, package: PackageModel, msvc_version: str | None = None) -> dict:
