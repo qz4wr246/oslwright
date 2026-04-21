@@ -1,0 +1,36 @@
+{
+  "name": "cargo",
+  "display": "cargo",
+  "description": "",
+  "site": "https://learn.microsoft.com/ja-jp/windows/dev-environment/rust/setup?tabs=winget",
+  "license": "cargo-license",
+  "process_time": 180,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    }
+  ],
+  "versions": {
+    "default": {
+      "stages": {
+        "install": {
+          "scripts": [
+            {
+              "script": "winget install Rustlang.Rustup",
+              "ignore_errors": true
+            },
+            {
+              "script": "%USERPROFILE%\\.cargo\\bin\\cargo.exe install cargo-c",
+              "ignore_errors": true
+            }
+          ]
+        }
+      }
+    },
+    "1.94.0": {}
+  }
+}
