@@ -1,11 +1,11 @@
 {
-  "name": "libcaca",
-  "display": "libcaca",
-  "description": "Colour ASCII Art Library",
-  "site": "https://github.com/cacalabs/libcaca",
-  "license": "LGPL",
-  "info": "info.md",
-  "process_time": 440,
+  "name": "libffi",
+  "display": "libffi",
+  "description": "Portable, high level programming interface to various calling conventions",
+  "site": "https://sourceware.org/libffi/",
+  "license": "MIT",
+  "info":"info.md",
+  "process_time": 240,
   "options": [
     {
       "display": "Version",
@@ -51,13 +51,12 @@
     {
       "display": "Build library",
       "name": "build_library",
-      "enable": false,
       "type": "choice",
       "items": [
         "shared",
         "static"
       ],
-      "default": "shared"
+      "default": "$build_library_default"
     },
     {
       "display": "Build type",
@@ -75,7 +74,6 @@
       "enable": false,
       "type": "choice",
       "items": [
-        "union",
         "separation"
       ],
       "default": "separation"
@@ -107,23 +105,12 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/cacalabs/libcaca.git",
+      "git_url": "https://github.com/libffi/libffi.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
-      "dependencies": {
-        "fontconfig": {
-          "version": ">=2.15"
-        },
-        "freetype": {
-          "version": ">=2.13"
-        },
-        "zlib": {
-          "version": ">=1.3"
-        }
-      },
       "environments": {
         "LC_ALL": "C",
         "MSYS": "winsymlinks:nativestrict",
@@ -142,8 +129,6 @@
         "CPPFLAGS": "-I/opt/ucrt64/include",
         "LDFLAGS": "-L/opt/ucrt64/lib",
         "SED": "/usr/bin/sed.exe",
-        "ac_cv_func_sprintf_s": "yes",
-        "ac_cv_func_vsnprintf_s": "yes",
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
         "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
@@ -151,10 +136,6 @@
       "stages": {
         "download": {
           "scripts": [
-            {
-              "when": "{{os.path.isdir($source_dir)}}",
-              "script": "rmdir /q /s \"$source_dir\""
-            },
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
@@ -183,59 +164,11 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libcaca",
-          "patch_files": [
-            {
-              "url": "$repo_url/0001-win32-is-not-msvc-it-could-be.mingw.patch"
-            },
-            {
-              "url": "$repo_url/0002-correct-installation-order.mingw.patch"
-            },
-            {
-              "url": "$repo_url/0006-no-undefined.all.patch"
-            },
-            {
-              "url": "$repo_url/0010-missing-include.patch"
-            }
-          ],
-          "msys2_require_runtimes": [
-            {
-              "name": "fontconfig",
-              "add_prefix_lib": ["fontconfig.lib"]
-            },
-            {
-              "name": "freetype",
-              "add_prefix_lib": ["freetype2.lib"]
-            },
-            {
-              "name": "zlib",
-              "add_prefix_lib": ["zlib.lib"]
-            }
-          ],
           "scripts": [
-            {
-              // Patch Script: patching source code with patch_files
-              "message": "Patch ${name} source code",
-              "when": "{{'patch_files' in globals()}}",
-              "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -t -b -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
-            },
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
               "script": "del /q /s \"$msys2_external_runtime_dir\" > nul",
               "ignore_errors": true
-            },
-            {
-              // Copy runtime Script: with msys2_require_runtimes
-              "message": "Copy runtime libraries to MSYS2",
-              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'))}}",
-              "script": "{{' && '.join([f'xcopy \"{src_dir}\" \"{msys2_external_runtime_dir}\" /s /e /i /y' for dpr in [dependent_packages_release.split(';')] for item in msys2_require_runtimes if item.get('when', True) for src_dir in dpr if item['name'] in src_dir]+ [f'copy nul > \"{os.path.join(msys2_external_runtime_dir, \"__copied__\")}\"'])}}"
-            },
-            {
-              // Rename runtime Script: with msys2_require_runtimes
-              "message": "Rename library files and rewrite pc files.",
-              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__renamed__'))}}",
-              "script": "{{' && '.join([cmd for item in $msys2_require_runtimes if item.get('when', True) for cmd in ([f'ren \"{p}\" \"lib{os.path.basename(p)}\"' for n in item.get('add_prefix_lib', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', n), recursive=True)] + [f'perl -i.bak -pe \"if(/^Libs:/){{ s/-l{n}\\\\b/-l{n[3:] if n.startswith(\"lib\") else n}/g }}\" \"{p}\"' for n in item.get('remove_prefix_pc', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', '*.pc'), recursive=True) if os.path.isfile(p) and any(re.search(rf'^Libs:.*-l{n}\\b', l) for l in [pathlib.Path(p).read_text(errors=\"ignore\")] for l in l.splitlines())])]+[f'copy nul > \"{os.path.join($msys2_external_runtime_dir, \"__renamed__\")}\"'])}}"
             },
             {
               "message": "reconfigure",
@@ -250,11 +183,7 @@
             "--host=x86_64-w64-mingw32",
             "--disable-maintainer-mode",
             "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
-            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}",
-            "--disable-ncurses",
-            "--disable-csharp",
-            "--disable-ruby",
-            "--disable-doc"
+            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}"
           ],
           "config_options_debug": [
             "--prefix=/opt/${name}/debug"
@@ -340,14 +269,14 @@
         "install": {
           "scripts": [
             {
-              "message": "build for debug.",
+              "message": "install for debug.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
               "bash_script": "make install",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
-              "message": "build for release.",
+              "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
               "bash_script": "make install",
@@ -371,6 +300,9 @@
           },
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}", // adjust path for pc file
           "scripts": [
+            //
+            // rename dlls, and rewrite pc files to adjust for MSVC linker and library naming convention. You can set ignore_errors to true to ignore errors of these scripts, because the naming convention of library files and pc files in msys2 runtime is not consistent, and it may cause errors when renaming or rewriting.
+            //
             {
               "message": "Rename DLL files to be compatible with MSVC",
               "when":"{{'Debug' in $build_type}}",
@@ -384,7 +316,6 @@
               "when":"{{'Release' in $build_type }}",
               "chdir": "$dist_dir_release\\lib",
               "script": "for %f in (*.a) do @set \"fn=%f\" & cmd /v:on /c \"set \"out=!fn:.dll.a=.lib!\" & if \"!out!\"==\"!fn!\" (copy /y /b \"!fn!\" \"%~nf.lib\") else (copy /y /b \"!fn!\" \"!out!\")\"",
-
               "ignore_errors": true
             },
             {
@@ -403,6 +334,6 @@
         }
       }
     },
-    "0.99.beta20": {}
+    "3.5.2": {}
   }
 }

@@ -1,11 +1,11 @@
 {
-  "name": "oatpp-sqlite",
-  "display": "oatpp-sqlite",
-  "description": "SQLite adapter for oatpp ORM.",
-  "site": "https://oatpp.io/",
-  "license": "Apache 2 License",
-  "info": "info.md",
-  "process_time": 50,
+  "name": "librsvg",
+  "display": "librsvg",
+  "description": "A library to render SVG files using cairo as a rendering engine.",
+  "site": "https://wiki.gnome.org/Projects/LibRsvg",
+  "license": "LGPL",
+  "info":"info.md",
+  "process_time": 300,
   "options": [
     {
       "display": "Version",
@@ -51,12 +51,13 @@
     {
       "display": "Build library",
       "name": "build_library",
+      "enable": false,
       "type": "choice",
       "items": [
-        // "shared",  // NOTE: build error
+        "shared",
         "static"
       ],
-      "default": "static"
+      "default": "shared"
     },
     {
       "display": "Build type",
@@ -64,20 +65,19 @@
       "type": "choice",
       "items": [
         "Release",
-        "Debug",
-        "Release;Debug"
+        "Debug"
       ],
       "default": "Release"
     },
     {
       "display": "Build layout",
       "name": "build_layout",
+      "enable": false,
       "type": "choice",
       "items": [
-        "union",
         "separation"
       ],
-      "default": "union"
+      "default": "separation"
     },
     {
       "display": "Using CUDA",
@@ -93,18 +93,10 @@
       "type": "choice",
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
-    },
+    }
   ],
   "versions": {
     "default": {
-      "dependencies": {
-        "sqlite": {
-          "version": ">=3.45"
-        },
-        "oatpp": {
-          "version": ">=1.3"
-        }
-      },
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
@@ -114,16 +106,28 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/oatpp/oatpp-sqlite.git",
+      "git_url": "https://gitlab.gnome.org/GNOME/librsvg.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "dependencies": {
+//         dav1d_required         = '>= 1.3.0'
+// ft2_cmake_required     = '>= 2.8.0'   # Actual FreeType version required
+// freetype2_required     = '>= 20.0.14' # Corresponds to ft2_cmake_required
+// glib_required          = '>= 2.50.0'
+// harfbuzz_required      = '>= 2.0.0'
+// libxml_required        = '>= 2.9.0'
+// pango_required         = '>= 1.50.0'
+        "zlib": {
+          "version": ">=1.3"
+        }
+      },
+      "environments": {
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+      },
       "stages": {
         "download": {
           "scripts": [
-            {
-              "when": "{{os.path.isdir($source_dir)}}",
-              "script": "rmdir /q /s \"$source_dir\""
-            },
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
@@ -151,59 +155,77 @@
             }
           ]
         },
+        // "patch": {
+        //   "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
+        //   "patch_files": [
+        //     // {
+        //     //   "when" : true, // You can set condition for each patch file, and skip it when the condition is not satisfied.
+        //     //   "chdir" : "$source_dir", // You can set current directory before applying patch. The default value is source directory.
+        //     //   "file": "${package_dir}\\foo.diff"   // You can specify patch file by local file or URL.
+        //     //   "url": "https://example.com/foo.diff" // You can specify patch file by local file or URL.
+        //     // },
+        //     {
+        //       "url": "$repo_url/1.16-aliases.patch"
+        //     },
+        //     {
+        //       "file": "${package_dir}\\libiconv_make_in.diff"
+        //     }
+        //   ],
+        //   "scripts": [
+        //     {
+        //       // Patch Script: patching source code with patch_files
+        //       "message": "Patch ${name} source code",
+        //       "when": "{{'patch_files' in globals()}}",
+        //       "chdir": "$source_dir",
+        //       "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -t -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+        //     }
+        //   ]
+        // },
         "configure": {
-          "cmake_genarator": "-G \"Ninja Multi-Config\"",
-          "cmake_options": [
-            "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
-            "-DCMAKE_CXX_STANDARD=17",
-            "-DCMAKE_C_STANDARD=17",
-            "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
-            "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
-            "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
-            "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
-            "-DCMAKE_DEBUG_POSTFIX=d",
-            "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
-            "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
-            "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
-            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DOATPP_MSVC_LINK_STATIC_RUNTIME={{'OFF' if $msvc_runtime_library == 'md' else 'ON'}}"
+          "meson_options": [
+            "--vsenv",
+            "--pkgconfig.relocatable",
+            "--default-library={{'static' if $build_library == 'static' else 'shared'}}",
+            "-Db_vscrt={{'from_buildtype' if $msvc_runtime_library == 'md' else 'static_from_buildtype'}}"
           ],
-          "cmake_options_debug": [
-            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
+          "meson_options_debug" : [
+            "--prefix=\"$dist_dir_debug\"",
+            "--buildtype debug"
           ],
-          "cmake_options_release": [
-            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_release\""
+          "meson_options_release" : [
+            "--prefix=\"$dist_dir_release\"",
+            "--buildtype release"
           ],
           "scripts": [
             {
+              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "del /q /s \"$build_dir_debug\" > nul",
-              "ignore_errors": true
+              "script": "del /q /s \"$build_dir_debug\" > nul"
             },
             {
-              "when": "{{'Release' in $build_type }}",
-              "script": "del /q /s \"$build_dir_release\" > nul",
-              "ignore_errors": true
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "del /q /s \"$build_dir_release\" > nul"
             },
             {
+              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
-              "script": "mkdir \"$build_dir_debug\"",
-              "ignore_errors": true
+              "script": "mkdir \"$build_dir_debug\""
             },
             {
+              "ignore_errors": true,
               "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
-              "script": "mkdir \"$build_dir_release\"",
-              "ignore_errors": true
+              "script": "mkdir \"$build_dir_release\""
             },
             {
               "message": "config for debug.",
-              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "when": "{{'Debug' in $build_type}}",
               "environments": {
                 "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
                 "PERLIO": "raw"
               },
-              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\" -B \"$build_dir_debug\""
+              "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_debug)}}  \"$build_dir_debug\" \"$source_dir\""
             },
             {
               "message": "config for release.",
@@ -213,7 +235,7 @@
                 "PKG_CONFIG_PATH": "$pkg_config_path_release",
                 "PERLIO": "raw"
               },
-              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
+              "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_release)}} \"$build_dir_release\" \"$source_dir\""
             }
           ]
         },
@@ -226,7 +248,7 @@
                 "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
                 "PERLIO": "raw"
               },
-              "script": "cmake --build \"$build_dir_debug\" --config Debug -j4"
+              "script": "meson compile -C \"$build_dir_debug\" -j 4"
             },
             {
               "message": "build for release.",
@@ -235,26 +257,29 @@
                 "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
                 "PERLIO": "raw"
               },
-              "script": "cmake --build \"$build_dir_release\" --config Release -j4"
+              "script": "meson compile -C \"$build_dir_release\" -j 4"
             }
           ]
         },
         "install": {
+          "meson_install_options": [
+            "--tags devel,runtime,bin"
+          ],
           "scripts": [
             {
               "message": "install for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "script": "cmake --install \"$build_dir_debug\" --config Debug"
+              "script": "meson install -C \"$build_dir_debug\" {{' '.join($meson_install_options)}}"
             },
             {
               "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
-              "script": "cmake --install \"$build_dir_release\" --config Release"
+              "script": "meson install -C \"$build_dir_release\" {{' '.join($meson_install_options)}}"
             }
           ]
         },
-        "post-install" :{
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
+        "post-install": {
+          "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
           },
@@ -273,6 +298,6 @@
         }
       }
     },
-    "1.3.0-latest": {}
+    "2.62.1": {}
   }
 }

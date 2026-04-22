@@ -1,11 +1,10 @@
 {
-  "name": "libcaca",
-  "display": "libcaca",
-  "description": "Colour ASCII Art Library",
-  "site": "https://github.com/cacalabs/libcaca",
-  "license": "LGPL",
-  "info": "info.md",
-  "process_time": 440,
+  "name": "glib",
+  "display": "GLib",
+  "description": "Low-level core library that forms the basis for projects such as GTK+ and GNOME.",
+  "site": "https://gitlab.gnome.org/GNOME/glib",
+  "license": "LGPL-2.1",
+  "process_time": 300,
   "options": [
     {
       "display": "Version",
@@ -107,19 +106,18 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/cacalabs/libcaca.git",
+      "git_url": "https://gitlab.gnome.org/GNOME/glib.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "dependencies": {
-        "fontconfig": {
-          "version": ">=2.15"
-        },
-        "freetype": {
-          "version": ">=2.13"
-        },
+            //          'libffi-devel'
+            //  'libiconv-devel'
+            //  'gettext-devel'
+            //  'pcre2-devel'
+            //  'zlib-devel'
         "zlib": {
           "version": ">=1.3"
         }
@@ -142,8 +140,6 @@
         "CPPFLAGS": "-I/opt/ucrt64/include",
         "LDFLAGS": "-L/opt/ucrt64/lib",
         "SED": "/usr/bin/sed.exe",
-        "ac_cv_func_sprintf_s": "yes",
-        "ac_cv_func_vsnprintf_s": "yes",
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
         "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
@@ -175,7 +171,6 @@
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "make cache.",
               "when": "{{not os.path.isfile($cache_file)}}",
               "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
               "fallback": "del \"$cache_file\""
@@ -183,33 +178,31 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libcaca",
+          "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
           "patch_files": [
+            // {
+            //   "when" : true, // You can set condition for each patch file, and skip it when the condition is not satisfied.
+            //   "chdir" : "$source_dir", // You can set current directory before applying patch. The default value is source directory.
+            //   "file": "${package_dir}\\foo.diff"   // You can specify patch file by local file or URL.
+            //   "url": "https://example.com/foo.diff" // You can specify patch file by local file or URL.
+            // },
             {
-              "url": "$repo_url/0001-win32-is-not-msvc-it-could-be.mingw.patch"
+              "url": "$repo_url/0001-fixes-building-with-gcc-15.patch"
             },
             {
-              "url": "$repo_url/0002-correct-installation-order.mingw.patch"
-            },
-            {
-              "url": "$repo_url/0006-no-undefined.all.patch"
-            },
-            {
-              "url": "$repo_url/0010-missing-include.patch"
+              "file": "${package_dir}\\libiconv_make_in.diff"
             }
           ],
           "msys2_require_runtimes": [
+            // {
+            //   "name" : "PACKAGE_NAME",
+            //   "when": true, // You can set condition for each runtime requirement, and skip it when the condition is not satisfied.
+            //   "add_prefix_lib": ["libfoo"], // You can add prefix for library files. The default prefix is "lib", so you can set "foo" if the library file is named
+            //   "remove_prefix_pc": ["foo"] // You can remove prefix for pc files. The default prefix is "lib", so you can set "foo" if the pc file is named "libfoo.pc".
+            // },
             {
-              "name": "fontconfig",
-              "add_prefix_lib": ["fontconfig.lib"]
-            },
-            {
-              "name": "freetype",
-              "add_prefix_lib": ["freetype2.lib"]
-            },
-            {
-              "name": "zlib",
-              "add_prefix_lib": ["zlib.lib"]
+              "name": "proxy-libintl",
+              "remove_prefix_pc": ["libintl"]
             }
           ],
           "scripts": [
@@ -238,50 +231,62 @@
               "script": "{{' && '.join([cmd for item in $msys2_require_runtimes if item.get('when', True) for cmd in ([f'ren \"{p}\" \"lib{os.path.basename(p)}\"' for n in item.get('add_prefix_lib', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', n), recursive=True)] + [f'perl -i.bak -pe \"if(/^Libs:/){{ s/-l{n}\\\\b/-l{n[3:] if n.startswith(\"lib\") else n}/g }}\" \"{p}\"' for n in item.get('remove_prefix_pc', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', '*.pc'), recursive=True) if os.path.isfile(p) and any(re.search(rf'^Libs:.*-l{n}\\b', l) for l in [pathlib.Path(p).read_text(errors=\"ignore\")] for l in l.splitlines())])]+[f'copy nul > \"{os.path.join($msys2_external_runtime_dir, \"__renamed__\")}\"'])}}"
             },
             {
+              "message": "copy m4",
+              "chdir": "$source_dir",
+              "bash_script": "cp -f srcm4/* m4/",
+              "script": "${msys2_bash} \"${bash_script}\""
+            },
+            {
+              "message": "reconfigure in libcharset",
+              "chdir": "$source_dir\\libcharset",
+              "bash_script": "autoreconf -vfi -I m4",
+              "script": "${msys2_bash} \"${bash_script}\""
+            },
+            {
               "message": "reconfigure",
               "chdir": "$source_dir",
-              "bash_script": "autoreconf -vfi",
+              "bash_script": "autoreconf -vfi -I m4",
               "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
         "configure": {
-          "config_options":[
-            "--host=x86_64-w64-mingw32",
-            "--disable-maintainer-mode",
-            "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
-            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}",
-            "--disable-ncurses",
-            "--disable-csharp",
-            "--disable-ruby",
-            "--disable-doc"
+          "meson_options": [
+            "--vsenv",
+            "--pkgconfig.relocatable",
+            "--default-library={{'static' if $build_library == 'static' else 'shared'}}",
+            "-Db_vscrt={{'from_buildtype' if $msvc_runtime_library == 'md' else 'static_from_buildtype'}}"
           ],
-          "config_options_debug": [
-            "--prefix=/opt/${name}/debug"
+          "meson_options_debug" : [
+            "--prefix=/opt/glib/debug",
+            "--buildtype debug",
+            "{{'--reconfigure --wipe --clearcache' if os.path.isdir($build_dir_debug) else ''}}"
           ],
-          "config_options_release": [
-            "--prefix=/opt/${name}/release"
+          "meson_options_release" : [
+            "--prefix=/opt/glib/release",
+            "--buildtype release",
+            "{{'--reconfigure --wipe --clearcache' if os.path.isdir($build_dir_release) else ''}}"
           ],
           "scripts": [
             {
+              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "del /q /s \"$build_dir_debug\" > nul",
-              "ignore_errors": true
+              "script": "del /q /s \"$build_dir_debug\" > nul"
             },
             {
-              "when": "{{'Release' in $build_type }}",
-              "script": "del /q /s \"$build_dir_release\" > nul",
-              "ignore_errors": true
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "del /q /s \"$build_dir_release\" > nul"
             },
             {
+              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
-              "script": "mkdir \"$build_dir_debug\"",
-              "ignore_errors": true
+              "script": "mkdir \"$build_dir_debug\""
             },
             {
+              "ignore_errors": true,
               "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
-              "script": "mkdir \"$build_dir_release\"",
-              "ignore_errors": true
+              "script": "mkdir \"$build_dir_release\""
             },
             {
               "message": "config for debug.",
@@ -290,7 +295,7 @@
                 "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_debug",
-              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
+              "bash_script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_debug)}} '$build_dir_debug' '$source_dir'",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
@@ -300,7 +305,7 @@
                 "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_release",
-              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
+              "bash_script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_release)}} '$build_dir_release' '$source_dir'",
               "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
@@ -321,7 +326,7 @@
                 "PERLIO": "raw"
               },
               "chdir": "$build_dir_debug",
-              "bash_script": "make -j4",
+              "bash_script": "meson compile -C '$build_dir_debug' -j 4",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
@@ -332,25 +337,28 @@
                 "PERLIO": "raw"
               },
               "chdir": "$build_dir_release",
-              "bash_script": "make -j4",
+              "bash_script": "meson compile -C '$build_dir_release' -j 4",
               "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
         "install": {
+          "meson_install_options": [
+            "--tags devel,runtime,bin"
+          ],
           "scripts": [
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
-              "bash_script": "make install",
+              "bash_script": "meson install -C '$build_dir_debug' {{' '.join($meson_install_options)}}",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
-              "bash_script": "make install",
+              "bash_script": "meson install -C '$build_dir_release' {{' '.join($meson_install_options)}}",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
@@ -369,8 +377,42 @@
           "environments": {
             "PERLIO": "raw"
           },
+          // You can specify template files to be rendered after installation, and also specify scripts to be executed. The template file will be rendered when the condition is satisfied, and the value of each define will be passed to template as variable, so you can use it in template. The script for generating pc files from template files is also provided, and you can specify any script to be executed after installation.
+          "template_files": [
+            // {
+            //   "when": true, // You can set condition for each template file, and skip it when the condition is not satisfied.
+            //   "template": "TEMPLATE_FILE_PATH", // You can specify template file by local file or URL.
+            //   "defines": [ "VARLABLE=value" ],// You can specify defines for template rendering. The value of each define will be passed to template as variable, so you can use it in template. The format of each
+            //   "output": "OUTPUT_FILE_PATH" // You can specify output file path for rendered template.
+            // },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "${package_dir}\\libiconv.pc.j2",
+              "defines": [
+                "LIBRAW_VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_debug}\\libiconv.pc"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "${package_dir}\\libiconv.pc.j2",
+              "defines": [
+                "LIBRAW_VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_release}\\libiconv.pc"
+            }
+          ],
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}", // adjust path for pc file
           "scripts": [
+            {
+              // Template Script:
+              // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+            },
+            //
+            // rename dlls, and rewrite pc files to adjust for MSVC linker and library naming convention. You can set ignore_errors to true to ignore errors of these scripts, because the naming convention of library files and pc files in msys2 runtime is not consistent, and it may cause errors when renaming or rewriting.
+            //
             {
               "message": "Rename DLL files to be compatible with MSVC",
               "when":"{{'Debug' in $build_type}}",
@@ -403,6 +445,6 @@
         }
       }
     },
-    "0.99.beta20": {}
+    "2.88.0": {}
   }
 }

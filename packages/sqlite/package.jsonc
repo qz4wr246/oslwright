@@ -156,6 +156,7 @@
         "configure": {
           "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if $build_arch == 'x32' else 'x64'}}",
           "cmake_options": [
+            "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",

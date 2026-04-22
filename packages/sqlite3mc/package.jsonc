@@ -222,6 +222,7 @@
         "configure": {
           "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if $build_arch == 'x32' else 'x64'}}",
           "cmake_options": [
+            "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DSQLITE3MC_STATIC_RUNTIME_LINK={{'OFF' if $msvc_runtime_library == 'md' else 'ON'}}",
             "-DSQLITE_THREADSAFE={{$sqlite_threadsafe.split(':')[1]}}",

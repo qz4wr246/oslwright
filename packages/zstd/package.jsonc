@@ -171,6 +171,7 @@
           "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if $build_arch == 'x32' else 'x64'}}",
           "cmake_options": [
             "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+            "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_DEBUG_POSTFIX=d",
             "-DZSTD_BUILD_SHARED={{'ON' if 'shared' in $build_library else 'OFF'}}",

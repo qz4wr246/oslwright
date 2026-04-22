@@ -142,37 +142,6 @@
   ],
   "versions": {
     "default": {
-      "dependencies": {
-        "aom": {
-          "version": ">=3.13"
-        },
-        "SVT-AV1": {
-          "version": ">=4.1"
-        },
-        "x264": {
-          "enable": "{{$enable_gpl}}"
-        },
-        "x265": {
-          "enable": "{{$enable_gpl}}",
-          "version": "3.4"
-        },
-        "openh264": {
-          "enable": "{{$enable_openh264}}",
-          "version": ">=2.6.0"
-        },
-        "libass": {
-          "version": ">=0.17"
-        },
-        "lame": {
-          "version": ">=3.100"
-        },
-        "sdl": {
-          "version": ">=2.30;<3.0" // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
-        },
-        "zlib": {
-          "version": ">=1.3"
-        }
-      },
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
@@ -188,6 +157,135 @@
       "msys2_dir": "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "dependencies": {
+        "aom": {
+          "version": ">=3.13"
+        },
+        "bzip2": {
+          "version": ">=1.0"
+        },
+        "dav1d": {
+          "version": ">=1.5"
+        },
+        "fontconfig": {
+          "version": ">=2.15"
+        },
+        "freetype": {
+          "version": ">=2.13"
+        },
+        "frei0r": {
+          "enable": "{{$enable_gpl}}",
+          "version": ">=2.5"
+        },
+        "fribidi": {
+          "version": ">=0.19"
+        },
+        "gmp": {
+          "version": ">=6.3"
+        },
+        "gnutls": {
+          "version": ">=3.8"
+        },
+        "gsm": {
+          "version": ">=1.0"
+        },
+        "harfbuzz": {
+          "version": ">=9.0"
+        },
+        "lame": {
+          "version": ">=3.100"
+        },
+        "libass": {
+          "version": ">=0.17"
+        },
+        "libbluray": {
+          "version": ">=1.4"
+        },
+        "libcaca": {
+          "version": ">=0.99"
+        },
+        "libexif": {
+          "version": ">=0.6"
+        },
+        "libgme": {
+          "version": ">=0.6"
+        },
+        "libiconv": {
+          "version": ">=1.19"
+        },
+        "libjxl": {
+          "version": ">=0.11"
+        },
+        "libmodplug": {
+          "version": ">=0.8"
+        },
+        "libssh": {
+          "version": ">=0.12"
+        },
+        "libplacebo":{
+          "version": ">=7.360"
+        },
+        /*
+
+         "librsvg"
+         "libsoxr"
+         "libtheora"
+         "libva"
+         "libvorbis"
+         "libvpx"
+         "libwebp"
+         "libxml2"
+         "libvpl"
+         "openal"
+         "opencore-amr"
+         "openjpeg2"
+         "opus"
+         "rav1e"
+         "rtmpdump"
+         "SDL2"
+         "speex"
+         "srt"
+         "svt-av1"
+         "liblc3"
+         "shaderc"
+         "vid.stab"
+         "vulkan"
+         "libx264"
+         "x265"
+         "xvidcore"
+         "zimg"
+         "zlib"
+         "zvbi"
+        */
+
+
+
+        "libpng": {
+          "version": ">=1.6"
+        },
+        "svt-av1": {
+          "version": ">=4.1"
+        },
+        "x264": {
+          "enable": "{{$enable_gpl}}"
+        },
+        "x265": {
+          "enable": "{{$enable_gpl}}",
+          "version": "3.4"
+        },
+        "openh264": {
+          "enable": "{{$enable_openh264}}",
+          "version": ">=2.6.0"
+        },
+
+
+        "sdl": {
+          "version": ">=2.30;<3.0" // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
+        },
+        "zlib": {
+          "version": ">=1.3"
+        }
+      },
       "environments": {
         "LC_ALL": "C",
         "MSYS": "winsymlinks:nativestrict",
@@ -202,6 +300,7 @@
         "download": {
           "scripts": [
             {
+              "when": "{{os.path.isdir($source_dir)}}",
               "script": "rmdir /q /s \"$source_dir\" > nul"
             },
             {
@@ -220,22 +319,24 @@
             {
               "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "script": "7z -sccUTF-8 x -aoa \"$cache_file\" -o\"$source_dir\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "make cache.",
               "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
+              "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
               "fallback": "del \"$cache_file\""
             }
           ]
         },
         "patch": {
-          //
-          // Copy SDL2 and zlib binary to MSYS2
-          // Remove the inclusion of unistd.h in zconf.h. This gets erroneously included when building FFmpeg.
-          //
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-ffmpeg",
+          "patch_files": [
+            {
+              "url": "$repo_url/0005-Win32-Add-path-relocation-to-frei0r-plugins-search.patch"
+            }
+          ],
           "msys2_require_runtimes": [
             {
               "name": "zlib",
@@ -269,7 +370,7 @@
               "name": "aom"
             },
             {
-              "name": "SVT-AV1",
+              "name": "svt-av1",
               // "add_prefix_lib": ["SvtAv1Enc.lib"]
             },
             {
@@ -285,6 +386,13 @@
             }
           ],
           "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "when": "{{'patch_files' in globals()}}",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'curl.exe --fail -L -s -o \"{os.path.basename(p[\"url\"])}\" \"{p[\"url\"]}\" && patch -t -b -p1 -i \"{os.path.basename(p[\"url\"])}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+            },
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
               "bash_script": "rm -rf /opt/ucrt64/*",
@@ -304,10 +412,21 @@
               "script": "{{' && '.join([cmd for item in $msys2_require_runtimes if item.get('when', True) for cmd in ([f'ren \"{p}\" \"lib{os.path.basename(p)}\"' for n in item.get('add_prefix_lib', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', n), recursive=True)] + [f'perl -i.bak -pe \"if(/^Libs:/){{ s/-l{n}\\\\b/-l{n[3:] if n.startswith(\"lib\") else n}/g }}\" \"{p}\"' for n in item.get('remove_prefix_pc', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', '*.pc'), recursive=True) if os.path.isfile(p) and any(re.search(rf'^Libs:.*-l{n}\\b', l) for l in [pathlib.Path(p).read_text(errors=\"ignore\")] for l in l.splitlines())])]+[f'copy nul > \"{os.path.join($msys2_external_runtime_dir, \"__renamed__\")}\"'])}}"
             },
             {
+              "chdir": "$source_dir",
               "script": "perl -p -i -e \"s#^.+include <unistd.h>.*##g\" \"${msys2_dir}\\opt\\ucrt64\\include\\zconf.h\""
             },
             {
-              "script": "copy /Y \"${package_dir}\\sdl2-config\" \"${msys2_dir}\\opt\\ucrt64\\bin\\\""
+              "script": "copy /y \"${package_dir}\\sdl2-config\" \"${msys2_dir}\\opt\\ucrt64\\bin\\\""
+            },
+            {
+              "script": "curl.exe --fail -L -s -o \"${source_dir}\\pathtools.h\" $repo_url/pathtools.h && move /y  \"${source_dir}\\pathtools.h\" \"${source_dir}\\libavfilter\\\"}"
+            },
+            {
+              "script": "curl.exe --fail -L -s -o \"${source_dir}\\pathtools.c\" $repo_url/pathtools.c && move /y \"${source_dir}\\pathtools.c\" \"${source_dir}\\libavfilter\\\"}"
+            },
+            {
+              "chdir": "$source_dir",
+              "script": "move /y VERSION VERSION.txt"
             }
           ]
         },
@@ -350,7 +469,7 @@
             "--enable-dxva2",
             "--enable-d3d11va",
             "--enable-d3d12va",
-            "--enable-frei0r",
+            "{{'--enable-frei0r' if $enable_gpl else ''}}",
             "--enable-gmp",
             "--enable-libbluray",
             "--enable-libcaca",
@@ -362,7 +481,7 @@
             "--enable-libgsm",
             "--enable-libharfbuzz",
             "--enable-libjxl",
-            "--enable-libmodplug",
+            "{{'--enable-libmodplug' if $enable_gpl else ''}}",
             "--enable-libopencore_amrnb",
             "--enable-libopencore_amrwb",
             "--enable-libopenjpeg",

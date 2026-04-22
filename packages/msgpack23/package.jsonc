@@ -164,6 +164,7 @@
             "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
             "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
             "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
+            "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DBUILD_EXAMPLES=OFF",
             "-DBUILD_TESTING=OFF"

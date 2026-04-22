@@ -154,6 +154,7 @@
             "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
             "-DCMAKE_DEBUG_POSTFIX=d",
             "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+            "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
             "-Dprotobuf_MSVC_STATIC_RUNTIME={{'ON' if $msvc_runtime_library =='mt' else 'OFF'}}",
