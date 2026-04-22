@@ -24,18 +24,18 @@ index 758feec..ebbcd59 100644
    default_options : [ 'warning_level=1',
                        'c_std=c99',
                        'buildtype=debugoptimized' ])
- 
+
 +cmake = import('cmake')
 +pkg = import('pkgconfig')
 +
  if get_option('default_library') == 'static'
    add_project_arguments('-DG_INTL_STATIC_COMPILATION', language : 'c')
  endif
- 
+
  install_headers('libintl.h')
- 
+
 -intl_lib = library('intl',
-+intl_lib = library('libintl',
++intl_lib = library('intl',
    'libintl.c',
    c_args: ['-DSTUB_ONLY'],
    soversion : 8,
