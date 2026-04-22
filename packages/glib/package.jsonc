@@ -187,8 +187,7 @@
         "patch": {
           "msys2_require_runtimes": [
             {
-              "name": "proxy-libintl",
-              // "remove_prefix_pc": ["libintl"]
+              "name": "proxy-libintl"
             },
             {
               "name": "libffi"
@@ -331,7 +330,7 @@
         },
         "install": {
           "meson_install_options": [
-            "--tags devel,runtime,bin"
+            "--tags devel,runtime,bin,bin-devel"
           ],
           "scripts": [
             {
@@ -364,6 +363,10 @@
           "environments": {
             "PERLIO": "raw"
           },
+          "proxy_libintl_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'proxy-libintl' in x), '')}}",
+          "proxy_libintl_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'proxy-libintl' in x), '')}}",
+          "proxy_libintl_basename_debug": "{{os.path.basename($proxy_libintl_dir_debug)}}",
+          "proxy_libintl_basename_release": "{{os.path.basename($proxy_libintl_dir_release)}}",
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}", // adjust path for pc file
           "scripts": [
             //
@@ -395,6 +398,20 @@
               "message": "Adjust paths and other configurations in *.pc",
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
+              "ignore_errors": true
+            },
+                        {
+              "message": "fix glib-2.0.pc",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib\\pkgconfig",
+              "script": "perl -i.bak -pe \"s@(Libs: .*)(-lintl)@$$1-L\\$${prefix}/../${proxy_libintl_basename_debug}/lib $$2@\" glib-2.0.pc",
+              "ignore_errors": true
+            },
+            {
+              "message": "fix glib-2.0.pc",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$dist_dir_release\\lib\\pkgconfig",
+              "script": "perl -i.bak -pe \"s@(Libs: .*)(-lintl)@$$1-L\\$${prefix}/../${proxy_libintl_basename_release}/lib $$2@\" glib-2.0.pc",
               "ignore_errors": true
             }
           ]
