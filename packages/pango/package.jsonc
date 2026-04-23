@@ -111,7 +111,7 @@
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "dependencies": {
         "fontconfig": {
-          "version": ">=2.15"
+          "version": ">=2.17"
         },
         "freetype": {
           "version": ">=2.13"
@@ -184,6 +184,8 @@
             "--pkgconfig.relocatable",
             "--default-library={{'static' if $build_library == 'static' else 'shared'}}",
             "-Db_vscrt={{'from_buildtype' if $msvc_runtime_library == 'md' else 'static_from_buildtype'}}",
+            "-Dfontconfig=enabled",
+            "-Dfreetype=enabled",
             "-Ddocumentation=false",
             "-Dbuild-testsuite=false",
             "-Dbuild-examples=false"
@@ -196,6 +198,7 @@
             "--prefix=\"$dist_dir_release\"",
             "--buildtype release"
           ],
+
           "scripts": [
             {
               "ignore_errors": true,
