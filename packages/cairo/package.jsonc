@@ -98,11 +98,9 @@
       "dependencies": {
         // freetype and fontconfig are not required for windows.
         // elements needs freetype.
-        /**
         "fontconfig": {
           "version": ">=2.15"
         },
-        **/
         "freetype": {
           "version": ">=2.13"
         },
@@ -115,10 +113,9 @@
         "pixman":{
           "version": ">=0.43"
         },
-        // duplicated error on gstreamer
-        // "glib": {
-        //   "version": ">=2.81"
-        // },
+        "glib": {
+          "version": ">=2.81"
+        },
         "zlib": {
           "version": ">=1.3"
         },
@@ -196,7 +193,9 @@
             "--pkgconfig.relocatable",
             "--default-library={{'static' if $build_library == 'static' else 'shared'}}",
             "-Db_vscrt={{'from_buildtype' if $msvc_runtime_library == 'md' else 'static_from_buildtype'}}",
-            "-Dglib=disabled", // duplicated error on gstreamer
+            // "-Dglib=disabled", // duplicated error on gstreamer
+            "-Dfontconfig=enabled",
+            "-Dfreetype=enabled",
             "-Dtests=disabled",
             "-Dfreetype=enabled"
           ],
