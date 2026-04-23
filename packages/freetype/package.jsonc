@@ -129,6 +129,10 @@
         "download": {
           "scripts": [
             {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
               "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
@@ -152,16 +156,6 @@
               "when": "{{not os.path.isfile($cache_file)}}",
               "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
               "fallback": "del \"$cache_file\""
-            }
-          ]
-        },
-        "patch": {
-          "patch_file_01": "${package_dir}\\freetype_cmake.diff",
-          "scripts": [
-            {
-              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
-              "chdir": "$source_dir",
-              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
             }
           ]
         },
@@ -277,7 +271,33 @@
         }
       }
     },
-    "2.13.2" : {
+    "2.13.2": {
+      "stages": {
+        "patch": {
+          "patch_file_01": "${package_dir}\\freetype-2.13.2_cmake.diff",
+          "scripts": [
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              "chdir": "$source_dir",
+              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+            }
+          ]
+        }
+      }
+    },
+    "2.14.3": {
+      "stages": {
+        "patch": {
+          "patch_file_01": "${package_dir}\\freetype-2.14.3_cmake.diff",
+          "scripts": [
+            {
+              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              "chdir": "$source_dir",
+              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+            }
+          ]
+        }
+      }
     }
   }
 }
