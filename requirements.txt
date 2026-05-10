@@ -1,5 +1,5 @@
 flet==0.28.3
-fletxr==0.1.4rc1
+fletxr==0.1.4
 dacite
 dataclasses_json
 json5
@@ -13,3 +13,7 @@ ninja
 jinja2-cli
 numpy
 gitlint
+setuptools<81.0.0
+markdown
+mako
+pydevd

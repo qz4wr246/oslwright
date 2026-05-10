@@ -443,7 +443,6 @@ class PlatformService(FletXService):
 
         if self.python_exe:
             path = ";".join([path, str(self.python_exe.parent)])
-            path = ";".join([path, os.path.join(str(self.python_exe.parent), "Scripts")])
 
         if self.py_exe:
             path = ";".join([path, str(self.py_exe.parent)])
@@ -1127,6 +1126,7 @@ class PlatformService(FletXService):
             "msvc_version_default": msvc_version_default,
             "msvc_versions": [msvc.generator for msvc in self.visual_studio_infos],
             "msvc_version": msvc_generator,
+            "python_exe": str(self.python_exe),
         }
         vers = [k for k in package.versions.keys() if k != "default"]
         session = {

@@ -129,18 +129,19 @@ class BuildService(FletXService):
 
         environs["PATH"] = ";".join(filtered_list)
 
-        # Windows標準PATHを先頭へ
+        # Windows標準PATH
         path = os.path.expandvars(SYSTEM_PATH)
-        if "PATH" in environs:
-            path = ";".join([environs["PATH"], path])
-        toolpaths = self.platform_service.GetToolsPaths()
-        if toolpaths:
-            path = ";".join([path, toolpaths])
 
         # スクリプトを実行したpythonをPATHへ追加
         if sys.executable:
             python_dir = str(Path(sys.executable).resolve().parent)
             path = add_path_env(path, python_dir)
+
+        if "PATH" in environs:
+            path = ";".join([environs["PATH"], path])
+        toolpaths = self.platform_service.GetToolsPaths()
+        if toolpaths:
+            path = ";".join([path, toolpaths])
 
         # 重複を削除
         environs["PATH"] = uniq_path_env(path)
@@ -333,10 +334,16 @@ class BuildService(FletXService):
                 for f in glob.glob(f"{dir}\\**\\*.dll", recursive=True):
                     dlst.append(os.path.dirname(f))
             session["dependent_dlls_release"] = ";".join(set(dlst))
+            dlst = []
+            for dir in depdentpath["release"].split(";"):
+                for f in glob.glob(f"{dir}\\**\\*.lib", recursive=True):
+                    dlst.append(os.path.dirname(f))
+            session["dependent_libs_release"] = ";".join(set(dlst))
         else:
             session["dependent_packages_release"] = ""
             session["pkg_config_path_release"] = ""
             session["dependent_dlls_release"] = ""
+            session["dependent_libs_release"] = ""
 
         if depdentpath and "debug" in depdentpath:
             session["dependent_packages_debug"] = depdentpath["debug"]
@@ -350,10 +357,15 @@ class BuildService(FletXService):
                 for f in glob.glob(f"{dir}\\**\\*.dll", recursive=True):
                     dlst.append(os.path.dirname(f))
             session["dependent_dlls_debug"] = ";".join(set(dlst))
+            for dir in depdentpath["debug"].split(";"):
+                for f in glob.glob(f"{dir}\\**\\*.lib", recursive=True):
+                    dlst.append(os.path.dirname(f))
+            session["dependent_libs_debug"] = ";".join(set(dlst))
         else:
             session["dependent_packages_debug"] = ""
             session["pkg_config_path_debug"] = ""
             session["dependent_dlls_debug"] = ""
+            session["dependent_libs_debug"] = ""
 
     def transform(self, node, session: dict, envs: dict | None = None, regist_vars: bool = True):
         """node を再帰的に探索し、str ノードを evaluate_str で置換する"""

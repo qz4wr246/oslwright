@@ -8,7 +8,7 @@ requires-python = ">=3.12"
 
 dependencies = [
     "flet==0.28.3",
-    "fletxr==0.1.4rc1",
+    "fletxr==0.1.4",
     "dacite",
     "dataclasses_json",
     "json5",
@@ -21,7 +21,11 @@ dependencies = [
     "ninja",
     "jinja2-cli",
     "numpy",  # using opencv configuer
-    "gitlint"
+    "gitlint",
+    "setuptools<81.0.0",
+    "markdown",
+    "mako",
+    "pydevd"
 ]
 
 [tool.setuptools]

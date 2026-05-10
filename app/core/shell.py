@@ -183,16 +183,19 @@ class PipedShell:
         result = None
 
         def stream_reader(stream, out: str, content: dict | None = None):
-            for line in iter(stream.readline, ""):
-                if self._killed:
-                    break
-                mesg = line.rstrip()
-                if out == "stdout" and len(mesg):
-                    Post.info(mesg)
-                elif out == "stderr" and len(mesg):
-                    Post.info(mesg)
-                if content and len(mesg):
-                    content[out] += mesg
+            try:
+                for line in iter(stream.readline, ""):
+                    if self._killed:
+                        break
+                    mesg = line.rstrip()
+                    if out == "stdout" and len(mesg):
+                        Post.info(mesg)
+                    elif out == "stderr" and len(mesg):
+                        Post.info(mesg)
+                    if content and len(mesg):
+                        content[out] += mesg
+            except:
+                pass
             stream.close()
 
         def run_command(args, env: dict, shell: bool, with_content: bool = False):
