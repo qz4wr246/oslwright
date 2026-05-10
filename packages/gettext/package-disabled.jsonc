@@ -449,14 +449,14 @@
               "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             },
             {
-              "message": "Rename DLL files to be compatible with MSVC",
+              "message": "Rename the library files to be MSVC-compatible.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$dist_dir_debug\\lib",
               "script": "for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
               "ignore_errors": true
             },
             {
-              "message": "Rename DLL files to be compatible with MSVC",
+              "message": "Rename the library files to be MSVC-compatible.",
               "when": "{{'Release' in $build_type }}",
               "chdir": "$dist_dir_release\\lib",
               "script": "for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",

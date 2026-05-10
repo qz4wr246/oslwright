@@ -273,19 +273,17 @@
           },
           "scripts": [
             {
-              "message": "Rename DLL files to be compatible with MSVC",
+              "message": "Rename the library files to be MSVC-compatible.",
               "when":"{{'Debug' in $build_type}}",
               "chdir": "$dist_dir_debug\\lib",
-              "script": "for %f in (*.a) do @set \"fn=%f\" & cmd /v:on /c \"set \"out=!fn:.dll.a=.lib!\" & if \"!out!\"==\"!fn!\" (copy /y /b \"!fn!\" \"%~nf.lib\") else (copy /y /b \"!fn!\" \"!out!\")\"",
-
+                            "script": "cmd /v:on /c \"for %f in (*.a) do (set \"n=%~nf\" & set \"n=!n:.dll=!\" & copy /y \"%f\" \"!n!.lib\" & if \"!n:~0,3!\"==\"lib\" copy /y \"%f\" \"!n:~3!.lib\")\"",
               "ignore_errors": true
             },
             {
-              "message": "Rename DLL files to be compatible with MSVC",
+              "message": "Rename the library files to be MSVC-compatible.",
               "when":"{{'Release' in $build_type }}",
               "chdir": "$dist_dir_release\\lib",
-              "script": "for %f in (*.a) do @set \"fn=%f\" & cmd /v:on /c \"set \"out=!fn:.dll.a=.lib!\" & if \"!out!\"==\"!fn!\" (copy /y /b \"!fn!\" \"%~nf.lib\") else (copy /y /b \"!fn!\" \"!out!\")\"",
-
+                            "script": "cmd /v:on /c \"for %f in (*.a) do (set \"n=%~nf\" & set \"n=!n:.dll=!\" & copy /y \"%f\" \"!n!.lib\" & if \"!n:~0,3!\"==\"lib\" copy /y \"%f\" \"!n:~3!.lib\")\"",
               "ignore_errors": true
             },
             {

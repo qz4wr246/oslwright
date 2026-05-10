@@ -322,14 +322,14 @@
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}", // adjust path for pc file
           "scripts": [
             {
-              "message": "Rename DLL files to be compatible with MSVC",
+              "message": "Rename the library files to be MSVC-compatible.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$dist_dir_debug\\lib",
               "script": "for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",
               "ignore_errors": true
             },
             {
-              "message": "Rename DLL files to be compatible with MSVC",
+              "message": "Rename the library files to be MSVC-compatible.",
               "when": "{{'Release' in $build_type }}",
               "chdir": "$dist_dir_release\\lib",
               "script": "for %f in (*.dll.a) do @set \"fname=%f\" & cmd /v:on /c \"copy /y /b \"!fname!\" \"!fname:.dll.a=.lib!\"\"",

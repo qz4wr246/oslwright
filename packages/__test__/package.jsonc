@@ -1,0 +1,167 @@
+{
+  "name": "_test",
+  "display": "_test",
+  "description": "Sample Library",
+  "site": "https://example.org",
+  "license": "Apache 2 License",
+  "info": "info.md",
+  "process_time": 300,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "choice",
+      "items": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "choice",
+      "items": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "type": "choice",
+      "items": [
+        "shared",
+        "static",
+        "shared;static"
+      ],
+      "default": "$build_library_default"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "choice",
+      "items": [
+        "Release",
+        "Debug",
+        "Release;Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "type": "choice",
+      "items": [
+        "union",
+        "separation"
+      ],
+      "default": "union"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    },
+    {
+      "display": "With Zlib",
+      "name": "with_zlib",
+      "type": "bool",
+      "default": false
+    }
+  ],
+  "versions": {
+    "default": {
+      "dependencies": {
+        "zlib": {
+          "enable": "{{$with_zlib}}",
+          "version": ">=1.3"
+        }
+      },
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "git_url": "https://github.com/opencv/opencv.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
+      "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "foo_var" : "foo",
+      "environments": {
+        "ENV": "1st",
+        "ENV2": "${msys2_dir}\\opt\\ucrt64\\bin",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+      },
+      "stages": {
+        "download": {
+          "config_options": [
+            "{{'--extra-cflags=\\'-DZLIB_DLL -MD\\' --extra-cxxflags=\\'-DZLIB_DLL -MD\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:libcmt.lib\\'' if 'md' == $msvc_runtime_library else '--extra-cflags=\\'-DZLIB_DLL -MT\\' --extra-cxxflags=\\'-DZLIB_DLL -MT\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:msvcrt.lib\\''}}",
+          ],
+          "bar_var": "bar",
+          "environments": {
+            "ENV": "%ENV%; 2st , ${bar_var}"
+          },
+          "scripts": [
+            {
+              "environments": {
+                "ENV": "%ENV%; 3rd"
+              },
+              "script": "echo ENV=%ENV%"
+            },
+            {
+              "script": "echo foo_var=${foo_var}, ENV2=%ENV2%"
+            },
+            {
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}}",
+              "script": "echo ${msys2_bash} \"${bash_script}\""
+            },
+            {
+              "script": "exit 99"
+            }
+          ]
+        }
+      }
+    },
+    "4.5.2": {}
+  }
+}

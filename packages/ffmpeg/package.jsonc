@@ -168,7 +168,7 @@
           "version": ">=1.5"
         },
         "fontconfig": {
-          "version": ">=2.15"
+          "version": ">=2.17"
         },
         "freetype": {
           "version": ">=2.13"
