@@ -110,9 +110,6 @@
       "git_url": "https://gitlab.gnome.org/GNOME/gobject-introspection.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
-      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
-      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
-      "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "dependencies": {
         "glib": {
           "version": ">=2.88"
