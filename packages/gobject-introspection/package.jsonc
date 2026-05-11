@@ -375,24 +375,6 @@
                 "dist_dir": "$dist_dir_release\\lib\\gobject-introspection\\giscanner"
               },
               "script": "for %a in (\"%dep_paths:;=\" \"%\") do @if exist %~a copy /y \"%~a\\*.dll\" \"%dist_dir%\""
-            },
-            {
-              "message": "Copy gir files",
-              "when": "{{'Debug' in $build_type}}",
-                "environments": {
-                "dep_paths" : "$glib_dir_release\\share\\gir-1.0",
-                "dist_dir": "$dist_dir_debug\\share\\gir-1.0"
-              },
-              "script": "for %a in (\"%dep_paths:;=\" \"%\") do @if exist %~a copy /y \"%~a\\*.gir\" \"%dist_dir%\""
-            },
-            {
-              "message": "Copy gir files",
-              "when": "{{'Release' in $build_type}}",
-                "environments": {
-                "dep_paths" : "$glib_dir_release\\share\\gir-1.0",
-                "dist_dir": "$dist_dir_release\\share\\gir-1.0"
-              },
-              "script": "for %a in (\"%dep_paths:;=\" \"%\") do @if exist %~a copy /y \"%~a\\*.gir\" \"%dist_dir%\""
             }
           ]
         }

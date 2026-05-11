@@ -115,6 +115,8 @@
       "git_url": "https://gitlab.gnome.org/GNOME/gdk-pixbuf.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "gobject_introspection_name": "gobject-introspection-*{{'-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + '-release'}}",
+      "gobject_introspection_dir": "{{next(pathlib.Path($dist_rootdir).rglob($gobject_introspection_name), '')}}",
       "dependencies": {
         "libpng": {
           "version": ">=1.6"
@@ -339,6 +341,15 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "message": "Copy gir files",
+              "when": "{{'Release' in $build_type and $with_introspection}}",
+                "environments": {
+                "dep_paths" : "$dist_dir_release\\share\\gir-1.0",
+                "dist_dir": "$gobject_introspection_dir\\share\\gir-1.0"
+              },
+              "script": "for %a in (\"%dep_paths:;=\" \"%\") do @if exist %~a copy /y \"%~a\\*.gir\" \"%dist_dir%\""
             }
           ]
         }

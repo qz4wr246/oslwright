@@ -225,9 +225,12 @@
         "libplacebo":{
           "version": ">=7.360"
         },
+        "librsvg":{
+          "version": ">=2.62"
+        },
         /*
 
-         "librsvg"
+
          "libsoxr"
          "libtheora"
          "libva"
@@ -242,7 +245,6 @@
          "opus"
          "rav1e"
          "rtmpdump"
-         "SDL2"
          "speex"
          "srt"
          "svt-av1"
@@ -250,15 +252,10 @@
          "shaderc"
          "vid.stab"
          "vulkan"
-         "libx264"
-         "x265"
          "xvidcore"
          "zimg"
-         "zlib"
          "zvbi"
         */
-
-
 
         "libpng": {
           "version": ">=1.6"
@@ -277,8 +274,6 @@
           "enable": "{{$enable_openh264}}",
           "version": ">=2.6.0"
         },
-
-
         "sdl": {
           "version": ">=2.30;<3.0" // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
         },
