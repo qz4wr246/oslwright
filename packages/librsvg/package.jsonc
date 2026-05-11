@@ -5,7 +5,7 @@
   "site": "https://wiki.gnome.org/Projects/LibRsvg",
   "license": "LGPL",
   "info":"info.md",
-  "process_time": 300,
+  "process_time": 500,
   "options": [
     {
       "display": "Version",
@@ -97,6 +97,7 @@
     {
       "display": "With gobject-introspection",
       "name": "with_introspection",
+      "enable": false,  // TODO: with_introspection で、Rsvg-2.0.exeの実行が失敗する。
       "type": "bool",
       "default": false
     }
@@ -198,6 +199,21 @@
             }
           ]
         },
+        "patch": {
+          "patch_files": [
+            {
+              "file": "${package_dir}\\0002-avoid-link-whole.patch"
+            }
+          ],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" && patch -t -p1 -i \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\"' if 'url' in p else f'patch -t -p1 -i \"{p[\"file\"]}\"') + f' && copy nul > \"__patched__{os.path.basename(p.get(\"url\") or p.get(\"file\"))}\"' + (' && popd' if 'chdir' in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+            }
+          ]
+        },
         "configure": {
           "meson_options": [
             "--vsenv",
@@ -205,7 +221,6 @@
             "--default-library={{'static' if $build_library == 'static' else 'shared'}}",
             "-Db_vscrt={{'from_buildtype' if $msvc_runtime_library == 'md' else 'static_from_buildtype'}}",
             "-Dintrospection={{'enabled' if $with_introspection else 'disabled'}}",
-            // "-Dvala=disabled",
             "-Ddocs=disabled",
             "-Dtests=false"
           ],
@@ -244,7 +259,7 @@
               "environments": {
                 "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug) ])}}"
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}"
               },
               "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_debug)}}  \"$build_dir_debug\" \"$source_dir\""
             },
@@ -254,7 +269,7 @@
               "environments": {
                 "CMAKE_PREFIX_PATH": "$dependent_packages_release",
                 "PKG_CONFIG_PATH": "$pkg_config_path_release",
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release) ])}}"
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}"
               },
               "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_release)}} \"$build_dir_release\" \"$source_dir\""
             }
@@ -266,19 +281,19 @@
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
-                "PERLIO": "raw"
+                "PKG_CONFIG_PATH": "$pkg_config_path_debug",
+                "PATH": "{{';'.join([$dependent_dlls_debug, os.path.join($build_dir_debug, 'rsvg'), '%PATH%'])}}"
               },
-              "script": "meson compile -C \"$build_dir_debug\" -j 4"
+              "script": "meson compile -C \"$build_dir_debug\" -j 1"
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
-                "PERLIO": "raw"
+                "PKG_CONFIG_PATH": "$pkg_config_path_release",
+                "PATH": "{{';'.join([$dependent_dlls_release, os.path.join($build_dir_release, 'rsvg'), '%PATH%'])}}"
               },
-              "script": "meson compile -C \"$build_dir_release\" -j 4"
+              "script": "meson compile -C \"$build_dir_release\" -j 1"
             }
           ]
         },
