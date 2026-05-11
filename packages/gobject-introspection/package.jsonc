@@ -114,15 +114,14 @@
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "dependencies": {
-        "proxy-libintl": {  //  'gettext-devel'
+        "glib": {
+          "version": ">=2.88"
+        },
+        "proxy-libintl": {
           "version": ">=0.5"
         },
         "libffi": {
           "version": ">=3.5"
-        },
-        "glib": {
-          "version": ">=2.88",
-          "with_introspection": false
         },
         "pcre2": {
           "version": ">=10.0"
@@ -133,10 +132,6 @@
       },
       "environments": {
         "LC_ALL": "C",
-        "MSYS": "winsymlinks:nativestrict",
-        "MSYSTEM": "UCRT64",
-        "CHERE_INVOKING": "1",
-        "MSYS2_PATH_TYPE": "inherit",
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
         "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
@@ -335,6 +330,7 @@
           ]
         },
         "post-install": {
+          "glib_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'glib' in x), '')}}",
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
@@ -361,7 +357,43 @@
             //   "message": "Replace execute path of python script",
             //    "when": "{{'Release' in $build_type}}",
             //   "script": "for /f \"delims=\" %f in ('findstr /M \"Mode: Python\" \"$dist_dir_release\\bin\\*\"') do perl -i -pe \"s|^#!/usr/bin/env .*python\\.exe|#!/usr/bin/env python.exe|\" \"%f\""
-            // }
+            // },
+            {
+              "message": "Copy runtime library for giscanner",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "dep_paths" : "$dependent_dlls_release",
+                "dist_dir": "$dist_dir_debug\\lib\\gobject-introspection\\giscanner"
+              },
+              "script": "for %a in (\"%dep_paths:;=\" \"%\") do @if exist %~a copy /y \"%~a\\*.dll\" \"%dist_dir%\""
+            },
+            {
+              "message": "Copy runtime library for giscanner",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "dep_paths" : "$dependent_dlls_release",
+                "dist_dir": "$dist_dir_release\\lib\\gobject-introspection\\giscanner"
+              },
+              "script": "for %a in (\"%dep_paths:;=\" \"%\") do @if exist %~a copy /y \"%~a\\*.dll\" \"%dist_dir%\""
+            },
+            {
+              "message": "Copy gir files",
+              "when": "{{'Debug' in $build_type}}",
+                "environments": {
+                "dep_paths" : "$glib_dir_release\\share\\gir-1.0",
+                "dist_dir": "$dist_dir_debug\\share\\gir-1.0"
+              },
+              "script": "for %a in (\"%dep_paths:;=\" \"%\") do @if exist %~a copy /y \"%~a\\*.gir\" \"%dist_dir%\""
+            },
+            {
+              "message": "Copy gir files",
+              "when": "{{'Release' in $build_type}}",
+                "environments": {
+                "dep_paths" : "$glib_dir_release\\share\\gir-1.0",
+                "dist_dir": "$dist_dir_release\\share\\gir-1.0"
+              },
+              "script": "for %a in (\"%dep_paths:;=\" \"%\") do @if exist %~a copy /y \"%~a\\*.gir\" \"%dist_dir%\""
+            }
           ]
         }
       }

@@ -249,7 +249,9 @@
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+                "CMAKE_PREFIX_PATH": "$dependent_packages_debug;$gobject_introspection_dir",
+                "PKG_CONFIG_PATH": "$pkg_config_path_debug;$gobject_introspection_dir\\lib\\pkgconfig;$glib_prebuild_dir\\lib\\pkgconfig",
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug, os.path.join($gobject_introspection_dir,'bin'), os.path.join($glib_prebuild_dir,'bin') ])}}"
               },
               "chdir": "$build_dir_debug",
               "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_debug)}} \"$build_dir_debug\" \"$source_dir\"",
