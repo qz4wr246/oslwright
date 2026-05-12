@@ -228,18 +228,38 @@
         "librsvg":{
           "version": ">=2.62"
         },
+        "soxr" : {
+          "version": ">=1.3"
+        },
+        "theora": {
+          "version": ">=1.2"
+        },
+        "libva": {
+          "version": ">=2.23"
+        },
+        "vorbis": {
+          "version": ">=1.3"
+        },
+        "libvpx": {
+          "version": ">=1.16"
+        },
+        "libwebp": {
+          "version": ">=1.4"
+        },
+        "libxml2": {
+          "version": ">=2.11"
+        },
+        "libvpl": {
+          "version": ">=2.16"
+        },
+        "openal-soft": {
+          "version": ">=1.25"
+        },
+        "opencore-amr": {
+          "version": ">=0.1"
+        },
         /*
 
-
-         "libsoxr"
-         "libtheora"
-         "libva"
-         "libvorbis"
-         "libvpx"
-         "libwebp"
-         "libxml2"
-         "libvpl"
-         "openal"
          "opencore-amr"
          "openjpeg2"
          "opus"
