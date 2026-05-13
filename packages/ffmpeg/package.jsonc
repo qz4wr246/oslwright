@@ -258,17 +258,28 @@
         "opencore-amr": {
           "version": ">=0.1"
         },
+        "openjpeg":{
+          "version": ">=2.5"
+        },
+        "opus":{
+          "version": ">=1.6"
+        },
+        "rav1e":{
+          "version": ">=0.8"
+        },
+        "rtmpdump":{
+          "version": ">=2.6"
+        },
+        "speex":{
+          "version": ">=1.2"
+        },
+        "srt":{
+          "version": ">=1.5"
+        },
+        "liblc3":{
+          "version": ">=1.1"
+        },
         /*
-
-         "opencore-amr"
-         "openjpeg2"
-         "opus"
-         "rav1e"
-         "rtmpdump"
-         "speex"
-         "srt"
-         "svt-av1"
-         "liblc3"
          "shaderc"
          "vid.stab"
          "vulkan"

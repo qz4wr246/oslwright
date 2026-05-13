@@ -113,7 +113,7 @@
           "version": ">=75.0"
         },
         "openssl": {
-          "version": ">=3.3.0"
+          "version": ">=3.5;<3.6"
         },
         "protobuf": {
           "version": "==31.1"

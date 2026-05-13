@@ -99,7 +99,7 @@
     "default": {
       "dependencies": {
         "openssl": {
-          "version": ">=3.3"
+          "version": ">=3.5;<3.6"
         },
         "oatpp": {
           "version": ">=1.3"

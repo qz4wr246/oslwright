@@ -99,7 +99,7 @@
     "default": {
       "dependencies": {
         "openssl": {
-          "version": ">=3.3.1"
+          "version": ">=3.5;<3.6"
         }
       },
       "source_dir": "${source_rootdir}\\${name}-${version}",

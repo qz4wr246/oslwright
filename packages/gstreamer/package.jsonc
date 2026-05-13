@@ -120,7 +120,7 @@
           "version": ">=3.45"
         },
         "openssl": {
-          "version": ">=3.3"
+          "version": ">=3.5;<3.6"
         },
         "libxml2": {
           "version": ">=2.11"

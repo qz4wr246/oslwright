@@ -99,8 +99,8 @@
   "versions": {
     "default": {
       "dependencies": {
-        "openssl":{
-           "version":">=3.6"
+        "openssl": {
+           "version": ">=3.5;<3.6"
         },
         "zlib": {
           "version": ">=1.3"
