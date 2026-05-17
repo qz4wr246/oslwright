@@ -1,0 +1,279 @@
+{
+  "name": "spirv-headers",
+  "display": "SPIR-V Headers",
+  "description": "Machine-readable files for the SPIR-V Registry",
+  "site": "https://www.khronos.org/registry/spir-v/",
+  "license": "MIT",
+  "info": "info.md",
+  "process_time": 30,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "enable": false,
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": ""
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "enable": false,
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": ""
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "x64",
+        "x32"
+      ],
+      "default": ""
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "mt",
+        "md"
+      ],
+      "default": ""
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "shared",
+        "static",
+        "interface"
+      ],
+      "default": "interface"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "Release",
+        "Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "union",
+        "separation"
+      ],
+      "default": "union"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    }
+  ],
+  "versions": {
+    "default": {
+      "environments": {
+        "PERLIO": "raw",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+      },
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "git_url": "https://github.com/KhronosGroup/SPIRV-Headers",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
+      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git clone.",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git checkout.",
+              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$source_dir",
+              "script": "git checkout $git_hash",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extract from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z -sccUTF-8 x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "make cache.",
+              "when": "{{not os.path.isfile($cache_file)}}",
+              "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
+              "fallback": "del \"$cache_file\""
+            }
+          ]
+        },
+        "configure": {
+          // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
+          "cmake_genarator": "-G \"Ninja Multi-Config\"",
+          "cmake_options": [
+            "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
+            "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
+            "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
+            "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
+            "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
+            "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
+            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
+            "-DCMAKE_DOC=OFF",
+            "-DBUILD_TESTS=OFF"
+          ],
+          "cmake_options_debug": [
+            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
+          ],
+          "cmake_options_release": [
+            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_release\""
+          ],
+          "scripts": [
+            {
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "script": "del /q /s \"$build_dir_debug\" > nul",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type }}",
+              "script": "del /q /s \"$build_dir_release\" > nul",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
+              "script": "mkdir \"$build_dir_debug\"",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
+              "script": "mkdir \"$build_dir_release\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "config for debug.",
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "environments": {
+                "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
+                "PKG_CONFIG_PATH": "$pkg_config_path_debug",
+                "PERLIO": "raw"
+              },
+              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\" -B \"$build_dir_debug\""
+            },
+            {
+              "message": "config for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "CMAKE_PREFIX_PATH": "$dependent_packages_release",
+                "PKG_CONFIG_PATH": "$pkg_config_path_release",
+                "PERLIO": "raw"
+              },
+              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
+            }
+          ]
+        },
+        "build": {
+          "scripts": [
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
+                "PERLIO": "raw"
+              },
+              "script": "cmake --build \"$build_dir_debug\" --config Debug -j4"
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
+                "PERLIO": "raw"
+              },
+              "script": "cmake --build \"$build_dir_release\" --config Release -j4"
+            }
+          ]
+        },
+        "install": {
+          "scripts": [
+            {
+              "message": "install for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "cmake --install \"$build_dir_debug\" --config Debug"
+            },
+            {
+              "message": "install for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "cmake --install \"$build_dir_release\" --config Release"
+            }
+          ]
+        },
+        "post-install": {
+          "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}",
+          "environments": {
+            "PERLIO": "raw"
+          },
+          "scripts": [
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
+              "ignore_errors": true
+            }
+          ]
+        }
+      }
+    },
+    "vulkan-sdk-1.4.350.0": {}
+  }
+}
