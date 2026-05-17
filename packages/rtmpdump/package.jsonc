@@ -262,7 +262,7 @@
           "scripts": [
             {
               "when": "{{'Release' in $build_type }}",
-              "script": "del /q /s \"$build_dir_release\" > nul",
+              "script": "rmdir /q /s \"$build_dir_release\" > nul",
               "ignore_errors": true
             },
             {

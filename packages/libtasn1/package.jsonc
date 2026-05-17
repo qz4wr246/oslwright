@@ -186,7 +186,7 @@
           "scripts": [
             {
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "del /q /s \"$build_dir_debug\" > nul",
+              "script": "rmdir /q /s \"$build_dir_debug\" > nul",
               "ignore_errors": true
             },
             {
