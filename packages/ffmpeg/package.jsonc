@@ -284,10 +284,13 @@
         },
         "vid.stab": {
           "enable": "{{$enable_gpl}}",
-          "version": ">=2026.2"
-        }
+          "version": ">=1.1"
+        },
+        "xvidcore": {
+          "enable": "{{$enable_gpl}}",
+          "version": ">=1.1"
+        },
         /*
-         "vid.stab"
          "vulkan"
          "xvidcore"
          "zimg"
@@ -395,7 +398,7 @@
             },
             {
               "name": "openh264",
-              "when": "$enable_openh264",
+              "when": "{{$enable_openh264}}",
               // "remove_prefix_pc": ["libopenh264"]
             },
             {

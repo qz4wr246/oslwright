@@ -188,7 +188,7 @@
               "message": "copy to builddir",
               "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
               "script": "xcopy \"$source_dir\" \"$build_dir_release\" /s /e /i /y",
-              // "ignore_errors": true
+              "ignore_errors": true
             },
             {
               "message": "config for debug.",

@@ -143,7 +143,7 @@
               "message": "donloads",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
               "script": "curl.exe --fail -L -s -o \"$cache_file\" \"$download_url\"",
-              "fallback": "rmdir /q /s \"$source_dir\""
+              "fallback": "del /q /f \"$cache_file\""
             },
             {
               "message": "extract from cache.",
