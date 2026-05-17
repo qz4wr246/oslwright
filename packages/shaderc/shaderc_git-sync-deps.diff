@@ -1,0 +1,13 @@
+diff --git a/utils/git-sync-deps b/utils/git-sync-deps
+index eecfbe9..6a47848 100755
+--- a/utils/git-sync-deps
++++ b/utils/git-sync-deps
+@@ -153,7 +153,7 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
+   """
+   if not os.path.isdir(directory):
+     subprocess.check_call(
+-      [git, 'clone', '--quiet', repo, directory])
++      [git, 'clone', '--quiet','--depth', '1', repo, directory])
+ 
+   if not is_git_toplevel(git, directory):
+     # if the directory exists, but isn't a git repo, you will modify
