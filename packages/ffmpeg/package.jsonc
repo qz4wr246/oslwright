@@ -282,8 +282,11 @@
         "shaderc":{
           "version": ">=2026.2"
         },
+        "vid.stab": {
+          "enable": "{{$enable_gpl}}",
+          "version": ">=2026.2"
+        }
         /*
-         "shaderc"
          "vid.stab"
          "vulkan"
          "xvidcore"

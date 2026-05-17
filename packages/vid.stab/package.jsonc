@@ -1,11 +1,11 @@
 {
-  "name": "gobject-introspection",
-  "display": "gobject-introspection",
-  "description": "A middleware layer between C libraries (using GObject) and language bindings.",
-  "site": "https://gi.readthedocs.io/",
-  "license": "LGPL-2.0",
-  "info":"info.md",
-  "process_time": 120,
+  "name": "vid.stab",
+  "display": "vid.stab",
+  "description": "Video stabilization library",
+  "site": "http://public.hronopik.de/vid.stab",
+  "license": "GPL-2.0-or-later",
+  "info": "info.md",
+  "process_time": 300,
   "options": [
     {
       "display": "Version",
@@ -62,7 +62,6 @@
     {
       "display": "Build type",
       "name": "build_type",
-      "enable": false,
       "type": "choice",
       "items": [
         "Release",
@@ -76,9 +75,10 @@
       "enable": false,
       "type": "choice",
       "items": [
+        "union",
         "separation"
       ],
-      "default": "separation"
+      "default": "union"
     },
     {
       "display": "Using CUDA",
@@ -98,6 +98,11 @@
   ],
   "versions": {
     "default": {
+      "environments": {
+        "PERLIO": "raw",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+      },
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
@@ -107,38 +112,15 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://gitlab.gnome.org/GNOME/gobject-introspection.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
+      "git_url": "https://github.com/georgmartius/vid.stab.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
-      "dependencies": {
-        "glib": {
-          "version": ">=2.88"
-        },
-        "proxy-libintl": {
-          "version": ">=0.5"
-        },
-        "libffi": {
-          "version": ">=3.5"
-        },
-        "pcre2": {
-          "version": ">=10.0"
-        },
-        "zlib": {
-          "version": ">=1.3"
-        }
-      },
-      "environments": {
-        "LC_ALL": "C",
-        "PERLIO": "raw",
-        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
-      },
       "stages": {
         "download": {
           "scripts": [
             {
               "when": "{{os.path.isdir($source_dir)}}",
-              "script": "rmdir /q /s \"$source_dir\" > nul"
+              "script": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "git clone.",
@@ -168,88 +150,76 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-gobject-introspection",
-          "dowload_file": "$repo_url/pyscript2exe.py",
+          "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
           "patch_files": [
             {
-              "url": "$repo_url/0002-relocate-tools.patch"
+              "url": "$repo_url/1.16-aliases.patch"
             },
-            {
-              "url": "$repo_url/0022-change-pkg-config-invocations.mingw.patch"
-            },
-            {
-              "url": "$repo_url/0024-Support-passing-arguments-to-g-ir-scanner-through-a-.all.patch"
-            },
-            {
-              "url": "$repo_url/0026-giscanner-assertions-and-waits.patch"
-            },
-            {
-              "file": "$package_dir\\gobject-introspection_giscanner_ccompiler-1.86.0.diff"
-            }
+
           ],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
               "message": "Patch ${name} source code",
-
               "chdir": "$source_dir",
               "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
-            },
-            {
-              "chdir": "$source_dir",
-              "script": "curl.exe --fail -L -s -o \"{{os.path.basename($dowload_file)}}\" $dowload_file"
             }
           ]
         },
         "configure": {
-          "meson_options": [
-            "--vsenv",
-            "--pkgconfig.relocatable",
-            "--default-library={{'static' if $build_library == 'static' else 'shared'}}",
-            "-Db_vscrt={{'from_buildtype' if $msvc_runtime_library == 'md' else 'static_from_buildtype'}}",
-            "-Dpython=$python_exe",
-            "-Ddoctool=enabled",
-            "-Dcairo=disabled",
-            "-Dtests=false"
+          // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
+          "cmake_genarator": "-G \"Ninja Multi-Config\"",
+          "cmake_options": [
+            "-DCMAKE_CXX_STANDARD=17",
+            "-DCMAKE_C_STANDARD=17",
+            "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
+            "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
+            "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
+            "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
+            "-DCMAKE_DEBUG_POSTFIX=d",
+            "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
+            "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
+            "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
+            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
+            "-DCMAKE_DOC=OFF",
+            "-DBUILD_TESTS=OFF"
           ],
-          "meson_options_debug" : [
-            "--prefix=\"$dist_dir_debug\"",
-            "--buildtype debug"
+          "cmake_options_debug": [
+            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
           ],
-          "meson_options_release" : [
-            "--prefix=\"$dist_dir_release\"",
-            "--buildtype release"
+          "cmake_options_release": [
+            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_release\""
           ],
           "scripts": [
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "del /q /s \"$build_dir_debug\" > nul"
+              "script": "del /q /s \"$build_dir_debug\" > nul",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type}}",
-              "script": "del /q /s \"$build_dir_release\" > nul"
+              "when": "{{'Release' in $build_type }}",
+              "script": "del /q /s \"$build_dir_release\" > nul",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
-              "script": "mkdir \"$build_dir_debug\""
+              "script": "mkdir \"$build_dir_debug\"",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
               "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
-              "script": "mkdir \"$build_dir_release\""
+              "script": "mkdir \"$build_dir_release\"",
+              "ignore_errors": true
             },
             {
               "message": "config for debug.",
-              "when": "{{'Debug' in $build_type}}",
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
               "environments": {
                 "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}"
+                "PERLIO": "raw"
               },
-              "bash_script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_debug)}} \"$build_dir_debug\" \"$source_dir\""
+              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\" -B \"$build_dir_debug\""
             },
             {
               "message": "config for release.",
@@ -257,126 +227,68 @@
               "environments": {
                 "CMAKE_PREFIX_PATH": "$dependent_packages_release",
                 "PKG_CONFIG_PATH": "$pkg_config_path_release",
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}"
+                "PERLIO": "raw"
               },
-              "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_release)}} \"$build_dir_release\" \"$source_dir\""
+              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
             }
           ]
         },
         "build": {
-          "intl_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'intl' in x), '')}}",
-          "intl_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'intl' in x), '')}}",
-          "intl_include_debug": "$intl_dir_debug\\include",
-          "intl_include_release": "$intl_dir_release\\include",
-          "intl_lib_debug": "$intl_dir_debug\\lib\\intl.lib",
-          "intl_lib_release": "$intl_dir_release\\lib\\intl.lib",
           "scripts": [
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}"
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
+                "PERLIO": "raw"
               },
-              "script": "meson compile -C \"$build_dir_debug\" -j 1"
-            },
-            {
-              "environments": {
-                "dep_paths" : "$dependent_dlls_release",
-                "dist_dir": "$build_dir_release\\giscanner"
-              },
-              "script": "for %a in (\"%dep_paths:;=\" \"%\") do @if exist %~a copy /y \"%~a\\*.dll\" \"%dist_dir%\""
-            },
-            {
-              "environments": {
-                "dep_paths" : "$dependent_libs_release",
-                "dist_dir": "$build_dir_release"
-              },
-              "script": "for %p in (\"%dep_paths:;=\" \"%\") do @for %f in (\"%~p\\*.lib\") do @cmd /v:on /c \"set fname=%~nxf& if /i \"!fname:~0,3!\"==\"lib\" (copy /y \"%~f\" \"%dist_dir%\\!fname:~3!\") else (copy /y \"%~f\" \"%dist_dir%\\\")\""
-            },
-            {
-              "script": "copy /y \"$intl_include_release\\libintl.h\" \"$build_dir_release\""
+              "script": "cmake --build \"$build_dir_debug\" --config Debug -j4"
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
-              "chdir": "$build_dir_release",
               "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release, $build_dir_release, $build_dir_release + '\\girepository', $build_dir_release + '\\giscanner' ])}}",
-                "CMAKE_PREFIX_PATH": "$dependent_packages_release",
-                "PKG_CONFIG_PATH": "$pkg_config_path_release",
-                "LIB": "$dependent_libss_release;%LIB%"
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
+                "PERLIO": "raw"
               },
-              "script": "meson compile -C \"$build_dir_release\" -j 1"
+              "script": "cmake --build \"$build_dir_release\" --config Release -j4"
             }
           ]
         },
         "install": {
-          "meson_install_options": [
-          ],
           "scripts": [
             {
               "message": "install for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "script": "meson install -C \"$build_dir_debug\" {{' '.join($meson_install_options)}}"
+              "script": "cmake --install \"$build_dir_debug\" --config Debug"
             },
             {
               "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
-              "script": "meson install -C \"$build_dir_release\" {{' '.join($meson_install_options)}}"
+              "script": "cmake --install \"$build_dir_release\" --config Release"
             }
           ]
         },
         "post-install": {
-          "glib_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'glib' in x), '')}}",
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
           },
           "scripts": [
             {
-              "message": "Adjust paths and other configurations in *.pc",
               "when": "{{'Debug' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
             },
             {
-              "message": "Adjust paths and other configurations in *.pc",
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
-            },
-            // {
-            //   "message": "Replace execute path of python script",
-            //   "when": "{{'Debug' in $build_type}}",
-            //   "script": "for /f \"delims=\" %f in ('findstr /M \"Mode: Python\" \"$dist_dir_debug\\bin\\*\"') do perl -i -pe \"s|^#!/usr/bin/env .*python\\.exe|#!/usr/bin/env python.exe|\" \"%f\""
-            // },
-            // {
-            //   "message": "Replace execute path of python script",
-            //    "when": "{{'Release' in $build_type}}",
-            //   "script": "for /f \"delims=\" %f in ('findstr /M \"Mode: Python\" \"$dist_dir_release\\bin\\*\"') do perl -i -pe \"s|^#!/usr/bin/env .*python\\.exe|#!/usr/bin/env python.exe|\" \"%f\""
-            // },
-            {
-              "message": "Copy runtime library for giscanner",
-              "when": "{{'Debug' in $build_type}}",
-              "environments": {
-                "dep_paths" : "$dependent_dlls_release",
-                "dist_dir": "$dist_dir_debug\\lib\\gobject-introspection\\giscanner"
-              },
-              "script": "for %a in (\"%dep_paths:;=\" \"%\") do @if exist %~a copy /y \"%~a\\*.dll\" \"%dist_dir%\""
-            },
-            {
-              "message": "Copy runtime library for giscanner",
-              "when": "{{'Release' in $build_type}}",
-              "environments": {
-                "dep_paths" : "$dependent_dlls_release",
-                "dist_dir": "$dist_dir_release\\lib\\gobject-introspection\\giscanner"
-              },
-              "script": "for %a in (\"%dep_paths:;=\" \"%\") do @if exist %~a copy /y \"%~a\\*.dll\" \"%dist_dir%\""
             }
           ]
         }
       }
     },
-    "1.86.0": {}
+    "1.1.1": {}
   }
 }
