@@ -290,10 +290,11 @@
           "enable": "{{$enable_gpl}}",
           "version": ">=1.1"
         },
+        "zimg": {
+          "version": ">=3.0"
+        },
         /*
          "vulkan"
-         "xvidcore"
-         "zimg"
          "zvbi"
         */
 

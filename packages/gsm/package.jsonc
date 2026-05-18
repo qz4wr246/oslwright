@@ -178,7 +178,7 @@
             },
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
-              "script": "del /q /s \"$msys2_external_runtime_dir\" > nul",
+              "script": "rmdir /q /s \"$msys2_external_runtime_dir\" > nul",
               "ignore_errors": true
             }
           ]
