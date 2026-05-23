@@ -220,7 +220,7 @@
           "version": ">=0.8"
         },
         "libssh": {
-          "version": ">=0.12"
+          "version": ">=0.11"
         },
         "libplacebo":{
           "version": ">=7.360"
@@ -229,7 +229,7 @@
           "version": ">=2.62"
         },
         "soxr" : {
-          "version": ">=1.3"
+          "version": ">=0.1"
         },
         "theora": {
           "version": ">=1.2"
@@ -293,13 +293,16 @@
         "zimg": {
           "version": ">=3.0"
         },
-        /*
-         "vulkan"
-         "zvbi"
-        */
-
+        "zvbi": {
+          "enable": "{{$enable_gpl}}",
+          "version": ">=0.2.44"
+        },
         "libpng": {
           "version": ">=1.6"
+        },
+        "vulkan-headers": {
+        },
+        "vulkan-loader": {
         },
         "svt-av1": {
           "version": ">=4.1"
@@ -375,50 +378,190 @@
           ],
           "msys2_require_runtimes": [
             {
-              "name": "zlib",
-              // "add_prefix_lib": ["zlib.lib"]
+              "name": "aom"
             },
             {
-              "name": "sdl",
-              // "add_prefix_lib": ["sdl2.lib"]
+              "name": "bzip2"
             },
             {
-              "name": "libass"
+              "name": "dav1d"
+            },
+            {
+              "name": "fontconfig"
             },
             {
               "name": "freetype"
             },
             {
-              "name": "libpng"
+              "name": "frei0r",
+              "when": "{{$enable_gpl}}"
             },
             {
               "name": "fribidi"
             },
             {
+              "name": "gmp"
+            },
+            {
+              "name": "gnutls"
+            },
+            {
+              "name": "nettle",
+              // "remove_prefix_pc": ["libnettle","libhogweed"]
+            },
+            {
+              "name": "libtasn1",
+              // "remove_prefix_pc": ["libtasn1"]
+            },
+            {
+              "name": "libunistring"
+            },
+            {
+              "name": "gsm"
+            },
+            {
               "name": "harfbuzz"
-            },
-            {
-              "name": "openh264",
-              "when": "{{$enable_openh264}}",
-              // "remove_prefix_pc": ["libopenh264"]
-            },
-            {
-              "name": "aom"
-            },
-            {
-              "name": "svt-av1",
-              // "add_prefix_lib": ["SvtAv1Enc.lib"]
             },
             {
               "name": "lame"
             },
             {
+              "name": "libass"
+            },
+            {
+              "name": "libbluray"
+            },
+            {
+              "name": "libcaca"
+            },
+            {
+              "name": "libexif"
+            },
+            {
+              "name": "libgme"
+            },
+            {
+              "name": "libiconv"
+            },
+            {
+              "name": "libjxl"
+            },
+            {
+              "name": "libmodplug"
+            },
+            {
+              "name": "libssh"
+            },
+            {
+              "name": "libplacebo"
+            },
+            {
+              "name": "librsvg"
+            },
+            {
+              "name": "soxr"
+            },
+            {
+              "name": "theora"
+            },
+            {
+              "name": "libva"
+            },
+            {
+              "name": "vorbis"
+            },
+            {
+              "name": "libvpx"
+            },
+            {
+              "name": "libwebp"
+            },
+            {
+              "name": "libxml2"
+            },
+            {
+              "name": "libvpl"
+            },
+            {
+              "name": "openal-soft"
+            },
+            {
+              "name": "opencore-amr"
+            },
+            {
+              "name": "openjpeg"
+            },
+            {
+              "name": "opus"
+            },
+            {
+              "name": "rav1e"
+            },
+            {
+              "name": "rtmpdump"
+            },
+            {
+              "name": "speex"
+            },
+            {
+              "name": "srt"
+            },
+            {
+              "name": "liblc3"
+            },
+            {
+              "name": "shaderc"
+            },
+            {
+              "name": "vid.stab",
+              "when": "{{$enable_gpl}}"
+            },
+            {
+              "name": "xvidcore",
+              "when": "{{$enable_gpl}}"
+            },
+            {
+              "name": "zimg"
+            },
+            {
+              "name": "zvbi",
+              "when": "{{$enable_gpl}}"
+            },
+            {
+              "name": "vulkan-headers"
+            },
+            {
+              "name": "vulkan-loader"
+            },
+            {
+              "name": "libpng"
+            },
+            {
+              "name": "svt-av1"
+            },
+            {
               "name": "x264",
-              // "remove_prefix_pc": ["libx264"]
+              "when": "{{$enable_gpl}}"
             },
             {
               "name": "x265",
-              // "remove_prefix_pc": ["libx265"]
+              "when": "{{$enable_gpl}}"
+            },
+            {
+              "name": "openh264",
+              "when": "{{$enable_openh264}}"
+            },
+            {
+              "name": "sdl"
+            },
+            {
+              "name": "brotli"
+            },
+            {
+              "name": "zstd"
+            },
+            {
+              "name": "zlib"
             }
           ],
           "scripts": [
@@ -438,14 +581,11 @@
             {
               // Copy runtime Script: with msys2_require_runtimes
               "message": "Copy runtime libraries to MSYS2",
-              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'))}}",
-              "script": "{{' && '.join([f'xcopy \"{src_dir}\" \"{msys2_external_runtime_dir}\" /s /e /i /y' for dpr in [dependent_packages_release.split(';')] for item in msys2_require_runtimes if item.get('when', True) for src_dir in dpr if item['name'] in src_dir]+ [f'copy nul > \"{os.path.join(msys2_external_runtime_dir, \"__copied__\")}\"'])}}"
-            },
-            {
-              // Rename runtime Script: with msys2_require_runtimes
-              "message": "Rename library files and rewrite pc files.",
-              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__renamed__'))}}",
-              "script": "{{' && '.join([cmd for item in $msys2_require_runtimes if item.get('when', True) for cmd in ([f'ren \"{p}\" \"lib{os.path.basename(p)}\"' for n in item.get('add_prefix_lib', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', n), recursive=True)] + [f'perl -i.bak -pe \"if(/^Libs:/){{ s/-l{n}\\\\b/-l{n[3:] if n.startswith(\"lib\") else n}/g }}\" \"{p}\"' for n in item.get('remove_prefix_pc', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', '*.pc'), recursive=True) if os.path.isfile(p) and any(re.search(rf'^Libs:.*-l{n}\\b', l) for l in [pathlib.Path(p).read_text(errors=\"ignore\")] for l in l.splitlines())])]+[f'copy nul > \"{os.path.join($msys2_external_runtime_dir, \"__renamed__\")}\"'])}}"
+              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'))}}",
+              "chdir": "$source_dir",
+              // "script": "{{' && '.join([f'xcopy \"{os.path.basename(src_dir)}\" \"{msys2_external_runtime_dir}\" /s /e /i /y' for dpr in [dependent_packages_release.split(';')] for item in msys2_require_runtimes if item.get('when', True) for src_dir in dpr if item['name'] in src_dir]+ [f'copy nul > \"{os.path.join(msys2_external_runtime_dir, \"__copied__\")}\"'])}}"
+              // "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close()) for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ]}}"
+              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ][0]}} __copy_packages.bat && copy nul > \"$msys2_external_runtime_dir\\__copied__\""
             },
             {
               "chdir": "$source_dir",
@@ -460,10 +600,10 @@
             {
               "script": "curl.exe --fail -L -s -o \"${source_dir}\\pathtools.c\" $repo_url/pathtools.c && move /y \"${source_dir}\\pathtools.c\" \"${source_dir}\\libavfilter\\\"}"
             },
-            {
-              "chdir": "$source_dir",
-              "script": "move /y VERSION VERSION.txt"
-            }
+            // {
+            //   "chdir": "$source_dir",
+            //   "script": "move /y VERSION VERSION.txt"
+            // }
           ]
         },
         "configure": {
@@ -486,8 +626,9 @@
             "{{'--disable-postproc' if ${version}[0] == '6' else ''}}",
             "--disable-cuda-nvcc",
             "--enable-gnutls",
-            "--disable-iconv",
-            "--disable-libnpp",
+            // "--disable-iconv",
+            "--enable-iconv",
+            "--disable-libnpp", //  NVIDIA
             // codec
             "{{'--enable-libx264' if $enable_gpl else ''}}",
             "{{'--enable-libx265' if $enable_gpl else ''}}",
@@ -510,8 +651,8 @@
             "--enable-libbluray",
             "--enable-libcaca",
             "--enable-libdav1d",
-            // "--enable-libfontconfig",
-            // "--enable-libfreetype",
+            "--enable-libfontconfig",
+            "--enable-libfreetype",
             "--enable-libfribidi",
             "--enable-libgme",
             "--enable-libgsm",
@@ -522,18 +663,19 @@
             "--enable-libopencore_amrwb",
             "--enable-libopenjpeg",
             "--enable-librtmp",
-            "--disable-libssh",
+            // "--disable-libssh",
+            "--enable-libssh",
             "--enable-libsoxr",
             "--enable-libspeex",
             "--enable-libsrt",
             "--enable-libtheora",
-            "--enable-libvidstab",
+            "{{'--enable-libvidstab' if $enable_gpl else ''}}",
             "--enable-libvorbis",
-            "--enable-libxvid",
+            "{{'--enable-libxvid' if $enable_gpl else ''}}",
             "--enable-libwebp",
             "--enable-libxml2",
             "--enable-libzimg",
-            "--enable-libzvbi",
+            "{{'--enable-libzvbi' if $enable_gpl else ''}}",
             "--enable-openal",
             // "--enable-pic",
             // "--enable-runtime-cpudetect",

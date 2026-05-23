@@ -1,0 +1,12 @@
+--- a/lib/includes/gnutls/gnutls.h.in	2026-05-19 20:54:11.780288800 +0900
++++ b/lib/includes/gnutls/gnutls.h.in	2026-05-19 20:52:17.295264800 +0900
+@@ -41,6 +41,9 @@
+
+ /* Get size_t. */
+ #include <stddef.h>
++#if defined(_MSC_VER)
++#define ssize_t ptrdiff_t
++#endif
+
+ /* Get time_t. */
+ #include <time.h>

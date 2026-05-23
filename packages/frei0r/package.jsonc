@@ -141,6 +141,9 @@
           "enable": "{{not $without_cairo}}",
           "version": ">=1.18"
         },
+        "fontconfig": {
+          "version": ">=2.15"
+        },
         "gavl": {
           "enable": "{{not $without_gavl}}",
           "version": ">=1.4;<2.0"
@@ -237,6 +240,10 @@
                 "cairo.lib",
                 "cairo-script-interpreter.lib"
               ]
+            },
+            {
+              "name": "fontconfig",
+              "enable":"{{not $without_cairo}}"
             },
             {
               "name": "gavl",

@@ -148,6 +148,9 @@
         },
         "gmp": {
           "version": ">=6.3"
+        },
+        "libiconv": {
+          "version": ">=1.19"
         }
       },
       "environments": {
@@ -211,6 +214,9 @@
           "patch_files": [
             {
               "url": "$repo_url/0001-doc-fix-implicit-rule-build-failure.patch"
+            },
+            {
+              "file": "$package_dir\\gnutls-3.8__header.diff"
             }
           ],
           "msys2_require_runtimes" : [
@@ -244,6 +250,9 @@
             {
               "name": "gmp",
               "remove_prefix_pc": ["libgmp", "libgmpxx"]
+            },
+            {
+              "name": "libiconv"
             }
           ],
           "scripts": [
