@@ -42,7 +42,7 @@ def Version(text):
         if item.isdecimal():
             output.append((int(item), ""))
         elif item.lower() in prerelease_str:
-            output.append((-1, item))
+            output.append((0, item))
         else:
             output.append((0, item))
     output.append((0, ""))
