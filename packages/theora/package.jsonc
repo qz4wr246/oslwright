@@ -181,15 +181,6 @@
           ]
         },
         "patch": {
-          // "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
-          // "patch_files": [
-          //   {
-          //     "url": "$repo_url/0001-fixes-building-with-gcc-15.patch"
-          //   },
-          //   {
-          //     "file": "${package_dir}\\libiconv_make_in.diff"
-          //   }
-          // ],
           "msys2_require_runtimes": [
             {
               "name": "libpng"
@@ -202,13 +193,6 @@
             }
           ],
           "scripts": [
-            // {
-            //   // Patch Script: patching source code with patch_files
-            //   "message": "Patch ${name} source code",
-            //   "when": "{{'patch_files' in globals()}}",
-            //   "chdir": "$source_dir",
-            //   "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
-            // },
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
               "script": "rmdir /q /s \"$msys2_external_runtime_dir\" > nul",
@@ -355,42 +339,8 @@
           "environments": {
             "PERLIO": "raw"
           },
-          // // You can specify template files to be rendered after installation, and also specify scripts to be executed. The template file will be rendered when the condition is satisfied, and the value of each define will be passed to template as variable, so you can use it in template. The script for generating pc files from template files is also provided, and you can specify any script to be executed after installation.
-          // "template_files": [
-          //   // {
-          //   //   "when": true, // You can set condition for each template file, and skip it when the condition is not satisfied.
-          //   //   "template": "TEMPLATE_FILE_PATH", // You can specify template file by local file or URL.
-          //   //   "defines": [ "VARLABLE=value" ],// You can specify defines for template rendering. The value of each define will be passed to template as variable, so you can use it in template. The format of each
-          //   //   "output": "OUTPUT_FILE_PATH" // You can specify output file path for rendered template.
-          //   // },
-          //   {
-          //     "when": "{{'Debug' in $build_type}}",
-          //     "template": "${package_dir}\\libiconv.pc.j2",
-          //     "defines": [
-          //       "LIBRAW_VERSION=\"$version\""
-          //     ],
-          //     "output": "${pkgconfig_dir_debug}\\libiconv.pc"
-          //   },
-          //   {
-          //     "when": "{{'Release' in $build_type}}",
-          //     "template": "${package_dir}\\libiconv.pc.j2",
-          //     "defines": [
-          //       "LIBRAW_VERSION=\"$version\""
-          //     ],
-          //     "output": "${pkgconfig_dir_release}\\libiconv.pc"
-          //   }
-          // ],
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}", // adjust path for pc file
           "scripts": [
-            // {
-            //   // Template Script:
-            //   // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
-            //   "message": "Generate files from templates.",
-            //   "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
-            // },
-            //
-            // rename dlls, and rewrite pc files to adjust for MSVC linker and library naming convention. You can set ignore_errors to true to ignore errors of these scripts, because the naming convention of library files and pc files in msys2 runtime is not consistent, and it may cause errors when renaming or rewriting.
-            //
             {
               "message": "Rename the library files to be MSVC-compatible.",
               "when":"{{'Debug' in $build_type}}",
