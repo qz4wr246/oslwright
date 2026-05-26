@@ -230,17 +230,17 @@
               "bash_script": "rm -rf /opt/*",
               "script": "${msys2_bash} \"${bash_script}\"",
               "ignore_errors": false
-            },
-            {
-              "message": "Copy runtime libraries to MSYS2",
-              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name))}}",
-              "chdir": "$source_dir",
-              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ][0]}} __copy_packages.bat && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
             }
           ]
         },
         "configure": {
           "scripts": [
+            {
+              "message": "Copy runtime libraries to MSYS2",
+              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name))}}",
+              "chdir": "$source_dir",
+              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ][0]}} __copy_packages.bat && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
+            },
             {
               "when": "{{'Release' in $build_type }}",
               "script": "rmdir /q /s \"$build_dir_release\" > nul",

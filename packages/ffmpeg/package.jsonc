@@ -333,7 +333,7 @@
         "MSYS2_PATH_TYPE": "inherit",
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
       },
       "stages": {
         "download": {
@@ -380,7 +380,6 @@
             {
               // Patch Script: patching source code with patch_files
               "message": "Patch ${name} source code",
-              "when": "{{'patch_files' in globals()}}",
               "chdir": "$source_dir",
               "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
             },
@@ -391,12 +390,6 @@
               "ignore_errors": false
             },
             {
-              "message": "Copy runtime libraries to MSYS2",
-              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name))}}",
-              "chdir": "$source_dir",
-              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ][0]}} __copy_packages.bat && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
-            },
-            {
               "chdir": "$source_dir",
               "script": "perl -p -i -e \"s#^.+include <unistd.h>.*##g\" \"${msys2_dir}\\opt\\ucrt64\\include\\zconf.h\""
             },
@@ -404,10 +397,10 @@
               "script": "copy /y \"${package_dir}\\sdl2-config\" \"${msys2_dir}\\opt\\ucrt64\\bin\\\""
             },
             {
-              "script": "curl.exe --fail -L -s -o \"${source_dir}\\pathtools.h\" $repo_url/pathtools.h && copy /y  \"${source_dir}\\pathtools.h\" \"${source_dir}\\libavfilter\""
+              "script": "copy /y  \"${package_dir}\\pathtools.h\" \"${source_dir}\\libavfilter\""
             },
             {
-              "script": "curl.exe --fail -L -s -o \"${source_dir}\\pathtools.c\" $repo_url/pathtools.c && copy /y \"${source_dir}\\pathtools.c\" \"${source_dir}\\libavfilter\""
+              "script": "copy /y \"${package_dir}\\pathtools.c\" \"${source_dir}\\libavfilter\""
             }
           ]
         },
@@ -508,6 +501,12 @@
             "--{{'enable' if $build_apps else 'disable'}}-ffprobe"
           ],
           "scripts": [
+            {
+              "message": "Copy runtime libraries to MSYS2",
+              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name))}}",
+              "chdir": "$source_dir",
+              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ][0]}} __copy_packages.bat && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
+            },
             {
               "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
