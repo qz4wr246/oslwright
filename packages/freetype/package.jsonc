@@ -275,7 +275,7 @@
             },
             {
               "when": "{{'Release' in $build_type}}",
-              "chdir": "$dist_dir_debug\\lib",
+              "chdir": "$dist_dir_release\\lib",
               "script": "copy /y freetype.lib libfreetype.lib",
               "ignore_errors": true
             }
