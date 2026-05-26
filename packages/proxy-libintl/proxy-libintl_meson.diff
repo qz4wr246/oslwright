@@ -47,7 +47,7 @@ index 758feec..ebbcd59 100644
 +# --- pkg-config generate ---
 +pkg.generate(intl_lib,
 +  name : 'intl',
-+  filebase : 'intl',
++  filebase : 'libintl',
 +  description : 'Libintl is a library that provides native language support to programs. It is part of Gettext.',
 +  version : meson.project_version(),
 +  extra_cflags : c_args,

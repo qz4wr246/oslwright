@@ -276,7 +276,7 @@
             },
             {
               "when": "{{'Release' in $build_type}}",
-              "chdir": "$dist_dir_debug\\lib",
+              "chdir": "$dist_dir_release\\lib",
               "script": "copy /y intl.lib libintl.lib",
               "ignore_errors": true
             }
