@@ -228,80 +228,18 @@
           ]
         },
         "patch": {
-          "msys2_require_runtimes": [
-            {
-              "name": "opencv",
-              "enable": "{{not $without_opencv}}"
-            },
-            {
-              "name": "cairo",
-              "enable":"{{not $without_cairo}}",
-              "add_prefix_lib": [
-                "cairo.lib",
-                "cairo-script-interpreter.lib"
-              ]
-            },
-            {
-              "name": "fontconfig",
-              "enable":"{{not $without_cairo}}"
-            },
-            {
-              "name": "gavl",
-              "enable":"{{not $without_gavl}}",
-              "remove_prefix_pc": [
-                "libgavl"
-              ]
-            },
-            {
-              "name": "freetype",
-              "enable":"{{not $without_cairo}}",
-              "add_prefix_lib": [
-                "freetype.lib"
-              ]
-            },
-            {
-              "name": "libpng",
-              "enable":"{{not $without_cairo}}"
-            },
-            {
-              "name": "libjpeg-turbo",
-              "enable":"{{not $without_cairo}}",
-              "add_prefix_lib": [
-                "jpeg.lib",
-                "turbojpeg.lib"
-              ]
-            },
-            {
-              "name": "pixman",
-              "enable":"{{not $without_cairo}}",
-              "add_prefix_lib": [
-                "pixman-1.lib"
-              ]
-            },
-            {
-              "name": "zlib"
-            },
-            {
-              "name": "brotli"
-            }
-          ],
           "scripts": [
             {
-              "message": "Clean /opt/ucrt64 directory in msys2",
-              "script": "rmdir /q /s \"$msys2_external_runtime_dir\" > nul",
-              "ignore_errors": true
+              "message": "Clean /opt directory in msys2",
+              "bash_script": "rm -rf /opt/*",
+              "script": "${msys2_bash} \"${bash_script}\"",
+              "ignore_errors": false
             },
             {
-              // Copy runtime Script: with msys2_require_runtimes
               "message": "Copy runtime libraries to MSYS2",
-              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'))}}",
-              "script": "{{' && '.join([f'xcopy \"{src_dir}\" \"{msys2_external_runtime_dir}\" /s /e /i /y' for dpr in [dependent_packages_release.split(';')] for item in msys2_require_runtimes if item.get('when', True) for src_dir in dpr if item['name'] in src_dir]+ [f'copy nul > \"{os.path.join(msys2_external_runtime_dir, \"__copied__\")}\"'])}}"
-            },
-            {
-              // Rename runtime Script: with msys2_require_runtimes
-              "message": "Rename library files and rewrite pc files.",
-              "when": "{{'msys2_require_runtimes' in globals() and not os.path.exists(os.path.join($msys2_external_runtime_dir, '__renamed__'))}}",
-              "script": "{{' && '.join([cmd for item in $msys2_require_runtimes if item.get('when', True) for cmd in ([f'ren \"{p}\" \"lib{os.path.basename(p)}\"' for n in item.get('add_prefix_lib', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', n), recursive=True)] + [f'perl -i.bak -pe \"if(/^Libs:/){{ s/-l{n}\\\\b/-l{n[3:] if n.startswith(\"lib\") else n}/g }}\" \"{p}\"' for n in item.get('remove_prefix_pc', []) for p in glob.glob(os.path.join($msys2_external_runtime_dir, '**', '*.pc'), recursive=True) if os.path.isfile(p) and any(re.search(rf'^Libs:.*-l{n}\\b', l) for l in [pathlib.Path(p).read_text(errors=\"ignore\")] for l in l.splitlines())])]+[f'copy nul > \"{os.path.join($msys2_external_runtime_dir, \"__renamed__\")}\"'])}}"
+              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name))}}",
+              "chdir": "$source_dir",
+              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ][0]}} __copy_packages.bat && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
             }
           ]
         },
@@ -423,14 +361,14 @@
               "message": "Rename the library files to be MSVC-compatible.",
               "when":"{{'Debug' in $build_type}}",
               "chdir": "$dist_dir_debug\\lib",
-                            "script": "cmd /v:on /c \"for %f in (*.a) do (set \"n=%~nf\" & set \"n=!n:.dll=!\" & copy /y \"%f\" \"!n!.lib\" & if \"!n:~0,3!\"==\"lib\" copy /y \"%f\" \"!n:~3!.lib\")\"",
+              "script": "cmd /v:on /c \"for %f in (*.a) do (set \"n=%~nf\" & set \"n=!n:.dll=!\" & copy /y \"%f\" \"!n!.lib\" & if \"!n:~0,3!\"==\"lib\" copy /y \"%f\" \"!n:~3!.lib\")\"",
               "ignore_errors": true
             },
             {
               "message": "Rename the library files to be MSVC-compatible.",
               "when":"{{'Release' in $build_type }}",
               "chdir": "$dist_dir_release\\lib",
-                            "script": "cmd /v:on /c \"for %f in (*.a) do (set \"n=%~nf\" & set \"n=!n:.dll=!\" & copy /y \"%f\" \"!n!.lib\" & if \"!n:~0,3!\"==\"lib\" copy /y \"%f\" \"!n:~3!.lib\")\"",
+              "script": "cmd /v:on /c \"for %f in (*.a) do (set \"n=%~nf\" & set \"n=!n:.dll=!\" & copy /y \"%f\" \"!n!.lib\" & if \"!n:~0,3!\"==\"lib\" copy /y \"%f\" \"!n:~3!.lib\")\"",
               "ignore_errors": true
             },
             {
@@ -444,6 +382,18 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "message": "Delete MSYS file",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "del /q /f *.a *.la *.def"
+            },
+            {
+             "message": "Delete MSYS file",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$dist_dir_release\\lib",
+              "script": "del /q /f *.a *.la *.def"
             }
           ]
         }

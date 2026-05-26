@@ -166,9 +166,10 @@
         "patch": {
           "scripts": [
             {
-              "message": "Clean /opt/ucrt64 directory in msys2",
-              "script": "rmdir /q /s \"$msys2_external_runtime_dir\" > nul",
-              "ignore_errors": true
+              "message": "Clean /opt directory in msys2",
+              "bash_script": "rm -rf /opt/*",
+              "script": "${msys2_bash} \"${bash_script}\"",
+              "ignore_errors": false
             },
             {
               "message": "reconfigure",

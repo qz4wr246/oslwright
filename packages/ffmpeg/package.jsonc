@@ -333,7 +333,7 @@
         "MSYS2_PATH_TYPE": "inherit",
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
       },
       "stages": {
         "download": {
@@ -376,194 +376,6 @@
               "url": "$repo_url/0005-Win32-Add-path-relocation-to-frei0r-plugins-search.patch"
             }
           ],
-          "msys2_require_runtimes": [
-            {
-              "name": "aom"
-            },
-            {
-              "name": "bzip2"
-            },
-            {
-              "name": "dav1d"
-            },
-            {
-              "name": "fontconfig"
-            },
-            {
-              "name": "freetype"
-            },
-            {
-              "name": "frei0r",
-              "when": "{{$enable_gpl}}"
-            },
-            {
-              "name": "fribidi"
-            },
-            {
-              "name": "gmp"
-            },
-            {
-              "name": "gnutls"
-            },
-            {
-              "name": "nettle",
-              // "remove_prefix_pc": ["libnettle","libhogweed"]
-            },
-            {
-              "name": "libtasn1",
-              // "remove_prefix_pc": ["libtasn1"]
-            },
-            {
-              "name": "libunistring"
-            },
-            {
-              "name": "gsm"
-            },
-            {
-              "name": "harfbuzz"
-            },
-            {
-              "name": "lame"
-            },
-            {
-              "name": "libass"
-            },
-            {
-              "name": "libbluray"
-            },
-            {
-              "name": "libcaca"
-            },
-            {
-              "name": "libexif"
-            },
-            {
-              "name": "libgme"
-            },
-            {
-              "name": "libiconv"
-            },
-            {
-              "name": "libjxl"
-            },
-            {
-              "name": "libmodplug"
-            },
-            {
-              "name": "libssh"
-            },
-            {
-              "name": "libplacebo"
-            },
-            {
-              "name": "librsvg"
-            },
-            {
-              "name": "soxr"
-            },
-            {
-              "name": "theora"
-            },
-            {
-              "name": "libva"
-            },
-            {
-              "name": "vorbis"
-            },
-            {
-              "name": "libvpx"
-            },
-            {
-              "name": "libwebp"
-            },
-            {
-              "name": "libxml2"
-            },
-            {
-              "name": "libvpl"
-            },
-            {
-              "name": "openal-soft"
-            },
-            {
-              "name": "opencore-amr"
-            },
-            {
-              "name": "openjpeg"
-            },
-            {
-              "name": "opus"
-            },
-            {
-              "name": "rav1e"
-            },
-            {
-              "name": "rtmpdump"
-            },
-            {
-              "name": "speex"
-            },
-            {
-              "name": "srt"
-            },
-            {
-              "name": "liblc3"
-            },
-            {
-              "name": "shaderc"
-            },
-            {
-              "name": "vid.stab",
-              "when": "{{$enable_gpl}}"
-            },
-            {
-              "name": "xvidcore",
-              "when": "{{$enable_gpl}}"
-            },
-            {
-              "name": "zimg"
-            },
-            {
-              "name": "zvbi",
-              "when": "{{$enable_gpl}}"
-            },
-            {
-              "name": "vulkan-headers"
-            },
-            {
-              "name": "vulkan-loader"
-            },
-            {
-              "name": "libpng"
-            },
-            {
-              "name": "svt-av1"
-            },
-            {
-              "name": "x264",
-              "when": "{{$enable_gpl}}"
-            },
-            {
-              "name": "x265",
-              "when": "{{$enable_gpl}}"
-            },
-            {
-              "name": "openh264",
-              "when": "{{$enable_openh264}}"
-            },
-            {
-              "name": "sdl"
-            },
-            {
-              "name": "brotli"
-            },
-            {
-              "name": "zstd"
-            },
-            {
-              "name": "zlib"
-            }
-          ],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -573,19 +385,16 @@
               "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
             },
             {
-              "message": "Clean /opt/ucrt64 directory in msys2",
-              "bash_script": "rm -rf /opt/ucrt64/*",
+              "message": "Clean /opt directory in msys2",
+              "bash_script": "rm -rf /opt/*",
               "script": "${msys2_bash} \"${bash_script}\"",
               "ignore_errors": false
             },
             {
-              // Copy runtime Script: with msys2_require_runtimes
               "message": "Copy runtime libraries to MSYS2",
-              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'))}}",
+              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name))}}",
               "chdir": "$source_dir",
-              // "script": "{{' && '.join([f'xcopy \"{os.path.basename(src_dir)}\" \"{msys2_external_runtime_dir}\" /s /e /i /y' for dpr in [dependent_packages_release.split(';')] for item in msys2_require_runtimes if item.get('when', True) for src_dir in dpr if item['name'] in src_dir]+ [f'copy nul > \"{os.path.join(msys2_external_runtime_dir, \"__copied__\")}\"'])}}"
-              // "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close()) for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ]}}"
-              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ][0]}} __copy_packages.bat && copy nul > \"$msys2_external_runtime_dir\\__copied__\""
+              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ][0]}} __copy_packages.bat && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
             },
             {
               "chdir": "$source_dir",
@@ -595,15 +404,11 @@
               "script": "copy /y \"${package_dir}\\sdl2-config\" \"${msys2_dir}\\opt\\ucrt64\\bin\\\""
             },
             {
-              "script": "curl.exe --fail -L -s -o \"${source_dir}\\pathtools.h\" $repo_url/pathtools.h && move /y  \"${source_dir}\\pathtools.h\" \"${source_dir}\\libavfilter\\\"}"
+              "script": "curl.exe --fail -L -s -o \"${source_dir}\\pathtools.h\" $repo_url/pathtools.h && copy /y  \"${source_dir}\\pathtools.h\" \"${source_dir}\\libavfilter\""
             },
             {
-              "script": "curl.exe --fail -L -s -o \"${source_dir}\\pathtools.c\" $repo_url/pathtools.c && move /y \"${source_dir}\\pathtools.c\" \"${source_dir}\\libavfilter\\\"}"
-            },
-            // {
-            //   "chdir": "$source_dir",
-            //   "script": "move /y VERSION VERSION.txt"
-            // }
+              "script": "curl.exe --fail -L -s -o \"${source_dir}\\pathtools.c\" $repo_url/pathtools.c && copy /y \"${source_dir}\\pathtools.c\" \"${source_dir}\\libavfilter\""
+            }
           ]
         },
         "configure": {
@@ -626,7 +431,6 @@
             "{{'--disable-postproc' if ${version}[0] == '6' else ''}}",
             "--disable-cuda-nvcc",
             "--enable-gnutls",
-            // "--disable-iconv",
             "--enable-iconv",
             "--disable-libnpp", //  NVIDIA
             // codec
@@ -663,7 +467,6 @@
             "--enable-libopencore_amrwb",
             "--enable-libopenjpeg",
             "--enable-librtmp",
-            // "--disable-libssh",
             "--enable-libssh",
             "--enable-libsoxr",
             "--enable-libspeex",
@@ -705,17 +508,6 @@
             "--{{'enable' if $build_apps else 'disable'}}-ffprobe"
           ],
           "scripts": [
-            // {
-            //   "bash_script": "type pkg-config",
-            //   "script": "${msys2_bash} \"${bash_script}\""
-            // },
-            // {
-            //   "bash_script": "pkg-config --libs aom",
-            //   "script": "${msys2_bash} \"${bash_script}\""
-            // },
-            // {
-            //   "script": "exit 99"
-            // },
             {
               "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
@@ -750,8 +542,7 @@
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "PATH": "{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}",
-                // "PKG_CONFIG_PATH": "$pkg_config_path_release"
+                "PATH": "{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
               "chdir": "$build_dir_release",
               "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",

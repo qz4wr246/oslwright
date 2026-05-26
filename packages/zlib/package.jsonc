@@ -261,6 +261,18 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "copy /y zlibd.lib libzlibd.lib && copy /y zlibstaticd.lib libzlibstaticd.lib",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "copy /y zlib.lib libzlib.lib && copy /y zlibstatic.lib libzlibstatic.lib",
+              "ignore_errors": true
             }
           ]
         }

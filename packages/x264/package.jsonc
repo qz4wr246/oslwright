@@ -174,7 +174,7 @@
           "scripts": [
             {
               "message": "Clean /opt/ucrt64 directory in msys2",
-              "bash_script": "rm -rf /opt/ucrt64/*",
+              "bash_script": "rm -rf /opt/*",
               "script": "${msys2_bash} \"${bash_script}\"",
               "ignore_errors": false
             }

@@ -266,6 +266,18 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "copy /y freetyped.lib libfreetyped.lib",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "copy /y freetype.lib libfreetype.lib",
+              "ignore_errors": true
             }
           ]
         }

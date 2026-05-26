@@ -1,11 +1,11 @@
 {
-  "name": "theora",
-  "display": "theora",
-  "description": "An open video codec developed by the Xiph.org",
-  "site": "https://www.theora.org",
-  "license": "BSD-3-Clause",
+  "name": "libidn2",
+  "display": "Libidn2",
+  "description": "A free software implementation of IDNA2008, Punycode and Unicode TR46.",
+  "site": "https://www.gnu.org/s/libidn/#libidn2",
+  "license": "GPL-2.0-or-later, LGPL-3.0-or-later",
   "info": "info.md",
-  "process_time": 240,
+  "process_time": 440,
   "options": [
     {
       "display": "Version",
@@ -107,21 +107,21 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://gitlab.xiph.org/xiph/theora.git",
+      "git_url": "https://gitlab.com/libidn/libidn2.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "dependencies": {
-        "libpng": {
-          "version": ">=1.6"
+        "libiconv": {
+          "version": ">=1.19"
         },
-        "ogg": {
-          "version": ">=1.3"
+        "proxy-libintl": {  //  'gettext-devel'
+          "version": ">=0.5"
         },
-        "vorbis": {
-          "version": ">=1.3"
+        "libunistring": {
+          "version": ">=1.4"
         }
       },
       "environments": {
@@ -129,7 +129,7 @@
         "MSYS": "winsymlinks:nativestrict",
         "MSYSTEM": "MSYS",
         "CHERE_INVOKING": "1",
-        // "MSYS2_PATH_TYPE": "inherit",
+        "MSYS2_PATH_TYPE": "strict",
         "CC": "/ucrt64/bin/gcc.exe",
         "CXX": "/ucrt64/bin/g++.exe",
         "LD": "/ucrt64/bin/ld.exe",
@@ -197,7 +197,7 @@
             {
               "message": "reconfigure",
               "chdir": "$source_dir",
-              "bash_script": "autoreconf -vfi",
+              "bash_script": "./bootstrap",
               "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
@@ -205,13 +205,12 @@
         "configure": {
           "config_options":[
             "--host=x86_64-w64-mingw32",
-            "--disable-maintainer-mode",
             "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
             "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}",
-            "--disable-examples",
             "--disable-doc",
-            "CFLAGS=\\\"-fno-stack-check -mno-stack-arg-probe\\\"",  // MEMO: MSVCでリンクすると、error LNK2001: unresolved external symbol ___chkstk_ms　の対策
-            "LDFLAGS=\\\"-fno-stack-check -mno-stack-arg-probe\\\""
+            "--disable-rpath",
+            "--with-libiconv-prefix=/opt/ucrt64",
+            "--with-libunistring-prefix=/opt/ucrt64"
           ],
           "config_options_debug": [
             "--prefix=/opt/${name}/debug"
@@ -328,6 +327,9 @@
           },
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}", // adjust path for pc file
           "scripts": [
+            //
+            // rename dlls, and rewrite pc files to adjust for MSVC linker and library naming convention. You can set ignore_errors to true to ignore errors of these scripts, because the naming convention of library files and pc files in msys2 runtime is not consistent, and it may cause errors when renaming or rewriting.
+            //
             {
               "message": "Rename the library files to be MSVC-compatible.",
               "when":"{{'Debug' in $build_type}}",
@@ -370,6 +372,6 @@
         }
       }
     },
-    "1.2.0": {}
+    "2.3.8": {}
   }
 }
