@@ -1,11 +1,11 @@
 {
-  "name": "zvbi",
-  "display": "zvbi",
-  "description": "Vertical Blanking Interval (VBI) utilities",
-  "site": "http://zapping.sourceforge.net/cgi-bin/view/ZVBI/WebHome",
-  "license": "GPL-2+,LGPL-2.1+,BSD-2-Clause,MIT",
+  "name": "libmodplug",
+  "display": "libmodplug",
+  "description": "A library (libmodplug) and input-plugin for XMMS which plays mod-like music formats.",
+  "site": "http://modplug-xmms.sf.net/",
+  "license": "GPL",
   "info": "info.md",
-  "process_time": 330,
+  "process_time": 300,
   "options": [
     {
       "display": "Version",
@@ -106,27 +106,11 @@
       "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
-      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/zapping-vbi/zvbi.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
-      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
+      "download_url": "https://sourceforge.net/projects/modplug-xmms/files/${name}/${version}/${name}-${version}.tar.gz/download",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
-      "dependencies": {
-        "libiconv": {
-          "version": ">=1.19"
-        },
-        "libpng": {
-          "version": ">=1.6"
-        },
-        "proxy-libintl": {
-          "version": ">=0.5"
-        },
-        "zlib": {
-          "version": ">=1.3"
-        }
-      },
       "environments": {
         "LC_ALL": "C",
         "MSYS": "winsymlinks:nativestrict",
@@ -142,7 +126,7 @@
         "NM": "/ucrt64/bin/nm.exe",
         "OBJCOPY": "/ucrt64/bin/objcopy.exe",
         "OBJDUMP": "/ucrt64/bin/objdump.exe",
-        "CPPFLAGS": "-I/opt/ucrt64/include -DDLL_EXPORT",
+        "CPPFLAGS": "-I/opt/ucrt64/include",
         "LDFLAGS": "-L/opt/ucrt64/lib",
         "SED": "/usr/bin/sed.exe",
         "PERLIO": "raw",
@@ -157,71 +141,24 @@
               "script": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "git clone.",
+              "message": "donloads",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
-              "fallback": "rmdir /q /s \"$source_dir\""
-            },
-            {
-              "message": "git checkout.",
-              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "chdir": "$source_dir",
-              "script": "git checkout $git_hash",
-              "fallback": "rmdir /q /s \"$source_dir\""
+              "script": "curl.exe --fail -L -s -o \"$cache_file\" \"$download_url\"",
+              "fallback": "del /q /f \"$cache_file\""
             },
             {
               "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z -sccUTF-8 x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_rootdir}\" && del \"${cache_file}.temp.tar\"",
               "fallback": "rmdir /q /s \"$source_dir\""
-            },
-            {
-              "message": "make cache.",
-              "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
-              "fallback": "del \"$cache_file\""
-            }
-          ]
-        },
-        "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-zvbi",
-          "patch_files": [
-            {
-              "url": "$repo_url/0001-zvbi-no-undefined.patch"
-            },
-            {
-              "file": "$package_dir\\zvdi-header.diff"
-            }
-          ],
-          "scripts": [
-            {
-              // Patch Script: patching source code with patch_files
-              "message": "Patch ${name} source code",
-              "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
-            },
-            {
-              "message": "Clean /opt directory in msys2",
-              "bash_script": "rm -rf /opt/*",
-              "script": "${msys2_bash} \"${bash_script}\"",
-              "ignore_errors": false
-            },
-            {
-              "message": "reconfigure",
-              "chdir": "$source_dir",
-              "bash_script": "autoreconf -vfi",
-              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
         "configure": {
           "config_options":[
             "--host=x86_64-w64-mingw32",
-            "--disable-maintainer-mode",
             "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
-            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}",
-            "--disable-examples",
-            "--disable-tests"
+            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}"
           ],
           "config_options_debug": [
             "--prefix=/opt/${name}/debug"
@@ -230,12 +167,6 @@
             "--prefix=/opt/${name}/release"
           ],
           "scripts": [
-            {
-              "message": "Copy runtime libraries to MSYS2",
-              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name))}}",
-              "chdir": "$source_dir",
-              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ][0]}} __copy_packages.bat && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
-            },
             {
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
               "script": "rmdir /q /s \"$build_dir_debug\" > nul",
@@ -374,18 +305,6 @@
               "ignore_errors": true
             },
             {
-              "message": "modiy *.pc",
-              "when": "{{'Debug' in $build_type}}",
-              "chdir": "$dist_dir_debug\\lib\\pkgconfig",
-              "script": "perl -pi.bak -e \"if(/^Libs:/){s/\\s*-lpthread\\b//g; s/\\s*-lm\\b//g;}\" zvbi-0.2.pc"
-            },
-            {
-              "message": "modiy *.pc",
-              "when": "{{'Release' in $build_type}}",
-              "chdir": "$dist_dir_release\\lib\\pkgconfig",
-              "script": "perl -pi.bak -e \"if(/^Libs:/){s/\\s*-lpthread\\b//g; s/\\s*-lm\\b//g;}\" zvbi-0.2.pc"
-            },
-            {
               "message": "Delete MSYS file",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$dist_dir_debug\\lib",
@@ -401,6 +320,6 @@
         }
       }
     },
-    "0.2.44": {}
+    "0.8.9.0": {}
   }
 }

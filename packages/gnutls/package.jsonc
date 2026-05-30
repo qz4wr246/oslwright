@@ -377,7 +377,7 @@
             {
               "message": "Copy dependent dll",
               "when": "{{'Release' in $build_type}}",
-              "script": "copy /y \"${msys2_dir}\\ucrt64\\bin\\libwinpthread-1.dll\" \"$dist_dir_release\""
+              "script": "copy /y \"${msys2_dir}\\ucrt64\\bin\\libwinpthread-1.dll\" \"$dist_dir_release\\bin\""
             }
           ]
         },

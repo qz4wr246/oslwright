@@ -19,15 +19,7 @@
 #if defined(__linux__) || defined(__CYGWIN__) || defined(__MSYS__)
 #include <alloca.h>
 #endif
-#ifdef _WIN32
-#include <stdlib.h>
-#define PATH_MAX _MAX_PATH
-#else
-#include <unistd.h>
-#endif
-#ifdef _MSC_VER
-typedef unsigned long ssize_t;
-#endif
+
 
 /* If you don't define this, then get_executable_path()
    can only use argv[0] which will often not work well */

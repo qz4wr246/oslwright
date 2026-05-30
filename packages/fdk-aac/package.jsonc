@@ -1,11 +1,11 @@
 {
-  "name": "x265",
-  "display": "x265",
-  "description": "x265 HEVC Encoder",
-  "site": "https://www.x265.org/",
-  "license": "GPL-2.0 license",
+  "name": "fdk-aac",
+  "display": "fdk-aac",
+  "description": "A standalone library of the Fraunhofer FDK AAC code from Android.",
+  "site": "https://sourceforge.net/projects/opencore-amr/",
+  "license": "Fraunhofer FDK AAC license",
   "info": "info.md",
-  "process_time": 500,
+  "process_time": 60,
   "options": [
     {
       "display": "Version",
@@ -51,7 +51,6 @@
     {
       "display": "Build library",
       "name": "build_library",
-      "enable": false,
       "type": "choice",
       "items": [
         "shared",
@@ -77,7 +76,7 @@
         "union",
         "separation"
       ],
-      "default": "separation"
+      "default": "union"
     },
     {
       "display": "Using CUDA",
@@ -111,8 +110,8 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/videolan/x265.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
+      "git_url": "https://github.com/mstorsjo/fdk-aac.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
@@ -148,22 +147,10 @@
             }
           ]
         },
-        "patch": {
-          "patch_file_01": "${package_dir}\\x265_cmake.diff",
-          "scripts": [
-            {
-              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
-              "chdir": "$source_dir",
-              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
-            }
-          ]
-        },
         "configure": {
-          "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
+          // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
+          "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
-            "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
-            "-DCMAKE_CXX_STANDARD=17",
-            "-DCMAKE_C_STANDARD=17",
             "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
             "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
             "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
@@ -173,9 +160,9 @@
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DSTATIC_LINK_CRT=OFF",
-            "-DENABLE_CLI=OFF",
-            "-DENABLE_TESTS=OFF"
+            "-DBUILD_PROGRAMS=OFF",
+            "-DCMAKE_DOC=OFF",
+            "-DBUILD_TESTS=OFF"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -212,7 +199,7 @@
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
                 "PERLIO": "raw"
               },
-              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\\source\" -B \"$build_dir_debug\""
+              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\" -B \"$build_dir_debug\""
             },
             {
               "message": "config for release.",
@@ -222,7 +209,7 @@
                 "PKG_CONFIG_PATH": "$pkg_config_path_release",
                 "PERLIO": "raw"
               },
-              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\\source\" -B \"$build_dir_release\""
+              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
             }
           ]
         },
@@ -277,23 +264,11 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "chdir": "\"$dist_dir_debug\\lib\"",
-              "script": "copy /y libx265d.lib x265d.lib",
-              "ignore_errors": true
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "chdir": "\"$dist_dir_release\\lib\"",
-              "script": "copy /y libx265.lib x265.lib",
-              "ignore_errors": true
-            },
+            }
           ]
         }
       }
     },
-    "3.4": {}
+    "2.0.3": {}
   }
 }

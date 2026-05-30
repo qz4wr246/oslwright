@@ -267,36 +267,8 @@
           "environments": {
             "PERLIO": "raw"
           },
-          // // You can specify template files to be rendered after installation, and also specify scripts to be executed. The template file will be rendered when the condition is satisfied, and the value of each define will be passed to template as variable, so you can use it in template. The script for generating pc files from template files is also provided, and you can specify any script to be executed after installation.
-          // "template_files": [
-          //   {
-          //     "when": "{{'Debug' in $build_type}}",
-          //     "template": "${package_dir}\\libiconv.pc.j2",
-          //     "defines": [
-          //       "LIBRAW_VERSION=\"$version\""
-          //     ],
-          //     "output": "${pkgconfig_dir_debug}\\libiconv.pc"
-          //   },
-          //   {
-          //     "when": "{{'Release' in $build_type}}",
-          //     "template": "${package_dir}\\libiconv.pc.j2",
-          //     "defines": [
-          //       "LIBRAW_VERSION=\"$version\""
-          //     ],
-          //     "output": "${pkgconfig_dir_release}\\libiconv.pc"
-          //   }
-          // ],
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}", // adjust path for pc file
           "scripts": [
-            // {
-            //   // Template Script:
-            //   // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
-            //   "message": "Generate files from templates.",
-            //   "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
-            // },
-            //
-            // rename dlls, and rewrite pc files to adjust for MSVC linker and library naming convention. You can set ignore_errors to true to ignore errors of these scripts, because the naming convention of library files and pc files in msys2 runtime is not consistent, and it may cause errors when renaming or rewriting.
-            //
             {
               "message": "Rename the library files to be MSVC-compatible.",
               "when":"{{'Debug' in $build_type}}",
@@ -310,29 +282,7 @@
               "chdir": "$dist_dir_release\\lib",
               "script": "cmd /v:on /c \"for %f in (*.a) do (set \"n=%~nf\" & set \"n=!n:.dll=!\" & copy /y \"%f\" \"!n!.lib\" & if \"!n:~0,3!\"==\"lib\" copy /y \"%f\" \"!n:~3!.lib\")\"",
               "ignore_errors": true
-            },
-            // {
-            //   "message": "Adjust paths and other configurations in *.pc",
-            //   "when": "{{'Debug' in $build_type}}",
-            //   "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
-            //   "ignore_errors": true
-            // },
-            // {
-            //   "message": "Adjust paths and other configurations in *.pc",
-            //   "when": "{{'Release' in $build_type}}",
-            //   "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
-            //   "ignore_errors": true
-            // },
-            // {
-            //   "message": "Rewriting library names for linker options in .pc files , with -llib prefix ",
-            //   "when": "{{'Debug' in $build_type}}",
-            //   "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -pi -e 's/(^Libs:.*?)-l([a-zA-Z0-9_\\.\\-]+)/$$1-llib$$2/g' @PATH\""
-            // },
-            // {
-            //   "message": "Rewriting library names for linker options in .pc files",
-            //   "when": "{{'Release' in $build_type}}",
-            //   "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -pi -e 's/(^Libs:.*?)-l([a-zA-Z0-9_\\.\\-]+)/$$1-llib$$2/g' @PATH\""
-            // }
+            }
           ]
         }
       }

@@ -196,6 +196,9 @@
             },
             {
               "url": "$repo_url/0010-missing-include.patch"
+            },
+            {
+              "file": "$package_dir/libcaca_caca0.h.diff"
             }
           ],
           "scripts": [

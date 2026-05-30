@@ -94,6 +94,12 @@
       "default": "{{$cuda_version_default}}"
     },
     {
+      "display": "Enable GPL",
+      "name": "enable_gpl",
+      "type": "bool",
+      "default": false
+    },
+    {
       "display": "Enable tools",
       "name": "gst_enable_tools",
       "type": "bool",
@@ -153,7 +159,7 @@
         },
         // cannot build with external glib.
         // "glib": {
-        //   "version": ">=2.81"
+        //   "version": ">=2.88"
         // },
         "pixman":{
           "version": ">=0.43"
@@ -226,7 +232,7 @@
               "file": "${package_dir}\\gl_mkenum_py13.diff"
             },
             {
-              "file": "${package_dir}\\fix_vpx_meson_build.diff"
+              "file": "${package_dir}\\vulkan_mkenum.py.diff"
             }
           ],
           "scripts": [
@@ -246,9 +252,14 @@
             "-Ddefault_library=$build_library",
             "-Dgst-full-target-type={{'static_library' if $build_library  == 'static' else 'shared_library'}}",
             "-Dintrospection=disabled",
+            "-Dbase=enabled",
             "-Dgood=enabled",
-            "-Dgpl=disabled",
+            "-Dbad=auto",
+            "-Dugly=auto",
+            "-Dgpl={{'enabled' if $enable_gpl else 'disabled'}}",
+            "--force-fallback-for=glib",
             "-Dglib-networking:openssl=enabled",
+            "-Dgst-plugins-bad:auto_features=disabled",
             "-Dgst-plugins-bad:videoparsers=enabled",
             "-Dgst-plugins-bad:nvcodec={{'enabled' if $cuda_enable and $enable_nvcodec else 'disabled'}}",
             "-Dgst-plugins-bad:openh264={{'enabled' if $enable_openh264 else 'disabled'}}",
@@ -260,6 +271,7 @@
             "-Dqt5=disabled",
             "-Ddoc=disabled",
             "-Dtests=disabled",
+            "-Dexamples=disabled",
             "-Ddevtools=disabled",
             "-Dpango:install-tests=false",
             "-Djson-glib:tests=false",
@@ -278,24 +290,24 @@
           ],
           "scripts": [
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "del /q /s \"$build_dir_debug\" > nul"
+              "script": "del /q /s \"$build_dir_debug\" > nul",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
               "when": "{{'Release' in $build_type}}",
-              "script": "del /q /s \"$build_dir_release\" > nul"
+              "script": "del /q /s \"$build_dir_release\" > nul",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
-              "script": "mkdir \"$build_dir_debug\""
+              "script": "mkdir \"$build_dir_debug\"",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
               "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
-              "script": "mkdir \"$build_dir_release\""
+              "script": "mkdir \"$build_dir_release\"",
+              "ignore_errors": true
             },
             {
               "message": "config for debug.",
@@ -305,7 +317,7 @@
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
                 "PERLIO": "raw"
               },
-              "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_debug)}}  \"$build_dir_debug\" \"$source_dir\""
+              "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_debug)}} \"$build_dir_debug\" \"$source_dir\""
             },
             {
               "message": "config for release.",
@@ -409,6 +421,35 @@
         "ffmpeg": {
           "version": ">=6.1;<7.0",
           "build_library": "shared"
+        }
+      },
+      "stages": {
+        "patch": {
+          "patch_files!append": [
+            {
+              "file": "${package_dir}\\fix_vpx_meson_build-1.24.13.diff"
+            }
+          ]
+        }
+      }
+    },
+    "1.28.3": {
+      "dependencies": {
+        "ffmpeg": {
+          "version": ">=8.1",
+          "build_library": "shared"
+        }
+      },
+      "stages": {
+        "patch": {
+          "patch_files!append": [
+            {
+              "file": "${package_dir}\\fix_gst-plugins-bad_ext_aom_gstav1dec_c.diff"
+            }
+            // {
+            //   "file": "${package_dir}\\fix_vpx_meson_build-1.28.3.diff"
+            // }
+          ]
         }
       }
     }

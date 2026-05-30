@@ -116,7 +116,7 @@
       "environments": {
         "LC_ALL": "C",
         "MSYS": "winsymlinks:nativestrict",
-        "MSYSTEM": "MSYS",
+        "MSYSTEM": "UCRT64",
         "CHERE_INVOKING": "1",
         // "MSYS2_PATH_TYPE": "inherit",
         "CC": "/ucrt64/bin/gcc.exe",
@@ -166,6 +166,26 @@
               "when": "{{not os.path.isfile($cache_file)}}",
               "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
               "fallback": "del \"$cache_file\""
+            }
+          ]
+        },
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-vid.stab",
+          "patch_files": [
+            {
+              "file": "${package_dir}\\vidstab_header.diff"
+            },
+            {
+              "file": "${package_dir}\\fix_cmake_export_symbol.diff"
+            }
+          ],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "when": "{{'patch_files' in globals()}}",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
             }
           ]
         },
@@ -313,8 +333,20 @@
              "message": "Delete MSYS file",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$dist_dir_release\\lib",
-              "script": "del /q /f *.a *.la *.def"
-            }
+              "script": "del /q /f *.a *.la"
+            },
+            {
+              "message": "modiy *.pc",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib\\pkgconfig",
+              "script": "perl -pi.bak -e \"if(/^Libs:/){s/\\s*-fopenmp\\b//g; s/\\s*-lm\\b//g;}\" vidstab.pc"
+            },
+            {
+              "message": "modiy *.pc",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$dist_dir_release\\lib\\pkgconfig",
+              "script": "perl -pi.bak -e \"if(/^Libs:/){s/\\s*-fopenmp\\b//g; s/\\s*-lm\\b//g;}\" vidstab.pc"
+            },
           ]
         }
       }

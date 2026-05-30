@@ -7,7 +7,7 @@ index 1f52f77..372c390 100644
      arg_array = c_array
 
 -cmd_array = cmd + arg_array + headers
-+cmd_array = ['python'] + cmd + arg_array + headers
++cmd_array = ['python.exe'] + cmd + arg_array + headers
  pc = subprocess.Popen(cmd_array, stdout=subprocess.PIPE)
  (stdo, _) = pc.communicate()
  if pc.returncode != 0:

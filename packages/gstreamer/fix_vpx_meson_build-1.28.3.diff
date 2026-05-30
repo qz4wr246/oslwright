@@ -1,0 +1,44 @@
+diff --git a/subprojects/packagefiles/vpx/meson_build_check_gnu.patch b/subprojects/packagefiles/vpx/meson_build_check_gnu.patch
+diff --git a/subprojects/packagefiles/vpx/meson_build_check_gnu.patch b/subprojects/packagefiles/vpx/meson_build_check_gnu.patch
+new file mode 100644
+index 0000000..2aa5e38
+--- /dev/null
++++ b/subprojects/packagefiles/vpx/meson_build_check_gnu.patch
+@@ -0,0 +1,25 @@
++diff --git a/meson.build b/meson.build
++index 7366c61a7..18ef3b782 100644
++--- a/meson.build
+++++ b/meson.build
++@@ -1563,13 +1563,13 @@ vpx_config_c = configure_file(
++
++ # libs.mk
++
++-if features.get('shared', false) and not ['linux', 'darwin', 'ios', 'iphonesimulator'].contains(tgt_os)
++-	if features.enabled('gnu', false)
++-		warn('Shared libraries are only supported on ELF; assuming this is OK')
++-	else
++-		error('Shared libraries are only supported on ELF, OS/2, and Darwin for now')
++-	endif
++-endif
+++# if features.get('shared', false) and not ['linux', 'darwin', 'ios', 'iphonesimulator'].contains(tgt_os)
+++#	  if features.enabled('gnu', false)
+++#	    warn('Shared libraries are only supported on ELF; assuming this is OK')
+++#	  else
+++#     error('Shared libraries are only supported on ELF, OS/2, and Darwin for now')
+++#   endif
+++# endif
++
++ rtcd_exe = find_program('build/make/rtcd.py', required: true)
++
+diff --git a/subprojects/vpx.wrap b/subprojects/vpx.wrap
+index 1d501e8..70a3123 100644
+--- a/subprojects/vpx.wrap
++++ b/subprojects/vpx.wrap
+@@ -3,6 +3,7 @@ url = https://gitlab.freedesktop.org/gstreamer/meson-ports/libvpx.git
+ revision = meson-1.14
+ clone-recursive = false
+ depth = 1
++diff_files = vpx/meson_build_check_gnu.patch
+
+ [provide]
+ dependency_names = vpx
