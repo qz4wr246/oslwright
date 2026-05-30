@@ -43,7 +43,7 @@ def _mergeDict(lft: dict, rgt: dict) -> dict:
             cmd = rgt_dic[key][0]
             val = rgt_dic[key][1]
             if isinstance(lft[key], dict) and isinstance(val, dict):
-                if cmd in ("a", "appned"):  # append
+                if cmd in ("a", "append"):  # append
                     _mergeDict(lft[key], val)
                 elif cmd in ("d", "delete"):  # delete
                     lft.pop(key, None)
@@ -52,7 +52,7 @@ def _mergeDict(lft: dict, rgt: dict) -> dict:
                 else:  # append
                     _mergeDict(lft[key], val)
             elif isinstance(lft[key], list) and isinstance(val, list):
-                if cmd in ("a", "appned"):  # append
+                if cmd in ("a", "append"):  # append
                     lft[key].extend(val)
                 elif cmd in ("d", "delete"):  # delete
                     lft.pop(key, None)
