@@ -336,6 +336,8 @@
             "PERLIO": "raw"
           },
           // You can specify template files to be rendered after installation, and also specify scripts to be executed. The template file will be rendered when the condition is satisfied, and the value of each define will be passed to template as variable, so you can use it in template. The script for generating pc files from template files is also provided, and you can specify any script to be executed after installation.
+          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
+          "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
           "template_files": [
             // {
             //   "when": true, // You can set condition for each template file, and skip it when the condition is not satisfied.
