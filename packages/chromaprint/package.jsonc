@@ -1,11 +1,11 @@
 {
-  "name": "avisynth",
-  "display": "AviSynth+",
-  "description": "A script-based video frame server and the successor to AviSynth.",
-  "site": "https://avs-plus.net/",
-  "license": "GPL v2",
+  "name": "chromaprint",
+  "display": "Chromaprint",
+  "description": "Library that implements a custom algorithm for extracting fingerprints from any audio source",
+  "site": "https://acoustid.org/chromaprint",
+  "license": "LGPL",
   "info": "info.md",
-  "process_time": 480,
+  "process_time": 30,
   "options": [
     {
       "display": "Version",
@@ -84,8 +84,9 @@
     {
       "display": "Using CUDA",
       "name": "cuda_enable",
+      "enable": false,
       "type": "bool",
-      "default": "{{$cuda_enable_default}}"
+      "default": false
     },
     {
       "display": "CUDA Version",
@@ -98,6 +99,8 @@
   ],
   "versions": {
     "default": {
+      "dependencies": {
+      },
       "environments": {
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
@@ -112,7 +115,7 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/AviSynth/AviSynthPlus.git",
+      "git_url": "https://github.com/acoustid/chromaprint.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
@@ -150,8 +153,8 @@
           ]
         },
         "configure": {
-          "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
-          // "cmake_genarator": "-G \"Ninja Multi-Config\"",
+          // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
+          "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
             "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
             "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
@@ -161,7 +164,9 @@
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "{{'-DENABLE_CUDA=ON' if $cuda_enable else ''}}",
+            "-DFFT_LIB=kissfft",
+            "-DAUDIO_PROCESSOR_LIB=\"dummy\"",
+            "-DBUILD_TOOLS=OFF",
             "-DCMAKE_DOC=OFF",
             "-DBUILD_TESTS=OFF"
           ],
@@ -265,19 +270,11 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
-            },
-            // {
-            //   "when": "{{'Debug' in $build_type}}",
-            //   "script": "xcopy \"$dist_dir_debug\\lib\\avisynth\\*.dll\" \"$dist_dir_debug\\bin\\\" /S /I /Y",
-            // },
-            // {
-            //   "when": "{{'Release' in $build_type}}",
-            //   "script": "xcopy \"$dist_dir_release\\lib\\avisynth\\*.dll\" \"$dist_dir_release\\bin\\\" /S /I /Y",
-            // },
+            }
           ]
         }
       }
     },
-    "3.7.5": {}
+    "1.6.0": {}
   }
 }

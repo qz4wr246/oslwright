@@ -149,10 +149,6 @@
         "icu4c": {
           "version": ">=75.1"
         },
-        "ffmpeg": {
-          "version": ">=6.1;<7.0",   // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
-          "build_library": "shared"
-        },
         "openh264": {
           "enable": "{{$enable_openh264}}",
           "version": ">=2.6"
@@ -255,10 +251,11 @@
             "-Dbase=enabled",
             "-Dgood=enabled",
             "-Dbad=auto",
-            "-Dugly=auto",
+            "-Dugly=disabled",
             "-Dgpl={{'enabled' if $enable_gpl else 'disabled'}}",
             "--force-fallback-for=glib",
             "-Dglib-networking:openssl=enabled",
+            "-Dgst-plugins-good:vpx=disabled", // vpx plugin cannot be built with the latest vpx, so disable it.
             "-Dgst-plugins-bad:auto_features=disabled",
             "-Dgst-plugins-bad:videoparsers=enabled",
             "-Dgst-plugins-bad:nvcodec={{'enabled' if $cuda_enable and $enable_nvcodec else 'disabled'}}",
@@ -275,8 +272,7 @@
             "-Ddevtools=disabled",
             "-Dpango:install-tests=false",
             "-Djson-glib:tests=false",
-            "-Dglib:tests=false",
-            "-Dgst-plugins-good:vpx=disabled" // vpx plugin cannot be built with the latest vpx, so disable it.
+            "-Dglib:tests=false"
           ],
           "meson_options_debug" : [
             "--prefix=\"$dist_dir_debug\"",
@@ -419,8 +415,7 @@
     "1.24.13": {  // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
       "dependencies": {
         "ffmpeg": {
-          "version": ">=6.1;<7.0",
-          "build_library": "shared"
+          "version": ">=6.1;<7.0"
         }
       },
       "stages": {
@@ -436,8 +431,7 @@
     "1.28.3": {
       "dependencies": {
         "ffmpeg": {
-          "version": ">=8.1",
-          "build_library": "shared"
+          "version": ">=8.1"
         }
       },
       "stages": {
@@ -445,10 +439,13 @@
           "patch_files!append": [
             {
               "file": "${package_dir}\\fix_gst-plugins-bad_ext_aom_gstav1dec_c.diff"
-            }
+            },
             // {
             //   "file": "${package_dir}\\fix_vpx_meson_build-1.28.3.diff"
             // }
+            {
+              "file": "${package_dir}\\fix_gst-plugins-good_ext_lame.diff"
+            }
           ]
         }
       }

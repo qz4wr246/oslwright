@@ -1,11 +1,11 @@
 {
-  "name": "avisynth",
-  "display": "AviSynth+",
-  "description": "A script-based video frame server and the successor to AviSynth.",
-  "site": "https://avs-plus.net/",
-  "license": "GPL v2",
-  "info": "info.md",
-  "process_time": 480,
+  "name": "lcms2",
+  "display": "Little CMS",
+  "description": "Small-footprint color management engine, version 2",
+  "site": "https://www.littlecms.com/color-engine/",
+  "license": "MIT AND GPL-3.0 or later",
+  "info":"info.md",
+  "process_time": 90,
   "options": [
     {
       "display": "Version",
@@ -51,18 +51,16 @@
     {
       "display": "Build library",
       "name": "build_library",
-      "enable": false,
       "type": "choice",
       "items": [
         "shared",
         "static"
       ],
-      "default": "shared"
+      "default": "$build_library_default"
     },
     {
       "display": "Build type",
       "name": "build_type",
-      "enable": false,
       "type": "choice",
       "items": [
         "Release",
@@ -76,7 +74,6 @@
       "enable": false,
       "type": "choice",
       "items": [
-        "union",
         "separation"
       ],
       "default": "separation"
@@ -84,8 +81,9 @@
     {
       "display": "Using CUDA",
       "name": "cuda_enable",
+      "enable": false,
       "type": "bool",
-      "default": "{{$cuda_enable_default}}"
+      "default": false
     },
     {
       "display": "CUDA Version",
@@ -98,8 +96,15 @@
   ],
   "versions": {
     "default": {
+      "dependencies": {
+        "libjpeg-turbo": {
+          "version": ">=3.0"
+        },
+        "libtiff": {
+          "version": ">=4.0"
+        },
+      },
       "environments": {
-        "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
         "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
       },
@@ -112,16 +117,12 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/AviSynth/AviSynthPlus.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_url": "https://github.com/mm2/Little-CMS.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'lcms' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
           "scripts": [
-            {
-              "when": "{{os.path.isdir($source_dir)}}",
-              "script": "rmdir /q /s \"$source_dir\""
-            },
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
@@ -150,57 +151,53 @@
           ]
         },
         "configure": {
-          "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
-          // "cmake_genarator": "-G \"Ninja Multi-Config\"",
-          "cmake_options": [
-            "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
-            "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
-            "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
-            "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
-            "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
-            "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
-            "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
-            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "{{'-DENABLE_CUDA=ON' if $cuda_enable else ''}}",
-            "-DCMAKE_DOC=OFF",
-            "-DBUILD_TESTS=OFF"
+          "meson_options": [
+            "--vsenv",
+            "--pkgconfig.relocatable",
+            "--wrap-mode=nodownload",
+            "--default-library={{'static' if $build_library == 'static' else 'shared'}}",
+            "-Db_vscrt={{'from_buildtype' if $msvc_runtime_library == 'md' else 'static_from_buildtype'}}",
+            "-Dutils=true",
+            "-Dfastfloat=true"
           ],
-          "cmake_options_debug": [
-            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
+          "meson_options_debug" : [
+            "--prefix=\"$dist_dir_debug\"",
+            "--buildtype debug"
           ],
-          "cmake_options_release": [
-            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_release\""
+          "meson_options_release" : [
+            "--prefix=\"$dist_dir_release\"",
+            "--buildtype release"
           ],
           "scripts": [
             {
+              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "rmdir /q /s \"$build_dir_debug\" > nul",
-              "ignore_errors": true
+              "script": "del /q /s \"$build_dir_debug\" > nul"
             },
             {
-              "when": "{{'Release' in $build_type }}",
-              "script": "rmdir /q /s \"$build_dir_release\" > nul",
-              "ignore_errors": true
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "del /q /s \"$build_dir_release\" > nul"
             },
             {
+              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
-              "script": "mkdir \"$build_dir_debug\"",
-              "ignore_errors": true
+              "script": "mkdir \"$build_dir_debug\""
             },
             {
+              "ignore_errors": true,
               "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
-              "script": "mkdir \"$build_dir_release\"",
-              "ignore_errors": true
+              "script": "mkdir \"$build_dir_release\""
             },
             {
               "message": "config for debug.",
-              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "when": "{{'Debug' in $build_type}}",
               "environments": {
                 "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
                 "PERLIO": "raw"
               },
-              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\" -B \"$build_dir_debug\""
+              "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_debug)}}  \"$build_dir_debug\" \"$source_dir\""
             },
             {
               "message": "config for release.",
@@ -210,7 +207,7 @@
                 "PKG_CONFIG_PATH": "$pkg_config_path_release",
                 "PERLIO": "raw"
               },
-              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
+              "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_release)}} \"$build_dir_release\" \"$source_dir\""
             }
           ]
         },
@@ -223,7 +220,7 @@
                 "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
                 "PERLIO": "raw"
               },
-              "script": "cmake --build \"$build_dir_debug\" --config Debug -j4"
+              "script": "meson compile -C \"$build_dir_debug\" -j 4"
             },
             {
               "message": "build for release.",
@@ -232,21 +229,24 @@
                 "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
                 "PERLIO": "raw"
               },
-              "script": "cmake --build \"$build_dir_release\" --config Release -j4"
+              "script": "meson compile -C \"$build_dir_release\" -j 4"
             }
           ]
         },
         "install": {
+          "meson_install_options": [
+            "--tags devel,runtime,bin"
+          ],
           "scripts": [
             {
               "message": "install for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "script": "cmake --install \"$build_dir_debug\" --config Debug"
+              "script": "meson install -C \"$build_dir_debug\" {{' '.join($meson_install_options)}}"
             },
             {
               "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
-              "script": "cmake --install \"$build_dir_release\" --config Release"
+              "script": "meson install -C \"$build_dir_release\" {{' '.join($meson_install_options)}}"
             }
           ]
         },
@@ -265,19 +265,11 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
-            },
-            // {
-            //   "when": "{{'Debug' in $build_type}}",
-            //   "script": "xcopy \"$dist_dir_debug\\lib\\avisynth\\*.dll\" \"$dist_dir_debug\\bin\\\" /S /I /Y",
-            // },
-            // {
-            //   "when": "{{'Release' in $build_type}}",
-            //   "script": "xcopy \"$dist_dir_release\\lib\\avisynth\\*.dll\" \"$dist_dir_release\\bin\\\" /S /I /Y",
-            // },
+            }
           ]
         }
       }
     },
-    "3.7.5": {}
+    "2.19.1": {}
   }
 }

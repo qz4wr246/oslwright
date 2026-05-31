@@ -152,8 +152,19 @@
         "aom": {
           "version": ">=3.13"
         },
+        "aribb24": {
+          "enable": "{{$enable_version3}}",
+          "version": ">=1.0"
+        },
+        "avisynth": {
+          "enable": "{{$enable_gpl}}",
+          "version": ">=3.7"
+        },
         "cairo": {
           "version": ">=1.18"
+        },
+        "chromaprint": {
+          "version": ">=1.6"
         },
         "dav1d": {
           "version": ">=1.5"
@@ -199,6 +210,9 @@
         },
         "lame": {
           "version": ">=3.100"
+        },
+        "lcms2":{
+          "version": ">=2.19"
         },
         "libass": {
           "version": ">=0.17"
@@ -451,17 +465,17 @@
             // "--enable-vulkan-static", //  statically link to libvulkan [no]
 
             // External library support:
-            // "{{'--enable-avisynth' if $enable_gpl else ''}}", // enable reading of AviSynth script files [no]
+            "{{'--enable-avisynth' if $enable_gpl else ''}}", // enable reading of AviSynth script files [no]
             "--enable-cairo",             // enable cairo [no]
-            // "--enable-chromaprint",    // enable audio fingerprinting with chromaprint [no]
+            "--enable-chromaprint",    // enable audio fingerprinting with chromaprint [no]
             "{{'--enable-frei0r' if $enable_gpl else ''}}", // enable frei0r video filtering [no]
             "{{'--enable-gcrypt' if $ssl_library == 'gnutls' else ''}}",            // enable gcrypt, needed for rtmp(t)e support if openssl, librtmp or gmp is not used [no]
             "{{'--enable-gmp' if $ssl_library == 'gnutls' else ''}}",               // enable gmp, needed for rtmp(t)e support if openssl or librtmp is not used [no]
             "{{'--enable-gnutls' if $ssl_library == 'gnutls' else ''}}",            // enable gnutls, needed for https support if openssl, libtls or mbedtls is not used [no]
             // "--enable-jni",               // enable JNI support [no]
-            // "--enable-lcms2",             // enable ICC profile support via LittleCMS 2 [no]
+            "--enable-lcms2",             // enable ICC profile support via LittleCMS 2 [no]
             "--enable-libaom",            // enable AV1 video encoding/decoding via libaom [no]
-            // "{{'--enable-libaribb24' if $enable_version3 else ''}}"         // enable ARIB text and caption decoding via libaribb24 [no]
+            "{{'--enable-libaribb24' if $enable_version3 else ''}}",         // enable ARIB text and caption decoding via libaribb24 [no]
             // "--enable-libaribcaption"     // enable ARIB text and caption decoding via libaribcaption [no]
             "--enable-libass",            // enable libass subtitles rendering, needed for subtitles and ass filter [no]
             "--enable-libbluray",         // enable BluRay reading using libbluray [no]
@@ -500,7 +514,7 @@
             "{{'--enable-libopencore-amrwb' if $enable_version3 else ''}}", // enable AMR-WB decoding via libopencore-amrwb [no]
             // "--enable-libopencv",         // enable video filtering via libopencv [no]
             "--enable-libopenh264",       // enable H.264 encoding via OpenH264 [no]
-            // "--enable-libopenjpeg",       // enable JPEG 2000 encoding via OpenJPEG [no]
+            "--enable-libopenjpeg",       // enable JPEG 2000 encoding via OpenJPEG [no]
             // "--enable-libopenmpt",        // enable decoding tracked files via libopenmpt [no]
             // "--enable-libopencolorio",    // enable color management via OpenColorIO [no]
             // "--enable-libopenvino",       // enable OpenVINO as a DNN module backend for DNN based filters like dnn_processing [no]
@@ -531,7 +545,6 @@
             // "--enable-libtorch",         // enable Torch as one DNN backend [no]
             // "--enable-libtwolame",       // enable MP2 encoding via libtwolame [no]
             // "--enable-libuavs3d",        // enable AVS3 decoding via libuavs3d [no]
-            //   --enable-libv4l2",         // enable libv4l2/v4l-utils [no][linux]
             "{{'--enable-libvidstab' if $enable_gpl else ''}}",    //  enable video stabilization using vid.stab [no]
             // "--enable-libvmaf",          // enable vmaf filter via libvmaf [no]
             // "--enable-libvo-amrwbenc",   // enable AMR-WB encoding via libvo-amrwbenc [no]
