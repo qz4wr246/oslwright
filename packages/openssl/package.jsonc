@@ -389,11 +389,37 @@
           ]
         },
         "post-install" :{
+          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
+          "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
+          "template_files": [
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "${package_dir}\\openssl.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_debug}\\openssl.pc"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "${package_dir}\\openssl.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_release}\\openssl.pc"
+            }
+          ],
           "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
           },
           "scripts": [
+            {
+              // Template Script:
+              // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+            },
             {
               "when": "{{'Debug' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
@@ -403,12 +429,22 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "${dist_dir_debug}\\lib",
+              "script": "copy /y libcrypto.lib crypto.lib && copy /y libssl.lib ssl.lib"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "${dist_dir_release}\\lib",
+              "script": "copy /y libcrypto.lib crypto.lib && copy /y libssl.lib ssl.lib"
             }
           ]
         }
       }
     },
-    "3.5.6": {},
+    "3.5.6": {},  // TLS 2030/04
     "3.6.2": {}
   }
 }
