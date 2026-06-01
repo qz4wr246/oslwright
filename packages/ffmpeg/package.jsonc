@@ -214,6 +214,9 @@
         "lcms2":{
           "version": ">=2.19"
         },
+        "libaribcaption": {
+          "version": ">=1.1"
+        },
         "libass": {
           "version": ">=0.17"
         },
@@ -235,7 +238,7 @@
         "libjxl": {
           "version": ">=0.11"
         },
-        // "libmodplug": {  // libmodplug fails to link with gstreamer and is legacy. So use libopenmpt.
+        // "libmodplug": {  // libmodplug fails to link with gstreamer and libmodplug is legacy. So use libopenmpt.
         //   "version": ">=0.8"
         // },
         "libssh": {
@@ -476,7 +479,7 @@
             "--enable-lcms2",             // enable ICC profile support via LittleCMS 2 [no]
             "--enable-libaom",            // enable AV1 video encoding/decoding via libaom [no]
             "{{'--enable-libaribb24' if $enable_version3 else ''}}",         // enable ARIB text and caption decoding via libaribb24 [no]
-            // "--enable-libaribcaption"     // enable ARIB text and caption decoding via libaribcaption [no]
+            "--enable-libaribcaption",     // enable ARIB text and caption decoding via libaribcaption [no]
             "--enable-libass",            // enable libass subtitles rendering, needed for subtitles and ass filter [no]
             "--enable-libbluray",         // enable BluRay reading using libbluray [no]
             // "--enable-libbs2b",           // enable bs2b DSP library [no]
@@ -486,7 +489,7 @@
             // "--enable-libcodec2",         // enable codec2 en/decoding using libcodec2 [no]
             "--enable-libdav1d",          // enable AV1 decoding via libdav1d [no]
             // "{{'--enable-libdavs2' if $enable_gpl else ''}}",          // enable AVS2 decoding via libdavs2 [no]
-            // "-enable-libdc1394",          // enable IIDC-1394 grabbing using libdc1394 and libraw1394 [no]
+            // "--enable-libdc1394",          // enable IIDC-1394 grabbing using libdc1394 and libraw1394 [no]
 
             // "{{'--enable-libdvdnav' if $enable_gpl else ''}}",         // enable libdvdnav, needed for DVD demuxing [no]
             // "{{'--enable-libdvdread' if $enable_gpl else ''}}",        // enable libdvdread, needed for DVD demuxing [no]
@@ -564,12 +567,11 @@
             "--enable-libxml2",         // enable XML parsing using the C library libxml2, needed for dash and imf demuxing support [no]
             "--enable-libzimg",         // enable z.lib, needed for zscale filter [no]
             // "--enable-libzmq",         // enable message passing via libzmq [no]
-            // "--enable-libzvbi",        // enable teletext support via libzvbi [no]
-            "{{'--enable-libzvbi' if $enable_gpl else ''}}",
+            "{{'--enable-libzvbi' if $enable_gpl else ''}}",         // enable teletext support via libzvbi [no]
             // "--enable-lv2",            // enable LV2 audio filtering [no]
             // "{{'--enable-decklink' if $enable_nonfree else ''}}",       // enable Blackmagic DeckLink I/O support [no]
             // "{{'--enable-mbedtls' if $ssl_library == 'libtls' else ''}}",   // enable mbedTLS, needed for https support if openssl, gnutls or libtls is not used [no]
-            // "--enable-mediafoundation",  // enable encoding via MediaFoundation [auto]
+            // "--enable-mediafoundation", // enable encoding via MediaFoundation [auto]
             // "--enable-libmysofa",       // enable libmysofa, needed for sofalizer filter [no]
             // "--enable-ohcodec",         // enable OpenHarmony Codec support [no]
             "--enable-openal",         // enable OpenAL 1.1 capture support [no]

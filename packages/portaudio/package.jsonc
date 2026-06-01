@@ -1,11 +1,11 @@
 {
-  "name": "flac",
-  "display": "FLAC",
-  "description": "Free Lossless Audio Codec",
-  "site": "https://xiph.org/flac/",
-  "license": "Xiph.org BSD-style license",
+  "name": "portaudio",
+  "display": "portaudio",
+  "description": "A free, cross-platform, open source, audio I/O library",
+  "site": "https://www.portaudio.com/",
+  "license": "custom",
   "info": "info.md",
-  "process_time": 70,
+  "process_time": 30,
   "options": [
     {
       "display": "Version",
@@ -71,21 +71,51 @@
     {
       "display": "Build layout",
       "name": "build_layout",
+      "enable": false,
       "type": "choice",
       "items": [
         "union",
         "separation"
       ],
-      "default": "union"
+      "default": "separation"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    },
+    {
+      "display": "With SQLite",
+      "name": "with_sqlite",
+      "type": "bool",
+      "default": true
+    },
+    {
+      "display": "With Zlib",
+      "name": "with_zlib",
+      "type": "bool",
+      "default": true
     }
   ],
   "versions": {
     "default": {
       "environments": {
-        "PERLIO": "raw"
+        "PERLIO": "raw",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
       },
       "source_dir": "${source_rootdir}\\${name}-${version}",
-      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
       "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
       "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
@@ -93,8 +123,8 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/xiph/flac.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
+      "git_url": "https://github.com/PortAudio/portaudio.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
@@ -130,12 +160,48 @@
             }
           ]
         },
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-portaudio/",
+          "patch_files": [
+            {
+              "url": "$repo_url/0001-clang-fix.patch"
+            },
+            {
+              "url": "$repo_url/0002-cmake-add-cpp-binding.patch"
+            },
+            {
+              "url": "$repo_url/0003-pa_getversioninfo-fix.patch"
+            }
+          ],
+          "scripts": [
+            {
+              "script": "mkdir \"$source_dir\\bindings\\cpp\\cmake\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "downloads 001",
+              "script": "curl.exe --fail -L -s -o \"$source_dir\\bindings\\cpp\\CMakeLists.txt\" $repo_url/CMakeLists.txt",
+              // "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "downloads 2",
+              "script": "curl.exe --fail -L -s -o \"$source_dir\\bindings\\cpp\\cmake\\portaudiocpp.pc.in\" $repo_url/portaudiocpp.pc.in",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "when": "{{'patch_files' in globals()}}",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+            }
+          ]
+        },
         "configure": {
           // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
-            "-DCMAKE_CXX_STANDARD=17",
-            "-DCMAKE_C_STANDARD=17",
+            "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
             "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
             "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
             "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
@@ -146,9 +212,7 @@
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
             "-DCMAKE_DOC=OFF",
-            "-DBUILD_EXAMPLES=OFF",
-            "-DBUILD_TESTING=OFF",
-            "-DINSTALL_MANPAGES=OFF"
+            "-DBUILD_TESTS=OFF"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -235,8 +299,8 @@
             }
           ]
         },
-        "post-install" :{
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
+        "post-install": {
+          "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
           },
@@ -255,13 +319,6 @@
         }
       }
     },
-    "1.4.3": {  // Requires from SMFL 3.0.2
-      "dependencies": {
-        "ogg": {
-          "version": "==1.3.6"
-        }
-      }
-    },
-    "1.5.0": {}
+    "19.7.0": {}
   }
 }
