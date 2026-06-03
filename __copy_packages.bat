@@ -1,0 +1,12 @@
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\zlib-1.3.1-x64-vc143-md" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\sdl-2.32.10-x64-vc143-md" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\libmysofa-1.3.4-x64-vc143-md" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\portaudio-19.7.0-x64-vc143-md-release" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\openal-1.25.1-x64-vc143-md" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\ogg-1.3.6-x64-vc143-md" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\opus-1.6.1-x64-vc143-md-release" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\mpg123-1.33.5-x64-vc143-md-release" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\vorbis-1.3.7-x64-vc143-md" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\lame-3.100-x64-vc143-md-release" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\flac-1.4.3-x64-vc143-md" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1
+xcopy "C:\Users\y-mori\DevelopOSS\oslwright\dist\libsndfile-1.2.2-x64-vc143-md" "C:\Users\y-mori\DevelopOSS\oslwright\tools\msys2\msys64\opt\ucrt64" /s /e /i /y || exit /b 1

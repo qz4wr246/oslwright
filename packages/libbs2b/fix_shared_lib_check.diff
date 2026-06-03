@@ -1,0 +1,11 @@
+--- a/build-aux/ltmain.sh	2026-06-03 12:52:33.973811800 +0900
++++ b/build-aux/ltmain.sh	2026-06-03 12:54:35.325813100 +0900
+@@ -9546,7 +9546,7 @@
+ 	      func_warning "undefined symbols not allowed in $host shared libraries; building static only"
+ 	      build_libtool_libs=no
+ 	    else
+-	      func_fatal_error "can't build $host shared library unless -no-undefined is specified"
++	      func_warning "can't build $host shared library unless -no-undefined is specified"
+ 	    fi
+ 	  fi
+ 	else

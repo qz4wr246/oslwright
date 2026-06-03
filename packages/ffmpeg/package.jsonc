@@ -223,6 +223,9 @@
         "libbluray": {
           "version": ">=1.4"
         },
+        "libbs2b": {
+          "version": ">=3.1"
+        },
         "libcaca": {
           "version": ">=0.99"
         },
@@ -274,7 +277,7 @@
         "libvpl": {
           "version": ">=2.16"
         },
-        "openal-soft": {
+        "openal": {
           "version": ">=1.25"
         },
         "opencore-amr": {
@@ -482,7 +485,7 @@
             "--enable-libaribcaption",     // enable ARIB text and caption decoding via libaribcaption [no]
             "--enable-libass",            // enable libass subtitles rendering, needed for subtitles and ass filter [no]
             "--enable-libbluray",         // enable BluRay reading using libbluray [no]
-            // "--enable-libbs2b",           // enable bs2b DSP library [no]
+            "--enable-libbs2b",           // enable bs2b DSP library [no]
             "--enable-libcaca",           // enable textual display using libcaca [no]
             // "--enable-libcelt",           // enable CELT decoding via libcelt [no]
             // "{{'--enable-libcdio' if $enable_gpl else ''}}",           // enable audio CD grabbing with libcdio [no]

@@ -1,11 +1,11 @@
 {
-  "name": "openal",
-  "display": "OpenAL Soft",
-  "description": "OpenAL Software Implementation",
-  "site": "https://openal-soft.org/",
-  "license": "GNU Lesser General Public License v2.1",
+  "name": "libmysofa",
+  "display": "libmysofa",
+  "description": "Reader for AES SOFA files to get better HRTFs",
+  "site": "https://github.com/hoene/libmysofa/",
+  "license": "BSD 3 Clause",
   "info": "info.md",
-  "process_time": 280,
+  "process_time": 260,
   "options": [
     {
       "display": "Version",
@@ -92,22 +92,13 @@
       "type": "choice",
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
-    },
+    }
   ],
   "versions": {
     "default": {
       "dependencies": {
-        "portaudio": {
-          "version": ">=19.7.0"
-        },
-        "libmysofa": {
-          "version": ">=1.3.4"
-        },
-        // "fluidsynth": {
-
-        // },
-        "sdl": {
-          "version": ">=2.30;<3.0"
+        "zlib": {
+          "version": ">=1.3"
         }
       },
       "environments": {
@@ -124,8 +115,8 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/kcat/openal-soft.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
+      "git_url": "https://github.com/hoene/libmysofa.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
@@ -162,22 +153,7 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-openal",
-          "patch_files": [
-            {
-              "url": "$repo_url/0001-dll-name.patch"
-            },
-            {
-              "url": "$repo_url/0003-openal-not-32.mingw.patch"
-            },
-            {
-              "url": "$repo_url/0004-pkgconfig-add-Cflags-private.patch"
-            },
-            {
-              "url": "$repo_url/0005-mingw-dont-check-libm.patch"
-            },
-
-          ],
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libmysofa",
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -192,17 +168,16 @@
           // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
+            "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
             "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
             "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
             "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
-            "-DCMAKE_DEBUG_POSTFIX=d",
             "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DALSOFT_UTILS=ON",
-            "-DALSOFT_EXAMPLES=OFF",
-            "-DALSOFT_TESTS=OFF"
+            "-DBUILD_STATIC_LIBS={{'ON' if 'static' in $build_library else 'OFF'}}",
+            "-DBUILD_TESTS=OFF"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -289,8 +264,8 @@
             }
           ]
         },
-        "post-install" :{
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
+        "post-install": {
+          "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
           },
@@ -304,23 +279,41 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
-            },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "chdir": "$dist_dir_debug\\lib",
-              "script": "copy /y OpenAL32.lib libopenal.lib",
-              "ignore_errors": true
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "chdir": "$dist_dir_release\\lib",
-              "script": "copy /y OpenAL32.lib libopenal.lib",
-              "ignore_errors": true
             }
           ]
         }
       }
     },
-    "1.25.1": {}
+    "1.3.1": {
+      "stages": {
+        "patch": {
+          "patch_files": [
+            {
+              "url": "$repo_url/001-mingw-dont-use-nuget.patch"
+            },
+            {
+              "url": "$repo_url/002-fix-exports.patch"
+            },
+            {
+              "url": "$repo_url/004-fix-dllexport-attribute.patch"
+            },
+            {
+              "url": "$repo_url/005-add-cflag-private-for-staticlib.patch"
+            }
+          ]
+        }
+      }
+    },
+    "1.3.4": {
+      "stages": {
+        "patch": {
+          "patch_files": [
+            {
+              "url": "${package_dir}\\libmysofa-1.3.4_cmake.diff"
+            }
+          ]
+        }
+      }
+    }
   }
 }
