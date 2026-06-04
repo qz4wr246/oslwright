@@ -31,6 +31,7 @@
         "base-devel",
         "diffutils",
         "pkg-config",
+        "texinfo",
         "libtool",
         "autotools",
         "automake",
