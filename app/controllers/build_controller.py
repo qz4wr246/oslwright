@@ -25,6 +25,9 @@ class BuildController(FletXController):
         self.packages = []
         self.model = BuildModel()
         self.build_force = False
+        self.log_lines = 0
+        self.log_prev = 0
+
         super().__init__()
 
     def on_initialized(self):
@@ -41,6 +44,8 @@ class BuildController(FletXController):
         self.tx_status: RxStr = self.create_rx_str("")
 
         self.logs: RxList[RichText] = RxList([])
+        self.log_lines = 0
+        self.log_prev = 0
 
     def on_ready(self):
         # print("BuildController:on_ready")
@@ -94,6 +99,10 @@ class BuildController(FletXController):
             self.tx_processed.value = f"{self.model.processed_count}/{self.model.package_num}"
             self.tx_status.value = f"{self.model.package_name} / {self.model.stage_name} {self.model.status}"
 
+            if self.log_prev != self.log_lines:
+                self.emit_local("update_log")
+                self.log_prev = self.log_lines
+
         self.is_running = False
         self.emit_local("build_finished", self.model.reason)
 
@@ -106,9 +115,11 @@ class BuildController(FletXController):
         self.logs.append(RichText(text=message))
         if len(self.logs.value) > self.max_lines:
             self.logs.pop(0)
+        self.log_lines += 1
 
     def put_error(self, message: str):
         message = message.rstrip("\n")
         self.logs.append(RichText(text=message, color=ft.Colors.ERROR))
         if len(self.logs.value) > self.max_lines:
             self.logs.pop(0)
+        self.log_lines += 1

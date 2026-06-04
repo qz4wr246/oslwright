@@ -21,6 +21,8 @@ class BuildPage(FletXPage):
         self.controller = BuildController()
         self.initialized = False
         self.init_count = 0
+        self.log_offset = 0
+        self.max_log_offset = 0
 
     def on_init(self):
         """Hook called when BuildPage is initialized"""
@@ -35,11 +37,23 @@ class BuildPage(FletXPage):
             self.initialized = True
             self.modal_dialog = None
             self.controller.on_local("build_finished", self.on_build_finished)
+            self.controller.on_local("update_log", self.on_update_log)
+            self.log_offset = 0
+            self.max_log_offset = 0
 
     def on_destroy(self):
         """Hook called when BuildPage will be unmounted."""
         # print("BuildPage:on_destroy")
         pass
+
+    def on_update_log(self, event):
+        if self.max_log_offset == self.log_offset:
+            self.content.controls[6].widget.scroll_to(offset=-1, duration=300)
+
+    def _on_scroll(self, e: ft.OnScrollEvent):
+        if e.event_type == "end":
+            self.log_offset = e.pixels
+            self.max_log_offset = max(e.pixels, self.max_log_offset)
 
     def on_build_finished(self, event):
         def _close_dialog(e):
@@ -204,7 +218,8 @@ class BuildPage(FletXPage):
             ],
             expand=True,
             spacing=2,
-            auto_scroll=True,
+            auto_scroll=False,
+            on_scroll=self._on_scroll,
         )
 
     def build(self):
