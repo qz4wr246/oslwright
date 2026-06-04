@@ -1,0 +1,113 @@
+diff --git a/Makefile.am b/Makefile.am
+index 6483d4b..6290834 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -51,7 +51,7 @@ EXTRA_DIST = \
+ 	$(wildcard test/data/*.iso) \
+ 	$(wildcard test/*.right)
+ 
+-SUBDIRS = doc include lib src test example
++SUBDIRS = include lib src test example
+ 
+ # pkg-config(1) related rules
+ pkgconfigdir = $(libdir)/pkgconfig
+@@ -93,9 +93,7 @@ check-leaks:
+ 	$(MAKE) -C test/driver check-leaks && \
+ 	$(MAKE) -C example check-leaks
+ 
+-#: Make documentation via Doxygen http://www.stack.nl/~dimitri/doxygen/
+-doxygen:
+-	-( cd ${top_srcdir}/doc/doxygen && /bin/sh ${srcdir}/run_doxygen )
++
+ 
+ dist-regression: distdir-regression
+ 	cd $(distdir) && $(AMTAR) chof - tests | GZIP=$(GZIP_ENV) gzip -c >$(distdir_regression).tar.gz
+diff --git a/configure.ac b/configure.ac
+index 596316c..095e4ce 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -713,8 +713,6 @@ AC_CONFIG_FILES([
+        include/cdio/Makefile \
+        include/cdio++/Makefile \
+        include/cdio/version.h \
+-       doc/doxygen/Doxyfile \
+-       doc/Makefile \
+        lib/Makefile \
+        lib/driver/Makefile \
+        lib/iso9660/Makefile \
+diff --git a/src/Makefile.am b/src/Makefile.am
+index dcea939..9dfd03f 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -38,7 +38,7 @@ if BUILD_CD_DRIVE
+ cd_drive_SOURCES = cd-drive.c util.c util.h $(GETOPT_C)
+ cd_drive_LDADD   =  $(LIBISO9660_LIBS) $(LIBCDIO_LIBS) $(LTLIBICONV)
+ bin_cd_drive     = cd-drive
+-man_cd_drive     = cd-drive.1
++man_cd_drive     =
+ check_programs  += cd-drive
+ endif
+ 
+@@ -46,7 +46,7 @@ if BUILD_CDINFO
+ cd_info_SOURCES = cd-info.c cddb.c cddb.h util.c util.h $(GETOPT_C)
+ cd_info_LDADD   =  $(LIBISO9660_LIBS) $(LIBCDIO_LIBS) $(CDDB_LIBS) $(VCDINFO_LIBS) $(LTLIBICONV)
+ bin_cd_info     = cd-info
+-man_cd_info     = cd-info.1
++man_cd_info     =
+ check_programs += cd-info
+ endif
+ 
+@@ -61,7 +61,7 @@ if BUILD_CD_READ
+ cd_read_SOURCES = cd-read.c util.c util.h $(GETOPT_C)
+ cd_read_LDADD   = $(LIBISO9660_LIBS) $(LIBCDIO_LIBS) $(LTLIBICONV)
+ bin_cd_read     = cd-read
+-man_cd_read     = cd-read.1
++man_cd_read     =
+ check_programs += cd-read
+ endif
+ 
+@@ -69,7 +69,7 @@ if BUILD_ISO_INFO
+ iso_info_SOURCES = iso-info.c util.c util.h $(GETOPT_C)
+ iso_info_LDADD   = $(LIBUDF_LIBS) $(LIBISO9660_LIBS) $(LIBCDIO_LIBS) $(LTLIBICONV)
+ bin_iso_info     = iso-info
+-man_iso_info     = iso-info.1
++man_iso_info     =
+ check_programs  += iso-info
+ endif
+ 
+@@ -77,7 +77,7 @@ if BUILD_ISO_READ
+ iso_read_SOURCES = iso-read.c util.c util.h $(GETOPT_C)
+ iso_read_LDADD   = $(LIBUDF_LIBS) $(LIBISO9660_LIBS) $(LIBCDIO_LIBS) $(LTLIBICONV)
+ bin_iso_read     = iso-read
+-man_iso_read     = iso-read.1
++man_iso_read     =
+ check_programs  += iso-read
+ endif
+ 
+@@ -90,10 +90,8 @@ bin_PROGRAMS = $(bin_cd_drive) $(bin_cd_info)  $(bin_cdinfo_linux) $(bin_cd_read
+ 
+ AM_CPPFLAGS = -I$(top_srcdir) $(LIBCDIO_CFLAGS) $(VCDINFO_CFLAGS) $(CDDB_CFLAGS)
+ 
+-man_MANS = $(man_cd_drive) $(man_cd_info) $(man_cd_read) $(man_iso_read) $(man_iso_info)
+-EXTRA_DIST = cd-drive.help2man cd-info.help2man cd-read.help2man \
+-             iso-info.help2man iso-read.help2man $(GETOPT_C) getopt_int.h \
+-             $(man_MANS)
++man_MANS =
++EXTRA_DIST = $(GETOPT_C) getopt_int.h
+ 
+ check-leaks: $(check_programs)
+ 	for p in $(check_programs); do \
+@@ -101,11 +99,8 @@ check-leaks: $(check_programs)
+         done
+ 
+ 
+-if MAINTAINER_MODE
+-$(man_MANS): %.1: %$(EXEEXT) %.help2man
+-	-$(HELP2MAN) --opt-include=$(srcdir)/$(<:.exe=).help2man --no-info --libtool -o $@ ./$<
+-endif
+-MAINTAINERCLEANFILES = $(man_MANS)
++
++MAINTAINERCLEANFILES =
+ 
+ MOSTLYCLEANFILES = *.orig *.rej *.dSYM .libs
+ 
