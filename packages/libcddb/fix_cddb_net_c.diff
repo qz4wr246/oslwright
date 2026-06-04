@@ -1,0 +1,20 @@
+--- a/lib/cddb_net.c	2026-06-04 19:50:18.343825100 +0900
++++ b/lib/cddb_net.c	2026-06-04 19:40:27.744381200 +0900
+@@ -305,7 +305,7 @@
+             int rv;
+             fd_set wfds;
+             struct timeval tv;
+-            size_t l;
++            int l;
+
+             /* set up select time out */
+             tv.tv_sec = timeout;
+@@ -325,7 +325,7 @@
+             default:
+                 /* we got connected, check error condition */
+                 l = sizeof(rv);
+-                getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &rv, &l);
++                getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char *)&rv, &l);
+                 if (rv) {
+                     /* something went wrong, simulate normal connect behaviour */
+                     errno = rv;

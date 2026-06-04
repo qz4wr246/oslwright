@@ -1,0 +1,296 @@
+{
+  "name": "libsystre",
+  "display": "libsystre",
+  "description": "Wrapper library around TRE that provides POSIX API",
+  "site": "https://github.com/msys2/MINGW-packages/tree/master/mingw-w64-libsystre",
+  "license": "BSD 2 Clause",
+  "info":"info.md",
+  "process_time": 30,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "choice",
+      "items": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "choice",
+      "items": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "shared",
+        "static"
+      ],
+      "default": "static"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "choice",
+      "items": [
+        "Release",
+        "Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "type": "choice",
+      "items": [
+        "separation"
+      ],
+      "default": "separation"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    }
+  ],
+  "versions": {
+    "default": {
+      "dependencies": {
+        "tre": {
+          "version": ">=0.9"
+        }
+      },
+      "environments": {
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+      },
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "download_url": "https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libsystre",
+      "download_files": [
+          {
+            "url": "${download_url}/COPYING",
+            "dst": "${source_dir}\\COPYING"
+          },
+          {
+            "url": "${download_url}/README",
+            "dst": "${source_dir}\\README"
+          },
+          {
+            "url": "${download_url}/meson.build",
+            "dst": "${source_dir}\\meson.build"
+          },
+          {
+            "url": "${download_url}/meson_post_install.py",
+            "dst": "${source_dir}\\meson_post_install.py"
+          },
+          {
+            "url": "${download_url}/regex.h",
+            "dst": "${source_dir}\\regex.h"
+          },
+          {
+            "url": "${download_url}/systre.c",
+            "dst": "${source_dir}\\systre.c"
+          }
+      ],
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "when": "{{not os.path.isdir($source_dir)}}",
+              "script": "mkdir \"$source_dir\""
+            },
+            {
+              "message": "dowload sources.",
+              "when": "{{not os.path.isfile($cache_file)}}",
+              "script": "{{' && '.join([f'curl.exe --fail -L -s -o \"{f[\"dst\"]}\" \"{f[\"url\"]}\"' for f in download_files if not os.path.exists(f['dst'])])}}",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extract from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z -sccUTF-8 x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "make cache.",
+              "when": "{{not os.path.isfile($cache_file)}}",
+              "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
+              "fallback": "del \"$cache_file\""
+            }
+          ]
+        },
+        "configure": {
+          "meson_options": [
+            "--vsenv",
+            "--pkgconfig.relocatable",
+            "--default-library={{'static' if $build_library == 'static' else 'shared'}}",
+            "-Db_vscrt={{'from_buildtype' if $msvc_runtime_library == 'md' else 'static_from_buildtype'}}",
+            "--wrap-mode=nodownload",
+            "--auto-features=enabled"
+          ],
+          "meson_options_debug" : [
+            "--prefix=\"$dist_dir_debug\"",
+            "--buildtype debug"
+          ],
+          "meson_options_release" : [
+            "--prefix=\"$dist_dir_release\"",
+            "--buildtype release"
+          ],
+          "scripts": [
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "script": "del /q /s \"$build_dir_debug\" > nul"
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "del /q /s \"$build_dir_release\" > nul"
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
+              "script": "mkdir \"$build_dir_debug\""
+            },
+            {
+              "ignore_errors": true,
+              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
+              "script": "mkdir \"$build_dir_release\""
+            },
+            {
+              "message": "config for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
+                "PKG_CONFIG_PATH": "$pkg_config_path_debug",
+                "PERLIO": "raw"
+              },
+              "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_debug)}}  \"$build_dir_debug\" \"$source_dir\""
+            },
+            {
+              "message": "config for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "CMAKE_PREFIX_PATH": "$dependent_packages_release",
+                "PKG_CONFIG_PATH": "$pkg_config_path_release",
+                "PERLIO": "raw"
+              },
+              "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_release)}} \"$build_dir_release\" \"$source_dir\""
+            }
+          ]
+        },
+        "build": {
+          "scripts": [
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
+                "PERLIO": "raw"
+              },
+              "script": "meson compile -C \"$build_dir_debug\" -j 4"
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
+                "PERLIO": "raw"
+              },
+              "script": "meson compile -C \"$build_dir_release\" -j 4"
+            }
+          ]
+        },
+        "install": {
+          "meson_install_options": [
+            "--tags devel,runtime,bin"
+          ],
+          "scripts": [
+            {
+              "message": "install for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "meson install -C \"$build_dir_debug\" {{' '.join($meson_install_options)}}"
+            },
+            {
+              "message": "install for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "meson install -C \"$build_dir_release\" {{' '.join($meson_install_options)}}"
+            }
+          ]
+        },
+        "post-install": {
+          "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}",
+          "environments": {
+            "PERLIO": "raw"
+          },
+          "scripts": [
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
+              "ignore_errors": true
+            }
+          ]
+        }
+      }
+    },
+    "1.0.2": {}
+  }
+}
