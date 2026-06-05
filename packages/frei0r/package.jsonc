@@ -252,11 +252,7 @@
           //"cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}} -Thost=x64",
           "cmake_genarator": "-G 'Ninja Multi-Config'",
           "cmake_options": [
-            // "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t- /Zm2000 /Od\"",
-            // "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t- /Zm2000 /Od\"",
-            // "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
             "-D CMAKE_CONFIGURATION_TYPES=$build_type",
-            // "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-D BUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
             "-D WITHOUT_OPENCV={{'ON' if $without_opencv else 'OFF'}}",
             "-D WITHOUT_CAIRO={{'ON' if $without_cairo else 'OFF'}}",
@@ -299,7 +295,7 @@
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
               "chdir": "$source_dir",
-              "bash_script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S .-B ../{{os.path.basename($build_dir_debug)}}",
+              "bash_script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S '$source_dir' -B '$build_dir_debug'}}",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
