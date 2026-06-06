@@ -239,7 +239,7 @@
               "message": "Clean /opt directory in msys2",
               "bash_script": "rm -rf /opt/*",
               "script": "${msys2_bash} \"${bash_script}\"",
-              "ignore_errors": false
+              "ignore_errors": true
             },
             {
               "message": "reconfigure",

@@ -279,6 +279,26 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type and 'static' == $build_library}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "copy /y mysofa_static.lib mysofa.lib"
+            },
+            {
+              "when": "{{'Debug' in $build_type and 'static' == $build_library}}",
+              "chdir": "$dist_dir_release\\lib",
+              "script": "copy /y mysofa_static.lib mysofa.lib"
+            },
+            {
+              "when": "{{'Debug' in $build_type and 'shared' == $build_library}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "copy /y mysofa_shared.lib mysofa.lib"
+            },
+            {
+              "when": "{{'Debug' in $build_type and 'shared' == $build_library}}",
+              "chdir": "$dist_dir_release\\lib",
+              "script": "copy /y mysofa_shared.lib mysofa.lib"
             }
           ]
         }

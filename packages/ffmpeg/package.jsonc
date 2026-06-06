@@ -166,8 +166,19 @@
         "chromaprint": {
           "version": ">=1.6"
         },
+        "libcdio" :{
+          "enable": "{{$enable_gpl}}",
+          "version": ">=2.3"
+        },
+        "codec2" : {
+          "version": ">=1.2"
+        },
         "dav1d": {
           "version": ">=1.5"
+        },
+        "davs2": {
+          "enable": "{{$enable_gpl}}",
+          "version": ">=1.7"
         },
         "fdk-aac": {
           "enable": "{{$enable_nonfree}}",
@@ -244,6 +255,9 @@
         // "libmodplug": {  // libmodplug fails to link with gstreamer and libmodplug is legacy. So use libopenmpt.
         //   "version": ">=0.8"
         // },
+        // "libopenmpt" : {
+        //   "version": ">=0.11"
+        // },
         "libssh": {
           "version": ">=0.11"
         },
@@ -279,6 +293,9 @@
         },
         "openal": {
           "version": ">=1.25"
+        },
+        "opencolorio": {
+          "version": ">=2.5"
         },
         "opencore-amr": {
           "enable": "{{$enable_version3}}",
@@ -415,7 +432,7 @@
               "message": "Clean /opt directory in msys2",
               "bash_script": "rm -rf /opt/*",
               "script": "${msys2_bash} \"${bash_script}\"",
-              "ignore_errors": false
+              "ignore_errors": true
             },
             {
               "bash_script": "mkdir -p /opt/ucrt64/bin",
@@ -478,7 +495,7 @@
             "{{'--enable-gcrypt' if $ssl_library == 'gnutls' else ''}}",            // enable gcrypt, needed for rtmp(t)e support if openssl, librtmp or gmp is not used [no]
             "{{'--enable-gmp' if $ssl_library == 'gnutls' else ''}}",               // enable gmp, needed for rtmp(t)e support if openssl or librtmp is not used [no]
             "{{'--enable-gnutls' if $ssl_library == 'gnutls' else ''}}",            // enable gnutls, needed for https support if openssl, libtls or mbedtls is not used [no]
-            // "--enable-jni",               // enable JNI support [no]
+            //// "--enable-jni",               // enable JNI support [no]
             "--enable-lcms2",             // enable ICC profile support via LittleCMS 2 [no]
             "--enable-libaom",            // enable AV1 video encoding/decoding via libaom [no]
             "{{'--enable-libaribb24' if $enable_version3 else ''}}",         // enable ARIB text and caption decoding via libaribb24 [no]
@@ -491,7 +508,7 @@
             "{{'--enable-libcdio' if $enable_gpl else ''}}",           // enable audio CD grabbing with libcdio [no]
             "--enable-libcodec2",         // enable codec2 en/decoding using libcodec2 [no]
             "--enable-libdav1d",          // enable AV1 decoding via libdav1d [no]
-            // "{{'--enable-libdavs2' if $enable_gpl else ''}}",          // enable AVS2 decoding via libdavs2 [no]
+            "{{'--enable-libdavs2' if $enable_gpl else ''}}",          // enable AVS2 decoding via libdavs2 [no]
             //// "--enable-libdc1394",          // enable IIDC-1394 grabbing using libdc1394 and libraw1394 [no]
 
             // "{{'--enable-libdvdnav' if $enable_gpl else ''}}",         // enable libdvdnav, needed for DVD demuxing [no]
@@ -565,7 +582,7 @@
             // "--enable-libxevd",          // enable EVC decoding via libxevd [no]
             //// "--enable-libxevdb",         // enable EVC decoding via libxevd (Base profile) [no]
             //// "{{'--enable-libxavs' if $enable_gpl else ''}}",          // enable AVS encoding via xavs [no]
-            // "{{'--enable-libxavs2' if $enable_gpl else ''}}",         // enable AVS2 encoding via xavs2 [no]
+            "{{'--enable-libxavs2' if $enable_gpl else ''}}",        // enable AVS2 encoding via xavs2 [no]
             "{{'--enable-libxvid' if $enable_gpl else ''}}",         // enable Xvid encoding via xvidcore, native MPEG-4/Xvid encoder exists [no]
             "--enable-libxml2",         // enable XML parsing using the C library libxml2, needed for dash and imf demuxing support [no]
             "--enable-libzimg",         // enable z.lib, needed for zscale filter [no]
