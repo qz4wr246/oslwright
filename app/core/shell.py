@@ -146,7 +146,14 @@ class Shell:
     def __init__(self):
         pass
 
-    def exec(self, cmd_line: str, env: dict | None = None, with_content: bool = False, shell: bool = False):
+    def exec(
+        self,
+        cmd_line: str,
+        cwd: str | None = None,
+        env: dict | None = None,
+        with_content: bool = False,
+        shell: bool = False,
+    ):
         if not env:
             env = os.environ.copy()
 
@@ -154,7 +161,7 @@ class Shell:
         if shell:
             try:
                 result = subprocess.run(
-                    cmd_line, capture_output=True, text=True, env=env, encoding="cp65001", shell=True
+                    cmd_line, capture_output=True, text=True, cwd=cwd, env=env, encoding="cp65001", shell=True
                 )
                 return ShellResult(exitcode=result.returncode, stdout=result.stdout, stderr=result.stderr)
             except Exception as e:
@@ -162,7 +169,7 @@ class Shell:
         else:
             cmd_args = split_cmd_line(cmd_line)
             try:
-                result = subprocess.run(cmd_args, capture_output=True, text=True, env=env, encoding="cp65001")
+                result = subprocess.run(cmd_args, capture_output=True, text=True, cwd=cwd, env=env, encoding="cp65001")
                 return ShellResult(exitcode=result.returncode, stdout=result.stdout, stderr=result.stderr)
             except Exception as e:
                 return ShellResult(exitcode=255, stderr=str(e))
@@ -174,7 +181,12 @@ class PipedShell:
         self._killed = False
 
     def exec(
-        self, cmd_line: str, env: dict | None = None, with_content: bool = False, shell: bool = False
+        self,
+        cmd_line: str,
+        cwd: str | None = None,
+        env: dict | None = None,
+        with_content: bool = False,
+        shell: bool = False,
     ) -> ShellResult:
         self._killed = False
         if not env:
@@ -198,7 +210,7 @@ class PipedShell:
                 pass
             stream.close()
 
-        def run_command(args, env: dict, shell: bool, with_content: bool = False):
+        def run_command(args, cwd: str | None, env: dict, shell: bool, with_content: bool = False):
             self._killed = False
             out_content = None
             if with_content:
@@ -209,6 +221,7 @@ class PipedShell:
                 args=args,
                 env=env,
                 shell=shell,
+                cwd=cwd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 bufsize=1,
@@ -236,10 +249,10 @@ class PipedShell:
 
         try:
             if shell:
-                return run_command(args=cmd_line, env=env, shell=True, with_content=with_content)
+                return run_command(args=cmd_line, cwd=cwd, env=env, shell=True, with_content=with_content)
             else:
                 cmd_args = split_cmd_line(cmd_line)
-                return run_command(args=cmd_args, env=env, shell=False, with_content=with_content)
+                return run_command(args=cmd_args, cwd=cwd, env=env, shell=False, with_content=with_content)
         except Exception as e:
             return ShellResult(exitcode=255, stderr=str(e))
 

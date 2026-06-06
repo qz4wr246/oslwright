@@ -298,7 +298,7 @@ class BuildService(FletXService):
                 Post.gui(f"cd {chdir}")
             if code:
                 Post.gui(code)
-                result = self.shell.exec(code, env=envs, shell=True)
+                result = self.shell.exec(code, cwd=chdir, env=envs, shell=True)
                 if isinstance(ignore_errors, str):
                     envs["ERRORLEVEL"] = str(result.exitcode)
                     ignore_errors = expand_envs_vars(ignore_errors, envs)
@@ -310,7 +310,7 @@ class BuildService(FletXService):
                     Post.error(
                         f"[{session.get('display', 'Unknown')}] ExitCode={result.exitcode}, Fallback: {fallback}"
                     )
-                    self.shell.exec(fallback, env=envs, shell=True)
+                    self.shell.exec(fallback, cwd=chdir, env=envs, shell=True)
                     return Reason.ERROR
                 elif result.exitcode and not ignore_errors:
                     Post.error(
