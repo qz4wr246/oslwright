@@ -120,12 +120,13 @@
       "environments": {
         "LC_ALL": "C",
         "MSYS": "winsymlinks:nativestrict",
-        "MSYSTEM": "MSYS",
+        "MSYSTEM": "UCRT64",
         "CHERE_INVOKING": "1",
         // "MSYS2_PATH_TYPE": "inherit",
         "CC": "/ucrt64/bin/gcc.exe",
         "CXX": "/ucrt64/bin/g++.exe",
         "LD": "/ucrt64/bin/ld.exe",
+        "AS": "/ucrt64/bin/nasm.exe",
         "AR": "/ucrt64/bin/ar.exe",
         "RANLIB": "/ucrt64/bin/ranlib.exe",
         "STRIP": "/ucrt64/bin/strip.exe",
@@ -133,11 +134,13 @@
         "OBJCOPY": "/ucrt64/bin/objcopy.exe",
         "OBJDUMP": "/ucrt64/bin/objdump.exe",
         "CPPFLAGS": "-I/opt/ucrt64/include",
+        "CFLAGS": "-Wno-incompatible-pointer-types",
+        "ASFLAGS": "-w-all",
         "LDFLAGS": "-L/opt/ucrt64/lib",
         "SED": "/usr/bin/sed.exe",
         "PERLIO": "raw",
-        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}"
       },
       "stages": {
         "download": {

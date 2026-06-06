@@ -5,7 +5,7 @@
   "site": "https://github.com/pkuvcl/xavs2",
   "license": "GPL-2.0",
   "info": "info.md",
-  "process_time": 100,
+  "process_time": 380,
   "options": [
     {
       "display": "Version",
@@ -135,8 +135,8 @@
         "LDFLAGS": "-L/opt/ucrt64/lib",
         "SED": "/usr/bin/sed.exe",
         "PERLIO": "raw",
-        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}"
       },
       "stages": {
         "download": {
