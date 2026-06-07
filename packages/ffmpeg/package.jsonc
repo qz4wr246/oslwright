@@ -180,6 +180,9 @@
           "enable": "{{$enable_gpl}}",
           "version": ">=1.7"
         },
+        "flite":{
+          "version": ">=2.2"
+        },
         "fdk-aac": {
           "enable": "{{$enable_nonfree}}",
           "version": ">=2.0"
@@ -523,7 +526,7 @@
             "{{'--enable-libdvdnav' if $enable_gpl else ''}}",         // enable libdvdnav, needed for DVD demuxing [no]
             "{{'--enable-libdvdread' if $enable_gpl else ''}}",        // enable libdvdread, needed for DVD demuxing [no]
             "{{'--enable-libfdk-aac' if $enable_nonfree else ''}}",   // enable AAC de/encoding via libfdk-aac [no]
-            // "--enable-libflite",           // enable flite (voice synthesis) support via libflite [no]
+            "--enable-libflite",           // enable flite (voice synthesis) support via libflite [no]
             "--enable-libfontconfig",     // enable libfontconfig, useful for drawtext filter [no]
             "--enable-libfreetype",       // enable libfreetype, needed for drawtext filter [no]
             "--enable-libfribidi",        // enable libfribidi, improves drawtext filter [no]

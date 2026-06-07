@@ -1,0 +1,31 @@
+diff --git a/configure b/configure
+index 5b8a1b6..b6be2a3 100755
+--- a/configure
++++ b/configure
+@@ -4079,16 +4079,16 @@ case "$target_os" in
+         mingw*)
+                 # For the Windows under mingw32 environment
+                 # http://www.mingw.org
+-		shared=false
+-     	        CFLAGS="$CFLAGS -DCST_NO_SOCKETS -DUNDER_WINDOWS -DWIN32 -shared"
+-                MINGWPREF="i386-mingw32-"
+-                CC="${MINGWPREF}gcc"
+-                RANLIB="${MINGWPREF}ranlib"
+-                AR="${MINGWPREF}ar"
+-                WINDRES="${MINGWPREF}windres"
+-                DLLTOOL="${MINGWPREF}dlltool"
+-                DLLWRAP="${MINGWPREF}dllwrap"
+-                NM="${MINGWPREF}nm"
++                shared=false
++                CFLAGS="$CFLAGS -DCST_NO_SOCKETS -DUNDER_WINDOWS -DWIN32 -shared -fgnu89-inline"
++                MINGWPREF="/ucrt64/bin/"
++                CC="${CC:-${MINGWPREF}gcc}"
++                RANLIB="${RANLIB:-${MINGWPREF}ranlib}"
++                AR="${AR:-${MINGWPREF}ar}"
++                WINDRES="${WINDRES:-${MINGWPREF}windres}"
++                DLLTOOL="${DLLTOOL:-${MINGWPREF}dlltool}"
++                DLLWRAP="${DLLWRAP:-${MINGWPREF}dllwrap}"
++                NM="${NM:-${MINGWPREF}nm}"
+         ;;
+         android*)
+                 # For Android with Android NDK
