@@ -17,7 +17,7 @@ index 5b8a1b6..b6be2a3 100755
 -                DLLWRAP="${MINGWPREF}dllwrap"
 -                NM="${MINGWPREF}nm"
 +                shared=false
-+                CFLAGS="$CFLAGS -DCST_NO_SOCKETS -DUNDER_WINDOWS -DWIN32 -shared -fgnu89-inline"
++                CFLAGS="$CFLAGS -DCST_NO_SOCKETS -DUNDER_WINDOWS -DWIN32 -std=gnu99"
 +                MINGWPREF="/ucrt64/bin/"
 +                CC="${CC:-${MINGWPREF}gcc}"
 +                RANLIB="${RANLIB:-${MINGWPREF}ranlib}"
