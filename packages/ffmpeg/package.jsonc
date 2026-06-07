@@ -201,7 +201,7 @@
           "version": ">=0.19"
         },
         "gmp": {
-          "enable": "{{$ssl_library == 'gnutls'}}",
+          "enable": "{{$ssl_library == 'gnutls' and $enable_version3}}",
           "version": ">=6.3"
         },
         // "libgcrypt": {
@@ -469,8 +469,8 @@
             "--enable-w32threads",
             "{{'--enable-shared --disable-static' if 'shared' in $build_library else ''}}",
             "{{'--enable-static --pkg-config-flags=--static' if 'static' in $build_library else ''}}",
-            "{{'--extra-cflags=\\'-DZLIB_DLL -MD -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-cxxflags=\\'-DZLIB_DLL -MD -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:libcmt.lib\\'' if 'md' == $msvc_runtime_library else ''}}",
-            "{{'--extra-cflags=\\'-DZLIB_DLL -MT -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-cxxflags=\\'-DZLIB_DLL -MT -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:msvcrt.lib\\'' if 'mt' == $msvc_runtime_library else ''}}",
+            "{{'--extra-cflags=\\'-DZLIB_DLL -MD -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-cxxflags=\\'-DZLIB_DLL -MD -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:libcmt.lib legacy_stdio_definitions.lib\\'' if 'md' == $msvc_runtime_library else ''}}",
+            "{{'--extra-cflags=\\'-DZLIB_DLL -MT -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-cxxflags=\\'-DZLIB_DLL -MT -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:msvcrt.lib legacy_stdio_definitions.lib\\'' if 'mt' == $msvc_runtime_library else ''}}",
             "--disable-stripping",
 
             // Component options:
@@ -505,7 +505,7 @@
             "--enable-chromaprint",       // enable audio fingerprinting with chromaprint [no]
             "{{'--enable-frei0r' if $enable_gpl else ''}}", // enable frei0r video filtering [no]
             "{{'--enable-gcrypt' if $ssl_library == 'gnutls' else ''}}",            // enable gcrypt, needed for rtmp(t)e support if openssl, librtmp or gmp is not used [no]
-            "{{'--enable-gmp' if $ssl_library == 'gnutls' else ''}}",               // enable gmp, needed for rtmp(t)e support if openssl or librtmp is not used [no]
+            "{{'--enable-gmp' if $ssl_library == 'gnutls' and $enable_version3 else ''}}",               // enable gmp, needed for rtmp(t)e support if openssl or librtmp is not used [no]
             "{{'--enable-gnutls' if $ssl_library == 'gnutls' else ''}}",            // enable gnutls, needed for https support if openssl, libtls or mbedtls is not used [no]
             //// "--enable-jni",               // enable JNI support [no]
             "--enable-lcms2",             // enable ICC profile support via LittleCMS 2 [no]
