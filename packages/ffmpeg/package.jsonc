@@ -255,6 +255,9 @@
         "libgme": {
           "version": ">=0.6"
         },
+        "libilbc": {
+          "version": ">=3.0"
+        },
         "libiconv": {
           "version": ">=1.19"
         },
@@ -537,7 +540,7 @@
             //// "--enable-libglslang",        // enable runtime GLSL->SPIRV compilation via libglslang [no]
             "--enable-libgme",            // enable Game Music Emu via libgme [no]
             "--enable-libgsm",            // enable GSM de/encoding via libgsm [no]
-            // "--enable-libilbc",           // enable iLBC de/encoding via libilbc [no]
+            "--enable-libilbc",           // enable iLBC de/encoding via libilbc [no]
             "--enable-libjxl",            // enable JPEG XL de/encoding via libjxl [no]
             //// "--enable-libklvanc",         // enable Kernel Labs VANC processing [no]
             //// "--enable-libkvazaar",        // enable HEVC encoding via libkvazaar [no]
