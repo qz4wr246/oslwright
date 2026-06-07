@@ -1,0 +1,21 @@
+diff --git a/libavfilter/ocio_wrapper.cpp b/libavfilter/ocio_wrapper.cpp
+index 5e3b1e2..c520373 100644
+--- a/libavfilter/ocio_wrapper.cpp
++++ b/libavfilter/ocio_wrapper.cpp
+@@ -38,7 +38,7 @@ extern "C" {
+ #include <libavutil/frame.h>
+ #include <libavutil/pixdesc.h>
+ #include <libavutil/dict.h>
+-
++}
+ // Helper to map AV_PIX_FMT to OCIO BitDepth
+ static OCIO::BitDepth get_ocio_depth(int format)
+ {
+@@ -95,6 +95,7 @@ static OCIO::ConstContextRcPtr add_context_params(OCIO::ConstConfigRcPtr config,
+     return ctx;
+ }
+ 
++extern "C" {
+ OCIOHandle
+ ocio_create_output_colorspace_processor(AVFilterContext *ctx, const char *config_path,
+                                         const char *input_color_space,

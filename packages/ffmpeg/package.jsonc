@@ -431,6 +431,9 @@
           "patch_files": [
             {
               "url": "$repo_url/0005-Win32-Add-path-relocation-to-frei0r-plugins-search.patch"
+            },
+            {
+              "file": "$package_dir\\fix_ocio_wrapper_cpp.diff"
             }
           ],
           "scripts": [
