@@ -1,0 +1,252 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 087928c..2e9e7fe 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -17,7 +17,9 @@ IF (MSVC)
+ ELSE()
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wformat-security")
+ ENDIF()
+-
++if (WIN32)
++    set(PLATFORM_WINDOWS 1)
++endif()
+ # version
+ SET(VERSION_MAJOR 0)
+ SET(VERSION_MINOR 3)
+@@ -76,7 +78,7 @@ IF(WIN32 AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+ ENDIF()
+ 
+ # overwrite some folders before GNUInstallDirs is loaded
+-IF (WIN32 AND NOT DEFINED CMAKE_INSTALL_DATAROOTDIR)
++IF (MSVC AND NOT DEFINED CMAKE_INSTALL_DATAROOTDIR)
+     SET(CMAKE_INSTALL_DATAROOTDIR "$ENV{ALLUSERSPROFILE}" CACHE PATH "read-only architecture-independent data root (share)")
+ ENDIF()
+ 
+@@ -102,16 +104,16 @@ IF(BUILD_FOR_SSE2)
+   ENDIF()
+ ENDIF()
+ 
+-IF(WIN32)
++IF(MSVC)
+   INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/libs/getopt)
+   # base path for searching for glib on windows
+   IF(NOT GLIB2_BASE_DIR)
+     SET(GLIB2_BASE_DIR "${SOURCE_BASE_DIR}/glib-2.28.1" CACHE STRING "Base path of glib2 dir." FORCE)
+   ENDIF()
+   # install glib dll on windows next to lensfun.dll
+-  IF (GLIB2_DLL)
+-    INSTALL(FILES ${GLIB2_DLL} DESTINATION ${CMAKE_INSTALL_BINDIR})
+-  ENDIF()
++  # IF (GLIB2_DLL)
++  #   INSTALL(FILES ${GLIB2_DLL} DESTINATION ${CMAKE_INSTALL_BINDIR})
++  # ENDIF()
+ ENDIF()
+ 
+ 
+@@ -205,12 +207,12 @@ IF(BUILD_DOC)
+   ADD_SUBDIRECTORY(docs)
+ ENDIF()
+ 
+-IF(WIN32 AND NOT BUILD_STATIC)
++IF(MSVC AND NOT BUILD_STATIC)
+   FIND_FILE(GLIB2_DLL
+             NAMES glib-2.0-0.dll glib-2.dll glib-2-vs9.dll
+             PATHS "${GLIB2_BASE_DIR}/bin"
+             NO_SYSTEM_ENVIRONMENT_PATH)
+-  INSTALL(FILES ${GLIB2_DLL} DESTINATION ${CMAKE_INSTALL_BINDIR})
++  # INSTALL(FILES ${GLIB2_DLL} DESTINATION ${CMAKE_INSTALL_BINDIR})
+ ENDIF()
+ 
+ # print some information
+diff --git a/apps/CMakeLists.txt b/apps/CMakeLists.txt
+index 2f6f8f1..c885d69 100644
+--- a/apps/CMakeLists.txt
++++ b/apps/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-IF(WIN32)
++IF(MSVC)
+   SET(COMMON_LIBS getopt)
+ ENDIF()
+ 
+@@ -42,5 +42,5 @@ IF(PYTHON)
+     IF(NOT DEFINED SETUP_PY_INSTALL_PREFIX)
+       SET(SETUP_PY_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+     ENDIF()
+-    INSTALL(CODE "execute_process(COMMAND ${PYTHON} ${SETUP_PY} install --prefix=\$ENV{DESTDIR}${SETUP_PY_INSTALL_PREFIX})")
++    INSTALL(CODE "execute_process(COMMAND ${PYTHON} ${SETUP_PY} install --prefix=${SETUP_PY_INSTALL_PREFIX} --root=\$ENV{DESTDIR})")
+ ENDIF(PYTHON)
+diff --git a/apps/lensfun/__init__.py.in b/apps/lensfun/__init__.py.in
+index 1f86ac4..96f0cea 100644
+--- a/apps/lensfun/__init__.py.in
++++ b/apps/lensfun/__init__.py.in
+@@ -14,12 +14,13 @@ scripts that want to find or read the Lensfun database.
+ """
+ 
+ import os
++import sys
+ 
+ 
+ user_local_db_path = os.path.join(
+     os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share")), "lensfun")
+ system_db_path = os.path.join("${CMAKE_INSTALL_FULL_DATAROOTDIR}", "lensfun")
+-system_db_update_path = os.path.join("/", "${CMAKE_INSTALL_LOCALSTATEDIR}", "lib", "lensfun-updates")
++system_db_update_path = os.path.join(sys.prefix, "${CMAKE_INSTALL_LOCALSTATEDIR}", "lib", "lensfun-updates")
+ 
+ 
+ def get_database_version():
+diff --git a/apps/lenstool/image.cpp b/apps/lenstool/image.cpp
+index 59fc78f..dfff895 100644
+--- a/apps/lenstool/image.cpp
++++ b/apps/lenstool/image.cpp
+@@ -24,6 +24,7 @@ float trunc (float x)
+ #define unlink _unlink
+ #else
+ #include <unistd.h>
++#define _USE_MATH_DEFINES
+ #include <math.h>
+ #endif
+ 
+diff --git a/apps/lenstool/image.h b/apps/lenstool/image.h
+index 0bd1361..9ea518e 100644
+--- a/apps/lenstool/image.h
++++ b/apps/lenstool/image.h
+@@ -22,16 +22,16 @@
+ #include "rgbpixel.h"
+ #include <stdio.h>
+ 
+-#if defined (_MSC_VER) && !defined(CONF_LENSFUN_STATIC)
+-#if defined auxfun_EXPORTS
+-#define AF_EXPORT __declspec(dllexport)
+-#else
+-#define AF_EXPORT __declspec(dllimport)
+-#endif
+-#else
++// #if defined (_MSC_VER) && !defined(CONF_LENSFUN_STATIC)
++// #if defined auxfun_EXPORTS
++// #define AF_EXPORT __declspec(dllexport)
++// #else
++// #define AF_EXPORT __declspec(dllimport)
++// #endif
++// #else
++// #define AF_EXPORT
++// #endif
+ #define AF_EXPORT
+-#endif
+-
+ /**
+  * This class represents an image object.
+  * It provides loading/saving from a PNG file functionality (through libPNG),
+diff --git a/cmake/modules/FindGLIB2.cmake b/cmake/modules/FindGLIB2.cmake
+index db07ba2..e22e6da 100644
+--- a/cmake/modules/FindGLIB2.cmake
++++ b/cmake/modules/FindGLIB2.cmake
+@@ -1,13 +1,13 @@
+-IF (NOT MSVC)
++
+     FIND_PACKAGE(PkgConfig)
+     PKG_SEARCH_MODULE(GLIB2 glib-2.0)
+     IF(WIN32 AND NOT BUILD_STATIC)
+-        FIND_FILE(GLIB2_DLL 
++        FIND_FILE(GLIB2_DLL
+                 NAMES glib-2.dll glib-2-vs9.dll libglib-2.0-0.dll
+                 PATHS "${GLIB2_LIBRARY_DIRS}/../bin"
+                 NO_SYSTEM_ENVIRONMENT_PATH)
+     ENDIF()
+-ENDIF()
++
+ 
+ IF (NOT GLIB2_FOUND OR NOT PKG_CONFIG_FOUND)
+     FIND_PATH(GLIB2_GLIB2CONFIG_INCLUDE_PATH
+@@ -31,19 +31,19 @@ IF (NOT GLIB2_FOUND OR NOT PKG_CONFIG_FOUND)
+             /usr/include
+             /opt/local/include
+             ${GLIB2_BASE_DIR}/include
+-        PATH_SUFFIXES gtk-2.0 glib-2.0 glib20 
++        PATH_SUFFIXES gtk-2.0 glib-2.0 glib20
+     )
+ 
+     FIND_LIBRARY(GLIB2_LIBRARIES
+         NAMES  glib-2.0 glib20 glib
+-        PATHS  
++        PATHS
+             /usr/local/lib
+             /usr/lib
+             /usr/lib64
+             /opt/local/lib
+             ${GLIB2_BASE_DIR}/lib
+     )
+-    
++
+     IF(GLIB2_GLIB2CONFIG_INCLUDE_PATH AND GLIB2_INCLUDE_DIRS AND GLIB2_LIBRARIES)
+         SET( GLIB2_INCLUDE_DIRS  ${GLIB2_GLIB2CONFIG_INCLUDE_PATH} ${GLIB2_INCLUDE_DIRS} )
+         SET( GLIB2_LIBRARIES ${GLIB2_LIBRARIES} )
+@@ -52,14 +52,14 @@ IF (NOT GLIB2_FOUND OR NOT PKG_CONFIG_FOUND)
+         SET( GLIB2_INCLUDE_DIRS )
+         SET( GLIB2_LIBRARIES )
+         SET( GLIB2_FOUND 0)
+-    ENDIF()    
+-    
++    ENDIF()
++
+     IF(WIN32 AND NOT BUILD_STATIC)
+-        FIND_FILE(GLIB2_DLL 
++        FIND_FILE(GLIB2_DLL
+                 NAMES glib-2.dll glib-2-vs9.dll libglib-2.0-0.dll
+                 PATHS "${GLIB2_BASE_DIR}/bin"
+                 NO_SYSTEM_ENVIRONMENT_PATH)
+-    ENDIF()    
++    ENDIF()
+ ENDIF ()
+ 
+ #INCLUDE( FindPackageHandleStandardArgs )
+diff --git a/libs/CMakeLists.txt b/libs/CMakeLists.txt
+index abfc2ef..2fa5a0a 100644
+--- a/libs/CMakeLists.txt
++++ b/libs/CMakeLists.txt
+@@ -5,6 +5,6 @@ ENDIF()
+ ADD_SUBDIRECTORY(lensfun)
+ 
+ # also build getopt on windows
+-IF(WIN32 AND BUILD_TESTS)
++IF(MSVC AND BUILD_LENSTOOL)
+   ADD_SUBDIRECTORY(getopt)
+ ENDIF()
+diff --git a/libs/lensfun/CMakeLists.txt b/libs/lensfun/CMakeLists.txt
+index b0ca638..5d14261 100644
+--- a/libs/lensfun/CMakeLists.txt
++++ b/libs/lensfun/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ # build Lensfun library
+-SET(LENSFUN_SRC camera.cpp database.cpp lens.cpp 
+-                mount.cpp lensfunprv.h cpuid.cpp 
++SET(LENSFUN_SRC camera.cpp database.cpp lens.cpp
++                mount.cpp lensfunprv.h cpuid.cpp
+                 mod-color-sse.cpp mod-color-sse2.cpp mod-color.cpp
+                 mod-coord-sse.cpp mod-coord.cpp
+                 mod-subpix.cpp modifier.cpp auxfun.cpp
+@@ -19,15 +19,19 @@ IF(BUILD_STATIC)
+ ELSE()
+   ADD_LIBRARY(lensfun SHARED ${LENSFUN_SRC})
+   SET_TARGET_PROPERTIES(lensfun PROPERTIES COMPILE_FLAGS -DCONF_SYMBOL_VISIBILITY)
++  TARGET_COMPILE_DEFINITIONS(lensfun PRIVATE
++                             PLATFORM_WINDOWS)
+ ENDIF()
+ SET_TARGET_PROPERTIES(lensfun PROPERTIES SOVERSION "${VERSION_API}" VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}")
+ 
+ IF(NOT HAVE_REGEX_H)
+   TARGET_LINK_LIBRARIES(lensfun tre_regex)
++ELSE()
++  TARGET_LINK_LIBRARIES(lensfun regex)
+ ENDIF()
+ TARGET_LINK_LIBRARIES(lensfun ${GLIB2_LIBRARIES})
+ 
+-INSTALL(TARGETS lensfun 
++INSTALL(TARGETS lensfun
+         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+@@ -35,4 +39,3 @@ INSTALL(TARGETS lensfun
+ # pkgconfig support
+ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/lensfun.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/lensfun.pc @ONLY)
+ INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/lensfun.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig )
+-
