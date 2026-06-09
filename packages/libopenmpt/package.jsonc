@@ -1,9 +1,9 @@
 {
   "name": "libopenmpt",
-  "display": "sample-msys2",
-  "description": "A library and utility designed for converting text between different character encodings",
-  "site": "https://www.gnu.org/software/libiconv/",
-  "license": "LGPL v2.1",
+  "display": "libopenmpt",
+  "description": "A cross-platform C++ and C library to decode tracked music files (modules) into a raw PCM audio stream",
+  "site": "https://lib.openmpt.org/libopenmpt/",
+  "license": "BSD 3-Clause",
   "info": "info.md",
   "process_time": 440,
   "options": [
@@ -98,7 +98,7 @@
   ],
   "versions": {
     "default": {
-      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "source_dir": "${source_rootdir}\\${name}-${version}+release.autotools",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
       "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
@@ -106,21 +106,38 @@
       "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
-      "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
-      "download_url": "https://ftp.gnu.org/pub/gnu/${name}/${name}-${version}.tar.gz",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "download_url": "https://lib.openmpt.org/files/${name}/src/${name}-${version}+release.autotools.tar.gz",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "dependencies": {
-        "proxy-libintl": {
-          "version": ">=0.5",
-          "build_type": "Release"
+        "zlib": {
+          "version": ">=1.3"
+        },
+        "mpg123": {
+          "version": ">=1.33"
+        },
+        "ogg": {
+          "version": "==1.3.6" // Requires from SMFL 3.0.2
+        },
+        "vorbis": {
+          "version": "==1.3.7" // Requires from SMFL 3.0.2
+        },
+        "portaudio": {
+          "version": ">=19.7.0"
+        },
+        "libsndfile": {
+          "version": ">=1.2"
+        },
+        "flac": {
+          "version": "==1.4.3" // Requires from SMFL 3.0.2
         }
       },
       "environments": {
         "LC_ALL": "C",
         "MSYS": "winsymlinks:nativestrict",
-        "MSYSTEM": "MSYS",
+        "MSYSTEM": "UCRT64",
         "CHERE_INVOKING": "1",
         // "MSYS2_PATH_TYPE": "inherit",
         "CC": "/ucrt64/bin/gcc.exe",
@@ -161,50 +178,22 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
-          "patch_files": [
-            // {
-            //   "when" : true, // You can set condition for each patch file, and skip it when the condition is not satisfied.
-            //   "chdir" : "$source_dir", // You can set current directory before applying patch. The default value is source directory.
-            //   "file": "${package_dir}\\foo.diff"   // You can specify patch file by local file or URL.
-            //   "url": "https://example.com/foo.diff" // You can specify patch file by local file or URL.
-            // },
-            {
-              "url": "$repo_url/0001-fixes-building-with-gcc-15.patch"
-            },
-            {
-              "file": "${package_dir}\\libiconv_make_in.diff"
-            }
-          ],
+          // "patch_files": [
+          //   {
+          //     "file": "${package_dir}\\libiconv_make_in.diff"
+          //   }
+          // ],
           "scripts": [
-            {
-              // Patch Script: patching source code with patch_files
-              "message": "Patch ${name} source code",
-              "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
-            },
-            {
-              "message": "Clean /opt directory in msys2",
-              "bash_script": "rm -rf /opt/*",
-              "script": "${msys2_bash} \"${bash_script}\"",
-              "ignore_errors": true
-            },
-            {
-              "message": "copy m4",
-              "chdir": "$source_dir",
-              "bash_script": "cp -f srcm4/* m4/",
-              "script": "${msys2_bash} \"${bash_script}\""
-            },
-            {
-              "message": "reconfigure in libcharset",
-              "chdir": "$source_dir\\libcharset",
-              "bash_script": "autoreconf -vfi -I m4",
-              "script": "${msys2_bash} \"${bash_script}\""
-            },
+            // {
+            //   // Patch Script: patching source code with patch_files
+            //   "message": "Patch ${name} source code",
+            //   "chdir": "$source_dir",
+            //   "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+            // },
             {
               "message": "reconfigure",
               "chdir": "$source_dir",
-              "bash_script": "autoreconf -vfi -I m4",
+              "bash_script": "autoreconf -vfi",
               "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
@@ -214,7 +203,8 @@
             "--host=x86_64-w64-mingw32",
             "--disable-maintainer-mode",
             "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
-            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}"
+            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}",
+            "--disable-examples"
           ],
           "config_options_debug": [
             "--prefix=/opt/${name}/debug"
@@ -223,6 +213,12 @@
             "--prefix=/opt/${name}/release"
           ],
           "scripts": [
+            {
+              "message": "Clean /opt directory in msys2",
+              "bash_script": "rm -rf /opt/*",
+              "script": "${msys2_bash} \"${bash_script}\"",
+              "ignore_errors": true
+            },
             {
               "message": "Copy runtime libraries to MSYS2",
               "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name)) and len($dependent_packages_release)}}",
@@ -335,41 +331,8 @@
           "environments": {
             "PERLIO": "raw"
           },
-          // You can specify template files to be rendered after installation, and also specify scripts to be executed. The template file will be rendered when the condition is satisfied, and the value of each define will be passed to template as variable, so you can use it in template. The script for generating pc files from template files is also provided, and you can specify any script to be executed after installation.
-          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
-          "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
-          "template_files": [
-            // {
-            //   "when": true, // You can set condition for each template file, and skip it when the condition is not satisfied.
-            //   "template": "TEMPLATE_FILE_PATH", // You can specify template file by local file or URL.
-            //   "defines": [ "VARLABLE=value" ],// You can specify defines for template rendering. The value of each define will be passed to template as variable, so you can use it in template. The format of each
-            //   "output": "OUTPUT_FILE_PATH" // You can specify output file path for rendered template.
-            // },
-            {
-              "when": "{{'Debug' in $build_type}}",
-              "template": "${package_dir}\\libiconv.pc.j2",
-              "defines": [
-                "LIBRAW_VERSION=\"$version\""
-              ],
-              "output": "${pkgconfig_dir_debug}\\libiconv.pc"
-            },
-            {
-              "when": "{{'Release' in $build_type}}",
-              "template": "${package_dir}\\libiconv.pc.j2",
-              "defines": [
-                "LIBRAW_VERSION=\"$version\""
-              ],
-              "output": "${pkgconfig_dir_release}\\libiconv.pc"
-            }
-          ],
           "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}", // adjust path for pc file
           "scripts": [
-            {
-              // Template Script:
-              // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
-              "message": "Generate files from templates.",
-              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
-            },
             //
             // rename dlls, and rewrite pc files to adjust for MSVC linker and library naming convention. You can set ignore_errors to true to ignore errors of these scripts, because the naming convention of library files and pc files in msys2 runtime is not consistent, and it may cause errors when renaming or rewriting.
             //
@@ -415,6 +378,6 @@
         }
       }
     },
-    "1.19": {}
+    "0.8.7": {}
   }
 }

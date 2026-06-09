@@ -93,18 +93,6 @@
       "type": "choice",
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
-    },
-    {
-      "display": "With SQLite",
-      "name": "with_sqlite",
-      "type": "bool",
-      "default": true
-    },
-    {
-      "display": "With Zlib",
-      "name": "with_zlib",
-      "type": "bool",
-      "default": true
     }
   ],
   "versions": {
@@ -171,6 +159,9 @@
             },
             {
               "url": "$repo_url/0003-pa_getversioninfo-fix.patch"
+            },
+            {
+              "file": "$package_dir\\fix_portaudio_bindings_cpp_cmake.diff"
             }
           ],
           "scripts": [
@@ -211,6 +202,9 @@
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
+            "-DPA_BUILD_STATIC={{'ON' if 'static' in $build_library else 'OFF'}}",
+            "-DPA_BUILD_SHARED={{'ON' if 'shared' in $build_library else 'OFF'}}",
+            "-DPA_LIBNAME_ADD_SUFFIX=OFF",
             "-DCMAKE_DOC=OFF",
             "-DBUILD_TESTS=OFF"
           ],
@@ -313,6 +307,18 @@
             {
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "copy /y portaudio.lib libportaudio.lib",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$dist_dir_release\\lib",
+              "script": "copy /y portaudio.lib libportaudio.lib",
               "ignore_errors": true
             }
           ]

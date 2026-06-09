@@ -99,7 +99,7 @@
   "versions": {
     "default": {
       "dependencies": {
-          "sdl": {
+        "sdl": {
           "version": ">=2.30;<3.0" // required SDL2
         }
       },
