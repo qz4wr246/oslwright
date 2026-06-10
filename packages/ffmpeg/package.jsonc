@@ -615,7 +615,7 @@
             "{{'--enable-libxvid' if $enable_gpl else ''}}",         // enable Xvid encoding via xvidcore, native MPEG-4/Xvid encoder exists [no]
             "--enable-libxml2",         // enable XML parsing using the C library libxml2, needed for dash and imf demuxing support [no]
             "--enable-libzimg",         // enable z.lib, needed for zscale filter [no]
-            // "--enable-libzmq",         // enable message passing via libzmq [no]
+            "--enable-libzmq",         // enable message passing via libzmq [no]
             "{{'--enable-libzvbi' if $enable_gpl else ''}}",         // enable teletext support via libzvbi [no]
             //// "--enable-lv2",            // enable LV2 audio filtering [no]
             //// "{{'--enable-decklink' if $enable_nonfree else ''}}",       // enable Blackmagic DeckLink I/O support [no]

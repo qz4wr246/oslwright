@@ -284,14 +284,14 @@ class BuildService(FletXService):
             session[k] = s
 
         when = evaluate_str(when, session) if isinstance(when, str) else when
-        chdir = evaluate_str(chdir, session) if isinstance(chdir, str) else chdir
-        if when and chdir:
-            os.chdir(chdir)
-        message = evaluate_str(message, session) if isinstance(message, str) else message
-        code = evaluate_str(code, session) if isinstance(code, str) else code
-        fallback = evaluate_str(fallback, session) if isinstance(fallback, str) else fallback
 
         if when:
+            chdir = evaluate_str(chdir, session) if isinstance(chdir, str) else chdir
+            if chdir:
+                os.chdir(chdir)
+            message = evaluate_str(message, session) if isinstance(message, str) else message
+            code = evaluate_str(code, session) if isinstance(code, str) else code
+            fallback = evaluate_str(fallback, session) if isinstance(fallback, str) else fallback
             if message:
                 Post.gui(f"[{session.get('display', 'Unknown')}] {message}")
             if chdir:
