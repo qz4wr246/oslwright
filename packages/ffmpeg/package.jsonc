@@ -282,6 +282,9 @@
         "librsvg":{
           "version": ">=2.62"
         },
+        "librist": {
+          "version": ">=0.2"
+        },
         "soxr" : {
           "version": ">=0.1"
         },
@@ -573,7 +576,7 @@
             "--enable-libquirc",          // enable QR decoding via libquirc [no]
             //// "--enable-librabbitmq",       // enable RabbitMQ library [no]
             "--enable-librav1e",          // enable AV1 encoding via rav1e [no]
-            // "--enable-librist",           // enable RIST via librist [no]
+            "--enable-librist",           // enable RIST via librist [no]
             "--enable-librsvg",           // enable SVG rasterization via librsvg [no]
             // "{{'--enable-librubberband' if $enable_gpl else ''}}",     // enable rubberband needed for rubberband filter [no]
             "--enable-librtmp",           // enable RTMP[E] support via librtmp [no]
