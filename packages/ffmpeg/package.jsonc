@@ -654,7 +654,7 @@
             {
               "message": "Copy runtime libraries to MSYS2",
               "chdir": "$source_dir",
-              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ][0]}} __copy_packages.bat && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
+              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open(os.path.join($source_dir,'__copy_packages.bat'), 'w', encoding='cp932',newline='\\r\\n')] ][0]}}\"$source_dir\\__copy_packages.bat\" && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
             },
             {
               "chdir": "$source_dir",
