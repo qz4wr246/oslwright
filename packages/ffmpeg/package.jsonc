@@ -328,6 +328,9 @@
         "qrencode": {
           "version": ">=4.1"
         },
+        "quirc": {
+          "version": ">=1.2"
+        },
         "rav1e":{
           "version": ">=0.8"
         },
@@ -459,12 +462,6 @@
               "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
             },
             {
-              "message": "Clean /opt directory in msys2",
-              "bash_script": "rm -rf /opt/*",
-              "script": "${msys2_bash} \"${bash_script}\"",
-              "ignore_errors": true
-            },
-            {
               "bash_script": "mkdir -p /opt/ucrt64/bin",
               "script": "${msys2_bash} \"${bash_script}\""
             },
@@ -573,7 +570,7 @@
             "--enable-libopus",           // enable Opus de/encoding via libopus [no]
             "--enable-libplacebo",        // enable libplacebo library [no]
             "--enable-libqrencode",       // enable QR encode generation via libqrencode [no]
-            // "--enable-libquirc",          // enable QR decoding via libquirc [no]
+            "--enable-libquirc",          // enable QR decoding via libquirc [no]
             //// "--enable-librabbitmq",       // enable RabbitMQ library [no]
             "--enable-librav1e",          // enable AV1 encoding via rav1e [no]
             // "--enable-librist",           // enable RIST via librist [no]

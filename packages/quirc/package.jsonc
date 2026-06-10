@@ -1,11 +1,11 @@
 {
-  "name": "zimg",
-  "display": "z.lib(zimg)",
-  "description": "Scaling, colorspace conversion, and dithering library",
-  "site": "https://github.com/sekrit-twc/zimg",
-  "license": "WTFPL",
+  "name": "quirc",
+  "display": "Quirc",
+  "description": "QR decoder library",
+  "site": "https://github.com/dlbeer/quirc/",
+  "license": "ISC",
   "info": "info.md",
-  "process_time": 280,
+  "process_time": 20,
   "options": [
     {
       "display": "Version",
@@ -107,21 +107,33 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/sekrit-twc/zimg.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'release-' + $version}}",
+      "git_url": "https://github.com/dlbeer/quirc.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "dependencies": {
+        "libpng": {
+          "version": ">=1.6"
+        },
+        "libjpeg-turbo": {
+          "version": ">=3.0"
+        },
+        "sdl": {
+          "version": ">=2.30;<3.0" // required SDL2
+        }
+      },
       "environments": {
         "LC_ALL": "C",
         "MSYS": "winsymlinks:nativestrict",
-        "MSYSTEM": "MSYS",
+        "MSYSTEM": "UCRT64",
         "CHERE_INVOKING": "1",
         // "MSYS2_PATH_TYPE": "inherit",
         "CC": "/ucrt64/bin/gcc.exe",
         "CXX": "/ucrt64/bin/g++.exe",
         "LD": "/ucrt64/bin/ld.exe",
+        "AS": "/ucrt64/bin/nasm.exe",
         "AR": "/ucrt64/bin/ar.exe",
         "RANLIB": "/ucrt64/bin/ranlib.exe",
         "STRIP": "/ucrt64/bin/strip.exe",
@@ -129,11 +141,13 @@
         "OBJCOPY": "/ucrt64/bin/objcopy.exe",
         "OBJDUMP": "/ucrt64/bin/objdump.exe",
         "CPPFLAGS": "-I/opt/ucrt64/include",
+        "CFLAGS": "-Wno-incompatible-pointer-types",
+        "ASFLAGS": "-w-all",
         "LDFLAGS": "-L/opt/ucrt64/lib",
         "SED": "/usr/bin/sed.exe",
         "PERLIO": "raw",
-        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}"
       },
       "stages": {
         "download": {
@@ -170,10 +184,9 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-zimg",
           "patch_files": [
             {
-              "url": "$repo_url/0001-zimg-export-def-symbols.patch"
+              "file": "${package_dir}\\fix_quirc_make.diff"
             }
           ],
           "scripts": [
@@ -182,29 +195,23 @@
               "message": "Patch ${name} source code",
               "chdir": "$source_dir",
               "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
-            },
-            {
-              "message": "reconfigure",
-              "chdir": "$source_dir",
-              "bash_script": "autoreconf -vfi",
-              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
         "configure": {
-          "config_options":[
-            "--host=x86_64-w64-mingw32",
-            "--disable-maintainer-mode",
-            "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
-            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}"
-          ],
-          "config_options_debug": [
-            "--prefix=/opt/${name}/debug"
-          ],
-          "config_options_release": [
-            "--prefix=/opt/${name}/release"
-          ],
           "scripts": [
+            {
+              "message": "Clean /opt directory in msys2",
+              "bash_script": "rm -rf /opt/*",
+              "script": "${msys2_bash} \"${bash_script}\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "Copy runtime libraries to MSYS2",
+              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name)) and len($dependent_packages_release)}}",
+              "chdir": "$source_dir",
+              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open('__copy_packages.bat', 'w', encoding='cp932',newline='\\r\\n')] ][0]}} __copy_packages.bat && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
+            },
             {
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
               "script": "rmdir /q /s \"$build_dir_debug\" > nul",
@@ -217,34 +224,15 @@
             },
             {
               "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
-              "script": "mkdir \"$build_dir_debug\"",
+              "script": "xcopy \"$source_dir\" \"$build_dir_debug\" /s /e /i /y",
               "ignore_errors": true
             },
             {
+              "message": "copy to builddir",
               "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
-              "script": "mkdir \"$build_dir_release\"",
+              "script": "xcopy \"$source_dir\" \"$build_dir_release\" /s /e /i /y",
               "ignore_errors": true
             },
-            {
-              "message": "config for debug.",
-              "when": "{{'Debug' in $build_type}}",
-              "environments": {
-                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
-              },
-              "chdir": "$build_dir_debug",
-              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
-              "script": "${msys2_bash} \"${bash_script}\""
-            },
-            {
-              "message": "config for release.",
-              "when": "{{'Release' in $build_type}}",
-              "environments": {
-                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
-              },
-              "chdir": "$build_dir_release",
-              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
-              "script": "${msys2_bash} \"${bash_script}\""
-            }
           ]
         },
         "build": {
@@ -263,7 +251,7 @@
                 "PERLIO": "raw"
               },
               "chdir": "$build_dir_debug",
-              "bash_script": "make -j4",
+              "bash_script": "make PREFIX=/opt/${name}/debug",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
@@ -274,7 +262,7 @@
                 "PERLIO": "raw"
               },
               "chdir": "$build_dir_release",
-              "bash_script": "make -j4",
+              "bash_script": "make PREFIX=/opt/${name}/release",
               "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
@@ -285,14 +273,14 @@
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
-              "bash_script": "make install",
+              "bash_script": "make PREFIX=/opt/${name}/debug install",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
-              "bash_script": "make install",
+              "bash_script": "make PREFIX=/opt/${name}/release install",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
@@ -341,11 +329,23 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "message": "Delete MSYS file",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "del /q /f *.a *.la *.def"
+            },
+            {
+             "message": "Delete MSYS file",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$dist_dir_release\\lib",
+              "script": "del /q /f *.a *.la *.def"
             }
           ]
         }
       }
     },
-    "3.0.6": {}
+    "1.2": {}
   }
 }

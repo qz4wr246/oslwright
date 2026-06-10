@@ -188,6 +188,12 @@
           ],
           "scripts": [
             {
+              "message": "Clean /opt directory in msys2",
+              "bash_script": "rm -rf /opt/*",
+              "script": "${msys2_bash} \"${bash_script}\"",
+              "ignore_errors": true
+            },
+            {
               "message": "Copy runtime libraries to MSYS2",
               "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name)) and len($dependent_packages_release)}}",
               "chdir": "$source_dir",
