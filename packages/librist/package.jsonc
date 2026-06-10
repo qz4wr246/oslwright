@@ -1,9 +1,9 @@
 {
-  "name": "zstd",
-  "display": "Zstandard",
-  "description": "Fast real-time compression algorithm",
-  "site": "https://facebook.github.io/zstd",
-  "license": "3-Clause BSD or GPLv2",
+  "name": "librist",
+  "display": "libRIST",
+  "description": "A library that can be used to add the RIST protocol to applications",
+  "site": "https://code.videolan.org/rist/librist/",
+  "license": "BSD 2-Clause",
   "info":"info.md",
   "process_time": 300,
   "options": [
@@ -54,10 +54,9 @@
       "type": "choice",
       "items": [
         "shared",
-        "static",
-        "shared;static"
+        "static"
       ],
-      "default": "$build_library_default"
+      "default": "shared"
     },
     {
       "display": "Build type",
@@ -65,14 +64,14 @@
       "type": "choice",
       "items": [
         "Release",
-        "Debug",
-        "Release;Debug"
+        "Debug"
       ],
       "default": "Release"
     },
     {
       "display": "Build layout",
       "name": "build_layout",
+      "enable": false,
       "type": "choice",
       "items": [
         "separation"
@@ -82,9 +81,9 @@
     {
       "display": "Using CUDA",
       "name": "cuda_enable",
-      "enable": "{{True if $cuda_versions else False}}",  // set false if no CUDA dependency.
+      "enable": false,
       "type": "bool",
-      "default": "{{$cuda_enable_default}}"               // set false if no CUDA dependency.
+      "default": false
     },
     {
       "display": "CUDA Version",
@@ -98,9 +97,8 @@
   "versions": {
     "default": {
       "dependencies": {
-        "zlib": {
-          "enable": "{{$with_zlib}}",
-          "version": ">=1.3"
+        "cjson": {
+          "version": ">=1.7"
         }
       },
       "environments": {
@@ -116,7 +114,7 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/facebook/zstd.git",
+      "git_url": "https://code.videolan.org/rist/librist.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
@@ -153,31 +151,21 @@
             }
           ]
         },
-        // "patch": {
-        //   "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
-        //   "patch_files": [
-        //     // {
-        //     //   "when" : true, // You can set condition for each patch file, and skip it when the condition is not satisfied.
-        //     //   "chdir" : "$source_dir", // You can set current directory before applying patch. The default value is source directory.
-        //     //   "file": "${package_dir}\\foo.diff"   // You can specify patch file by local file or URL.
-        //     //   "url": "https://example.com/foo.diff" // You can specify patch file by local file or URL.
-        //     // },
-        //     {
-        //       "url": "$repo_url/1.16-aliases.patch"
-        //     },
-        //     {
-        //       "file": "${package_dir}\\libiconv_make_in.diff"
-        //     }
-        //   ],
-        //   "scripts": [
-        //     {
-        //       // Patch Script: patching source code with patch_files
-        //       "message": "Patch ${name} source code",
-        //       "chdir": "$source_dir",
-        //       "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
-        //     }
-        //   ]
-        // },
+        "patch": {
+          "patch_files": [
+            {
+              "file": "${package_dir}\\fix_transport_h.diff"
+            }
+          ],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
+            }
+          ]
+        },
         "configure": {
           "meson_options": [
             "--vsenv",
@@ -295,6 +283,6 @@
         }
       }
     },
-    "1.5.6": {}
+    "0.2.17": {}
   }
 }

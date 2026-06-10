@@ -1,0 +1,16 @@
+diff --git a/include/librist/transport.h b/include/librist/transport.h
+index 5aba753..ae3b4fe 100644
+--- a/include/librist/transport.h
++++ b/include/librist/transport.h
+@@ -21,6 +21,11 @@
+ #include <poll.h>
+ #endif
+ 
++#if defined(_MSC_VER)
++#include <BaseTsd.h>
++typedef SSIZE_T ssize_t;
++#endif
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
