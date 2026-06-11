@@ -60,7 +60,6 @@
       "items": [
         "shared",
         "static",
-        "shared;static",
         "interface"
       ],
       "default": "interface"
@@ -73,7 +72,6 @@
       "items": [
         "Release",
         "Debug",
-        "Release;Debug"
       ],
       "default": "Release"
     },
@@ -102,28 +100,6 @@
       "type": "choice",
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
-    },
-    {
-      "display": "With zlib",
-      "name": "with_zlib",
-      "type" : "choice",
-      "items": [
-        "none",
-        "shared",
-        "static"
-      ],
-      "default": "none"
-    },
-        {
-      "display": "With SQLite",
-      "name": "with_sqlite",
-      "type" : "choice",
-      "items": [
-        "none",
-        "shared",
-        "static"
-      ],
-      "default": "none"
     }
   ],
   "versions": {
@@ -180,18 +156,22 @@
           ]
         },
         "patch": {
-          "patch_file_01": "${package_dir}\\CMakeLists.txt",
-          "patch_file_02": "${package_dir}\\Config.cmake.in",
-          "scripts": [
+          "patch_files": [
             {
-              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
               "chdir": "$source_dir",
-              "script": "copy /y \"$patch_file_01\" \"$source_dir\\\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+              "copy": "${package_dir}\\CMakeLists.txt"
             },
             {
-              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_02)))}}",
               "chdir": "$source_dir",
-              "script": "copy /y \"$patch_file_02\" \"$source_dir\\\" && copy nul > {{'__patched_' + os.path.basename($patch_file_02)}}"
+              "copy": "${package_dir}\\Config.cmake.in"
+            }
+          ],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{c}\" (curl.exe --fail -l -s -o \"{c}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{c}\"' if 'url' in p and (c := os.path.join(cache_rootdir, b)) else f'patch -t -b -p1 -i \"{p[\"file\"]}\"' if 'file' in p else f'copy /y \"{p[\"copy\"]}\" \"{os.path.basename(p[\"copy\"])}\"') + f' && copy nul \"__patched___{b}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) and (b := os.path.basename(p.get('url') or p.get('file') or p.get('copy'))) and not os.path.exists(f'__patched__{b}')])}}"
             }
           ]
         },

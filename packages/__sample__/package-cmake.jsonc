@@ -176,31 +176,32 @@
             }
           ]
         },
-        // "patch": {
-        //   "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
-        //   "patch_files": [
-        //     // {
-        //     //   "when" : true, // You can set condition for each patch file, and skip it when the condition is not satisfied.
-        //     //   "chdir" : "$source_dir", // You can set current directory before applying patch. The default value is source directory.
-        //     //   "file": "${package_dir}\\foo.diff"   // You can specify patch file by local file or URL.
-        //     //   "url": "https://example.com/foo.diff" // You can specify patch file by local file or URL.
-        //     // },
-        //     {
-        //       "url": "$repo_url/1.16-aliases.patch"
-        //     },
-        //     {
-        //       "file": "${package_dir}\\libiconv_make_in.diff"
-        //     }
-        //   ],
-        //   "scripts": [
-        //     {
-        //       // Patch Script: patching source code with patch_files
-        //       "message": "Patch ${name} source code",
-        //       "chdir": "$source_dir",
-        //       "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if \"chdir\" in p else '')+(f'(if not exist \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" (curl.exe --fail -L -s -o \"{os.path.join($cache_rootdir, os.path.basename(p[\"url\"]))}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{os.path.join($cache_rootdir,os.path.basename(p[\"url\"]))}\" && copy nul > \"__patched__{os.path.basename(p[\"url\"])}\"' if \"url\" in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\" && copy nul > \"__patched__{os.path.basename(p[\"file\"])}\"') + (' && popd ' if \"chdir\" in p else '') for p in $patch_files if p.get('when', True) and not os.path.exists('__patched__' + os.path.basename(p.get('url') or p.get('file')))])}}"
-        //     }
-        //   ]
-        // },
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
+          "patch_files": [
+            // {
+            //   "when" : true, // You can set condition for each patch file, and skip it when the condition is not satisfied.
+            //   "chdir" : "$source_dir", // You can set current directory before applying patch.
+            //   "file": "${package_dir}\\foo.diff"    // You can specify patch by local file.
+            //   "url": "https://example.com/foo.diff" // You can specify patch by URL.
+            //   "copy"  "${package_dir}\\barfile.c"   // You can specify copy file by local file.
+            // },
+            {
+              "url": "$repo_url/1.16-aliases.patch"
+            },
+            {
+              "file": "${package_dir}\\libiconv_make_in.diff"
+            }
+          ],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{c}\" (curl.exe --fail -l -s -o \"{c}\" \"{p[\"url\"]}\" || exit /b 1 )) && patch -t -b -p1 -i \"{c}\"' if 'url' in p and (c := os.path.join(cache_rootdir, b)) else f'patch -t -b -p1 -i \"{p[\"file\"]}\"' if 'file' in p else f'copy /y \"{p[\"copy\"]}\" \"{os.path.basename(p[\"copy\"])}\"') + f' && copy nul \"__patched___{b}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) and (b := os.path.basename(p.get('url') or p.get('file') or p.get('copy'))) and not os.path.exists(f'__patched__{b}')])}}"
+            }
+          ]
+        },
         "configure": {
           // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
