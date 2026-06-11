@@ -158,9 +158,10 @@
         //   "patch_files": [
         //     // {
         //     //   "when" : true, // You can set condition for each patch file, and skip it when the condition is not satisfied.
-        //     //   "chdir" : "$source_dir", // You can set current directory before applying patch. The default value is source directory.
-        //     //   "file": "${package_dir}\\foo.diff"   // You can specify patch file by local file or URL.
-        //     //   "url": "https://example.com/foo.diff" // You can specify patch file by local file or URL.
+        //     //   "chdir" : "$source_dir", // You can set current directory before applying patch.
+        //     //   "file": "${package_dir}\\foo.diff"    // You can specify patch by local file.
+        //     //   "url": "https://example.com/foo.diff" // You can specify patch by URL.
+        //     //   "copy"  "${package_dir}\\barfile.c"   // You can specify copy file by local file.
         //     // },
         //     {
         //       "url": "$repo_url/1.16-aliases.patch"
