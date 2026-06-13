@@ -1,0 +1,24 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e8a5e2e..09717dd 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -16,7 +16,9 @@ add_library(
+     src/vamp-sdk/RealTime.cpp
+     src/vamp-sdk/acsymbols.c
+ )
+-set_target_properties(vamp-sdk PROPERTIES POSITION_INDEPENDENT_CODE ON)  # to be linked to shared plugin libraries
++set_target_properties(vamp-sdk PROPERTIES
++    POSITION_INDEPENDENT_CODE ON # to be linked to shared plugin libraries
++    WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+ target_include_directories(vamp-sdk PUBLIC .)
+ target_compile_features(vamp-sdk PUBLIC cxx_std_11)
+ add_library(vamp-plugin-sdk::vamp-sdk ALIAS vamp-sdk)
+@@ -36,6 +38,8 @@ add_library(
+     src/vamp-hostsdk/host-c.cpp
+     src/vamp-hostsdk/acsymbols.c
+ )
++set_target_properties(vamp-hostsdk PROPERTIES
++    WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+ target_link_libraries(vamp-hostsdk PUBLIC ${CMAKE_DL_LIBS})
+ target_include_directories(vamp-hostsdk PUBLIC .)
+ target_compile_definitions(vamp-hostsdk PUBLIC _USE_MATH_DEFINES)  # for e.g. M_PI constant

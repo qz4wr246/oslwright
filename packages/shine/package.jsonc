@@ -1,11 +1,11 @@
 {
-  "name": "vamp-plugin-sdk",
-  "display": "Vamp plugin sdk",
-  "description": "The SDK for Vamp plugins, an API for audio analysis and feature extraction plugins.",
-  "site": "http://vamp-plugins.org/",
-  "license": "BSD 3-Clause AND MIT",
+  "name": "shine",
+  "display": "Shine",
+  "description": "Super fast fixed-point MP3 encoder",
+  "site": "https://github.com/savonet/shine",
+  "license": "LGPL 2.0 or later",
   "info": "info.md",
-  "process_time": 90,
+  "process_time": 160,
   "options": [
     {
       "display": "Version",
@@ -51,11 +51,11 @@
     {
       "display": "Build library",
       "name": "build_library",
+      "enable": false,
       "type": "choice",
       "items": [
         "shared",
-        "static",
-        "shared;static"
+        "static"
       ],
       "default": "shared"
     },
@@ -72,12 +72,13 @@
     {
       "display": "Build layout",
       "name": "build_layout",
+      "enable": false,
       "type": "choice",
       "items": [
         "union",
         "separation"
       ],
-      "default": "union"
+      "default": "separation"
     },
     {
       "display": "Using CUDA",
@@ -97,16 +98,6 @@
   ],
   "versions": {
     "default": {
-      "dependencies": {
-        "libsndfile": {
-          "version": ">=1.2"
-        }
-      },
-      "environments": {
-        "PERLIO": "raw",
-        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
-      },
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
@@ -116,9 +107,37 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/vamp-plugins/vamp-plugin-sdk.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'vamp-plugin-sdk-v' + $version}}",
+      "git_url": "https://github.com/toots/shine.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
+      "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "environments": {
+        "LC_ALL": "C",
+        "MSYS": "winsymlinks:nativestrict",
+        "MSYSTEM": "UCRT64",
+        "CHERE_INVOKING": "1",
+        // "MSYS2_PATH_TYPE": "inherit",
+        "CC": "/ucrt64/bin/gcc.exe",
+        "CXX": "/ucrt64/bin/g++.exe",
+        "LD": "/ucrt64/bin/ld.exe",
+        "AS": "/ucrt64/bin/nasm.exe",
+        "AR": "/ucrt64/bin/ar.exe",
+        "RANLIB": "/ucrt64/bin/ranlib.exe",
+        "STRIP": "/ucrt64/bin/strip.exe",
+        "NM": "/ucrt64/bin/nm.exe",
+        "OBJCOPY": "/ucrt64/bin/objcopy.exe",
+        "OBJDUMP": "/ucrt64/bin/objdump.exe",
+        "CPPFLAGS": "-I/opt/ucrt64/include",
+        "CFLAGS": "-Wno-incompatible-pointer-types",
+        "ASFLAGS": "-w-all",
+        "LDFLAGS": "-L/opt/ucrt64/lib",
+        "SED": "/usr/bin/sed.exe",
+        "PERLIO": "raw",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}"
+      },
       "stages": {
         "download": {
           "scripts": [
@@ -154,10 +173,16 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-vamp-plugin-sdk",
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-shine",
           "patch_files": [
             {
-              "url": "$repo_url/01-mingw-shared.patch"
+              "url": "$repo_url/0001-shine-3.1.1-fix-include.patch"
+            },
+            {
+              "file": "$package_dir\\fix_shine_makefile_am.diff"
+            },
+            {
+              "file": "$package_dir\\fix_shine_l3mdct_h.diff"
             }
           ],
           "scripts": [
@@ -166,36 +191,41 @@
               "message": "Patch ${name} source code",
               "chdir": "$source_dir",
               "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"url\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'url' in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\"' if 'file' in p else f'copy \"{p[\"copy\"]}\" \"{os.path.basename(p[\"copy\"])}\"') + f' && copy nul \"__patched___{b}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) and (b := os.path.basename(p.get('url') or p.get('file') or p.get('copy')))])}}"
+            },
+            {
+              "message": "reconfigure",
+              "chdir": "$source_dir",
+              "bash_script": "./bootstrap",
+              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
         "configure": {
-          // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
-          "cmake_genarator": "-G \"Ninja Multi-Config\"",
-          "cmake_options": [
-            "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
-            "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
-            "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
-            "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
-            "-DCMAKE_DEBUG_POSTFIX=d",
-            "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
-            "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
-            "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
-            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DVAMPSDK_BUILD_RDFGEN=OFF",
-            "-DVAMPSDK_BUILD_EXAMPLE_PLUGINS=OFF",
-            "-DVAMPSDK_BUILD_SIMPLE_HOST=OFF",
-            "-DVAMPSDK_ENABLE_INSTALL=ON",
-            "-DCMAKE_DOC=OFF",
-            "-DBUILD_TESTS=OFF"
+          "config_options":[
+            "--host=x86_64-w64-mingw32",
+            "--disable-maintainer-mode",
+            "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
+            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}"
           ],
-          "cmake_options_debug": [
-            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
+          "config_options_debug": [
+            "--prefix=/opt/${name}/debug"
           ],
-          "cmake_options_release": [
-            "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_release\""
+          "config_options_release": [
+            "--prefix=/opt/${name}/release"
           ],
           "scripts": [
+            {
+              "message": "Clean /opt directory in msys2",
+              "bash_script": "rm -rf /opt/*",
+              "script": "${msys2_bash} \"${bash_script}\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "Copy runtime libraries to MSYS2",
+              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name)) and len($dependent_packages_release)}}",
+              "chdir": "$source_dir",
+              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open(os.path.join($source_dir,'__copy_packages.bat'), 'w', encoding='cp932',newline='\\r\\n')] ][0]}}\"$source_dir\\__copy_packages.bat\" && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
+            },
             {
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
               "script": "rmdir /q /s \"$build_dir_debug\" > nul",
@@ -218,28 +248,34 @@
             },
             {
               "message": "config for debug.",
-              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
-                "PKG_CONFIG_PATH": "$pkg_config_path_debug",
-                "PERLIO": "raw"
+                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
-              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\" -B \"$build_dir_debug\""
+              "chdir": "$build_dir_debug",
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "CMAKE_PREFIX_PATH": "$dependent_packages_release",
-                "PKG_CONFIG_PATH": "$pkg_config_path_release",
-                "PERLIO": "raw"
+                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
               },
-              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
+              "chdir": "$build_dir_release",
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
+              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
         "build": {
           "scripts": [
+            {
+              "message": "Clean /opt/${name} directory in msys2",
+              "bash_script": "rm -rf /opt/${name}/*",
+              "script": "${msys2_bash} \"${bash_script}\"",
+              "ignore_errors": true
+            },
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
@@ -247,7 +283,9 @@
                 "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
                 "PERLIO": "raw"
               },
-              "script": "cmake --build \"$build_dir_debug\" --config Debug -j4"
+              "chdir": "$build_dir_debug",
+              "bash_script": "make -j4",
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "build for release.",
@@ -256,56 +294,91 @@
                 "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
                 "PERLIO": "raw"
               },
-              "script": "cmake --build \"$build_dir_release\" --config Release -j4"
+              "chdir": "$build_dir_release",
+              "bash_script": "make -j4",
+              "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
         },
         "install": {
           "scripts": [
             {
-              "message": "install for debug.",
+              "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "script": "cmake --install \"$build_dir_debug\" --config Debug"
+              "chdir": "$build_dir_debug",
+              "bash_script": "make install",
+              "script": "${msys2_bash} \"${bash_script}\""
             },
             {
-              "message": "install for release.",
+              "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
-              "script": "cmake --install \"$build_dir_release\" --config Release"
+              "chdir": "$build_dir_release",
+              "bash_script": "make install",
+              "script": "${msys2_bash} \"${bash_script}\""
+            },
+            {
+              "message": "Copy ${name} files for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\debug\" \"$dist_dir_debug\" /s /e /i /y"
+            },
+            {
+              "message": "Copy ${name} files for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /s /e /i /y"
             }
           ]
         },
         "post-install": {
-          "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
           },
+          "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}", // adjust path for pc file
           "scripts": [
+            //
+            // rename dlls, and rewrite pc files to adjust for MSVC linker and library naming convention. You can set ignore_errors to true to ignore errors of these scripts, because the naming convention of library files and pc files in msys2 runtime is not consistent, and it may cause errors when renaming or rewriting.
+            //
             {
+              "message": "Rename the library files to be MSVC-compatible.",
+              "when":"{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "cmd /v:on /c \"for %f in (*.a) do (set \"n=%~nf\" & set \"n=!n:.dll=!\" & copy /y \"%f\" \"!n!.lib\" & if \"!n:~0,3!\"==\"lib\" copy /y \"%f\" \"!n:~3!.lib\")\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "Rename the library files to be MSVC-compatible.",
+              "when":"{{'Release' in $build_type }}",
+              "chdir": "$dist_dir_release\\lib",
+              "script": "cmd /v:on /c \"for %f in (*.a) do (set \"n=%~nf\" & set \"n=!n:.dll=!\" & copy /y \"%f\" \"!n!.lib\" & if \"!n:~0,3!\"==\"lib\" copy /y \"%f\" \"!n:~3!.lib\")\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "Adjust paths and other configurations in *.pc",
               "when": "{{'Debug' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
             },
             {
+              "message": "Adjust paths and other configurations in *.pc",
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22${dist_rootdir_slash}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "message": "Delete MSYS file",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "del /q /f *.a *.la *.def"
+            },
+            {
+             "message": "Delete MSYS file",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$dist_dir_release\\lib",
+              "script": "del /q /f *.a *.la *.def"
             }
           ]
         }
       }
     },
-    "2.10.0-master": {
-      "git_tag": "master",
-      "git_hash": "44c2487",
-      "stages": {
-        "patch": {
-          "patch_files!replace": [
-            {
-              "file": "$package_dir\\fix_vamp_cmake.diff"
-            }
-          ]
-        }
-      }
-    }
+    "3.1.1": {}
   }
 }

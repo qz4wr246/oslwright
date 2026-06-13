@@ -340,6 +340,13 @@
         "rtmpdump":{
           "version": ">=2.6"
         },
+        "rubberband": {
+          "enable": "{{$enable_gpl}}",
+          "version": ">=3.3"
+        },
+        "shine": {
+          "version": ">=3.1"
+        },
         "speex":{
           "version": ">=1.2"
         },
@@ -578,10 +585,10 @@
             "--enable-librav1e",          // enable AV1 encoding via rav1e [no]
             "--enable-librist",           // enable RIST via librist [no]
             "--enable-librsvg",           // enable SVG rasterization via librsvg [no]
-            // "{{'--enable-librubberband' if $enable_gpl else ''}}",     // enable rubberband needed for rubberband filter [no]
+            "{{'--enable-librubberband' if $enable_gpl else ''}}",     // enable rubberband needed for rubberband filter [no]
             "--enable-librtmp",           // enable RTMP[E] support via librtmp [no]
             "--enable-libshaderc",        // enable runtime GLSL->SPIRV compilation via libshaderc [no]
-            // "--enable-libshine",          // enable fixed-point MP3 encoding via libshine [no]
+            "--enable-libshine",          // enable fixed-point MP3 encoding via libshine [no]
             //// "--enable-libsmbclient",      // (SAMBA is legacy.) enable Samba protocol via libsmbclient [no]
             // "--enable-libsnappy",         // enable Snappy compression, needed for hap encoding [no]
             "--enable-libsoxr",           // enable Include libsoxr resampling [no]
