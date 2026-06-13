@@ -180,17 +180,18 @@
           "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
           "patch_files": [
             // {
-            //   "when" : true, // You can set condition for each patch file, and skip it when the condition is not satisfied.
-            //   "chdir" : "$source_dir", // You can set current directory before applying patch.
-            //   "file": "${package_dir}\\foo.diff"    // You can specify patch by local file.
-            //   "url": "https://example.com/foo.diff" // You can specify patch by URL.
-            //   "copy"  "${package_dir}\\barfile.c"   // You can specify copy file by local file.
+            // "when" : true, // Sets a condition for each patch file; it is skipped if the condition is not met.
+            // "chdir" : "$source_dir", // Sets the working directory where patches are applied and files are copied to.
+            // "remote": "https://example.com/remote.patch", // Specifies a patch via a URL.
+            // "local": "${package_dir}\\local.patch", // Specifies a patch via a local file path.
+            // "copy": "${package_dir}\\copyfile.c", // Specifies the source of a local file to be copied into the working directory with its original filename.
+            // "fetch": "https://example.com/fetch.file" // Specifies the source of a remote file to be fetched into the working directory with its original filename.
             // },
             {
-              "url": "$repo_url/1.16-aliases.patch"
+              "remote": "$repo_url/1.16-aliases.patch"
             },
             {
-              "file": "${package_dir}\\libiconv_make_in.diff"
+              "local": "${package_dir}\\libiconv_make_in.diff"
             }
           ],
           "scripts": [
@@ -198,7 +199,7 @@
               // Patch Script: patching source code with patch_files
               "message": "Patch ${name} source code",
               "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"url\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'url' in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\"' if 'file' in p else f'copy \"{p[\"copy\"]}\" \"{os.path.basename(p[\"copy\"])}\"') + f' && copy nul \"__patched___{b}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) and (b := os.path.basename(p.get('url') or p.get('file') or p.get('copy')))])}}"
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else f'curl.exe --fail -L -s -o \"{b}\" \"{p[\"fetch\"]}\" || exit /b 1') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             }
           ]
         },

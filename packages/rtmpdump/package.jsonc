@@ -188,34 +188,34 @@
           "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-rtmpdump",
           "patch_files": [
             {
-              "url": "$repo_url/0001-mingw.mingw.patch"
+              "remote": "$repo_url/0001-mingw.mingw.patch"
             },
             {
-              "url": "$repo_url/0002-no-fPIC.mingw.patch"
+              "remote": "$repo_url/0002-no-fPIC.mingw.patch"
             },
             {
-              "url": "$repo_url/0003-better-w32-threading.all.patch"
+              "remote": "$repo_url/0003-better-w32-threading.all.patch"
             },
             {
-              "url": "$repo_url/0004-gnu_printf.all.patch"
+              "remote": "$repo_url/0004-gnu_printf.all.patch"
             },
             {
-              "url": "$repo_url/0005-fix-unused-var-warning.all.patch"
+              "remote": "$repo_url/0005-fix-unused-var-warning.all.patch"
             },
             {
-              "url": "$repo_url/0006-deprecated-gnutls-type.all.patch"
+              "remote": "$repo_url/0006-deprecated-gnutls-type.all.patch"
             },
             {
-              "url": "$repo_url/0007-cast-appropriately-for-nettle.all.patch"
+              "remote": "$repo_url/0007-cast-appropriately-for-nettle.all.patch"
             },
             {
-              "url": "$repo_url/0009-correct-cast.all.patch"
+              "remote": "$repo_url/0009-correct-cast.all.patch"
             },
             {
-              "url": "$repo_url/0012-no-sbin.patch"
+              "remote": "$repo_url/0012-no-sbin.patch"
             },
             {
-              "url": "$repo_url/0013-no-extra-dll.patch"
+              "remote": "$repo_url/0013-no-extra-dll.patch"
             }
           ],
           "scripts": [
@@ -223,7 +223,7 @@
               // Patch Script: patching source code with patch_files
               "message": "Patch ${name} source code",
               "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"url\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'url' in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\"' if 'file' in p else f'copy \"{p[\"copy\"]}\" \"{os.path.basename(p[\"copy\"])}\"') + f' && copy nul \"__patched___{b}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) and (b := os.path.basename(p.get('url') or p.get('file') or p.get('copy')))])}}"
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else f'curl.exe --fail -L -s -o \"{b}\" \"{p[\"fetch\"]}\" || exit /b 1') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             },
             {
               "message": "Clean /opt directory in msys2",

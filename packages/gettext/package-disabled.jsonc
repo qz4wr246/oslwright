@@ -171,52 +171,52 @@
           "repo_url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/gettext",
           "patch_files": [
             {
-              "url": "${repo_url}/gettext-tools-tests-locale-ll-es.patch"
+              "remote": "${repo_url}/gettext-tools-tests-locale-ll-es.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.21.1-autopoint-V.patch"
+              "remote": "${repo_url}/gettext-0.21.1-autopoint-V.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.21.1-cygwin-ftm.patch"
+              "remote": "${repo_url}/gettext-0.21.1-cygwin-ftm.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22-no-woe32dll-gettext-tools-configure-ac.patch"
+              "remote": "${repo_url}/gettext-0.22-no-woe32dll-gettext-tools-configure-ac.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22-no-woe32dll-m4-woe32-dll-m4.patch"
+              "remote": "${repo_url}/gettext-0.22-no-woe32dll-m4-woe32-dll-m4.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-gnulib-lib-localcharset-c.patch"
+              "remote": "${repo_url}/gettext-0.22.5-gettext-runtime-gnulib-lib-localcharset-c.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-gnulib-lib-localename-h.patch"
+              "remote": "${repo_url}/gettext-0.22.5-gettext-runtime-gnulib-lib-localename-h.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-gnulib-lib-localename-unsafe-c.patch"
+              "remote": "${repo_url}/gettext-0.22.5-gettext-runtime-gnulib-lib-localename-unsafe-c.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-intl-gnulib-lib-localcharset-c.patch"
+              "remote": "${repo_url}/gettext-0.22.5-gettext-runtime-intl-gnulib-lib-localcharset-c.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-intl-gnulib-lib-localename-h.patch"
+              "remote": "${repo_url}/gettext-0.22.5-gettext-runtime-intl-gnulib-lib-localename-h.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22.5-gettext-runtime-intl-gnulib-lib-localename-unsafe-c.patch"
+              "remote": "${repo_url}/gettext-0.22.5-gettext-runtime-intl-gnulib-lib-localename-unsafe-c.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22.5-gettext-tools-gnulib-lib-localcharset-c.patch"
+              "remote": "${repo_url}/gettext-0.22.5-gettext-tools-gnulib-lib-localcharset-c.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22.5-gettext-tools-gnulib-lib-localename-h.patch"
+              "remote": "${repo_url}/gettext-0.22.5-gettext-tools-gnulib-lib-localename-h.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22.5-gettext-tools-gnulib-lib-localename-unsafe-c.patch"
+              "remote": "${repo_url}/gettext-0.22.5-gettext-tools-gnulib-lib-localename-unsafe-c.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.22-disable-libtextstyle.patch"
+              "remote": "${repo_url}/gettext-0.22-disable-libtextstyle.patch"
             },
             {
-              "url": "${repo_url}/gettext-0.19.8.1-msys2.patch"
+              "remote": "${repo_url}/gettext-0.19.8.1-msys2.patch"
             }
           ],
           "scripts": [
@@ -224,7 +224,7 @@
               // Patch Script: patching source code with patch_files
               "message": "Patch ${name} source code",
               "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"url\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'url' in p else f'patch -t -b -p1 -i \"{p[\"file\"]}\"' if 'file' in p else f'copy \"{p[\"copy\"]}\" \"{os.path.basename(p[\"copy\"])}\"') + f' && copy nul \"__patched___{b}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) and (b := os.path.basename(p.get('url') or p.get('file') or p.get('copy')))])}}"
+              "script": "{{' && '.join([(f'pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else f'curl.exe --fail -L -s -o \"{b}\" \"{p[\"fetch\"]}\" || exit /b 1') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             },
             {
               "chdir": "$source_dir",

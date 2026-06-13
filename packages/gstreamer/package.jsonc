@@ -225,10 +225,10 @@
         "patch": {
           "patch_files": [
             {
-              "file": "${package_dir}\\gl_mkenum_py13.diff"
+              "local": "${package_dir}\\gl_mkenum_py13.diff"
             },
             {
-              "file": "${package_dir}\\vulkan_mkenum.py.diff"
+              "local": "${package_dir}\\vulkan_mkenum.py.diff"
             }
           ],
           "scripts": [
@@ -422,7 +422,7 @@
         "patch": {
           "patch_files!append": [
             {
-              "file": "${package_dir}\\fix_vpx_meson_build-1.24.13.diff"
+              "local": "${package_dir}\\fix_vpx_meson_build-1.24.13.diff"
             }
           ]
         }
@@ -438,13 +438,13 @@
         "patch": {
           "patch_files!append": [
             {
-              "file": "${package_dir}\\fix_gst-plugins-bad_ext_aom_gstav1dec_c.diff"
+              "local": "${package_dir}\\fix_gst-plugins-bad_ext_aom_gstav1dec_c.diff"
             },
             // {
-            //   "file": "${package_dir}\\fix_vpx_meson_build-1.28.3.diff"
+            //   "local": "${package_dir}\\fix_vpx_meson_build-1.28.3.diff"
             // }
             {
-              "file": "${package_dir}\\fix_gst-plugins-good_ext_lame.diff"
+              "local": "${package_dir}\\fix_gst-plugins-good_ext_lame.diff"
             }
           ]
         }

@@ -158,16 +158,16 @@
           "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-gavl",
           "patch_files": [
             {
-              "url": "$repo_url/0001-gavl-1.4.0-fix-64-bit-compilation.patch"
+              "remote": "$repo_url/0001-gavl-1.4.0-fix-64-bit-compilation.patch"
             },
             {
-              "url": "$repo_url/0002-gavl-1.4.0-fix-shared-dll-installation.patch"
+              "remote": "$repo_url/0002-gavl-1.4.0-fix-shared-dll-installation.patch"
             },
             {
-              "url": "$repo_url/0003-missing-include.patch"
+              "remote": "$repo_url/0003-missing-include.patch"
             },
             {
-              "file": "${package_dir}\\gavl-1.4.0-dllexport-header.diff"
+              "local": "${package_dir}\\gavl-1.4.0-dllexport-header.diff"
             }
           ],
           "scripts": [
