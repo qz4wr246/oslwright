@@ -1,0 +1,13 @@
+diff --git a/test/utest.h b/test/utest.h
+index aceb8a4..a154ea8 100644
+--- a/test/utest.h
++++ b/test/utest.h
+@@ -76,7 +76,7 @@ static int cfg_log_level = 2;
+ #define log_level_2(args,...) {if(cfg_log_level >= LOG_LVL_2){print(args,__VA_ARGS__);}}
+ #endif
+ /****************************************************************************/
+-#if defined(WIN32) || defined(WIN64)
++#if defined(_WIN32) || defined(_WIN64)
+ #include <windows.h>
+
+ #define TIME_SCALE    1

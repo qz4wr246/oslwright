@@ -1,11 +1,11 @@
 {
-  "name": "svt-av1",
-  "display": "SVT AV1",
-  "description": "An AV1-compliant software encoder library.",
-  "site": "https://gitlab.com/AOMediaCodec/SVT-AV1",
-  "license": "BSD-2-clause license, AOM Patent License 1.0",
+  "name": "uavs3d",
+  "display": "uavs3d",
+  "description": "AVS3 decoder which supports AVS3-P2 baseline profile.",
+  "site": "https://github.com/uavs3/uavs3d",
+  "license": "BSD 3-clause",
   "info": "info.md",
-  "process_time": 200,
+  "process_time": 30,
   "options": [
     {
       "display": "Version",
@@ -56,7 +56,7 @@
         "shared",
         "static"
       ],
-      "default": "$build_library_default"
+      "default": "shared"
     },
     {
       "display": "Build type",
@@ -110,7 +110,7 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://gitlab.com/AOMediaCodec/SVT-AV1.git",
+      "git_url": "https://github.com/uavs3/uavs3d.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
@@ -147,23 +147,37 @@
             }
           ]
         },
+        "patch": {
+          "patch_files": [
+            {
+              "local": "${package_dir}\\fix_cmake_msvc.diff"
+            },
+            {
+              "local": "${package_dir}\\fix_source_msvc.diff"
+            }
+          ],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -l -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else f'curl.exe --fail -l -s -o \"{b}\" \"{p[\"fetch\"]}\" || exit /b 1') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
+            }
+          ]
+        },
         "configure": {
           // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
+            "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
             "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
-            "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t- /Zc:preprocessor\"",
-            "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t- /Zc:preprocessor\"",
+            "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
+            "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
             "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
-            "-DCMAKE_DEBUG_POSTFIX=d",
             "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
-            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DCMAKE_DOC=OFF",
-            "-DBUILD_APPS=OFF",
-            "-DBUILD_TESTING=OFF",
-            "-DLOG_QUIET=ON"
+            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -270,6 +284,6 @@
         }
       }
     },
-    "4.1.0": {}
+    "1.1": {}
   }
 }

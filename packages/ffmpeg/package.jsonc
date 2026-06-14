@@ -344,6 +344,9 @@
           "enable": "{{$enable_gpl}}",
           "version": ">=3.3"
         },
+        "snappy":{
+          "version": ">=1.2"
+        },
         "shine": {
           "version": ">=3.1"
         },
@@ -353,11 +356,20 @@
         "srt":{
           "version": ">=1.5"
         },
+        "svt-jpeg-xs": {
+          "version": ">=0.9.0"
+        },
         "liblc3":{
           "version": ">=1.1"
         },
         "shaderc":{
           "version": ">=2026.2"
+        },
+        "twolame":{
+          "version": ">=0.4"
+        },
+        "uavs3d": {
+          "version": ">=1.1"
         },
         "vid.stab": {
           "enable": "{{$enable_gpl}}",
@@ -462,6 +474,18 @@
             },
             {
               "local": "$package_dir\\fix_ocio_wrapper_cpp.diff"
+            },
+            {
+              "chdir": "${msys2_dir}\\opt\\ucrt64\\bin",
+              "copy": "$package_dir\\sdl2-config"
+            },
+            {
+              "chdir": "${source_dir}\\libavfilter",
+              "copy": "$package_dir\\pathtools.h"
+            },
+            {
+              "chdir": "${source_dir}\\libavfilter",
+              "copy": "$package_dir\\pathtools.c"
             }
           ],
           "scripts": [
@@ -470,19 +494,6 @@
               "message": "Patch ${name} source code",
               "chdir": "$source_dir",
               "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -l -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else f'curl.exe --fail -l -s -o \"{b}\" \"{p[\"fetch\"]}\" || exit /b 1') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
-            },
-            {
-              "bash_script": "mkdir -p /opt/ucrt64/bin",
-              "script": "${msys2_bash} \"${bash_script}\""
-            },
-            {
-              "script": "copy /y \"${package_dir}\\sdl2-config\" \"${msys2_dir}\\opt\\ucrt64\\bin\\\""
-            },
-            {
-              "script": "copy /y  \"${package_dir}\\pathtools.h\" \"${source_dir}\\libavfilter\""
-            },
-            {
-              "script": "copy /y \"${package_dir}\\pathtools.c\" \"${source_dir}\\libavfilter\""
             }
           ]
         },
@@ -590,20 +601,20 @@
             "--enable-libshaderc",        // enable runtime GLSL->SPIRV compilation via libshaderc [no]
             "--enable-libshine",          // enable fixed-point MP3 encoding via libshine [no]
             //// "--enable-libsmbclient",      // (SAMBA is legacy.) enable Samba protocol via libsmbclient [no]
-            // "--enable-libsnappy",         // enable Snappy compression, needed for hap encoding [no]
+            "--enable-libsnappy",         // enable Snappy compression, needed for hap encoding [no]
             "--enable-libsoxr",           // enable Include libsoxr resampling [no]
             "--enable-libspeex",          // enable Speex de/encoding via libspeex [no]
             "--enable-libsrt",            // enable Haivision SRT protocol via libsrt [no]
             "--enable-libssh",            // enable SFTP protocol via libssh [no]
             "--enable-libsvtav1",         // enable AV1 encoding via SVT [no]
-            // "--enable-libsvtjpegxs",      // enable JPEGXS encoding/decoding via SVT [no]
+            "--enable-libsvtjpegxs",      // enable JPEGXS encoding/decoding via SVT [no]
             //// "--enable-libtensorflow",     // enable TensorFlow as a DNN module backend for DNN based filters like sr [no]
             //// "--enable-libtesseract",      // enable Tesseract, needed for ocr filter [no]
             "--enable-libtheora",         // enable Theora encoding via libtheora [no]
             "{{'--enable-libtls' if $ssl_library == 'libtls' else ''}}",   // enable LibreSSL (via libtls), needed for https support if openssl, gnutls or mbedtls is not used [no]
             //// "--enable-libtorch",         // enable Torch as one DNN backend [no]
-            // "--enable-libtwolame",       // enable MP2 encoding via libtwolame [no]
-            // "--enable-libuavs3d",        // enable AVS3 decoding via libuavs3d [no]
+            "--enable-libtwolame",       // enable MP2 encoding via libtwolame [no]
+            "--enable-libuavs3d",        // enable AVS3 decoding via libuavs3d [no]
             "{{'--enable-libvidstab' if $enable_gpl else ''}}",    //  enable video stabilization using vid.stab [no]
             // "--enable-libvmaf",          // enable vmaf filter via libvmaf [no]
             // "--enable-libvo-amrwbenc",   // enable AMR-WB encoding via libvo-amrwbenc [no]
