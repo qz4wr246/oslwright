@@ -17,7 +17,7 @@ class PackageOptionPage(FletXPage):
 
     def __init__(self):
         self.initialized = False
-        print("PackageOptionPage:__init__")
+        # print("PackageOptionPage:__init__")
         super().__init__()
         self.controller = PackageOptionController()
 
