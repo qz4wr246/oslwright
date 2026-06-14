@@ -267,7 +267,6 @@
           "environments": {
             "PERLIO": "raw"
           },
-          "dist_rootdir_slash": "{{$dist_rootdir.replace('\\\\', '/')}}", // adjust path for pc file
           "scripts": [
             {
               "message": "Rename the library files to be MSVC-compatible.",
