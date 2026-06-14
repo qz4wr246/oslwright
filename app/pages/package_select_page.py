@@ -193,32 +193,32 @@ class PackageSelectPage(FletXPage):
         self.controller.build_all(names)
 
     def save_state(self):
-        self.page.client_storage.set("package_list_scroll_pos", self.scroll_pos)
+        self.page.session.set("package_list_scroll_pos", self.scroll_pos)
         controls = self.content.controls[PKG_CTRL_INDEX].widget.controls
         checked_idx = [0] * len(controls)
         for idx, ctrl in enumerate(controls):
             value = ctrl.widget.content.controls[0].controls[0].value
             checked_idx[idx] = value
-        self.page.client_storage.set("package_list_checked", checked_idx)
+        self.page.session.set("package_list_checked", checked_idx)
 
         all_check = self.content.controls[PKG_CTRL_INDEX - 2].controls[0].value
-        self.page.client_storage.set("package_list_all_check", all_check)
+        self.page.session.set("package_list_all_check", all_check)
 
     def update_state(self):
         global app_booting
         if app_booting:
             app_booting = False
-            self.page.client_storage.clear()
+            self.page.session.clear()
 
-        checked_idx = self.page.client_storage.get("package_list_checked")
+        checked_idx = self.page.session.get("package_list_checked")
         if checked_idx:
             for idx, ctrl in enumerate(self.content.controls[PKG_CTRL_INDEX].widget.controls):
                 ctrl.widget.content.controls[0].controls[0].value = checked_idx[idx]
 
-        pos = self.page.client_storage.get("package_list_scroll_pos")
+        pos = self.page.session.get("package_list_scroll_pos")
         if pos:
             self.content.controls[PKG_CTRL_INDEX].widget.scroll_to(offset=pos, duration=0)
-        all_check = self.page.client_storage.get("package_list_all_check")
+        all_check = self.page.session.get("package_list_all_check")
         if all_check:
             self.content.controls[PKG_CTRL_INDEX - 2].controls[0].value = all_check
         self.refresh()
@@ -237,7 +237,7 @@ class PackageSelectPage(FletXPage):
         return ft.Container(
             key=package.display,
             on_hover=self.on_change_bgcolor,
-            padding=ft.padding.only(right=10),
+            padding=ft.padding.symmetric(horizontal=10),
             content=ft.Row(
                 controls=[
                     ft.Row(

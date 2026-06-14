@@ -82,7 +82,7 @@ class AppSettingPage(FletXPage):
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
-                padding=ft.padding.only(left=20, right=20),
+                padding=ft.padding.symmetric(horizontal=20),
                 on_hover=self.on_change_bgcolor,
             )
         if ui["type"] == "bool":
@@ -102,7 +102,7 @@ class AppSettingPage(FletXPage):
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
-                padding=ft.padding.only(left=20, right=20),
+                padding=ft.padding.symmetric(horizontal=20),
                 on_hover=self.on_change_bgcolor,
             )
         else:  # text
@@ -123,7 +123,7 @@ class AppSettingPage(FletXPage):
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
-                padding=ft.padding.only(left=20, right=20),
+                padding=ft.padding.symmetric(horizontal=20),
                 on_hover=self.on_change_bgcolor,
             )
 

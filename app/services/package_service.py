@@ -100,7 +100,7 @@ class PackageService(FletXService):
     def load_info(self, package: PackageModel) -> PackageInfoModel:
         markdown = "No additional information available."
         if package.info and package.path:
-            path = package.path.parent / package.info
+            path = os.path.join(os.path.dirname(package.path), package.info)
             if Path(package.info).is_absolute():
                 path = Path(package.info)
             if os.path.exists(path):
