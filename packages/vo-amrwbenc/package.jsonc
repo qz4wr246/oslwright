@@ -1,11 +1,11 @@
 {
-  "name": "shine",
-  "display": "Shine",
-  "description": "Super fast fixed-point MP3 encoder",
-  "site": "https://github.com/savonet/shine",
-  "license": "LGPL 2.0 or later",
+  "name": "vo-amrwbenc",
+  "display": "vo-amrwbenc",
+  "description": "VisualOn Adaptive Multi Rate Wideband (AMR-WB) encoder",
+  "site": "https://sourceforge.net/projects/opencore-amr/",
+  "license": "Apache 2.0",
   "info": "info.md",
-  "process_time": 160,
+  "process_time": 440,
   "options": [
     {
       "display": "Version",
@@ -106,10 +106,8 @@
       "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
-      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/toots/shine.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
-      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
+      "download_url": "https://downloads.sourceforge.net/project/opencore-amr/${name}/${name}-${version}.tar.gz",
       "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
@@ -146,56 +144,25 @@
               "script": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "git clone.",
+              "message": "donloads",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
-              "fallback": "rmdir /q /s \"$source_dir\""
-            },
-            {
-              "message": "git checkout.",
-              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "chdir": "$source_dir",
-              "script": "git checkout $git_hash",
-              "fallback": "rmdir /q /s \"$source_dir\""
+              "script": "curl.exe --fail -L -s -o \"$cache_file\" \"$download_url\"",
+              "fallback": "del /q /f \"$cache_file\""
             },
             {
               "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z -sccUTF-8 x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_rootdir}\" && del \"${cache_file}.temp.tar\"",
               "fallback": "rmdir /q /s \"$source_dir\""
-            },
-            {
-              "message": "make cache.",
-              "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
-              "fallback": "del \"$cache_file\""
             }
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-shine",
-          "patch_files": [
-            {
-              "remote": "$repo_url/0001-shine-3.1.1-fix-include.patch"
-            },
-            {
-              "local": "$package_dir\\fix_shine_makefile_am.diff"
-            },
-            {
-              "local": "$package_dir\\fix_shine_l3mdct_h.diff"
-            }
-          ],
           "scripts": [
-            {
-              // Patch Script: patching source code with patch_files
-              "message": "Patch ${name} source code",
-              "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -l -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else f'curl.exe --fail -l -s -o \"{b}\" \"{p[\"fetch\"]}\" || exit /b 1') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
-            },
             {
               "message": "reconfigure",
               "chdir": "$source_dir",
-              "bash_script": "./bootstrap",
+              "bash_script": "autoreconf -vfi",
               "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
@@ -366,6 +333,6 @@
         }
       }
     },
-    "3.1.1": {}
+    "0.1.3": {}
   }
 }

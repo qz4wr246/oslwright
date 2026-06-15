@@ -160,17 +160,16 @@
           "enable": "{{$enable_gpl}}",
           "version": ">=3.7"
         },
+        "bzip2": {
+          "version": ">=1.0"
+        },
         "cairo": {
           "version": ">=1.18"
         },
         "chromaprint": {
           "version": ">=1.6"
         },
-        "libcdio" :{
-          "enable": "{{$enable_gpl}}",
-          "version": ">=2.3"
-        },
-        "codec2" : {
+        "codec2": {
           "version": ">=1.2"
         },
         "dav1d": {
@@ -180,12 +179,12 @@
           "enable": "{{$enable_gpl}}",
           "version": ">=1.7"
         },
-        "flite":{
-          "version": ">=2.2"
-        },
         "fdk-aac": {
           "enable": "{{$enable_nonfree}}",
           "version": ">=2.0"
+        },
+        "flite": {
+          "version": ">=2.2"
         },
         "fontconfig": {
           "version": ">=2.17"
@@ -204,14 +203,6 @@
           "enable": "{{$ssl_library == 'gnutls' and $enable_version3}}",
           "version": ">=6.3"
         },
-        // "libgcrypt": {
-        //   "enable": "{{$ssl_library == 'gnutls'}}",
-        //   "version": ">=1.11"
-        // },
-        "openssl": {
-          "enable": "{{$ssl_library == 'openssl'}}",
-          "version": ">=3.5;<3.6"
-        },
         "gnutls": {
           "enable": "{{$ssl_library == 'gnutls'}}",
           "version": ">=3.8"
@@ -225,7 +216,7 @@
         "lame": {
           "version": ">=3.100"
         },
-        "lcms2":{
+        "lcms2": {
           "version": ">=2.19"
         },
         "lensfun": {
@@ -246,6 +237,10 @@
         "libcaca": {
           "version": ">=0.99"
         },
+        "libcdio": {
+          "enable": "{{$enable_gpl}}",
+          "version": ">=2.3"
+        },
         "libdvdnav": {
           "version": ">=7.0"
         },
@@ -255,47 +250,51 @@
         "libexif": {
           "version": ">=0.6"
         },
+        // "libgcrypt": {
+        //   "enable": "{{$ssl_library == 'gnutls'}}",
+        //   "version": ">=1.11"
+        // },
         "libgme": {
           "version": ">=0.6"
-        },
-        "libilbc": {
-          "version": ">=3.0"
         },
         "libiconv": {
           "version": ">=1.19"
         },
+        "libilbc": {
+          "version": ">=3.0"
+        },
         "libjxl": {
           "version": ">=0.11"
+        },
+        "liblc3": {
+          "version": ">=1.1"
         },
         // "libmodplug": {  // libmodplug fails to link with gstreamer and libmodplug is legacy. So use libopenmpt.
         //   "version": ">=0.8"
         // },
-        "libopenmpt" : {
+        "libopenmpt": {
           "version": ">=0.8"
         },
-        "libssh": {
-          "version": ">=0.11"
-        },
-        "libplacebo":{
+        "libplacebo": {
           "version": ">=7.360"
         },
-        "librsvg":{
-          "version": ">=2.62"
+        "libpng": {
+          "version": ">=1.6"
         },
         "librist": {
           "version": ">=0.2"
         },
-        "soxr" : {
-          "version": ">=0.1"
+        "librsvg": {
+          "version": ">=2.62"
         },
-        "theora": {
-          "version": ">=1.2"
+        "libssh": {
+          "version": ">=0.11"
         },
         "libva": {
           "version": ">=2.23"
         },
-        "vorbis": {
-          "version": ">=1.3"
+        "libvpl": {
+          "version": ">=2.16"
         },
         "libvpx": {
           "version": ">=1.16"
@@ -305,9 +304,6 @@
         },
         "libxml2": {
           "version": ">=2.11"
-        },
-        "libvpl": {
-          "version": ">=2.16"
         },
         "openal": {
           "version": ">=1.25"
@@ -322,10 +318,17 @@
           "enable": "{{$enable_version3}}",
           "version": ">=0.1"
         },
-        "openjpeg":{
+        "openh264": {
+          "version": ">=2.6.0"
+        },
+        "openjpeg": {
           "version": ">=2.5"
         },
-        "opus":{
+        "openssl": {
+          "enable": "{{$ssl_library == 'openssl'}}",
+          "version": ">=3.5;<3.6"
+        },
+        "opus": {
           "version": ">=1.6"
         },
         "qrencode": {
@@ -334,38 +337,44 @@
         "quirc": {
           "version": ">=1.2"
         },
-        "rav1e":{
+        "rav1e": {
           "version": ">=0.8"
         },
-        "rtmpdump":{
+        "rtmpdump": {
           "version": ">=2.6"
         },
         "rubberband": {
           "enable": "{{$enable_gpl}}",
           "version": ">=3.3"
         },
-        "snappy":{
-          "version": ">=1.2"
+        "shaderc": {
+          "version": ">=2026.2"
         },
         "shine": {
           "version": ">=3.1"
         },
-        "speex":{
+        "snappy": {
           "version": ">=1.2"
         },
-        "srt":{
+        "soxr": {
+          "version": ">=0.1"
+        },
+        "speex": {
+          "version": ">=1.2"
+        },
+        "srt": {
           "version": ">=1.5"
+        },
+        "svt-av1": {
+          "version": ">=4.1"
         },
         "svt-jpeg-xs": {
           "version": ">=0.9.0"
         },
-        "liblc3":{
-          "version": ">=1.1"
+        "theora": {
+          "version": ">=1.2"
         },
-        "shaderc":{
-          "version": ">=2026.2"
-        },
-        "twolame":{
+        "twolame": {
           "version": ">=0.4"
         },
         "uavs3d": {
@@ -375,29 +384,16 @@
           "enable": "{{$enable_gpl}}",
           "version": ">=1.1"
         },
-        "xvidcore": {
-          "enable": "{{$enable_gpl}}",
-          "version": ">=1.1"
+        "vmaf": {
+          "version": ">=3.1"
         },
-        "zimg": {
-          "version": ">=3.0"
+        "vorbis": {
+          "version": ">=1.3"
         },
-        "zvbi": {
-          "enable": "{{$enable_gpl}}",
-          "version": ">=0.2.44"
-        },
-        "libpng": {
-          "version": ">=1.6"
-        },
-        "vulkan-headers": {
-        },
-        "vulkan-loader": {
-        },
+        "vulkan-headers": {},
+        "vulkan-loader": {},
         "vvenc": {
           "version": ">=1.14"
-        },
-        "svt-av1": {
-          "version": ">=4.1"
         },
         "x264": {
           "enable": "{{$enable_gpl}}"
@@ -406,20 +402,25 @@
           "enable": "{{$enable_gpl}}",
           "version": "==3.4"
         },
-        "openh264": {
-          "version": ">=2.6.0"
-        },
         "xavs2": {
           "version": ">=1.4"
         },
-        "bzip2": {
-          "version": ">=1.0"
+        "xvidcore": {
+          "enable": "{{$enable_gpl}}",
+          "version": ">=1.1"
         },
         "xz": {
           "version": ">=5.6"
         },
+        "zimg": {
+          "version": ">=3.0"
+        },
         "zlib": {
           "version": ">=1.3"
+        },
+        "zvbi": {
+          "enable": "{{$enable_gpl}}",
+          "version": ">=0.2.44"
         }
       },
       "environments": {
@@ -616,7 +617,7 @@
             "--enable-libtwolame",       // enable MP2 encoding via libtwolame [no]
             "--enable-libuavs3d",        // enable AVS3 decoding via libuavs3d [no]
             "{{'--enable-libvidstab' if $enable_gpl else ''}}",    //  enable video stabilization using vid.stab [no]
-            // "--enable-libvmaf",          // enable vmaf filter via libvmaf [no]
+            "--enable-libvmaf",          // enable vmaf filter via libvmaf [no]
             // "--enable-libvo-amrwbenc",   // enable AMR-WB encoding via libvo-amrwbenc [no]
             "--enable-libvorbis",        // enable Vorbis en/decoding via libvorbis, native implementation exists [no]
             "--enable-libvpx",           // enable VP8 and VP9 de/encoding via libvpx [no]

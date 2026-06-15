@@ -204,7 +204,6 @@
               "when": "{{'Release' in $build_type }}",
               "script": "if exist \"$build_dir_release\" (rd /s /q \"$build_dir_release\") & md \"$build_dir_release\""
             },
-
             {
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type}}",
