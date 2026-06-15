@@ -229,7 +229,6 @@
               "when": "{{'Release' in $build_type }}",
               "script": "rmdir /s /q \"$build_dir_release\" & timeout /t 3 /nobreak & mkdir \"$build_dir_release\""
             },
-
             {
               "message": "configure for release.",
               "when": "{{'Release' in $build_type}}",

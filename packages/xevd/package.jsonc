@@ -1,11 +1,11 @@
 {
-  "name": "entt",
-  "display": "Entt",
-  "description": "Entt is a fast and lightweight C++ entity component system",
-  "site": "https://github.com/skypjack/entt",
-  "license": "MIT License",
+  "name": "xevd",
+  "display": "xevd",
+  "description": "MPEG-5 EVC (Essential Video Coding) decoder",
+  "site": "https://github.com/mpeg5/xevd/",
+  "license": "BSD 3-Clause",
   "info": "info.md",
-  "process_time": 30,
+  "process_time": 40,
   "options": [
     {
       "display": "Version",
@@ -17,34 +17,30 @@
     {
       "display": "Visual Studio version",
       "name": "msvc_version",
-      "enable": false,
       "type": "choice",
       "items": "{{$msvc_versions}}",
-      "default": ""
+      "default": "$msvc_version_default"
     },
     {
       "display": "MSVC toolset version",
       "name": "msvc_toolset_version",
-      "enable": false,
       "type": "choice",
       "items": "{{$msvc_toolset_versions}}",
-      "default": ""
+      "default": "$msvc_toolset_version_default"
     },
     {
       "display": "Build arch",
       "name": "build_arch",
-      "enable": false,
       "type": "choice",
       "items": [
         "x64",
         "x32"
       ],
-      "default": ""
+      "default": "$build_arch_default"
     },
     {
       "display": "MSVC runtime library",
       "name": "msvc_runtime_library",
-      "enable": false,
       "type": "choice",
       "items": [
         "mt",
@@ -60,33 +56,29 @@
       "items": [
         "shared",
         "static",
-        "shared;static",
-        "interface"
+        "static;shared"
       ],
-      "default": "interface"
+      "default": "static;shared"
     },
     {
       "display": "Build type",
       "name": "build_type",
-      "enable": false,
       "type": "choice",
       "items": [
         "Release",
-        "Debug",
-        "Release;Debug"
+        "Debug"
       ],
       "default": "Release"
     },
     {
       "display": "Build layout",
       "name": "build_layout",
-      "enable": false,
       "type": "choice",
       "items": [
         "union",
         "separation"
       ],
-      "default": "union"
+      "default": "separation"
     },
     {
       "display": "Using CUDA",
@@ -102,7 +94,7 @@
       "type": "choice",
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
-    },
+    }
   ],
   "versions": {
     "default": {
@@ -120,7 +112,7 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/skypjack/entt.git",
+      "git_url": "https://github.com/mpeg5/xevd.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
@@ -157,21 +149,37 @@
             }
           ]
         },
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-xevd",
+          "patch_files": [
+            {
+              "remote": "$repo_url/010-xevd-disable-werror.patch"
+            },
+            {
+              "local": "$package_dir\\fix_xevd_tp_c.diff"
+            }
+          ],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -l -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else f'curl.exe --fail -l -s -o \"{b}\" \"{p[\"fetch\"]}\" || exit /b 1') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
+            }
+          ]
+        },
         "configure": {
           // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
+            "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
             "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
             "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
             "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
-            "-DCMAKE_DEBUG_POSTFIX=d",
             "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
-            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DENTT_BUILD_DOCS=OFF",
-            "-DENTT_BUILD_TESTING=OFF",
-            "-DENTT_BUILD_TESTBED=OFF"
+            "-DXEVD_APP_STATIC_BUILD=ON"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -246,8 +254,7 @@
             }
           ]
         },
-        "post-install" :{
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
+        "post-install": {
           "environments": {
             "PERLIO": "raw"
           },
@@ -266,6 +273,6 @@
         }
       }
     },
-    "3.16.0": {}
+    "0.5.0": {}
   }
 }

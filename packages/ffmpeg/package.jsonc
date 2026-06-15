@@ -408,6 +408,9 @@
         "xavs2": {
           "version": ">=1.4"
         },
+        "xevd": {
+          "version": ">=0.5"
+        },
         "xeve": {
           "version": ">=0.5"
         },
@@ -633,7 +636,7 @@
             "{{'--enable-libx265' if $enable_gpl else ''}}",          // enable HEVC encoding via x265 [no]
             "--enable-libxeve",          // enable EVC encoding via libxeve [no]
             //// "--enable-libxeveb",         // enable EVC encoding via libxeve (Base profile) [no]
-            // "--enable-libxevd",          // enable EVC decoding via libxevd [no]
+            "--enable-libxevd",          // enable EVC decoding via libxevd [no]
             //// "--enable-libxevdb",         // enable EVC decoding via libxevd (Base profile) [no]
             //// "{{'--enable-libxavs' if $enable_gpl else ''}}",          // enable AVS encoding via xavs [no]
             "{{'--enable-libxavs2' if $enable_gpl else ''}}",        // enable AVS2 encoding via xavs2 [no]
@@ -693,7 +696,6 @@
               "when": "{{'Release' in $build_type }}",
               "script": "rmdir /s /q \"$build_dir_release\" & timeout /t 3 /nobreak & mkdir \"$build_dir_release\""
             },
-
             {
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type}}",

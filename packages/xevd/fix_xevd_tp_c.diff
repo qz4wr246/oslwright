@@ -1,0 +1,13 @@
+diff --git a/src_base/xevd_tp.c b/src_base/xevd_tp.c
+index 91aeaaf..4e0d470 100644
+--- a/src_base/xevd_tp.c
++++ b/src_base/xevd_tp.c
+@@ -31,7 +31,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include "xevd_tp.h"
+-#if defined(WIN32) || defined(WIN64)
++#if defined(_WIN32) || defined(_WIN64)
+ #include <windows.h>
+ #include <process.h>
+ #else

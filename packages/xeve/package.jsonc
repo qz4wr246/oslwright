@@ -51,12 +51,14 @@
     {
       "display": "Build library",
       "name": "build_library",
+      "enable":false,
       "type": "choice",
       "items": [
         "shared",
-        "static"
+        "static",
+        "static;shared"
       ],
-      "default": "$build_library_default"
+      "default": "static;shared"
     },
     {
       "display": "Build type",
@@ -180,7 +182,6 @@
             "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
-            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
             "-DCMAKE_DOC=OFF",
             "-DBUILD_TESTS=OFF"
           ],
@@ -199,7 +200,6 @@
               "when": "{{'Release' in $build_type }}",
               "script": "rmdir /s /q \"$build_dir_release\" & timeout /t 3 /nobreak & mkdir \"$build_dir_release\""
             },
-
             {
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
