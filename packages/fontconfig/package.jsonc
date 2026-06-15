@@ -178,24 +178,12 @@
           ],
           "scripts": [
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "del /q /s \"$build_dir_debug\" > nul"
+              "script": "if exist \"$build_dir_debug\" (rd /s /q \"$build_dir_debug\") & md \"$build_dir_debug\""
             },
             {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type}}",
-              "script": "del /q /s \"$build_dir_release\" > nul"
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
-              "script": "mkdir \"$build_dir_debug\""
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
-              "script": "mkdir \"$build_dir_release\""
+              "when": "{{'Release' in $build_type }}",
+              "script": "if exist \"$build_dir_release\" (rd /s /q \"$build_dir_release\") & md \"$build_dir_release\""
             },
             {
               "message": "config for debug.",
