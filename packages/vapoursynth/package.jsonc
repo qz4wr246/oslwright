@@ -1,0 +1,380 @@
+{
+  "name": "vapoursynth",
+  "display": "vapoursynth",
+  "description": "A video processing framework with simplicity in mind",
+  "site": "https://www.gnu.org/software/libiconv/",
+  "license": "LGPL v2.1",
+  "info": "info.md",
+  "process_time": 280,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "choice",
+      "items": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "choice",
+      "items": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "shared",
+        "static"
+      ],
+      "default": "shared"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "choice",
+      "items": [
+        "Release",
+        "Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "union",
+        "separation"
+      ],
+      "default": "separation"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    }
+  ],
+  "versions": {
+    "default": {
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "git_url": "https://github.com/vapoursynth/vapoursynth.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
+      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
+      "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "dependencies": {
+        "zimg": {
+          "version": ">=3.0"
+        }
+      },
+      "environments": {
+        "LC_ALL": "C",
+        "MSYS": "winsymlinks:nativestrict",
+        "MSYSTEM": "UCRT64",
+        "CHERE_INVOKING": "1",
+        // "MSYS2_PATH_TYPE": "inherit",
+        "CC": "/ucrt64/bin/gcc.exe",
+        "CXX": "/ucrt64/bin/g++.exe",
+        "LD": "/ucrt64/bin/ld.exe",
+        "AS": "/ucrt64/bin/nasm.exe",
+        "AR": "/ucrt64/bin/ar.exe",
+        "RANLIB": "/ucrt64/bin/ranlib.exe",
+        "STRIP": "/ucrt64/bin/strip.exe",
+        "NM": "/ucrt64/bin/nm.exe",
+        "OBJCOPY": "/ucrt64/bin/objcopy.exe",
+        "OBJDUMP": "/ucrt64/bin/objdump.exe",
+        "CPPFLAGS": "-I/opt/ucrt64/include",
+        "CFLAGS": "-Wno-incompatible-pointer-types",
+        "ASFLAGS": "-w-all",
+        "LDFLAGS": "-L/opt/ucrt64/lib",
+        "SED": "/usr/bin/sed.exe",
+        "PERLIO": "raw",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}"
+      },
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git clone.",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git checkout.",
+              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$source_dir",
+              "script": "git checkout $git_hash",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extract from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z -sccUTF-8 x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "make cache.",
+              "when": "{{not os.path.isfile($cache_file)}}",
+              "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
+              "fallback": "del \"$cache_file\""
+            }
+          ]
+        },
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-vapoursynth",
+          "patch_files": [
+            // {
+            //   "remote": "$repo_url/0001-wrong-arguments-to-Mem32-constructor.patch"
+            // },
+            {
+              "remote": "$repo_url/0002-prevent-portable-python.patch"
+            },
+            {
+              "remote": "$repo_url/0003-no-registry-setup-py.patch"
+            },
+            // {
+            //   "remote": "$repo_url/0004-vapoursynth-check-empty-registry.patch"
+            // }
+          ],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -l -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else f'curl.exe --fail -l -s -o \"{b}\" \"{p[\"fetch\"]}\" || exit /b 1') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
+            },
+            {
+              "message": "reconfigure",
+              "chdir": "$source_dir",
+              "bash_script": "autoreconf -vfi",
+              "script": "${msys2_bash} \"${bash_script}\""
+            }
+          ]
+        },
+        "configure": {
+          "config_options":[
+            "--host=x86_64-w64-mingw32",
+            "--disable-maintainer-mode",
+            "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
+            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}",
+            "--enable-python-module=no"
+          ],
+          "config_options_debug": [
+            "--prefix=/opt/${name}/debug"
+          ],
+          "config_options_release": [
+            "--prefix=/opt/${name}/release"
+          ],
+          "scripts": [
+            {
+              "message": "Clean /opt directory in msys2",
+              "bash_script": "rm -rf /opt/*",
+              "script": "${msys2_bash} \"${bash_script}\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "Copy runtime libraries to MSYS2",
+              "when": "{{not os.path.exists(os.path.join($msys2_external_runtime_dir, '__copied__'+ $name)) and len($dependent_packages_release)}}",
+              "chdir": "$source_dir",
+              "script": "{{[ (f.write('\\n'.join([f'xcopy \\\"{dpr}\\\" \\\"{msys2_external_runtime_dir}\\\" /s /e /i /y || exit /b 1' for dpr in dependent_packages_release.split(';')])), f.close(), '')[-1] for f in [open(os.path.join($source_dir,'__copy_packages.bat'), 'w', encoding='cp932',newline='\\r\\n')] ][0]}}\"$source_dir\\__copy_packages.bat\" && copy nul > \"$msys2_external_runtime_dir\\__copied__$name\""
+            },
+            {
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "script": "rmdir /s /q \"$build_dir_debug\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_debug\""
+            },
+            {
+              "when": "{{'Release' in $build_type }}",
+              "script": "rmdir /s /q \"$build_dir_release\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_release\""
+            },
+            {
+              "message": "config for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+              },
+              "chdir": "$build_dir_debug",
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
+              "script": "${msys2_bash} \"${bash_script}\""
+            },
+            {
+              "message": "config for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+              },
+              "chdir": "$build_dir_release",
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
+              "script": "${msys2_bash} \"${bash_script}\""
+            }
+          ]
+        },
+        "build": {
+          "scripts": [
+            {
+              "message": "Clean /opt/${name} directory in msys2",
+              "bash_script": "rm -rf /opt/${name}/*",
+              "script": "${msys2_bash} \"${bash_script}\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
+                "PERLIO": "raw"
+              },
+              "chdir": "$build_dir_debug",
+              "bash_script": "make -j4",
+              "script": "${msys2_bash} \"${bash_script}\""
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
+                "PERLIO": "raw"
+              },
+              "chdir": "$build_dir_release",
+              "bash_script": "make -j4",
+              "script": "${msys2_bash} \"${bash_script}\""
+            }
+          ]
+        },
+        "install": {
+          "scripts": [
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$build_dir_debug",
+              "bash_script": "make install",
+              "script": "${msys2_bash} \"${bash_script}\""
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$build_dir_release",
+              "bash_script": "make install",
+              "script": "${msys2_bash} \"${bash_script}\""
+            },
+            {
+              "message": "Copy ${name} files for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\debug\" \"$dist_dir_debug\" /s /e /i /y"
+            },
+            {
+              "message": "Copy ${name} files for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "xcopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /s /e /i /y"
+            }
+          ]
+        },
+        "post-install": {
+          "environments": {
+            "PERLIO": "raw"
+          },
+          "scripts": [
+            //
+            // rename dlls, and rewrite pc files to adjust for MSVC linker and library naming convention. You can set ignore_errors to true to ignore errors of these scripts, because the naming convention of library files and pc files in msys2 runtime is not consistent, and it may cause errors when renaming or rewriting.
+            //
+            {
+              "message": "Rename the library files to be MSVC-compatible.",
+              "when":"{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "cmd /v:on /c \"for %f in (*.a) do (set \"n=%~nf\" & set \"n=!n:.dll=!\" & copy /y \"%f\" \"!n!.lib\" & if \"!n:~0,3!\"==\"lib\" copy /y \"%f\" \"!n:~3!.lib\")\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "Rename the library files to be MSVC-compatible.",
+              "when":"{{'Release' in $build_type }}",
+              "chdir": "$dist_dir_release\\lib",
+              "script": "cmd /v:on /c \"for %f in (*.a) do (set \"n=%~nf\" & set \"n=!n:.dll=!\" & copy /y \"%f\" \"!n!.lib\" & if \"!n:~0,3!\"==\"lib\" copy /y \"%f\" \"!n:~3!.lib\")\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "Adjust paths and other configurations in *.pc",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "Adjust paths and other configurations in *.pc",
+              "when": "{{'Release' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "Delete MSYS file",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "del /q /f *.a *.la *.def"
+            },
+            {
+             "message": "Delete MSYS file",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$dist_dir_release\\lib",
+              "script": "del /q /f *.a *.la *.def"
+            }
+          ]
+        }
+      }
+    },
+    "R73": {}
+  }
+}

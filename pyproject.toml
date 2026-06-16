@@ -25,7 +25,8 @@ dependencies = [
     "setuptools<81.0.0",
     "markdown",
     "mako",
-    "pydevd"
+    "pydevd",
+    "Cython"
 ]
 
 [tool.setuptools]

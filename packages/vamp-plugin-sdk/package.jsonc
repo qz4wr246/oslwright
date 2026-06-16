@@ -198,11 +198,11 @@
           "scripts": [
             {
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "rmdir /s /q \"$build_dir_debug\" & timeout /t 3 /nobreak & mkdir \"$build_dir_debug\""
+              "script": "rmdir /s /q \"$build_dir_debug\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_debug\""
             },
             {
               "when": "{{'Release' in $build_type }}",
-              "script": "rmdir /s /q \"$build_dir_release\" & timeout /t 3 /nobreak & mkdir \"$build_dir_release\""
+              "script": "rmdir /s /q \"$build_dir_release\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_release\""
             },
             {
               "message": "config for debug.",
