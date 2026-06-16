@@ -14,6 +14,7 @@ OSLWrightで使用されるパッケージ定義ファイル(package.jsonc)の�
   | package-cmake.jsonc| CMakeでライブラリをビルドする|
   | package-meson.jsonc| mesonでライブラリをビルドする|
   | package-cmake-interface.jsonc| ヘッダオンリーライブラリをビルドする|
+  | package-msys2.jsonc| msys2でライブラリをビルドする|
 
 ---
 ## フォーマット仕様
@@ -204,8 +205,10 @@ package.jsonc は、json5で記述します。
 | `$latest_version` | 最新バージョン番号 |
 | `$pkg_config_path_release` | Release 用 pkg-config パス |
 | `$pkg_config_path_release` | Debug 用 pkg-config パス |
-| `$dependent_dlls_debug` | Release 用 依存 DLL のリスト |
+| `$dependent_dlls_release` | Release 用 依存 DLL のリスト |
 | `$dependent_dlls_debug` | Debug 用 依存 DLL のリスト |
+| `$dependent_libs_release` | Release 用 依存 Lib のリスト |
+| `$dependent_libss_debug` | Debug 用 依存 Lib のリスト |
 ---
 
 ### 8. オーバレイ機構
