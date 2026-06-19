@@ -1,231 +1,271 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+use File::Find;
 use File::Spec;
 use File::Basename;
-use File::Find;
+use Getopt::Long qw(:config pass_through);
 
-# 1. Command Line Arguments Validation
+# ==============================================================================
+# 1. Command Line Arguments & Validation
+# ==============================================================================
+
+my $dry_run = 0;
+GetOptions('dry-run' => \$dry_run);
+
 if (@ARGV < 3) {
-    print STDERR "Usage: perl $0 <pc_file_name> <absolute_rootdir_path> <package_dir_name> [--dry-run]\n";
+    print STDERR "Usage: perl $0 <pc_file_name_or_path> <absolute_rootdir_path> <package_dir_name> [--dry-run]\n";
     exit 1;
 }
 
-my ($target_pc_name, $rootdir, $package_dir, $dry_run_flag) = @ARGV;
+my ($pc_input_arg, $absolute_rootdir_path, $package_dir_name) = @ARGV;
 
-# Check if dry-run mode is enabled
-my $is_dry_run = 0;
-if (defined $dry_run_flag && $dry_run_flag eq '--dry-run') {
-    $is_dry_run = 1;
+$pc_input_arg          =~ s/\\/\//g;
+$absolute_rootdir_path =~ s/\\/\//g;
+$package_dir_name      =~ s/\\/\//g;
+
+my $pc_file_name = basename($pc_input_arg);
+
+$absolute_rootdir_path =~ s/\/+$//;
+$package_dir_name      =~ s/\/+$//;
+
+my $search_base_dir = "$absolute_rootdir_path/$package_dir_name";
+
+if (!-d $search_base_dir) {
+    print STDERR "Error: Directory '$search_base_dir' does not exist.\n";
+    exit 1;
+}
+
+if ($dry_run) {
     print "=== DRY-RUN MODE ENABLED (No files will be modified) ===\n\n";
 }
 
-# Normalize target_pc_name (convert backslashes to forward slashes)
-$target_pc_name =~ s/\\/\//g;
+# ==============================================================================
+# 2. Directory Recursive Search & File Processing
+# ==============================================================================
 
-# Normalize paths to use forward slashes and eliminate duplicate slashes
-$rootdir = File::Spec->rel2abs($rootdir);
-$rootdir =~ s/\\/\//g;
-$rootdir =~ s/\/+/\//g;
-$rootdir =~ s/\/$//; # Remove trailing slash
+my @target_files;
+my $escaped_base = quotemeta($search_base_dir);
+my $escaped_file = quotemeta($pc_file_name);
 
-$package_dir =~ s/\\/\//g;
-$package_dir =~ s/\/+/\//g;
-$package_dir =~ s/^\///; # Remove leading slash
-$package_dir =~ s/\/$//; # Remove trailing slash
+my $file_match_regex = qr/^$escaped_base\/.*\/pkgconfig\/$escaped_file$/i;
 
-my $full_package_path = "$rootdir/$package_dir";
-
-if (!-d $full_package_path) {
-    print STDERR "Error: Target directory '$full_package_path' does not exist.\n";
-    exit 1;
-}
-
-# 2. File Search Directory Structure
-my @pc_files;
-find(sub {
-    my $current_file = $_;
-    $current_file =~ s/\\/\//g; # Normalize current file name
-
-    # Extract only the base name if target_pc_name contains a path
-    my $target_base = basename($target_pc_name);
-
-    if (-f $_ && lc($current_file) eq lc($target_base)) {
-        my $dir = $File::Find::dir;
-        $dir =~ s/\\/\//g;
-        $dir =~ s/\/+/\//g;
-
-        # Check if it matches the pattern: ${rootdir}/${package_dir}/*/pkgconfig/
-        if ($dir =~ m/^\Q$full_package_path\E\/[^\/]+\/pkgconfig$/i) {
-            push @pc_files, $File::Find::name;
+find({
+    wanted => sub {
+        my $current_path = $File::Find::name;
+        $current_path =~ s/\\/\//g;
+        if ($current_path =~ $file_match_regex) {
+            push @target_files, $current_path;
         }
-    }
-}, $full_package_path);
+    },
+    no_chdir => 1,
+}, $search_base_dir);
 
-if (!@pc_files) {
-    print "No matching '$target_pc_name' files found under '$full_package_path/*/pkgconfig/'.\n";
+if (!@target_files) {
+    print "No matching '$pc_file_name' files found under specified directory structure ($search_base_dir).\n";
     exit 0;
 }
 
-# Helper function to calculate relative path between two absolute paths
-sub compute_relative_path {
-    my ($from_dir, $to_dir) = @_;
-
-    # Handle case-insensitivity for Windows drive letters (e.g., C:/ vs c:/)
-    my @from_parts = split m{/}, $from_dir;
-    my @to_parts   = split m{/}, $to_dir;
-
-    shift @from_parts if @from_parts && $from_parts[0] eq '';
-    shift @to_parts if @to_parts && $to_parts[0] eq '';
-
-    # Safely find the common prefix using index-based loop to prevent syntax errors
-    my $common_count = 0;
-    while ($common_count < @from_parts && $common_count < @to_parts) {
-        if (lc($from_parts[$common_count]) eq lc($to_parts[$common_count])) {
-            $common_count++;
-        } else {
-            last;
-        }
-    }
-
-    # Remove common parts
-    splice(@from_parts, 0, $common_count);
-    splice(@to_parts, 0, $common_count);
-
-    my $ups = join('/', (('..') x scalar(@from_parts)));
-    my $downs = join('/', @to_parts);
-
-    my $rel = $ups;
-    $rel .= '/' . $downs if $downs ne '';
-    return $rel;
+foreach my $pc_file (@target_files) {
+    process_pc_file($pc_file, $absolute_rootdir_path);
 }
 
-# Process each found .pc file
-foreach my $pc_file (@pc_files) {
-    $pc_file =~ s/\\/\//g;
-    my $pcfiledir = dirname($pc_file);
+# ==============================================================================
+# 3. Core Processing Logic
+# ==============================================================================
 
-    # Read the file content
-    my $read_fh;
-    if (!open($read_fh, '<', $pc_file)) {
-        print STDERR "Warning: Could not open '$pc_file' for reading: $!\n";
-        next;
+sub process_pc_file {
+    my ($file_path, $rootdir_path) = @_;
+
+    my $dirname = dirname($file_path);
+    my $fh;
+    my @lines;
+    my $original_prefix = '';
+    my @new_lines;
+    my @diffs;
+    my $is_changed = 0;
+    my $line_num = 0;
+
+    my $orig_line;
+    my $chomped_line;
+    my $diff;
+    my $out;
+
+    # ファイルの全行を読み込み
+    if (!open($fh, '<', $file_path)) {
+        print STDERR "Error: Cannot open file for reading: $file_path ($!)\n";
+        return;
     }
-    my @lines = <$read_fh>;
-    close($read_fh);
+    @lines = <$fh>;
+    close($fh);
 
-    my $original_prefix = undef;
-
-    # First pass: Identify the original absolute prefix path
+    # ステップ1：ファイル全体から prefix=... の絶対パスを抽出
     foreach my $line (@lines) {
-        if ($line =~ /^prefix\s*=\s*(.+)$/) {
+        if ($line =~ /^\s*prefix\s*=\s*(.+)$/) {
             $original_prefix = $1;
-            $original_prefix =~ s/\s+$//; # trim trailing whitespace
+            $original_prefix =~ s/\s+$//;
             $original_prefix =~ s/\\/\//g;
-            $original_prefix =~ s/\/+/\//g;
             last;
         }
     }
 
-    if (!defined $original_prefix) {
-        print "Skipping '$pc_file': No 'prefix' variable defined.\n";
-        next;
+    if (!$original_prefix || $original_prefix =~ /\$\{/) {
+        $original_prefix = $search_base_dir;
     }
 
-    my @new_lines;
-    my $changed = 0;
-    my @preview_diffs;
-
-    # Second pass: Rewrite variables and flags
+    # ステップ2：確定した original_prefix を用いて各行の書き換えを実行
     foreach my $line (@lines) {
-        my $orig_line = $line;
-        chomp $line;
+        $line_num++;
+        $orig_line = $line;
+        chomp($orig_line);
 
-        # 3. Rewriting 'prefix' line
-        if ($line =~ /^prefix\s*=\s*(.+)$/) {
-            my $new_val = "prefix=\${pcfiledir}/../..";
-            if ($line ne $new_val) {
-                $line = $new_val;
-                $changed = 1;
-            }
+        # 3.1. Rewrite 'prefix' line
+        if ($line =~ /^(\s*prefix\s*=).+$/) {
+            $line = "${1}\${pcfiledir}/../..\n";
         }
-        # 3. Rewriting Core Variables (exec_prefix, libdir, includedir)
-        elsif ($line =~ /^(exec_prefix|libdir|includedir)\s*=\s*(.+)$/) {
-            my $var_name = $1;
-            my $var_val = $2;
+        # 3.2. 任意の『変数名=絶対パス』を判定して相対化
+        elsif ($line =~ /^(\s*([a-zA-Z0-9_-]+)\s*=)\s*(.+)$/) {
+            my $prefix_part = $1;
+            my $var_name    = $2;
+            my $var_val     = $3;
             $var_val =~ s/\\/\//g;
 
-            # Case-insensitive replacement for paths
-            if ($var_val =~ s/^\Q$original_prefix\E/\${prefix}/i) {
-                $line = "$var_name=$var_val";
-                $changed = 1;
+            if ($var_name ne 'prefix') {
+                if (lc(substr($var_val, 0, length($original_prefix))) eq lc($original_prefix)) {
+                    my $sub_path = substr($var_val, length($original_prefix));
+                    $line = $prefix_part . "\${prefix}" . $sub_path . "\n";
+                }
             }
         }
-        # 4. Rewriting 'Libs:' and 'Cflags:'
-        elsif ($line =~ /^(Libs|Cflags)\s*:\s*(.+)$/) {
-            my $field_name = $1;
-            my $field_val = $2;
-            $field_val =~ s/\\/\//g;
-
-            # Match flags or absolute paths (supporting Windows drive letters like C:/)
-            $field_val =~ s{([=-][-ILeE])?(([a-zA-Z]:)?/[^\s]+)}{
-                my $prefix_flag = $1 // '';
-                my $abs_path = $2;
-                $abs_path =~ s/\/+/\//g;
-
-                my $replacement = $prefix_flag . $abs_path;
-
-                # Internal: Path points inside the current project prefix
-                if ($abs_path =~ m/^\Q$original_prefix\E(\/|$)/i) {
-                    my $rest = substr($abs_path, length($original_prefix));
-
-                    if ($rest eq '/lib') {
-                        $replacement = $prefix_flag . '${libdir}';
-                    } elsif ($rest eq '/include') {
-                        $replacement = $prefix_flag . '${includedir}';
-                    } else {
-                        $replacement = $prefix_flag . '${prefix}' . $rest;
-                    }
-                }
-                # External: Path points to external companion projects under the same rootdir
-                elsif ($abs_path =~ m/^\Q$rootdir\E(\/|$)/i) {
-                    my $rel_path = compute_relative_path($pcfiledir, $abs_path);
-                    $replacement = $prefix_flag . '${pcfiledir}/' . $rel_path;
-                }
-
-                $replacement;
+        # 3.3. 【強化】Libs, Cflags, Requires などを含む全メタデータ行内の絶対パスを相対化
+        # 従来の「Libs:」「Cflags:」前方一致ルールを「フラグ行全般（コロンを含む行）」に拡張
+        elsif ($line =~ /^[a-zA-Z0-9._-]+\s*:/) {
+            # 正規表現を調整：ハイフンと任意の1文字フラグ（-L, -C, -I等）に結合した絶対パスをキャッチ
+            $line =~ s{((?:-[a-zA-Z])?\s*)(([a-zA-Z]:)?/[^\s]+)}{
+                replace_path_callback($1, $2, $original_prefix, $rootdir_path, $dirname);
             }eg;
-
-            $line = "$field_name: $field_val";
         }
 
-        my $final_line = $line . "\n";
-        push @new_lines, $final_line;
+        push @new_lines, $line;
 
-        if ($orig_line ne $final_line) {
-            $changed = 1;
-            my $clean_orig = $orig_line;
-            $clean_orig =~ s/\r?\n$//;
-            push @preview_diffs, "  - $clean_orig\n  + $line";
+        $chomped_line = $line;
+        chomp($chomped_line);
+        if ($orig_line ne $chomped_line) {
+            $is_changed = 1;
+            push @diffs, { num => $line_num, before => $orig_line, after => $chomped_line };
         }
     }
 
-    # 5. Output Messages & Overwrite
-    if ($changed) {
-        if ($is_dry_run) {
-            print "File to be updated: $pc_file\n";
-            print join("\n", @preview_diffs), "\n\n";
-        } else {
-            my $write_fh;
-            if (!open($write_fh, '>', $pc_file)) {
-                print STDERR "Error: Could not open '$pc_file' for writing: $!\n";
-                next;
-            }
-            print $write_fh @new_lines;
-            close($write_fh);
-            print "Successfully updated relative paths in: $pc_file\n";
+    # 5. Output and Constraints Execution
+    print "File: $file_path\n";
+    if (!$is_changed) {
+        print " -> No changes needed\n\n";
+        return;
+    }
+
+    if ($dry_run) {
+        print " -> Changes Preview:\n";
+        foreach $diff (@diffs) {
+            print "    Line $diff->{num}:\n";
+            print "      [-] $diff->{before}\n";
+            print "      [+] $diff->{after}\n";
         }
+        print "\n";
     } else {
-        print "No changes needed for: $pc_file\n";
+        if (!open($out, '>', $file_path)) {
+            print STDERR "Error: Cannot open file for writing: $file_path ($!)\n";
+            return;
+        }
+        print $out join('', @new_lines);
+        close($out);
+        print " -> Overwritten successfully\n\n";
     }
+}
+
+# ==============================================================================
+# 4. Helper Functions: Path Processing & Relative Calculation
+# ==============================================================================
+
+sub replace_path_callback {
+    my ($prefix_flag, $raw_path, $original_prefix, $absolute_rootdir_path, $dirname) = @_;
+
+    my $norm_path = $raw_path;
+    $norm_path =~ s{\\}{/}g;
+
+    my $replacement = $raw_path;
+
+    # Case A: 内部パス (original_prefix 配下)
+    if (lc(substr($norm_path, 0, length($original_prefix))) eq lc($original_prefix)) {
+        my $relative_part = substr($norm_path, length($original_prefix));
+        $relative_part =~ s{^\/+}{};
+
+        if ($relative_part =~ m{^lib(?:\/|$)}i) {
+            $relative_part =~ s{^lib(?:\/|)}{};
+            $replacement = "\${libdir}" . ($relative_part ne "" ? "/$relative_part" : "");
+        }
+        elsif ($relative_part =~ m{^include(?:\/|$)}i) {
+            $relative_part =~ s{^include(?:\/|)}{};
+            $replacement = "\${includedir}" . ($relative_part ne "" ? "/$relative_part" : "");
+        }
+        else {
+            $replacement = "\${prefix}/" . $relative_part;
+        }
+    }
+    # Case B: 外部パス (同じ rootdir の別プロジェクト、またはそれ以外の絶対パス)
+    # 渡された $absolute_rootdir_path の配下にあれば、そこを起点として相対パスを計算
+    elsif (lc(substr($norm_path, 0, length($absolute_rootdir_path))) eq lc($absolute_rootdir_path)) {
+        my $rel_path = calculate_relative_path($dirname, $norm_path);
+        $replacement = "\${pcfiledir}/" . $rel_path;
+    }
+    # Case C: 今回の UCRT64（MSYS2）のように、全く異なる絶対パス空間を指している場合
+    # ドライブレターが同じ、もしくはパスの相対化が可能な場合は $dirname からそのまま相対パスを生成
+    else {
+        my $rel_path = calculate_relative_path($dirname, $norm_path);
+        $replacement = "\${pcfiledir}/" . $rel_path;
+    }
+
+    return $prefix_flag . $replacement;
+}
+
+sub calculate_relative_path {
+    my ($from_dir, $to_path) = @_;
+
+    $from_dir =~ s/^[a-zA-Z]://;
+    $to_path   =~ s/^[a-zA-Z]://;
+
+    my @from_parts = split(m{/}, $from_dir);
+    my @to_parts   = split(m{/}, $to_path);
+
+    if (@from_parts) {
+        my $first_from = $from_parts[0];
+        shift @from_parts if defined $first_from && $first_from eq '';
+    }
+    if (@to_parts) {
+        my $first_to = $to_parts[0];
+        shift @to_parts if defined $first_to && $first_to eq '';
+    }
+
+    my $common_index = 0;
+    while ($common_index < @from_parts && $common_index < @to_parts) {
+        my $from_segment = $from_parts[$common_index];
+        my $to_segment   = $to_parts[$common_index];
+
+        if (lc($from_segment) eq lc($to_segment)) {
+            $common_index++;
+        } else {
+            last;
+        }
+    }
+
+    my $up_count = @from_parts - $common_index;
+    my @rel_parts;
+    for (my $i = 0; $i < $up_count; $i++) {
+        push @rel_parts, '..';
+    }
+
+    for (my $i = $common_index; $i < @to_parts; $i++) {
+        push @rel_parts, $to_parts[$i];
+    }
+
+    return join('/', @rel_parts);
 }
