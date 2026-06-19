@@ -305,6 +305,9 @@
         "libxml2": {
           "version": ">=2.11"
         },
+        "libzmq": {
+          "version": ">=4.3"
+        },
         "openal": {
           "version": ">=1.25"
         },
@@ -378,7 +381,7 @@
           "version": ">=0.4"
         },
         "uavs3d": {
-          "version": ">=1.1"
+          "version": ">=1.1.1"
         },
         "vapoursynth": {
           "version": "==R73"
@@ -391,6 +394,7 @@
           "version": ">=3.1"
         },
         "vo-amrwbenc": {
+          "enable": "{{$enable_version3}}",
           "version": ">=0.1"
         },
         "vorbis": {
@@ -400,6 +404,9 @@
         "vulkan-loader": {},
         "vvenc": {
           "version": ">=1.14"
+        },
+        "whisper-cpp": {
+          "version": ">=1.8"
         },
         "x264": {
           "enable": "{{$enable_gpl}}"
@@ -499,6 +506,9 @@
             {
               "chdir": "${source_dir}\\libavfilter",
               "copy": "$package_dir\\pathtools.c"
+            },
+            {
+              "local": "$package_dir\\fix_configure_uavs3d_version.patch"
             }
           ],
           "scripts": [
@@ -518,8 +528,8 @@
             "--enable-w32threads",
             "{{'--enable-shared --disable-static' if 'shared' in $build_library else ''}}",
             "{{'--enable-static --pkg-config-flags=--static' if 'static' in $build_library else ''}}",
-            "{{'--extra-cflags=\\'-DZLIB_DLL -MD -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-cxxflags=\\'-DZLIB_DLL -MD -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:libcmt.lib legacy_stdio_definitions.lib\\'' if 'md' == $msvc_runtime_library else ''}}",
-            "{{'--extra-cflags=\\'-DZLIB_DLL -MT -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-cxxflags=\\'-DZLIB_DLL -MT -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:msvcrt.lib legacy_stdio_definitions.lib\\'' if 'mt' == $msvc_runtime_library else ''}}",
+            "{{'--extra-cflags=\\'-DZLIB_DLL -MD -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-cxxflags=\\'-DZLIB_DLL -MD -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:libcmt.lib legacy_stdio_definitions.lib advapi32.lib\\'' if 'md' == $msvc_runtime_library else ''}}",
+            "{{'--extra-cflags=\\'-DZLIB_DLL -MT -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-cxxflags=\\'-DZLIB_DLL -MT -utf-8 -Zc:char8_t- -I/opt/ucrt64/include\\' --extra-ldflags=\\'-LIBPATH:/opt/ucrt64/lib /nodefaultlib:msvcrt.lib legacy_stdio_definitions.lib advapi32.lib\\'' if 'mt' == $msvc_runtime_library else ''}}",
             "--disable-stripping",
 
             // Component options:
@@ -630,7 +640,7 @@
             "--enable-libuavs3d",        // enable AVS3 decoding via libuavs3d [no]
             "{{'--enable-libvidstab' if $enable_gpl else ''}}",    //  enable video stabilization using vid.stab [no]
             "--enable-libvmaf",          // enable vmaf filter via libvmaf [no]
-            "--enable-libvo-amrwbenc",   // enable AMR-WB encoding via libvo-amrwbenc [no]
+            "{{'--enable-libvo-amrwbenc' if $enable_version3 else ''}}",   // enable AMR-WB encoding via libvo-amrwbenc [no]
             "--enable-libvorbis",        // enable Vorbis en/decoding via libvorbis, native implementation exists [no]
             "--enable-libvpx",           // enable VP8 and VP9 de/encoding via libvpx [no]
             "--enable-libvvenc",         // enable H.266/VVC encoding via vvenc [no]
@@ -660,7 +670,7 @@
             "{{'--enable-openssl' if $ssl_library == 'openssl' else ''}}",  // enable openssl, needed for https support if gnutls, libtls or mbedtls is not used [no]
             //// "--enable-pocketsphinx",    // enable PocketSphinx, needed for asr filter [no]
             "--enable-vapoursynth",     // enable VapourSynth demuxer [no]
-            // "--enable-whisper"         // enable whisper filter [no]
+            "--enable-whisper"         // enable whisper filter [no]
           ],
           "config_options_debug": [
             "--prefix=/opt/ffmpeg/debug",
@@ -779,7 +789,7 @@
           "template_files": [
             {
               "when": "{{'Debug' in $build_type}}",
-              "template": "${package_dir}\\activate.bat.j2",
+              "template": "${assets_rootdir}\\activate.bat.j2",
               "defines": [
                 "DEPENDENT_DLL_PATHS=\"{{${dependent_dlls_debug}.replace(${dist_rootdir} +'\\\\','')}}\""
               ],
@@ -787,7 +797,7 @@
             },
             {
               "when": "{{'Release' in $build_type}}",
-              "template": "${package_dir}\\activate.bat.j2",
+              "template": "${assets_rootdir}\\activate.bat.j2",
               "defines": [
                 "DEPENDENT_DLL_PATHS=\"{{${dependent_dlls_release}.replace(${dist_rootdir} +'\\\\','')}}\""
               ],

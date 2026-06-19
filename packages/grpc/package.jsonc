@@ -292,7 +292,7 @@
           "template_files":[
             {
               "when": "{{'Release' in $build_type}}",
-              "template": "${package_dir}\\activate.bat.j2",
+              "template": "${assets_rootdir}\\activate.bat.j2",
               "defines": [
                 "DEPENDENT_DLL_PATHS=\"{{$dependent_dlls_release.replace($dist_rootdir +'\\\\','')}}\""
               ],

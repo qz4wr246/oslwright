@@ -57,7 +57,7 @@
         "static",
         "shared;static"
       ],
-      "default": "$build_library_default"
+      "default": "shared"
     },
     {
       "display": "Build type",
@@ -191,7 +191,8 @@
             "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
-            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
+            "-DBUILD_SHARED={{'ON' if 'shared' in $build_library else 'OFF'}}",
+            "-DBUILD_STATIC={{'ON' if 'static' in $build_library else 'OFF'}}",
             "-DBUILD_TESTS=OFF",
             "-DENABLE_PRECOMPILED=ON",
             "-DWITH_LIBSODIUM={{'OM' if 'none' != $with_libsodium else 'OFF'}}",
@@ -279,13 +280,21 @@
           "scripts": [
             {
               "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22\"",
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_debug)}}\"",
               "ignore_errors": true
             },
             {
               "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22\"",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl \"${assets_rootdir}\\fix_pcfile.pl\" @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_release)}}\"",
               "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type and 'shared' in $build_library}}",
+              "script": "copy /y \"$dist_dir_release\\lib\\libzmq-{{'v'+$msvc_toolset_version[2:]}}-mt-{{$version.replace('.','_')}}.lib\" \"$dist_dir_release\\lib\\libzmq.lib\" && copy /y \"$dist_dir_release\\lib\\libzmq-{{'v'+$msvc_toolset_version[2:]}}-mt-{{$version.replace('.','_')}}.lib\" \"$dist_dir_release\\lib\\zmq.lib\""
+            },
+            {
+              "when": "{{'Release' in $build_type and 'static' == $build_library}}",
+              "script": "copy /y \"$dist_dir_release\\lib\\libzmq-{{'v'+$msvc_toolset_version[2:]}}-mt-s-{{$version.replace('.','_')}}.lib\" \"$dist_dir_release\\lib\\libzmq.lib\" && copy /y \"$dist_dir_release\\lib\\libzmq-{{'v'+$msvc_toolset_version[2:]}}-mt-s-{{$version.replace('.','_')}}.lib\" \"$dist_dir_release\\lib\\zmq.lib\""
             }
           ]
         }

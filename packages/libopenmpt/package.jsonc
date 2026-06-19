@@ -178,18 +178,7 @@
           ]
         },
         "patch": {
-          // "patch_files": [
-          //   {
-          //     "local": "${package_dir}\\libiconv_make_in.diff"
-          //   }
-          // ],
           "scripts": [
-            // {
-            //   // Patch Script: patching source code with patch_files
-            //   "message": "Patch ${name} source code",
-            //   "chdir": "$source_dir",
-            //   "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -l -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else f'curl.exe --fail -l -s -o \"{b}\" \"{p[\"fetch\"]}\" || exit /b 1') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
-            // },
             {
               "message": "reconfigure",
               "chdir": "$source_dir",
@@ -201,9 +190,8 @@
         "configure": {
           "config_options":[
             "--host=x86_64-w64-mingw32",
-            "--disable-maintainer-mode",
-            "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
-            "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}",
+            "--enable-static={{'yes' if 'static' in $build_library else 'no'}}",
+            "--enable-shared={{'yes' if 'shared' in $build_library else 'no'}}",
             "--disable-examples"
           ],
           "config_options_debug": [
@@ -290,14 +278,14 @@
         "install": {
           "scripts": [
             {
-              "message": "build for debug.",
+              "message": "install for debug.",
               "when": "{{'Debug' in $build_type}}",
               "chdir": "$build_dir_debug",
               "bash_script": "make install",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
-              "message": "build for release.",
+              "message": "install for release.",
               "when": "{{'Release' in $build_type}}",
               "chdir": "$build_dir_release",
               "bash_script": "make install",
@@ -312,6 +300,16 @@
               "message": "Copy ${name} files for release.",
               "when": "{{'Release' in $build_type}}",
               "script": "xcopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /s /e /i /y"
+            },
+            {
+              "message": "Copy dependent dll",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "copy /y \"${msys2_dir}\\ucrt64\\bin\\libstdc++-6.dll\" \"$dist_dir_debug\""
+            },
+            {
+              "message": "Copy dependent dll",
+              "when": "{{'Release' in $build_type}}",
+              "script": "copy /y \"${msys2_dir}\\ucrt64\\bin\\libstdc++-6.dll\" \"$dist_dir_release\\bin\""
             }
           ]
         },

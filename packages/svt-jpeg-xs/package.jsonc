@@ -257,11 +257,40 @@
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22\"",
               "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "copy /y SvtJpegxs.lib libSvtJpegxs.lib"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$dist_dir_release\\lib",
+              "script": "copy /y SvtJpegxs.lib libSvtJpegxs.lib"
             }
           ]
         }
       }
     },
-    "0.9.0": {}
+    "0.9.0": {
+      "stages": {
+        "post-install": {
+          "scripts!append": [
+              {
+                "when": "{{'Debug' in $build_type}}",
+                "script": "move /y \"$dist_dir_debug\\lib\\SvtJpegxs.dll\" \"$dist_dir_debug\\bin\""
+              },
+              {
+                "when": "{{'Release' in $build_type}}",
+                "script": "move /y \"$dist_dir_release\\lib\\SvtJpegxs.dll\" \"$dist_dir_release\\bin\""
+              }
+          ]
+        }
+      }
+    },
+    "0.10.0-pre": {
+      "git_tag": "main",
+      "git_hash": "8e50180"
+    }
   }
 }

@@ -1,0 +1,59 @@
+@echo off
+setlocal enabledelayedexpansion
+
+:: =============================================================
+:: 1. 事前準備と入力データの設定
+:: =============================================================
+set "OW_DEP_DIRS={{DEPENDENT_DLL_PATHS}}"
+
+set "SCRIPT_DIR=%~dp0"
+set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
+for %%I in ("%SCRIPT_DIR%\..\..") do set "ROOT_DIR=%%~fI"
+
+:: =============================================================
+:: 2. カレントディレクトリ直下に「_dlls」フォルダを作成
+:: =============================================================
+set "DLL_TARGET_DIR=%CD%\_dep_dlls"
+
+if exist "%DLL_TARGET_DIR%" rmdir /s /q "%DLL_TARGET_DIR%"
+mkdir "%DLL_TARGET_DIR%"
+
+:: =============================================================
+:: 3. すべての依存フォルダから *.dll を探してシンボリックコピー
+:: =============================================================
+echo Creating symbolic links for DLLs...
+
+for %%A in (%OW_DEP_DIRS%) do (
+    set "search_dir=%ROOT_DIR%\%%A"
+
+    if exist "!search_dir!" (
+        for %%F in ("!search_dir!\*.dll") do (
+            set "dll_name=%%~nxF"
+            set "src_path=%%~fF"
+            set "dst_path=%DLL_TARGET_DIR%\!dll_name!"
+
+            if not exist "!dst_path!" (
+                mklink "!dst_path!" "!src_path!" >nul 2>&1
+                if errorlevel 1 (
+                    copy /y "!src_path!" "!dst_path!" >nul
+                )
+            )
+        )
+    )
+)
+
+:: =============================================================
+:: 4. 「_dlls」だけを PATH に追加してサブシェルを起動
+:: =============================================================
+echo Sub-shell started. PATH will reset on exit.
+
+cmd.exe /k "set "PATH=%DLL_TARGET_DIR%;%PATH%""
+
+:: =============================================================
+:: 5. サブシェル終了後の後片付け（リセット処理）
+:: =============================================================
+if exist "%DLL_TARGET_DIR%" rmdir /s /q "%DLL_TARGET_DIR%"
+
+endlocal
+echo Environment has been reset.
+pause

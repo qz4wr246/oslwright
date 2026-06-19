@@ -183,6 +183,9 @@
             },
             {
               "local": "$package_dir\\fix_shine_l3mdct_h.diff"
+            },
+            {
+              "local": "$package_dir\\fix_shine_pc.diff"
             }
           ],
           "scripts": [

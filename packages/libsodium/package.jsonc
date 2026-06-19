@@ -265,6 +265,18 @@
               "script": "jinja2 {{' '.join($jinja2_options)}} \"$libsodium_pc_j2\" > \"$dist_dir_debug\\lib\\pkgconfig\\$libsodium_pc\""
             }
           ]
+        },
+        "post-install": {
+          "scripts": [
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "copy /y \"$dist_dir_release\\lib\\libsodium.lib\" \"$dist_dir_release\\lib\\sodium.lib\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "copy /y \"$dist_dir_release\\lib\\libsodium.lib\" \"$dist_dir_release\\lib\\sodium.lib\""
+            }
+          ]
         }
       }
     },

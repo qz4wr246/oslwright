@@ -5,7 +5,7 @@
   "site": "https://openai.com/index/whisper/",
   "license": "MIT License",
   "info": "info.md",
-  "process_time": 300,
+  "process_time": 70,
   "options": [
     {
       "display": "Version",

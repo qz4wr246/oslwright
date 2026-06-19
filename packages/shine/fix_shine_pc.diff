@@ -1,0 +1,10 @@
+diff --git a/shine.pc.in b/shine.pc.in
+index 7a7e088..c9c871d 100644
+--- a/shine.pc.in
++++ b/shine.pc.in
+@@ -7,4 +7,4 @@ Name: shine
+ Description: Fixed-point mp3 encoding library.
+ Version: @VERSION@
+ Cflags: -I${includedir}
+-Libs: -L${libdir} -lm -lshine
++Libs: -L${libdir} -lshine
