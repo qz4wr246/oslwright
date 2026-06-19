@@ -131,9 +131,9 @@ class PackageService(FletXService):
             return self.create_default_option(package)
 
     def save_option(self, option: PackageOptionModel):
-        if option.path:
-            with option.path.open("w", encoding="utf-8", newline="\n") as f:
-                json.dump(option.to_dict(), f, ensure_ascii=False, indent=2, quote_keys=True)
+        path = self.platform_service.option_rootdir / f"{option.name}_options.jsonc"
+        with path.open("w", encoding="utf-8", newline="\n") as f:
+            json.dump(option.to_dict(), f)
 
     def create_default_option(self, package: PackageModel, session: dict | None = None) -> PackageOptionModel:
         if not session:
@@ -156,10 +156,7 @@ class PackageService(FletXService):
                     items[k] = evaluate_str(v, session) if isinstance(v, str) else v
                     session[k] = items[k]
             versions[ver] = PackageOptionItem(options=items, stages=None)
-        path = self.platform_service.option_rootdir / f"{package.name}_options.jsonc"
-        return PackageOptionModel(
-            name=package.name, current_version=package.latest_version, versions=versions, path=path
-        )
+        return PackageOptionModel(name=package.name, current_version=package.latest_version, versions=versions)
 
     def get_versions(self, package: PackageModel) -> List[str]:
         return [k for k in package.versions.keys() if k != "default"]

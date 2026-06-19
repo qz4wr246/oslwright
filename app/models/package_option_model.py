@@ -1,5 +1,4 @@
 from dataclasses import asdict, dataclass
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from dacite import Config, from_dict
@@ -69,25 +68,20 @@ class PackageOptionModel:
     name: str
     current_version: str
     versions: Dict[str, PackageOptionItem]
-    path: Optional[Path] = None
 
     # -------------------------
     # JSON / dict 変換メソッド
     # -------------------------
 
     def to_dict(self) -> Dict[str, Any]:
-        """dataclass → dict（Path を文字列に変換）"""
+        """dataclass → dict"""
         data = asdict(self)
-        if data["path"] is not None:
-            data["path"] = str(data["path"])
         return data
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "PackageOptionModel":
         """dict → dataclass（dacite を使用）"""
-        # Path を自動変換するための設定
-        config = Config(type_hooks={Path: lambda x: Path(x) if x else None})
-        return from_dict(data_class=cls, data=data, config=config)
+        return from_dict(data_class=cls, data=data)
 
     def clone(self) -> "PackageOptionModel":
         return PackageOptionModel.from_dict(self.to_dict())
