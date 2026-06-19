@@ -1,11 +1,11 @@
 {
-  "name": "gnutls",
-  "display": "GnuTLS",
-  "description": "TLS/SSL and crypto library",
-  "site": "https://www.gnutls.org/",
-  "license": "GPL-3.0+ OR LGPL-2.1+",
+  "name": "libcdio-paranoia",
+  "display": "libcdio-paranoia",
+  "description": "CD paranoia libraries from libcdio",
+  "site": "https://www.gnu.org/software/libcdio/",
+  "license": "GPL 2.0 or later",
   "info": "info.md",
-  "process_time": 1800,
+  "process_time": 270,
   "options": [
     {
       "display": "Version",
@@ -41,13 +41,12 @@
     {
       "display": "MSVC runtime library",
       "name": "msvc_runtime_library",
-      "enable": false,
       "type": "choice",
       "items": [
         "mt",
         "md"
       ],
-      "default": "md"
+      "default": "$msvc_runtime_library_default"
     },
     {
       "display": "Build library",
@@ -63,7 +62,6 @@
     {
       "display": "Build type",
       "name": "build_type",
-      "enable": false,
       "type": "choice",
       "items": [
         "Release",
@@ -96,82 +94,38 @@
       "type": "choice",
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
-    },
-        {
-      "display": "Enable Tools",
-      "name": "enable_tools",
-      "type": "bool",
-      "default": false
-    },
-    {
-      "display": "With Zlib",
-      "name": "with_zlib",
-      "type": "bool",
-      "default": true
-    },
-    {
-      "display": "With brotli",
-      "name": "with_brotli",
-      "type": "bool",
-      "default": true
-    },
-    {
-      "display": "With zstd",
-      "name": "with_zstd",
-      "type": "bool",
-      "default": true
-    },
-    {
-      "display": "With libidn2",
-      "name": "with_libidn2",
-      "type": "bool",
-      "default": true
     }
   ],
   "versions": {
     "default": {
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
+      "download_url": "https://ftp.gnu.org/gnu/libcdio/${name}-${version}.tar.bz2",
+      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
+      "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "dependencies": {
-        "zlib": {
-          "enable": "{{$with_zlib}}",
-          "version": ">=1.3"
-        },
-        "brotli": {
-          "enable": "{{$with_brotli}}",
-          "version": ">=1.1"
-        },
-        "zstd": {
-          "enable": "{{$with_zstd}}",
-          "version": ">=1.5"
-        },
-        "nettle": {
-          "version": "==3.10.2"
-        },
-        "libunistring": {
-          "version": ">=1.4"
-        },
-        "libtasn1": {
-          "version": ">=4.21.0"
-        },
-        "gmp": {
-          "version": ">=6.3"
-        },
-        "libiconv": {
-          "version": ">=1.19"
-        },
-        "libidn2": {
-          "enable": "{{$with_libidn2}}",
+        "libcdio": {
           "version": ">=2.3"
         }
       },
       "environments": {
         "LC_ALL": "C",
         "MSYS": "winsymlinks:nativestrict",
-        "MSYSTEM": "MSYS",
+        "MSYSTEM": "UCRT64",
         "CHERE_INVOKING": "1",
-        "MSYS2_PATH_TYPE": "inherit",
+        // "MSYS2_PATH_TYPE": "inherit",
         "CC": "/ucrt64/bin/gcc.exe",
         "CXX": "/ucrt64/bin/g++.exe",
         "LD": "/ucrt64/bin/ld.exe",
+        "AS": "/ucrt64/bin/nasm.exe",
         "AR": "/ucrt64/bin/ar.exe",
         "RANLIB": "/ucrt64/bin/ranlib.exe",
         "STRIP": "/ucrt64/bin/strip.exe",
@@ -179,25 +133,14 @@
         "OBJCOPY": "/ucrt64/bin/objcopy.exe",
         "OBJDUMP": "/ucrt64/bin/objdump.exe",
         "CPPFLAGS": "-I/opt/ucrt64/include",
+        "CFLAGS": "-Wno-incompatible-pointer-types",
+        "ASFLAGS": "-w-all",
         "LDFLAGS": "-L/opt/ucrt64/lib",
         "SED": "/usr/bin/sed.exe",
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}",
         "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}') if $cuda_enable else ''}}"
       },
-      "source_dir": "${source_rootdir}\\${name}-${version}",
-      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
-      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
-      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
-      "build_dir_debug": "${source_rootdir}\\${dist_name}-debug",
-      "build_dir_release": "${source_rootdir}\\${dist_name}-release",
-      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
-      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
-      "cache_file": "${cache_rootdir}\\gnutls-${version}.tar.xz",
-      "download_url": "https://gnupg.org/ftp/gcrypt/gnutls/v{{$version.split('.')[0] + '.' + $version.split('.')[1]}}/gnutls-${version}.tar.xz",
-      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
-      "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
-      "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "stages": {
         "download": {
           "scripts": [
@@ -206,10 +149,10 @@
               "script": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "downloads",
+              "message": "donloads",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
               "script": "curl.exe --fail -L -s -o \"$cache_file\" \"$download_url\"",
-              "fallback": "rmdir /q /s \"$source_dir\""
+              "fallback": "del /q /f \"$cache_file\""
             },
             {
               "message": "extract from cache.",
@@ -220,26 +163,20 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/${name}",
           "patch_files": [
             {
-              "remote": "$repo_url/0001-doc-fix-implicit-rule-build-failure.patch"
+              "local": "${package_dir}\\fix_getopt.diff"
             },
             {
-              "local": "$package_dir\\gnutls-3.8__header.diff"
+              "local": "${package_dir}\\fix_libcdio_cdda_pc_in.diff"
             }
           ],
           "scripts": [
             {
+              // Patch Script: patching source code with patch_files
               "message": "Patch ${name} source code",
               "chdir": "$source_dir",
               "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -l -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else f'curl.exe --fail -l -s -o \"{b}\" \"{p[\"fetch\"]}\" || exit /b 1') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
-            },
-            {
-              "message": "Clean /opt directory in msys2",
-              "bash_script": "rm -rf /opt/*",
-              "script": "${msys2_bash} \"${bash_script}\"",
-              "ignore_errors": true
             },
             {
               "message": "reconfigure",
@@ -250,37 +187,18 @@
           ]
         },
         "configure": {
-          "configure_options": [
-            "--build=x86_64-w64-mingw32",
+          "config_options":[
+            "--host=x86_64-w64-mingw32",
             "--disable-maintainer-mode",
-            "--enable-cxx",
-            "--disable-gtk-doc",
-            "--disable-doc",
-            "--disable-manpages",
-            "--disable-tests",
-            "{{'--disable-tools' if not $enable_tools else '--enable-tools'}}",
-            "--disable-nls",
-            "--disable-valgrind-tests",
-            "--disable-bash-tests",
-            "--disable-full-test-suite",
-            "--disable-hardware-acceleration",
-            "--enable-heartbeat-support",
-            "--with-default-trust-store-file=/usr/ssl/certs/ca-bundle.crt",
-            "gl_cv_clean_version_stddef=yes",
             "{{'--enable-static' if 'static' in $build_library else '--disable-static'}}",
             "{{'--enable-shared' if 'shared' in $build_library else '--disable-shared'}}",
-            "{{'--without-idn' if not $with_libidn2 else ''}}",
-            "--without-p11-kit",
-            "--without-libev-prefix",
-            "--with-zlib={{'link' if $with_zlib else 'no'}}",
-            "--with-brotli={{'link' if $with_brotli else 'no'}}",
-            "--with-zstd={{'link' if $with_zstd else 'no'}}"
+            "--disable-example-progs"
           ],
-          "configure_options_release": [
-            "--prefix=/opt/${name}/release"
-          ],
-          "configure_options_debug": [
+          "config_options_debug": [
             "--prefix=/opt/${name}/debug"
+          ],
+          "config_options_release": [
+            "--prefix=/opt/${name}/release"
           ],
           "scripts": [
             {
@@ -304,17 +222,23 @@
               "script": "rmdir /s /q \"$build_dir_release\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_release\""
             },
             {
-              "message": "configure for release.",
-              "when": "{{'Release' in $build_type}}",
-              "chdir": "$build_dir_release",
-              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($configure_options)}} {{' '.join($configure_options_release)}}",
+              "message": "config for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+              },
+              "chdir": "$build_dir_debug",
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_debug)}}",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
-              "message": "configure for debug.",
-              "when": "{{'Debug' in $build_type}}",
-              "chdir": "$build_dir_debug",
-              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($configure_options)}} {{' '.join($configure_options_debug)}}",
+              "message": "config for release.",
+              "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "PATH":"{{re.sub(r'[^;]+pkg-config[^;]+', '', '%PATH%')}}"
+              },
+              "chdir": "$build_dir_release",
+              "bash_script": "../{{os.path.basename($source_dir)}}/configure {{' '.join($config_options)}} {{' '.join($config_options_release)}}",
               "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
@@ -322,17 +246,31 @@
         "build": {
           "scripts": [
             {
+              "message": "Clean /opt/${name} directory in msys2",
+              "bash_script": "rm -rf /opt/${name}/*",
+              "script": "${msys2_bash} \"${bash_script}\"",
+              "ignore_errors": true
+            },
+            {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
+                "PERLIO": "raw"
+              },
               "chdir": "$build_dir_debug",
-              "bash_script": "make -j 4",
+              "bash_script": "make -j4",
               "script": "${msys2_bash} \"${bash_script}\""
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
+              "environments": {
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
+                "PERLIO": "raw"
+              },
               "chdir": "$build_dir_release",
-              "bash_script": "make -j 4",
+              "bash_script": "make -j4",
               "script": "${msys2_bash} \"${bash_script}\""
             }
           ]
@@ -362,25 +300,17 @@
               "message": "Copy ${name} files for release.",
               "when": "{{'Release' in $build_type}}",
               "script": "xcopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /s /e /i /y"
-            },
-            {
-              "message": "Copy dependent dll",
-              "when": "{{'Debug' in $build_type}}",
-              "script": "copy /y \"${msys2_dir}\\ucrt64\\bin\\libwinpthread-1.dll\" \"$dist_dir_debug\\bin\""
-            },
-            {
-              "message": "Copy dependent dll",
-              "when": "{{'Release' in $build_type}}",
-              "script": "copy /y \"${msys2_dir}\\ucrt64\\bin\\libwinpthread-1.dll\" \"$dist_dir_release\\bin\""
             }
           ]
         },
-        "post-install" :{
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
+        "post-install": {
           "environments": {
             "PERLIO": "raw"
           },
           "scripts": [
+            //
+            // rename dlls, and rewrite pc files to adjust for MSVC linker and library naming convention. You can set ignore_errors to true to ignore errors of these scripts, because the naming convention of library files and pc files in msys2 runtime is not consistent, and it may cause errors when renaming or rewriting.
+            //
             {
               "message": "Rename the library files to be MSVC-compatible.",
               "when":"{{'Debug' in $build_type}}",
@@ -423,12 +353,6 @@
         }
       }
     },
-    "3.8.12": {
-      "dependencies": {
-        "nettle": {
-          "version": "==3.10.2"
-        }
-      }
-    }
+    "10.2+2.0.2": {}
   }
 }

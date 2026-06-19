@@ -1,0 +1,22 @@
+--- a/src/getopt.h	2024-07-20 21:16:30.000000000 +0900
++++ b/src/getopt.h	2026-06-19 23:08:25.265572100 +0900
+@@ -166,7 +166,7 @@
+ #  endif
+ # endif
+ #else /* not __GNU_LIBRARY__ */
+-extern int getopt ();
++extern int getopt (int argc, char *const *argv, const char *optstring);
+ #endif /* __GNU_LIBRARY__ */
+
+ #ifndef __need_getopt
+--- a/src/getopt.c	2024-07-20 21:16:30.000000000 +0900
++++ b/src/getopt.c	2026-06-19 23:08:20.253021900 +0900
+@@ -147,7 +147,7 @@
+    whose names are inconsistent.  */
+
+ #ifndef getenv
+-extern char *getenv ();
++extern char *getenv (const char *);
+ #endif
+
+ #endif /* not __GNU_LIBRARY__ */

@@ -41,6 +41,8 @@ for %%A in (%OW_DEP_DIRS%) do (
         )
     )
 )
+mklink "%DLL_TARGET_DIR%\libstdc++-6.dll" "%ROOT_DIR%\..\tools\msys2\msys64\ucrt64\bin\libstdc++-6.dll" >nul 2>&1
+mklink "%DLL_TARGET_DIR%\libwinpthread-1.dll" "%ROOT_DIR%\..\tools\msys2\msys64\ucrt64\bin\libwinpthread-1.dll" >nul 2>&1
 
 :: =============================================================
 :: 4. 「_dlls」だけを PATH に追加してサブシェルを起動

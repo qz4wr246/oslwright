@@ -1,0 +1,9 @@
+--- a/libcdio_cdda.pc.in"	2026-06-19 22:12:45.718974000 +0900
++++ b/libcdio_cdda.pc.in	2026-06-19 22:14:29.239371300 +0900
+@@ -7,5 +7,5 @@
+ Description: CD paranoia CD-DA library from libcdio
+ Version: @PACKAGE_VERSION@
+ Requires: libcdio
+-Libs: -L${libdir} -lcdio_cdda -lcdio @COS_LIB@
++Libs: -L${libdir} -lcdio_cdda -lcdio
+ Cflags: -I${includedir}

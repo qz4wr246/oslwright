@@ -304,7 +304,7 @@
             {
               "message": "Copy dependent dll",
               "when": "{{'Debug' in $build_type}}",
-              "script": "copy /y \"${msys2_dir}\\ucrt64\\bin\\libstdc++-6.dll\" \"$dist_dir_debug\""
+              "script": "copy /y \"${msys2_dir}\\ucrt64\\bin\\libstdc++-6.dll\" \"$dist_dir_debug\\bin\""
             },
             {
               "message": "Copy dependent dll",

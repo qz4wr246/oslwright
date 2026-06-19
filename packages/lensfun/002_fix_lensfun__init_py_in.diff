@@ -1,0 +1,19 @@
+diff --git a/apps/lensfun/__init__.py.in b/apps/lensfun/__init__.py.in
+index ece98d66..aa7fdc3d 100644
+--- a/apps/lensfun/__init__.py.in
++++ b/apps/lensfun/__init__.py.in
+@@ -10,12 +10,12 @@ scripts that want to find or read the Lensfun database.
+ """
+ 
+ import os
+-
++import sys
+ 
+ user_local_db_path = os.path.join(
+     os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share")), "lensfun")
+ system_db_path = os.path.join("${CMAKE_INSTALL_FULL_DATAROOTDIR}", "lensfun")
+-system_db_update_path = os.path.join("/", "${CMAKE_INSTALL_LOCALSTATEDIR}", "lib", "lensfun-updates")
++system_db_update_path = os.path.join(sys.prefix, "${CMAKE_INSTALL_LOCALSTATEDIR}", "lib", "lensfun-updates")
+ 
+ 
+ def get_database_version():

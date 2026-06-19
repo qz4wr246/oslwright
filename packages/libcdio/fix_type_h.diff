@@ -1,0 +1,15 @@
+diff --git a/include/cdio/types.h b/include/cdio/types.h
+index 40f0722..20a4aa3 100644
+--- a/include/cdio/types.h
++++ b/include/cdio/types.h
+@@ -59,7 +59,9 @@ typedef uint8_t ubyte;
+    unistd.h that defines them. Such a file is provided with
+    the libcdio source, in the MSVC/missing directory */
+ #if defined(_MSC_VER)
+-#include <unistd.h>
++#include <basetsd.h>
++typedef SSIZE_T ssize_t;
++typedef int mode_t;
+ #endif
+ 
+   /* default HP/UX macros are broken */

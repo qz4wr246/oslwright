@@ -185,6 +185,9 @@
             // }
             {
               "local": "${package_dir}\\remove_document_target.diff"
+            },
+            {
+              "local": "${package_dir}\\libcdio\fix_type_h.diff"
             }
           ],
           "scripts": [
@@ -335,6 +338,16 @@
               "message": "Copy ${name} files for release.",
               "when": "{{'Release' in $build_type}}",
               "script": "xcopy \"${msys2_dir}\\opt\\${name}\\release\" \"$dist_dir_release\" /s /e /i /y"
+            },
+            {
+              "message": "Copy dependent dll",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "copy /y \"${msys2_dir}\\ucrt64\\bin\\libstdc++-6.dll\" \"$dist_dir_debug\\bin\""
+            },
+            {
+              "message": "Copy dependent dll",
+              "when": "{{'Release' in $build_type}}",
+              "script": "copy /y \"${msys2_dir}\\ucrt64\\bin\\libstdc++-6.dll\" \"$dist_dir_release\\bin\""
             }
           ]
         },

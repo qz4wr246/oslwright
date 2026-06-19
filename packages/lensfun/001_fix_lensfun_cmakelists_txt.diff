@@ -1,0 +1,58 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c5e49cf3..da402b73 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -17,6 +17,9 @@ IF (MSVC)
+ ELSE()
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wformat-security -pedantic -Wextra -fexceptions")
+ ENDIF()
++if (WIN32)
++    set(PLATFORM_WINDOWS 1)
++endif()
+
+ # version
+ SET(VERSION_MAJOR 0)
+@@ -71,7 +74,7 @@ IF(WIN32 AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+ ENDIF()
+
+ # overwrite some folders before GNUInstallDirs is loaded
+-IF (WIN32 AND NOT DEFINED CMAKE_INSTALL_DATAROOTDIR)
++IF (MSVC AND NOT DEFINED CMAKE_INSTALL_DATAROOTDIR)
+     SET(CMAKE_INSTALL_DATAROOTDIR "$ENV{ALLUSERSPROFILE}" CACHE PATH "read-only architecture-independent data root (share)")
+ ENDIF()
+
+@@ -94,15 +97,15 @@ IF(BUILD_FOR_SSE2)
+   ENDIF()
+ ENDIF()
+
+-IF(WIN32)
++IF(MSVC)
+   # base path for searching for glib on windows
+   IF(NOT GLIB2_BASE_DIR)
+     SET(GLIB2_BASE_DIR "${SOURCE_BASE_DIR}/glib-2.28.1" CACHE STRING "Base path of glib2 dir." FORCE)
+   ENDIF()
+   # install glib dll on windows next to lensfun.dll
+-  IF (GLIB2_DLL)
+-    INSTALL(FILES ${GLIB2_DLL} DESTINATION ${CMAKE_INSTALL_BINDIR})
+-  ENDIF()
++  # IF (GLIB2_DLL)
++  #   INSTALL(FILES ${GLIB2_DLL} DESTINATION ${CMAKE_INSTALL_BINDIR})
++  # ENDIF()
+ ENDIF()
+
+
+@@ -193,12 +196,12 @@ IF(BUILD_DOC)
+   ADD_SUBDIRECTORY(docs)
+ ENDIF()
+
+-IF(WIN32 AND NOT BUILD_STATIC)
++IF(MSVC AND NOT BUILD_STATIC)
+   FIND_FILE(GLIB2_DLL
+             NAMES glib-2.0-0.dll glib-2.dll glib-2-vs9.dll
+             PATHS "${GLIB2_BASE_DIR}/bin"
+             NO_SYSTEM_ENVIRONMENT_PATH)
+-  INSTALL(FILES ${GLIB2_DLL} DESTINATION ${CMAKE_INSTALL_BINDIR})
++  # INSTALL(FILES ${GLIB2_DLL} DESTINATION ${CMAKE_INSTALL_BINDIR})
+ ENDIF()
+
+ # print some information
