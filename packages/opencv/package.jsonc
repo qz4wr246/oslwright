@@ -141,6 +141,9 @@
         "openexr": {
           "version": ">=3.4"
         },
+        "jasper": {
+          "version": ">=4.2"
+        },
         "harfbuzz": {
           "version": ">=9.0"
         },

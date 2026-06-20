@@ -119,8 +119,7 @@
     "default": {
       "dependencies": {
         "ffmpeg":{
-          "version": ">=6.1;<7.0", // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
-          "build_library": "shared"
+          "version": "==8.1"
         },
         "libwebp": { // The requested libsharpyuv is bundled with libwebp.
           "version": ">=1.4"
@@ -134,7 +133,9 @@
         "libjpeg-turbo": {
           "version": ">=3.0"
         },
-        // https://github.com/xiph/rav1e (rust)
+        "rav1e": {
+          "version": ">=0.8"
+        },
         "svt-av1":{
           "version": ">=4.1"
         },
@@ -267,7 +268,7 @@
             "-DWITH_AOM_ENCODER=ON",
             "-DWITH_AOM_DECODER=ON",
             "-DWITH_SvtEnc=OFF",  // libheif is not compatible with the recent SVT-AV1 update yet.
-            "-DWITH_RAV1E=OFF",
+            "-DWITH_RAV1E=ON",
             "-DWITH_JPEG_ENCODER=ON",
             "-DWITH_JPEG_DECODER=ON",
             "-DWITH_OpenJPEG_ENCODER=ON",

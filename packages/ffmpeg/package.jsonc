@@ -112,7 +112,7 @@
       "display": "Enable version3 (LGPLv3,GPLv3)",
       "name": "enable_version3",
       "type": "bool",
-      "default": false
+      "default": true
     },
     {
       "display": "Enable non free",
@@ -126,7 +126,9 @@
       "type": "choice",
       "items": [
         "openssl",
-        "gnutls"
+        "gnutls",
+        // "libtls",
+        // "mbedtls"
       ],
       "default": "openssl"
     }
@@ -153,7 +155,7 @@
           "version": ">=3.13"
         },
         "aribb24": {
-          "enable": "{{$enable_version3}}",
+          "enable": "{{$enable_gpl}}",
           "version": ">=1.0"
         },
         "avisynth": {
@@ -569,7 +571,7 @@
             //// "--enable-jni",               // enable JNI support [no]
             "--enable-lcms2",             // enable ICC profile support via LittleCMS 2 [no]
             "--enable-libaom",            // enable AV1 video encoding/decoding via libaom [no]
-            "{{'--enable-libaribb24' if $enable_version3 else ''}}",         // enable ARIB text and caption decoding via libaribb24 [no]
+            "{{'--enable-libaribb24' if $enable_gpl else ''}}",         // enable ARIB text and caption decoding via libaribb24 [no]
             "--enable-libaribcaption",    // enable ARIB text and caption decoding via libaribcaption [no]
             "--enable-libass",            // enable libass subtitles rendering, needed for subtitles and ass filter [no]
             "--enable-libbluray",         // enable BluRay reading using libbluray [no]
@@ -660,7 +662,7 @@
             "{{'--enable-libzvbi' if $enable_gpl else ''}}",         // enable teletext support via libzvbi [no]
             //// "--enable-lv2",            // enable LV2 audio filtering [no]
             //// "{{'--enable-decklink' if $enable_nonfree else ''}}",       // enable Blackmagic DeckLink I/O support [no]
-            //// "{{'--enable-mbedtls' if $ssl_library == 'libtls' else ''}}",   // enable mbedTLS, needed for https support if openssl, gnutls or libtls is not used [no]
+            //// "{{'--enable-mbedtls' if $ssl_library == 'mbedtls' else ''}}",   // enable mbedTLS, needed for https support if openssl, gnutls or libtls is not used [no]
             "--enable-mediafoundation", // enable encoding via MediaFoundation [auto]
             "--enable-libmysofa",       // enable libmysofa, needed for sofalizer filter [no]
             //// "--enable-ohcodec",         // enable OpenHarmony Codec support [no]
