@@ -1,0 +1,11 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 77e0527f..f2fa7434 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -249,4 +249,5 @@ install ( DIRECTORY ${PROJECT_SOURCE_DIR}/include/		DESTINATION include )
+ 
+ # create the .deb and .rpm packages using cpack
+ include ( CM_linux_packages.cmake )
+-
++configure_file(libyuv.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libyuv.pc @ONLY)
++install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libyuv.pc DESTINATION lib/pkgconfig)

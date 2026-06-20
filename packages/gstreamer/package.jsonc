@@ -229,6 +229,9 @@
             },
             {
               "local": "${package_dir}\\vulkan_mkenum.py.diff"
+            },
+            {
+              "local": "${package_dir}\\fix_generate_plugins_path.diff"
             }
           ],
           "scripts": [
@@ -250,13 +253,12 @@
             "-Dintrospection=disabled",
             "-Dbase=enabled",
             "-Dgood=enabled",
-            "-Dbad=auto",
+            "-Dbad=disabled",
             "-Dugly=disabled",
             "-Dgpl={{'enabled' if $enable_gpl else 'disabled'}}",
             "--force-fallback-for=glib",
             "-Dglib-networking:openssl=enabled",
             "-Dgst-plugins-good:vpx=disabled", // vpx plugin cannot be built with the latest vpx, so disable it.
-            "-Dgst-plugins-bad:auto_features=disabled",
             "-Dgst-plugins-bad:videoparsers=enabled",
             "-Dgst-plugins-bad:nvcodec={{'enabled' if $cuda_enable and $enable_nvcodec else 'disabled'}}",
             "-Dgst-plugins-bad:openh264={{'enabled' if $enable_openh264 else 'disabled'}}",
@@ -377,24 +379,14 @@
               "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
             },
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_debug)}}\"",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
-              "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
-            },
-            {
-              "ignore_errors": true,
               "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl \"${assets_rootdir}\\fix_pcfile.pl\" @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_release)}}\"",
+              "ignore_errors": true
             }
           ]
         }

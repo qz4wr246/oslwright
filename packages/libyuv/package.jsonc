@@ -1,11 +1,11 @@
 {
-  "name": "opencv",
-  "display": "OpenCV",
-  "description": "Open Source Computer Vision Library",
-  "site": "https://opencv.org",
-  "license": "Apache 2 License",
-  "info":"info.md",
-  "process_time": 2070,
+  "name": "libyuv",
+  "display": "libyuv",
+  "description": "YUV conversion and scaling library",
+  "site": "https://chromium.googlesource.com/libyuv/libyuv",
+  "license": "BSD 3-Clause",
+  "info": "info.md",
+  "process_time": 20,
   "options": [
     {
       "display": "Version",
@@ -53,9 +53,10 @@
       "name": "build_library",
       "type": "choice",
       "items": [
-        "shared"
+        "shared",
+        "static"
       ],
-      "default": "$build_library_default"
+      "default": "shared"
     },
     {
       "display": "Build type",
@@ -63,8 +64,7 @@
       "type": "choice",
       "items": [
         "Release",
-        "Debug",
-        "Release;Debug"
+        "Debug"
       ],
       "default": "Release"
     },
@@ -76,103 +76,37 @@
         "union",
         "separation"
       ],
-      "default": "union"
+      "default": "separation"
     },
     {
       "display": "Using CUDA",
       "name": "cuda_enable",
-      "enable": "{{True if $cuda_versions else False}}",
+      "enable": false,
       "type": "bool",
-      "default": "{{$cuda_enable_default}}"
+      "default": false
     },
     {
       "display": "CUDA Version",
       "name": "cuda_version",
-      "enable": "cuda_enable",
+      "enable": "{{$cuda_enable}}",
       "type": "choice",
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
-    },
-    {
-      "display": "With FFmpeg",
-      "name": "with_ffmpeg",
-      "type": "choice",
-        "items": [
-        "none",
-        "internal",
-        "external"
-      ],
-      "default": "external"
-    },
-    {
-      "display": "With Gstreamer",
-      "name": "with_gstreamer",
-      "type": "bool",
-      "default": true
-    },
-    {
-      "display": "With VTK",
-      "name": "with_vtk",
-      "type": "bool",
-      "default": true
     }
   ],
   "versions": {
     "default": {
       "dependencies": {
-        "vtk": {
-          "version": ">=9.3"
-        },
-        "libavif":{
-          "version": ">=1.4"
-        },
-        "libpng": {
-          "version": ">=1.6"
-        },
         "libjpeg-turbo": {
           "version": ">=3.0"
-        },
-        "libwebp": {
-          "version": ">=1.4"
-        },
-        "libtiff": {
-          "version": ">=4.0"
-        },
-        "openexr": {
-          "version": ">=3.4"
-        },
-        "harfbuzz": {
-          "version": ">=9.0"
-        },
-        "freetype": {
-          "version": ">=2.13"
-        },
-        "cairo": {
-          "version": ">=1.18"
-        },
-        "icu4c": {
-          "version": ">=75.1"
-        },
-        "pixman":{
-          "version": ">=0.43"
-        },
-        "zlib": {
-          "version": ">=1.3"
-        },
-        "bzip2": {
-          "version": ">=1.0"
-        },
-        "brotli": {
-          "version": ">=1.1"
         }
       },
       "environments": {
+        "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
         "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
       },
-      "base_dir": "${source_rootdir}\\${name}-${version}",
-      "source_dir": "${base_dir}\\${name}",
-      "contrib_dir": "${base_dir}\\${name}_contrib",
+      "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
       "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
@@ -181,19 +115,12 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "contrib_cache_file": "${cache_rootdir}\\${name}_contrib-${version}.7z",
-      "git_url": "https://github.com/opencv/opencv.git",
-      "git_contrib_url" : "https://github.com/opencv/opencv_contrib",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
+      "git_url": "https://chromium.googlesource.com/libyuv/libyuv",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
           "scripts": [
-            {
-              "ignore_errors": true,
-              "when": "{{not os.path.isdir($base_dir)}}",
-              "script": "mkdir \"$base_dir\""
-            },
             {
               "when": "{{os.path.isdir($source_dir)}}",
               "script": "rmdir /q /s \"$source_dir\""
@@ -214,77 +141,51 @@
             {
               "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\""
+              "script": "7z -sccUTF-8 x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "make cache.",
               "when": "{{not os.path.isfile($cache_file)}}",
               "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
               "fallback": "del \"$cache_file\""
-            },
-            {
-              "when": "{{os.path.isfile(os.path.join($contrib_dir,'CMakeLists.txt'))}}",
-              "script": "rmdir /q /s \"$contrib_dir\""
-            },
-            {
-              "message": "git clone.",
-              "when": "{{not os.path.isdir($contrib_dir) and not os.path.isfile($contrib_cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_contrib_url \"$contrib_dir\"",
-              "fallback": "rmdir /q /s \"$contrib_dir\""
-            },
-            {
-              "message": "git checkout.",
-              "when": "{{$git_hash and os.path.isdir($contrib_dir) and not os.path.isfile($contrib_cache_file)}}",
-              "chdir": "$contrib_dir",
-              "script": "git checkout $git_hash",
-              "fallback": "rmdir /q /s \"$contrib_dir\""
-            },
-            {
-              "message": "extract from cache.",
-              "when": "{{not os.path.isdir($contrib_dir) and os.path.isfile($contrib_cache_file)}}",
-              "script": "7z x -aoa \"$contrib_cache_file\" -o\"$contrib_dir\""
-            },
-            {
-              "message": "make cache.",
-              "when": "{{not os.path.isfile($contrib_cache_file)}}",
-              "script": "7z a \"$contrib_cache_file\" \"$contrib_dir\\*\"",
-              "fallback": "del \"$contrib_cache_file\""
             }
           ]
         },
         "patch": {
-          "patch_file_01": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
+          "patch_files": [
+            {
+              "chdir": "$source_dir",
+              "copy": "$package_dir\\libyuv.pc.in"
+            },
+            {
+              "local": "$package_dir\\pkgconfig-cmake.patch"
+            }
+          ],
           "scripts": [
             {
-              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
               "chdir": "$source_dir",
-              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -l -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else f'curl.exe --fail -l -s -o \"{b}\" \"{p[\"fetch\"]}\" || exit /b 1') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             }
           ]
         },
         "configure": {
+          // "cmake_genarator": "-G \"${msvc_generator}\" -A {{'Win32' if ${build_arch} == 'x32' else 'x64'}}",
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
-            "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+            "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
+            "-DCMAKE_C_FLAGS=\"/utf-8 /Zc:char8_t-\"",
+            "-DCMAKE_CXX_FLAGS=\"/utf-8 /Zc:char8_t-\"",
+            "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
+            "-DCMAKE_DEBUG_POSTFIX=d",
             "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
-            "-DCMAKE_CXX_STANDARD=17",
-            "-DBUILD_WITH_STATIC_CRT={{'OFF' if $msvc_runtime_library == 'md' else 'ON'}}",
-            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
-            "-DOPENCV_EXTRA_MODULES_PATH=\"${contrib_dir}\\modules\"",
-            "-DWITH_CUDA={{'ON' if $cuda_enable else 'OFF'}}",
-            "-DOPENCV_DNN_CUDA={{'ON' if $cuda_enable else 'OFF'}}",
-            "-DWITH_GSTREAMER={{'ON' if $with_gstreamer else 'OFF'}}",
-            "-DWITH_VT={{'ON' if $with_vtk else 'OFF'}}",
-            "-DWIHT_FFMPEG={{'ON' if $with_ffmpeg != 'none' else 'OFF'}}",
-            "-DOPENCV_FFMPEG_SKIP_DOWNLOAD={{'ON' if $with_ffmpeg == 'external' else 'OFF'}}",
-            "-DOPENCV_ENABLE_PKG_CONFIG=ON",
-            "-DDENABLE_PRECOMPILED_HEADERS=OFF",
-            "-DBUILD_TESTS=OFF",
-            "-DBUILD_PERF_TESTS=OFF",
-            "-DBUILD_EXAMPLES=OFF",
-            "-DBUILD_opencv_apps=OFF"
+            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
+            "-DCMAKE_DOC=OFF",
+            "-DBUILD_TESTS=OFF"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -309,7 +210,7 @@
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
                 "PERLIO": "raw"
               },
-              "script": "cmake $cmake_genarator -C \"{{ os.path.join($package_dir, 'cv_options.cmake')}}\" {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\" -B \"$build_dir_debug\""
+              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\" -B \"$build_dir_debug\""
             },
             {
               "message": "config for release.",
@@ -319,18 +220,17 @@
                 "PKG_CONFIG_PATH": "$pkg_config_path_release",
                 "PERLIO": "raw"
               },
-              "script": "cmake $cmake_genarator -C \"{{ os.path.join($package_dir, 'cv_options.cmake')}}\" {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
+              "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
             }
           ]
         },
         "build": {
-          "protoc_depdll_paths": "{{';'.join([path for path in dependent_dlls_release.split(';') if 'zlib' in path or 'abseil-cpp' in path])}}",
           "scripts": [
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "PATH": "{{';'.join(['%PATH%', $protoc_depdll_paths])}}",
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
                 "PERLIO": "raw"
               },
               "script": "cmake --build \"$build_dir_debug\" --config Debug -j4"
@@ -339,7 +239,7 @@
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "PATH": "{{';'.join(['%PATH%', $protoc_depdll_paths])}}",
+                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
                 "PERLIO": "raw"
               },
               "script": "cmake --build \"$build_dir_release\" --config Release -j4"
@@ -360,8 +260,7 @@
             }
           ]
         },
-        "post-install" :{
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
+        "post-install": {
           "environments": {
             "PERLIO": "raw"
           },
@@ -380,55 +279,6 @@
         }
       }
     },
-    "4.12.0": {  // OpenCV ver 4.12.0 is compatible with GStreamer ver 1.24 , FFmpeg ver 6.x.
-      "dependencies": {
-        "abseil-cpp":{
-          "version": "==20250512.1"
-        },
-        "protobuf": {
-          "version": "==31.1"
-        },
-        "ffmpeg": {
-          "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
-          "version": ">=6.1;<7.0",   // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
-          "build_library": "shared"
-        },
-        "gstreamer": {
-          "enable": "{{$with_gstreamer}}",
-          "version": ">=1.24;<1.25",  // OpenCV ver 4.12.0 is compatible with GStreamer ver 1.24 , FFmpeg ver 6.x.
-          "build_library": "shared"
-        }
-      },
-      "stages": {
-        "patch": {
-          "patch_file_01": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff"
-        }
-      }
-    },
-    "4.13.0": {  // OpenCV ver 4.13.0 is compatible with GStreamer ver 1.28 , FFmpeg ver 8.1
-      "dependencies": {
-        "abseil-cpp":{
-          "version": "==20250512.1"
-        },
-        "protobuf": {
-          "version": "==31.1"
-        },
-        "ffmpeg": {
-          "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
-          "version": ">=8.1",
-          "build_library": "shared"
-        },
-        "gstreamer": {
-          "enable": "{{$with_gstreamer}}",
-          "version": ">=1.28",
-          "build_library": "shared"
-        }
-      },
-      "stages": {
-        "patch": {
-          "patch_file_01": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff"
-        }
-      }
-    }
+    "main@d23308a": {}
   }
 }
