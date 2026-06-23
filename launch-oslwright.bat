@@ -5,6 +5,7 @@ cd /d %_LD%
 set SCRIPT_DIR=%_LD:~0,-1%
 set SCRIPT_FILE=%~dpnx0
 set VENV_DIR=%SCRIPT_DIR%\.venv
+set __COMPAT_LAYER=RunAsInvoker
 
 cd %SCRIPT_DIR%
 chcp 65001

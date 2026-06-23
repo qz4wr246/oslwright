@@ -140,10 +140,34 @@ sub process_pc_file {
         # 3.3. 【強化】Libs, Cflags, Requires などを含む全メタデータ行内の絶対パスを相対化
         # 従来の「Libs:」「Cflags:」前方一致ルールを「フラグ行全般（コロンを含む行）」に拡張
         elsif ($line =~ /^[a-zA-Z0-9._-]+\s*:/) {
-            # 正規表現を調整：ハイフンと任意の1文字フラグ（-L, -C, -I等）に結合した絶対パスをキャッチ
-            $line =~ s{((?:-[a-zA-Z])?\s*)(([a-zA-Z]:)?/[^\s]+)}{
-                replace_path_callback($1, $2, $original_prefix, $rootdir_path, $dirname);
-            }eg;
+            # 正規表現を調整：以下の条件に合う“明示的な絶対パス”のみ置換する
+            #  - ドライブレター形式 (C:/...) または先頭スラッシュ形式 (/...)
+            #  - "/.." のような親ディレクトリ参照で始まるパスは除外
+            #  - 変数参照 (${...}) や URL (http:// 等) を含むパスは除外
+            # これにより URL や ${pcfiledir} を含む不正な置換を防ぐ
+            # 前に非空白文字がない（先頭か空白の直後）ことを確認し、URL や ${...} を含むトークンは除外
+            $line =~ s{(?<!\S)((?:-[a-zA-Z])?\s*)(([A-Za-z]:/|/)(?!\.\.)(?![^\s]*\$\{)(?![^\s]*http)[^\s]+)}{
+                my $flag = $1;
+                my $path = $2;
+                # メタデータ行の絶対パスを ${libdir}/${includedir} に置換
+                my $result_path = $path;
+                if ($path =~ m{(?:/|\\)lib(?:/|\\|$)}i) {
+                    # パス末尾に /lib があれば ${libdir} に置換
+                    $result_path = '${libdir}';
+                    # /lib/ より後ろがあればそれも含める
+                    if ($path =~ m{(?:/|\\)lib(?:/|\\)(.+)$}i) {
+                        $result_path .= '/' . $1;
+                    }
+                } elsif ($path =~ m{(?:/|\\)include(?:/|\\|$)}i) {
+                    # パス末尾に /include があれば ${includedir} に置換
+                    $result_path = '${includedir}';
+                    # /include/ より後ろがあればそれも含める
+                    if ($path =~ m{(?:/|\\)include(?:/|\\)(.+)$}i) {
+                        $result_path .= '/' . $1;
+                    }
+                }
+                $flag . $result_path;
+            }egx;
         }
 
         push @new_lines, $line;
@@ -194,9 +218,16 @@ sub replace_path_callback {
 
     my $replacement = $raw_path;
 
-    # Case A: 内部パス (original_prefix 配下)
-    if (lc(substr($norm_path, 0, length($original_prefix))) eq lc($original_prefix)) {
-        my $relative_part = substr($norm_path, length($original_prefix));
+    # ドライブレターを除去（パス正規化）
+    my $norm_path_no_drive = $norm_path;
+    $norm_path_no_drive =~ s{^[a-zA-Z]:}{};
+
+    my $original_prefix_no_drive = $original_prefix;
+    $original_prefix_no_drive =~ s{^[a-zA-Z]:}{};
+
+    # Case A: 内部パス (original_prefix 配下) - ドライブレター除去版で照合
+    if (lc(substr($norm_path_no_drive, 0, length($original_prefix_no_drive))) eq lc($original_prefix_no_drive)) {
+        my $relative_part = substr($norm_path_no_drive, length($original_prefix_no_drive));
         $relative_part =~ s{^\/+}{};
 
         if ($relative_part =~ m{^lib(?:\/|$)}i) {
@@ -213,7 +244,7 @@ sub replace_path_callback {
     }
     # Case B: 外部パス (同じ rootdir の別プロジェクト、またはそれ以外の絶対パス)
     # 渡された $absolute_rootdir_path の配下にあれば、そこを起点として相対パスを計算
-    elsif (lc(substr($norm_path, 0, length($absolute_rootdir_path))) eq lc($absolute_rootdir_path)) {
+    elsif (lc(substr($norm_path_no_drive, 0, length($absolute_rootdir_path))) eq lc($absolute_rootdir_path)) {
         my $rel_path = calculate_relative_path($dirname, $norm_path);
         $replacement = "\${pcfiledir}/" . $rel_path;
     }

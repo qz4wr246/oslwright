@@ -114,33 +114,6 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "download_url": "https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libsystre",
-      "download_files": [
-          {
-            "remote": "${download_url}/COPYING",
-            "dst": "${source_dir}\\COPYING"
-          },
-          {
-            "remote": "${download_url}/README",
-            "dst": "${source_dir}\\README"
-          },
-          {
-            "remote": "${download_url}/meson.build",
-            "dst": "${source_dir}\\meson.build"
-          },
-          {
-            "remote": "${download_url}/meson_post_install.py",
-            "dst": "${source_dir}\\meson_post_install.py"
-          },
-          {
-            "remote": "${download_url}/regex.h",
-            "dst": "${source_dir}\\regex.h"
-          },
-          {
-            "remote": "${download_url}/systre.c",
-            "dst": "${source_dir}\\systre.c"
-          }
-      ],
       "stages": {
         "download": {
           "scripts": [
@@ -151,24 +124,43 @@
             {
               "when": "{{not os.path.isdir($source_dir)}}",
               "script": "mkdir \"$source_dir\""
+            }
+          ]
+        },
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libsystre",
+          "patch_files": [
+            {
+              "fetch": "${repo_url}/COPYING",
+              "chdir": "$source_dir"
             },
             {
-              "message": "dowload sources.",
-              "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "{{' && '.join([f'curl.exe --fail -L -s -o \"{f[\"dst\"]}\" \"{f[\"url\"]}\"' for f in download_files if not os.path.exists(f['dst'])])}}",
-              "fallback": "rmdir /q /s \"$source_dir\""
+              "fetch": "${repo_url}/README",
+              "chdir": "$source_dir"
             },
             {
-              "message": "extract from cache.",
-              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z -sccUTF-8 x -aoa \"$cache_file\" -o\"$source_dir\"",
-              "fallback": "rmdir /q /s \"$source_dir\""
+              "fetch": "${repo_url}/meson.build",
+              "chdir": "$source_dir"
             },
             {
-              "message": "make cache.",
-              "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
-              "fallback": "del \"$cache_file\""
+              "fetch": "${repo_url}/meson_post_install.py",
+              "chdir": "$source_dir"
+            },
+            {
+              "fetch": "${repo_url}/regex.h",
+              "chdir": "$source_dir"
+            },
+            {
+              "fetch": "${repo_url}/systre.c",
+              "chdir": "$source_dir"
+            }
+          ],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name, b)}\" \"{b}\"' if 'fetch' in p else f'patch -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             }
           ]
         },

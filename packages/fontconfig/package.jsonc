@@ -236,7 +236,6 @@
           ]
         },
         "post-install" :{
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
           },
@@ -268,6 +267,7 @@
       }
     },
     "2.15.0": {},
-    "2.17.1": {}
+    "2.17.1": {},
+    // "2.18.1": {} // Meson version is 1.8.5 but project requires >= 1.11.0
   }
 }

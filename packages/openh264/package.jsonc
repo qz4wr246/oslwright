@@ -221,7 +221,6 @@
           ]
         },
         "post-install" :{
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
           "h264_dll_url": "http://ciscobinary.openh264.org/openh264-$version-{{ 'win64' if $build_arch == 'x64' else 'win32'}}.dll.bz2",
           "h264_dll_bz2": "$dist_dir_release\\bin\\openh264-$version-{{ 'win64' if $build_arch == 'x64' else 'win32' }}.dll.bz2",
           "environments": {
