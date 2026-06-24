@@ -17,7 +17,8 @@ dependencies = [
     "natsort",
     "pyjson5",
     "regex",
-    "meson==1.8.*",  # Please use Meson 1.8.* for GStreamer 1.24.*
+    # "meson==1.8.*",  # Please use Meson 1.8.* for GStreamer 1.24.*
+    "meson==1.11.*",
     "ninja",
     "jinja2-cli",
     "numpy",  # using opencv configuer

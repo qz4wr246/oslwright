@@ -8,7 +8,8 @@ lark
 natsort
 pyjson5
 regex
-meson==1.8.*
+# meson==1.8.*
+meson
 ninja
 jinja2-cli
 numpy

@@ -153,7 +153,7 @@
           "enable": "{{$enable_openh264}}",
           "version": ">=2.6"
         },
-        // 1.24.13 cannot build with external glib.
+        // 1.24.13,1.28.3 cannot build with external glib.
         // "glib": {
         //   "version": ">=2.88"
         // },
@@ -224,9 +224,9 @@
         },
         "patch": {
           "patch_files": [
-            {
-              "local": "${package_dir}\\gl_mkenum_py13.diff"
-            },
+            // { // This patch is required for Meson version 1.8.5.
+            //   "local": "${package_dir}\\gl_mkenum_py13.diff"
+            // },
             {
               "local": "${package_dir}\\vulkan_mkenum.py.diff"
             },
@@ -391,22 +391,24 @@
         }
       }
     },
-    "1.24.13": {  // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
-      "dependencies": {
-        "ffmpeg": {
-          "version": ">=6.1;<7.0"
-        }
-      },
-      "stages": {
-        "patch": {
-          "patch_files!append": [
-            {
-              "local": "${package_dir}\\fix_vpx_meson_build-1.24.13.diff"
-            }
-          ]
-        }
-      }
-    },
+    // "1.24.13": {
+    //   // Meson version 1.8.5 is required to build this.
+    //   // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
+    //   "dependencies": {
+    //     "ffmpeg": {
+    //       "version": ">=6.1;<7.0"
+    //     }
+    //   },
+    //   "stages": {
+    //     "patch": {
+    //       "patch_files!append": [
+    //         {
+    //           "local": "${package_dir}\\fix_vpx_meson_build-1.24.13.diff"
+    //         }
+    //       ]
+    //     }
+    //   }
+    // },
     "1.28.3": {
       "dependencies": {
         "ffmpeg": {
@@ -419,9 +421,6 @@
             {
               "local": "${package_dir}\\fix_gst-plugins-bad_ext_aom_gstav1dec_c.diff"
             },
-            // {
-            //   "local": "${package_dir}\\fix_vpx_meson_build-1.28.3.diff"
-            // }
             {
               "local": "${package_dir}\\fix_gst-plugins-good_ext_lame.diff"
             }
