@@ -35,7 +35,7 @@ Windows向けのC/C++ネイティブ・ライブラリをスクラッチビル�
 
 次のアプリケーションをインストールしてください。
 
-* Python 3.12 or higher [https://www.python.org/downloads/](https://www.python.org/downloads/)
+* Python 3.12.x [https://www.python.org/downloads/](https://www.python.org/downloads/)
 * Microsoft Visual Studio 2022 or higher [https://visualstudio.microsoft.com/ja/downloads/](https://visualstudio.microsoft.com/ja/downloads/)
 * CMake 4.3 or higher [https://cmake.org/download/](https://cmake.org/download/)
 * Git for Windows [https://gitforwindows.org/](https://gitforwindows.org/)
