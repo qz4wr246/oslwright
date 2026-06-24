@@ -187,7 +187,7 @@
               "local": "${package_dir}\\remove_document_target.diff"
             },
             {
-              "local": "${package_dir}\\libcdio\fix_type_h.diff"
+              "local": "${package_dir}\\fix_type_h.diff"
             }
           ],
           "scripts": [

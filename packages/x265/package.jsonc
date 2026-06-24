@@ -219,19 +219,11 @@
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
-                "PERLIO": "raw"
-              },
               "script": "cmake --build \"$build_dir_debug\" --config Debug -j4"
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
-              "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
-                "PERLIO": "raw"
-              },
               "script": "cmake --build \"$build_dir_release\" --config Release -j4"
             }
           ]
@@ -256,27 +248,29 @@
           },
           "scripts": [
             {
+              "message": "Adjust paths and other configurations in *.pc",
               "when": "{{'Debug' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_debug)}}\"",
               "ignore_errors": true
             },
             {
+              "message": "Adjust paths and other configurations in *.pc",
               "when": "{{'Release' in $build_type}}",
               "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl \"${assets_rootdir}\\fix_pcfile.pl\" @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_release)}}\"",
               "ignore_errors": true
             },
             {
               "when": "{{'Debug' in $build_type}}",
-              "chdir": "\"$dist_dir_debug\\lib\"",
+              "chdir": "$dist_dir_debug\\lib",
               "script": "copy /y libx265d.lib x265d.lib",
               "ignore_errors": true
             },
             {
               "when": "{{'Release' in $build_type}}",
-              "chdir": "\"$dist_dir_release\\lib\"",
+              "chdir": "$dist_dir_release\\lib",
               "script": "copy /y libx265.lib x265.lib",
               "ignore_errors": true
-            },
+            }
           ]
         }
       }

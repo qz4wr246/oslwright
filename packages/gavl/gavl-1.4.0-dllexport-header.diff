@@ -1,6 +1,6 @@
---- a/include/gavl/gavldefs.h 2026-04-16 12:50:15.139721300 +0900
-+++ b/include/gavl/gavldefs.h 2026-04-16 12:52:17.089720100 +0900
-@@ -21,12 +21,19 @@
+--- a/include/gavl/gavldefs.h	2026-06-24 08:26:43.228783500 +0900
++++ b/include/gavl/gavldefs.h	2026-06-24 09:00:20.496541300 +0900
+@@ -22,12 +22,19 @@
  #ifndef GAVLDEFS_H_INCLUDED
  #define GAVLDEFS_H_INCLUDED
 
@@ -15,6 +15,7 @@
  #else
 -#define GAVL_PUBLIC __attribute__ ((visibility("default")))
 -#endif
+-
 +#  if __GNUC__ >= 4
 +#    define GAVL_PUBLIC __attribute__ ((visibility("default")))
 +#  else
@@ -22,6 +23,5 @@
 +#  endif
 +#endif
 
-
  #endif // GAVLDEFS_H_INCLUDED
--
+

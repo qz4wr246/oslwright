@@ -234,19 +234,11 @@
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
-              "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
-                "PERLIO": "raw"
-              },
               "script": "cmake --build \"$build_dir_debug\" --config Debug -j4"
             },
             {
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
-              "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
-                "PERLIO": "raw"
-              },
               "script": "cmake --build \"$build_dir_release\" --config Release -j4"
             }
           ]

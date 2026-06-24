@@ -114,10 +114,9 @@
       "msys2_external_runtime_dir": "${msys2_dir}\\opt\\ucrt64",
       "msys2_bash": "\"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
       "dependencies": {
-        "proxy-libintl": {
-          "version": ">=0.5",
-          "build_type": "Release"
-        }
+        "libpng": {
+          "version": ">=1.6"
+        },
       },
       "environments": {
         "LC_ALL": "C",
