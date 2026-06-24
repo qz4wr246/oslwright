@@ -227,7 +227,7 @@ class BuildPage(FletXPage):
         return ft.Column(
             controls=[
                 ft.TextButton(
-                    content=ft.Text("Build Packages", size=20),
+                    content=ft.Text("← Build Packages", size=20),
                     on_click=lambda e: self._on_title_click(),
                 ),
                 ft.Divider(),

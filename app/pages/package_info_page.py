@@ -41,7 +41,7 @@ class PackageInfoPage(FletXPage):
         return ft.Column(
             [
                 ft.TextButton(
-                    content=ft.Text("Package Infomation", size=20),
+                    content=ft.Text("← Package Infomation", size=20),
                     on_click=lambda e: self._on_title_click(),
                 ),
                 ft.Divider(),
