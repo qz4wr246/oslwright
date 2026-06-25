@@ -99,7 +99,12 @@ function(oslw_install_depdll)
           OUTPUT_VARIABLE __deps
           OUTPUT_STRIP_TRAILING_WHITESPACE
         )
-        file(INSTALL \${__deps} DESTINATION ${_args_DESTINATION})
+        set(__resolved_files \"\")
+        foreach(__file_path IN LISTS \${__deps})
+          get_filename_component(__real_path \"\${__file_path}\" REALPATH)
+          list(APPEND __resolved_files \"\${__real_path}\")
+        endforeach()
+        file(INSTALL \${__resolved_files} DESTINATION ${_args_DESTINATION})
     ")
 
   if(_args_COMPONENT)
