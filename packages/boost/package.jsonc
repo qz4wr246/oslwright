@@ -250,6 +250,7 @@
       }
     },
     "1.86.0": {}, // Visual Studio 2022 and earlier supported
-    "1.90.0": {}  // Visual Studio 2022 and earlier supported
+    "1.90.0": {},  // Visual Studio 2022 and earlier supported
+    "1.91.0-1": {} // Visual Studio 2026
   }
 }
