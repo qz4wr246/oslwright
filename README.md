@@ -69,13 +69,13 @@ Windows向けのC/C++ネイティブ・ライブラリをスクラッチビル�
 
 1. 使用したいパッケージフォルダを&lt;開発フォルダ&gt;/3rdparty以下にコピーする。
     ```dos
-    > cd <workdir>
-    > xcopy <OSLwright>\dist 3rdparty /E /H /C /I
+    cd <workdir>
+    xcopy <OSLwright>\dist 3rdparty /E /H /C /I
     ```
 1. &lt;OSLwright ディレクトリ&gt;の cmake フォルダを&lt;開発フォルダ&gt;へコピーする。
     ```dos
-    > cd <workdir>
-    > xcopy <OSLwright>\cmake cmake /E /H /C /I
+    cd <workdir>
+    xcopy <OSLwright>\cmake cmake /E /H /C /I
     ```
 1. CMakeLists.txt に oslwrite module をロードするコードを記述する
     ```cmake
