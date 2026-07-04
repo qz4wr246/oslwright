@@ -1,11 +1,11 @@
 {
-  "name": "saucer",
-  "display": "Saucer",
-  "description": "A modern, cross-platform C++ webview library",
-  "site": "https://saucer.github.io/",
-  "license": "MIT license",
+  "name": "glaze",
+  "display": "Glaze",
+  "description": "An Extremely fast, In-Memory JSON and Interface Library for Modern C++",
+  "site": "https://stephenberry.github.io/glaze/",
+  "license": "MIT",
   "info": "info.md",
-  "process_time": 220,
+  "process_time": 20,
   "options": [
     {
       "display": "Version",
@@ -56,7 +56,7 @@
         "shared",
         "static"
       ],
-      "default": "$build_library_default"
+      "default": "shared"
     },
     {
       "display": "Build type",
@@ -76,7 +76,7 @@
         "union",
         "separation"
       ],
-      "default": "separation"
+      "default": "union"
     },
     {
       "display": "Using CUDA",
@@ -110,7 +110,7 @@
       "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
-      "git_url": "https://github.com/saucer/saucer.git",
+      "git_url": "https://github.com/stephenberry/glaze.git",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
@@ -162,11 +162,10 @@
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-Dsaucer_static={{'ON' if 'static' in $build_library else 'OFF'}}",
-            "-Dsaucer_prefer_remote=OFF",
-            "-Dsaucer_examples=OFF",
-            "-Dsaucer_tests=OFF",
-            // "-Dsaucer_msvc_hack=OFF", // Fix mutex crash on mismatching runtimes. See VS2022 17.10 changelog (default: OFF)
+            "-Dglaze_ENABLE_FUZZING=OFF",
+            "-Dglaze_DEVELOPER_MODE=OFF",
+            "-DCMAKE_DOC=OFF",
+            "-DBUILD_TESTS=OFF"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -252,6 +251,6 @@
         }
       }
     },
-    "8.0.5": {}
+    "7.8.3": {}
   }
 }
