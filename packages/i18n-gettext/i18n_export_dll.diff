@@ -1,16 +1,18 @@
 diff --git a/I18NTest_vs2012/I18NTest/i18n/I18nDefine.h b/I18NTest_vs2012/I18NTest/i18n/I18nDefine.h
-index 18cfeed..2893249 100644
+index 18cfeed..3ae07ca 100644
 --- a/I18NTest_vs2012/I18NTest/i18n/I18nDefine.h
 +++ b/I18NTest_vs2012/I18NTest/i18n/I18nDefine.h
-@@ -31,8 +31,26 @@
+@@ -31,8 +31,27 @@
  
  
  #ifdef _MSC_VER
 -#define snprintf _snprintf
+-typedef unsigned long ssize_t;
 +// #define snprintf _snprintf
- typedef unsigned long ssize_t;
- #endif
- 
++#define _SSIZE_T_DEFINED
++typedef long long ssize_t;
++#endif
++
 +#ifdef I18NGETTEXT_STATIC_BUILD
 +# define I18NGETTEXT_API
 +#elif defined(_WIN32) || defined(__CYGWIN__)
@@ -27,11 +29,11 @@ index 18cfeed..2893249 100644
 +# endif
 +#else
 +# define I18NGETTEXT_API
-+#endif
-+
+ #endif
+ 
  #endif /* defined(__I18N__I18nDefine_H__) */
 diff --git a/I18NTest_vs2012/I18NTest/i18n/I18nUtils.h b/I18NTest_vs2012/I18NTest/i18n/I18nUtils.h
-index 350f2ba..da2d10d 100644
+index 350f2ba..8ba44b2 100644
 --- a/I18NTest_vs2012/I18NTest/i18n/I18nUtils.h
 +++ b/I18NTest_vs2012/I18NTest/i18n/I18nUtils.h
 @@ -16,7 +16,7 @@
