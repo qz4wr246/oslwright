@@ -28,7 +28,8 @@ dependencies = [
     "mako",
     "pydevd",
     "Cython",
-    "build"
+    "build",
+    "pytest"
 ]
 
 [tool.setuptools]
