@@ -4,6 +4,7 @@ options/
 cache/
 logs/
 build/
+storage/
 .vscode/*.local.json
 .vscode/settings.json
 .vscode/launch.json
