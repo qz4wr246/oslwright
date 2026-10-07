@@ -1,6 +1,6 @@
 <h1>OSLwright: A C/C++ Open Source Library Builder for Windows</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.1.2-blue.svg?cacheSeconds=2592000" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.2.0-blue.svg?cacheSeconds=2592000" />
   <a href="#" target="_blank">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT_License-yellow.svg" />
     <img alt="Language: python" src="https://img.shields.io/badge/Language-Python-green.svg" />
