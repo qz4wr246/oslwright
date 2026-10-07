@@ -1,7 +1,7 @@
 import os
 import json5 as json
-from core.common import get_data_path
-from models.app_setting_model import AppSettingModel
+from ..core.common import get_data_path
+from ..models.app_setting_model import AppSettingModel
 
 
 class AppSettingService:

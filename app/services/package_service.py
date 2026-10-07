@@ -3,9 +3,6 @@ from pathlib import Path
 from typing import List
 import pyjson5 as json
 
-from fletx import FletX
-from fletx.core import FletXService
-
 from ..core.evaluate import evaluate_str
 from ..core.constants import STAGES_ORDER
 from ..core.logger import PostLogger as Post
@@ -13,22 +10,17 @@ from ..models.package_info_model import PackageInfoModel
 from ..models.package_model import PackageModel
 from ..models.package_option_model import PackageOptionItem, PackageOptionModel
 from ..models.package_option_ui_model import OptionUiItem, PackageOptionUiModel
+from . import get_service
 from .platform_service import PlatformService
 
 
-class PackageService(FletXService):
+class PackageService:
     """Package Service"""
 
     def __init__(self, *args, **kwargs):
         # print("PackageService:__init__")
-        self.platform_service: PlatformService = FletX.find(PlatformService)  # type: ignore[arg-type]
+        self.platform_service: PlatformService = get_service("PlatformService")  # type: ignore
         self.packages: List[PackageModel] = []
-        # Init base class
-        super().__init__(name="PackageService", auto_start=True, **kwargs)
-
-    def on_start(self):
-        """Do stuf here on PackageService start"""
-        # print("PackageService:on_start")
 
     def on_stop(self):
         """Do stuf here on packageService stop"""

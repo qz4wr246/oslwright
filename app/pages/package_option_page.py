@@ -3,179 +3,124 @@ PackageOption Page.
 """
 
 import flet as ft
-from fletx.core import FletXPage
-from fletx.decorators import obx
-from fletx.navigation import go_back
 
+from ..core.constants import Routes
 from ..controllers.package_option_controller import PackageOptionController
 from ..models.package_model import PackageModel
 from ..models.package_option_ui_model import OptionUiItem
 
 
-class PackageOptionPage(FletXPage):
+@ft.component
+def PackageOptionPage():
     """PackageInfo Page"""
+    page = ft.context.page
 
-    def __init__(self):
-        self.initialized = False
-        # print("PackageOptionPage:__init__")
-        super().__init__()
-        self.controller = PackageOptionController()
+    packages = page.session.store.get("packages")
+    build_force = page.session.store.get("build_force")
+    package = packages[0]
 
-    def on_init(self):
-        """Hook called when PackageOptionPage is initialized"""
-        # print("PackageOptionPage:on_init"
-        self.update_diabled()
+    controller = ft.use_memo(lambda: PackageOptionController(), [])
 
-    def _on_loaded(self, d):
-        # print("PackageOptionPage:_on_loaded")
-        self.refresh()
+    is_loaded, set_is_loaded = ft.use_state(False)
+    if not is_loaded:
+        controller.load_option(package)
+        set_is_loaded(True)
 
-    def on_destroy(self):
-        """Hook called when PackageOptionPage will be unmounted."""
-        # print("PackageOptionPage:on_destroy")
+    save_button_disabled, set_save_button_disabled = ft.use_state(True)
 
-    def on_change_bgcolor(self, e):
-        e.control.bgcolor = ft.Colors.SURFACE_CONTAINER_HIGHEST if e.data == "true" else ft.Colors.SURFACE
-        e.control.update()
+    def on_revert_click(e):
+        controller.revert()
+        set_save_button_disabled(True)
 
-    def update_diabled(self):
-        items = self.content.controls[2].controls
-        for item in items:
-            name = item.widget.data
-            disabled = self.controller.disabled.get(name, True)
-            item.widget.content.controls[1].disabled = disabled
+    def on_save_click(e):
+        controller.save()
+        set_save_button_disabled(True)
 
-        self.refresh()
+    def on_reset_click(e):
+        controller.reset()
+        set_save_button_disabled(True)
 
-    def _on_change(self, event):
-        # save button
-        self.content.controls[4].controls[1].controls[1].disabled = False
+    def on_change(e):
+        set_save_button_disabled(False)
+        controller.update_value(e.control.data, e.control.value)
 
-        self.update_diabled()
-        self.refresh()
+    save_button = ft.Button(content="Save", disabled=save_button_disabled, on_click=on_save_click)
 
-    def _on_click_save(self, event):
-        # save button
-        self.content.controls[4].controls[1].controls[1].disabled = True
-        self.refresh()
-
-    def _on_title_click(self):
-        go_back()
-
-    @obx
-    def display_option_item(self, ui: OptionUiItem):
-        # print("PackageOptionPage:display_option_item")
-
+    def OptionItem(ui: OptionUiItem):
+        ctrlitem = None
         if ui.type == "choice":
-            return ft.Container(
-                content=ft.Row(
-                    controls=[
-                        ft.Text(value=ui.display, size=16),
-                        ft.Dropdown(
-                            width=250,
-                            value=self.controller.values.value.get(ui.name),
-                            options=[ft.dropdown.Option(x) for x in ui.items],
-                            on_change=lambda e: [
-                                self.controller.update_value(ui.name, e.control.value),
-                                self._on_change(e),
-                            ],
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                ),
+            ctrlitem = ft.Dropdown(
+                key=controller.values[ui.name].name,
+                width=250,
+                value=controller.values[ui.name].value,
+                disabled=controller.values[ui.name].disabled,
+                options=[ft.dropdown.Option(x) for x in ui.items],
+                on_select=on_change,
                 data=ui.name,
-                padding=ft.padding.symmetric(horizontal=20),
-                on_hover=self.on_change_bgcolor,
             )
-        if ui.type == "bool":
-            return ft.Container(
-                content=ft.Row(
-                    controls=[
-                        ft.Text(value=ui.display, size=16),
-                        ft.Switch(
-                            value=self.controller.values.value.get(ui.name, False),
-                            on_change=lambda e: [
-                                self.controller.update_value(ui.name, e.control.value),
-                                self._on_change(e),
-                            ],
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                ),
+        elif ui.type == "bool":
+            ctrlitem = ft.Switch(
+                key=controller.values[ui.name].name,
+                value=controller.values[ui.name].value,
+                disabled=controller.values[ui.name].disabled,
+                on_change=on_change,
                 data=ui.name,
-                padding=ft.padding.symmetric(horizontal=20),
-                on_hover=self.on_change_bgcolor,
             )
         else:  # text
-            return ft.Container(
-                content=ft.Row(
-                    controls=[
-                        ft.Text(value=ui.display, size=16),
-                        ft.TextField(
-                            width=250,
-                            value=self.controller.values.value.get(ui.name),
-                            on_change=lambda e: [
-                                self.controller.update_value(ui.name, e.control.value),
-                                self._on_change(e),
-                            ],
-                            #  disabled=self.controller.disabled.value.get(ui.name, True),
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                ),
+            ctrlitem = ft.TextField(
+                key=controller.values[ui.name].name,
+                width=250,
+                value=controller.values[ui.name].value,
+                disabled=controller.values[ui.name].disabled,
+                on_change=on_change,
                 data=ui.name,
-                padding=ft.padding.symmetric(horizontal=20),
-                on_hover=self.on_change_bgcolor,
             )
-
-    @obx
-    def display_option_list(self):
-        # print("PackageOptionPage:display_option_list")
-        return ft.ListView(
-            [self.display_option_item(ui) for ui in self.controller.option_ui.value],
-            auto_scroll=False,
-            expand=True,
+        container = ft.Container(
+            content=ft.Row(
+                controls=[ft.Text(value=ui.display, size=16), ctrlitem],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
+            key=ui.name,
+            padding=ft.padding.Padding.symmetric(horizontal=20),
+            ink=True,  # 波紋エフェクトを有効化
+            ink_color=ft.Colors.SURFACE_CONTAINER_HIGHEST,  # ホバー・クリック時の色を指定
+            on_click=lambda e: None,  # MEMO: lnk を動作させるには clickable である必要があるため、空の関数を指定します
         )
+        return container
 
-    def build(self):
-        """Method that build PackageOptionPage content"""
-        # print("PackageOptionPage:build")
-        if not self.initialized:
-            routing_param_data = self.route_info.data
-            package: PackageModel = routing_param_data.get("package")
-            self.controller.load_option(package)
-            self.initialized = True
-        return ft.Column(
-            [
-                ft.TextButton(
-                    content=ft.Text(f"← Package Option: {self.controller.package.display}", size=20),
-                    on_click=lambda e: self._on_title_click(),
-                ),
-                ft.Divider(),
-                self.display_option_list(),
-                ft.Divider(),
-                ft.Row(
-                    controls=[
-                        ft.ElevatedButton("Revert", on_click=lambda e: [self.controller.revert(), self._on_change(e)]),
-                        ft.Row(
-                            controls=[
-                                ft.ElevatedButton(
-                                    "Reset", on_click=lambda e: [self.controller.reset(), self._on_change(e)]
-                                ),
-                                ft.ElevatedButton(
-                                    "Save",
-                                    disabled=True,
-                                    on_click=lambda e: [self.controller.save(), self._on_click_save(e)],
-                                ),
-                            ],
-                            alignment=ft.MainAxisAlignment.END,
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                ),
-            ],
-            spacing=1,
-        )
+    layout = ft.Column(
+        controls=[
+            # OptionItem List
+            ft.Column(
+                controls=[OptionItem(ui) for ui in controller.option_ui],
+                auto_scroll=False,
+                scroll=ft.ScrollMode.ALWAYS,
+                expand=True,
+                spacing=10,
+            ),
+            ft.Divider(),
+            ft.Row(
+                controls=[
+                    ft.Button("Revert", on_click=on_revert_click),
+                    ft.Row(
+                        controls=[ft.Button("Reset", on_click=on_reset_click), save_button],
+                        alignment=ft.MainAxisAlignment.END,
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            ),
+        ],
+        spacing=1,
+        expand=True,
+    )
+    return ft.View(
+        key="PackageOptionPage",
+        route=Routes.PKG_OPTION,
+        appbar=ft.AppBar(
+            title=ft.Text(f"Package Option: {package.display}"),
+            bgcolor=ft.Colors.SURFACE_CONTAINER_HIGHEST,
+            leading=ft.IconButton(icon=ft.Icons.ARROW_BACK, on_click=lambda e: e.page.navigate(Routes.HOME)),
+        ),
+        controls=[layout],
+    )

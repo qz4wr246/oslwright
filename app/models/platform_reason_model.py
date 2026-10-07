@@ -9,6 +9,7 @@ class ReasonCode(Enum):
     MISSING_VISUALSTUDIO = auto()
     MISSING_BASE_TOOLS = auto()
     MISSING_EMBEDDED_TOOLS = auto()
+    ERROR = auto()
 
 
 @dataclass

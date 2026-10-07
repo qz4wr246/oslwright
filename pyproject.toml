@@ -1,14 +1,13 @@
 [project]
 name = "oslwright"
-version = "0.1.0"
+version = "0.2.0"
 description = "None"
 readme = "README.md"
 authors = [{ name = "Developer", email = "foo@example.com" }]
 requires-python = ">=3.12"
 
 dependencies = [
-    "flet==0.28.3",
-    "fletxr==0.1.4",
+    "flet[all]>=1.0",
     "dacite",
     "dataclasses_json",
     "json5",

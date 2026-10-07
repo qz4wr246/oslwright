@@ -260,8 +260,8 @@ class PipedShell:
         if self.process:
             self._killed = True
             self.process.kill()
-            if self.process.stdout:
-                self.process.stdout.close()
-            if self.process.stderr:
-                self.process.stderr.close()
-            self.process.wait()
+            # if not self.process.stdout.closed:
+            #     self.process.stdout.close()
+            # if not self.process.stderr.closed:
+            #     self.process.stderr.close()
+            # self.process.wait()

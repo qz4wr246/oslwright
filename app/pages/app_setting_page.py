@@ -5,159 +5,106 @@ AppSetting Page.
 from typing import Any, Dict
 
 import flet as ft
-from fletx.core import FletXPage
-from fletx.decorators import obx
-from fletx.navigation import go_back
 
+from ..models.package_option_ui_model import OptionUiItem
 from ..controllers.app_setting_controller import AppSettingController
+from ..core.constants import Routes
 
 
-class AppSettingPage(FletXPage):
+@ft.component
+def AppSettingPage():
     """AppSetting Page"""
 
-    def __init__(self):
-        # print("AppSettingPage:__init__")
-        super().__init__()
+    controller = ft.use_memo(lambda: AppSettingController(), [])
 
-        self.controller = AppSettingController()
-        self.controller.load_setting()
+    is_loaded, set_is_loaded = ft.use_state(False)
+    if not is_loaded:
+        controller.load_setting()
+        set_is_loaded(True)
 
-    def on_init(self):
-        """Hook called when AppSettingPage is initialized"""
-        # print("AppSettingPage:on_init")
-        pass
+    save_button_disabled, set_save_button_disabled = ft.use_state(True)
 
-    def on_destroy(self):
-        """Hook called when AppSettingPage will be unmounted."""
-        # print("AppSettingPage:on_destroy")
-        pass
+    def on_save_click(e):
+        controller.save()
+        set_save_button_disabled(True)
 
-    def on_change_bgcolor(self, e):
-        e.control.bgcolor = ft.Colors.SURFACE_CONTAINER_HIGHEST if e.data == "true" else ft.Colors.SURFACE
-        e.control.update()
+    def on_reset_click(e):
+        controller.reset()
+        set_save_button_disabled(True)
 
-    def _on_change(self, event):
-        # save button
-        self.content.controls[4].controls[1].disabled = False
-        self.refresh()
+    def on_change(e):
+        set_save_button_disabled(False)
+        controller.update_value(e.control.data, e.control.value)
 
-    def _on_click_save(self, event):
-        # save button
-        self.content.controls[4].controls[1].disabled = True
-        self.refresh()
+    save_button = ft.Button(content="Save", disabled=save_button_disabled, on_click=on_save_click)
 
-    def build_app_bar(self):
-        """Override to create app bar"""
-        return ft.AppBar(
-            title=ft.Text("System Setting"),
-            center_title=True,
-            actions=[
-                ft.IconButton(icon=ft.Icons.HELP_OUTLINE),
-            ],
-        )
-
-    def _on_title_click(self):
-        go_back()
-
-    @obx
-    def display_setting_item(self, ui: Dict[str, Any]):
-        # print("AppSettingPage:display_setting_item")
-
-        if ui["type"] == "choice":
-            return ft.Container(
-                content=ft.Row(
-                    controls=[
-                        ft.Text(value=ui["display"], size=16),
-                        ft.Dropdown(
-                            width=250,
-                            value=self.controller.values.value.get(ui["name"]),
-                            options=[ft.dropdown.Option(x) for x in ui["items"]],
-                            on_change=lambda e: [
-                                self.controller.update_value(ui["name"], e.control.value),
-                                self._on_change(e),
-                            ],
-                            disabled=not (ui["enable"]),
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                ),
-                padding=ft.padding.symmetric(horizontal=20),
-                on_hover=self.on_change_bgcolor,
+    def SettingItem(ui: OptionUiItem):
+        ctrlitem = None
+        if ui.type == "choice":
+            ctrlitem = ft.Dropdown(
+                key=controller.values[ui.name].name,
+                width=250,
+                value=controller.values[ui.name].value,
+                disabled=controller.values[ui.name].disabled,
+                options=[ft.dropdown.Option(x) for x in ui.items],
+                on_select=on_change,
+                data=ui.name,
             )
-        if ui["type"] == "bool":
-            return ft.Container(
-                content=ft.Row(
-                    controls=[
-                        ft.Text(value=ui["display"], size=16),
-                        ft.Switch(
-                            value=self.controller.values.value.get(ui["name"], False),
-                            on_change=lambda e: [
-                                self.controller.update_value(ui["name"], e.control.value),
-                                self._on_change(e),
-                            ],
-                            disabled=not (ui["enable"]),
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                ),
-                padding=ft.padding.symmetric(horizontal=20),
-                on_hover=self.on_change_bgcolor,
+        elif ui.type == "bool":
+            ctrlitem = ft.Switch(
+                key=controller.values[ui.name].name,
+                value=controller.values[ui.name].value,
+                disabled=controller.values[ui.name].disabled,
+                on_change=on_change,
+                data=ui.name,
             )
         else:  # text
-            return ft.Container(
-                content=ft.Row(
-                    controls=[
-                        ft.Text(value=ui["display"], size=16),
-                        ft.TextField(
-                            width=200,
-                            value=self.controller.values.value.get(ui["name"]),
-                            on_change=lambda e: [
-                                self.controller.update_value(ui["name"], e.control.value),
-                                self._on_change(e),
-                            ],
-                            disabled=not (ui["enable"]),
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                ),
-                padding=ft.padding.symmetric(horizontal=20),
-                on_hover=self.on_change_bgcolor,
+            ctrlitem = ft.TextField(
+                key=controller.values[ui.name].name,
+                width=250,
+                value=controller.values[ui.name].value,
+                disabled=controller.values[ui.name].disabled,
+                on_change=on_change,
+                data=ui.name,
             )
-
-    @obx
-    def display_setting_list(self):
-        # print("AppSettingPage:display_setting_list")
-        return ft.Column(
-            [self.display_setting_item(ui) for ui in self.controller.setting_ui.value],
-            scroll=ft.ScrollMode.ALWAYS,
-            expand=True,
+        container = ft.Container(
+            content=ft.Row(
+                controls=[ft.Text(value=ui.display, size=16), ctrlitem],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
+            key=ui.name,
+            padding=ft.padding.Padding.symmetric(horizontal=20),
+            ink=True,  # inkを使ってホバーエフェクトを実装
+            ink_color=ft.Colors.SURFACE_CONTAINER_HIGHEST,  # ホバー色を指定
+            on_click=lambda e: None,  # ink を動作させるには clickable である必要があるため空の関数を指定
         )
+        return container
 
-    def build(self):
-        """Method that build PackageOptionPage content"""
-        # print("AppSettingPage:build")
-
-        return ft.Column(
-            [
-                ft.TextButton(
-                    content=ft.Text("← System Setting", size=20),
-                    on_click=lambda e: self._on_title_click(),
-                ),
-                ft.Divider(),
-                self.display_setting_list(),
-                ft.Divider(),
-                ft.Row(
-                    [
-                        ft.ElevatedButton("Reset", on_click=lambda e: [self.controller.reset(), self._on_change(e)]),
-                        ft.ElevatedButton(
-                            "Save", on_click=lambda e: [self.controller.save(), self._on_click_save(e)], disabled=True
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.END,
-                ),
-            ],
-            spacing=1,
-        )
+    layout = ft.Column(
+        controls=[
+            ft.Column(
+                controls=[SettingItem(ui) for ui in controller.setting_ui],
+                scroll=ft.ScrollMode.ALWAYS,
+                expand=True,
+                spacing=10,
+            ),
+            ft.Divider(),
+            ft.Row(
+                controls=[ft.Button("Reset", on_click=on_reset_click), save_button],
+                alignment=ft.MainAxisAlignment.END,
+            ),
+        ],
+        spacing=1,
+        expand=True,
+    )
+    return ft.View(
+        key="AppSettingPage",
+        route=Routes.PKG_OPTION,
+        appbar=ft.AppBar(
+            title=ft.Text(f"System Settings"),
+            bgcolor=ft.Colors.SURFACE_CONTAINER_HIGHEST,
+            leading=ft.IconButton(icon=ft.Icons.ARROW_BACK, on_click=lambda e: e.page.navigate(Routes.HOME)),
+        ),
+        controls=[layout],
+    )

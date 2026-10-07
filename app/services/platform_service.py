@@ -16,7 +16,6 @@ from logging.handlers import RotatingFileHandler
 from typing import List, Tuple, Dict
 
 import pyjson5 as json
-from fletx.core import FletXService
 from natsort import natsorted
 
 from ..core.shell import SYSTEM_PATH, Shell
@@ -57,7 +56,7 @@ SYSTEM_ENVIRONMENT_NAME_LIST = [
 ]
 
 
-class PlatformService(FletXService):
+class PlatformService:
     """Platform Service"""
 
     def __init__(self):
@@ -109,13 +108,7 @@ class PlatformService(FletXService):
         self.cuda_path_default = None
         self.app_setting = None
         self.reason = PlatformReason(code=ReasonCode.UNINITIALIZED)
-        self.system_envitonment = {}
-        # Init base class
-        super().__init__(name="PlatformService")
 
-    def on_start(self):
-        """Do stuf here on PlatformService start"""
-        # print("PlatformService:on_start")
         self.package_rootdir.mkdir(parents=True, exist_ok=True)
         self.option_rootdir.mkdir(parents=True, exist_ok=True)
         self.source_rootdir.mkdir(parents=True, exist_ok=True)
@@ -739,14 +732,14 @@ class PlatformService(FletXService):
         if not pkgcnf_exe:
             _exe = shutil.which("pkg-config.exe")
             if _exe and Path(_exe).is_file():
-                return Path(_exe)
+                pkgcnf_exe = _exe
         if not pkgcnf_exe:
             return (None, None)
         shell = Shell()
         result = shell.exec(f'"{pkgcnf_exe}" --version', with_content=True, shell=True)
         if not result.exitcode:
             pkgcnf_version = result.stdout.split()[0] if result.stdout else None
-        return (pkgcnf_exe, pkgcnf_version)
+        return (Path(pkgcnf_exe), pkgcnf_version)
 
     def _findGN(self) -> Tuple[Path | None, str | None]:
         gn_exe = None
@@ -1083,7 +1076,7 @@ class PlatformService(FletXService):
             pkgs.append(self.tools_rootdir / "cargo" / "package.jsonc")
         return pkgs
 
-    def create_session_base(self, package: PackageModel, msvc_version: str | None = None) -> dict:
+    def create_session_base(self, package: PackageModel | None = None, msvc_version: str | None = None) -> dict:
         if msvc_version:
             visual_studio = next((vc for vc in self.visual_studio_infos if vc.generator == msvc_version), None)
             msvc_toolset_versions = [v.name for v in visual_studio.msvc_toolset_versions]
@@ -1128,20 +1121,22 @@ class PlatformService(FletXService):
             "msvc_version": msvc_generator,
             "python_exe": str(self.python_exe),
         }
-        vers = [k for k in package.versions.keys() if k != "default"]
-        session = {
-            "name": package.name,
-            "display": package.display,
-            "package_dir": str(Path(package.path).parent),
-            "versions": vers,
-            "latest_version": vers[-1],
-            "dependent_packages_release": "",
-            "dependent_packages_debug": "",
-            "dependent_dlls_release": "",
-            "dependent_dlls_debug": "",
-            "pkg_config_path_release": "",
-            "pkg_config_path_debug": "",
-        }
+        session = {}
+        if package:
+            vers = [k for k in package.versions.keys() if k != "default"]
+            session = {
+                "name": package.name,
+                "display": package.display,
+                "package_dir": str(Path(package.path).parent),
+                "versions": vers,
+                "latest_version": vers[-1],
+                "dependent_packages_release": "",
+                "dependent_packages_debug": "",
+                "dependent_dlls_release": "",
+                "dependent_dlls_debug": "",
+                "pkg_config_path_release": "",
+                "pkg_config_path_debug": "",
+            }
         session |= plat_vers
         return session
 

@@ -1,245 +1,238 @@
 """
+app/pages/build_page.py
 Build Page.
 """
 
 import flet as ft
-from fletx.core import FletXPage
-from fletx.decorators import obx
-from fletx.navigation import go_back
-
-from ..models.package_model import PackageModel
+from ..core.constants import Routes
 from ..controllers.build_controller import BuildController
 from ..services.build_service import Reason
+from ..models.package_model import PackageModel
+from ..models.build_status_model import BuildStatusModel
 
 
-class BuildPage(FletXPage):
+@ft.component
+def BuildPage():
     """Build Page"""
+    page = ft.context.page
 
-    def __init__(self):
-        # print("BuildPage:__init__")
-        super().__init__()
-        self.controller = BuildController()
-        self.initialized = False
-        self.init_count = 0
-        self.log_offset = 0
-        self.max_log_offset = 0
+    # 1. 戻るボタンの無効化状態を管理するStateを追加 (初期値は True = 無効)
+    back_disabled, set_back_disabled = ft.use_state(True)
+    # build status
+    build_status, set_build_status = ft.use_state(BuildStatusModel())
 
-    def on_init(self):
-        """Hook called when BuildPage is initialized"""
-        # print("BuildPage:on_init")
-        self.init_count += 1
-        if self.init_count > 1 and not self.initialized:
-            routing_param_data = self.route_info.data
-            packages: list[PackageModel] = routing_param_data.get("packages", [])
-            build_force = routing_param_data.get("build_force", False)
-            self.controller.set_build_packages(packages, build_force)
-            self.controller.start_build()
-            self.initialized = True
-            self.modal_dialog = None
-            self.controller.on_local("build_finished", self.on_build_finished)
-            self.controller.on_local("update_log", self.on_update_log)
-            self.log_offset = 0
-            self.max_log_offset = 0
+    def on_build_status(status: BuildStatusModel):
+        set_build_status(status)
 
-    def on_destroy(self):
-        """Hook called when BuildPage will be unmounted."""
-        # print("BuildPage:on_destroy")
-        pass
+        if status.reason == Reason.COMPLETED:
+            # open Success Dialog
+            set_show_success(True)
 
-    def on_update_log(self, event):
-        if self.max_log_offset == self.log_offset:
-            self.content.controls[6].widget.scroll_to(offset=-1, duration=300)
+        elif status.reason == Reason.USER_INTERRUPTED:
+            # open Abort Dialog
+            set_show_abort(True)
 
-    def _on_scroll(self, e: ft.OnScrollEvent):
-        if e.event_type == "end":
-            self.log_offset = e.pixels
-            self.max_log_offset = max(e.pixels, self.max_log_offset)
+        elif status.reason == Reason.ERROR or status.reason == Reason.EXCEPTION:
+            # open Error Dialog
+            set_show_error(True)
 
-    def on_build_finished(self, event):
-        def _close_dialog(e):
-            if self.modal_dialog:
-                e.control.page.close(self.modal_dialog)
-            self.modal_dialog = None
-            self.refresh()
+    controller = ft.use_memo(lambda: BuildController(page, on_build_status), [])
 
-        reason = event.data
-        if reason == Reason.COMPLETED:
-            self.modal_dialog = ft.AlertDialog(
-                modal=True,
-                title=ft.Row(
-                    controls=[
-                        ft.Icon(ft.Icons.INFO_OUTLINE, color=ft.Colors.PRIMARY),
-                        ft.Text("Infomation"),
-                    ],
-                    tight=True,
-                    spacing=10,
-                ),
-                content=ft.Text("Packages built successfully."),
-                actions=[
-                    ft.TextButton("Close", on_click=_close_dialog),
-                ],
-                actions_alignment=ft.MainAxisAlignment.END,
-            )
-            self.page_instance.open(self.modal_dialog)
-
-        elif reason == Reason.USER_INTERRUPTED:
-            self.modal_dialog = ft.AlertDialog(
-                modal=True,
-                title=ft.Row(
-                    controls=[
-                        ft.Icon(ft.Icons.INFO_OUTLINE, color=ft.Colors.AMBER),
-                        ft.Text("Infomation", color=ft.Colors.AMBER),
-                    ],
-                    tight=True,
-                    spacing=10,
-                ),
-                content=ft.Text("Package build was aborted by the user."),
-                actions=[ft.TextButton("Close", on_click=_close_dialog)],
-                actions_alignment=ft.MainAxisAlignment.END,
-            )
-            self.page_instance.open(self.modal_dialog)
-        else:
-            self.modal_dialog = ft.AlertDialog(
-                modal=True,
-                title=ft.Row(
-                    controls=[
-                        ft.Icon(ft.Icons.WARNING_AMBER, color=ft.Colors.ERROR),
-                        ft.Text("Error", color=ft.Colors.ERROR),
-                    ],
-                    tight=True,
-                    spacing=10,
-                ),
-                content=ft.Text("An error occurred during the package build process."),
-                actions=[ft.TextButton("Close", on_click=_close_dialog)],
-                actions_alignment=ft.MainAxisAlignment.END,
-            )
-            self.page_instance.open(self.modal_dialog)
-        # [stop build] button
-        self.content.controls[4].disabled = True
-
-    def _on_title_click(self):
-        if not self.controller.is_running:
-            go_back()
-
-    def _on_stop_build(self, e):
-        def _close_dialog(e):
-            e.control.page.close(self.modal_dialog)
-            self.modal_dialog = None
-            self.refresh()
-
-        self.modal_dialog = ft.AlertDialog(
+    # Success Dialog
+    show_success, set_show_success = ft.use_state(False)
+    ft.use_dialog(
+        ft.AlertDialog(
             modal=True,
-            title=ft.Row(controls=[ft.Icon(name=ft.Icons.WARNING_ROUNDED), ft.Text("Confimination")]),
+            title=ft.Row(
+                controls=[
+                    ft.Icon(ft.Icons.INFO_OUTLINE, color=ft.Colors.PRIMARY),
+                    ft.Text("Infomation"),
+                ],
+                tight=True,
+                spacing=10,
+            ),
+            content=ft.Text("Packages built successfully."),
+            actions=[
+                ft.TextButton("Close", on_click=lambda: [set_back_disabled(False), set_show_success(False)]),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        if show_success
+        else None
+    )
+
+    # Abort Dialog
+    show_abort, set_show_abort = ft.use_state(False)
+    ft.use_dialog(
+        ft.AlertDialog(
+            modal=True,
+            title=ft.Row(
+                controls=[
+                    ft.Icon(ft.Icons.INFO_OUTLINE, color=ft.Colors.AMBER),
+                    ft.Text("Infomation", color=ft.Colors.AMBER),
+                ],
+                tight=True,
+                spacing=10,
+            ),
+            content=ft.Text("Package build was aborted by the user."),
+            actions=[ft.TextButton("Close", on_click=lambda: [set_back_disabled(False), set_show_abort(False)])],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        if show_abort
+        else None
+    )
+    # Error Dialog
+    show_error, set_show_error = ft.use_state(False)
+    ft.use_dialog(
+        ft.AlertDialog(
+            modal=True,
+            title=ft.Row(
+                controls=[
+                    ft.Icon(ft.Icons.WARNING_AMBER, color=ft.Colors.ERROR),
+                    ft.Text("Error", color=ft.Colors.ERROR),
+                ],
+                tight=True,
+                spacing=10,
+            ),
+            content=ft.Text("An error occurred during the package build process."),
+            actions=[ft.TextButton("Close", on_click=lambda: [set_back_disabled(False), set_show_error(False)])],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        if show_error
+        else None
+    )
+
+    # Comfirm Dialog
+    show_comfirm, set_show_comfirm = ft.use_state(False)
+    ft.use_dialog(
+        ft.AlertDialog(
+            modal=True,
+            title=ft.Row(controls=[ft.Icon(icon=ft.Icons.WARNING_ROUNDED), ft.Text("Confirmination")]),
             content=ft.Text("Do you want to stop the build?"),
             actions=[
-                ft.TextButton("Yes", on_click=lambda e: [_close_dialog(e), self.controller.stop_build()]),
-                ft.TextButton("No", on_click=_close_dialog),
+                ft.TextButton("Yes", on_click=lambda: [controller.stop_build(), set_show_comfirm(False)]),
+                ft.TextButton("No", on_click=lambda: set_show_comfirm(False)),
             ],
         )
-        self.page_instance.open(self.modal_dialog)
+        if show_comfirm
+        else None
+    )
 
-    @obx
-    def build_status_display(self):
-        # print("BuildPage:build_status_display")
-        return ft.Row(
-            controls=[
-                ft.Container(
-                    margin=20,
-                    alignment=ft.alignment.center,
-                    content=ft.Stack(
-                        [
-                            ft.ProgressRing(
-                                width=130,
-                                height=130,
-                                stroke_width=10,
-                                stroke_cap=ft.StrokeCap.ROUND,
-                                bgcolor=ft.Colors.BLUE_GREY_700,
-                                value=self.controller.progress.value,
+    def on_mount():
+        packages = page.session.store.get("packages")
+        build_force = page.session.store.get("build_force")
+        controller.set_build_packages(packages, build_force)
+        controller.start_build()
+
+    def on_unmount():
+        controller.stop_build()
+
+    ft.use_effect(setup=on_mount, dependencies=[], cleanup=on_unmount)
+
+    def on_stop_build(e):
+        # open Error Dialog
+        set_show_comfirm(True)
+
+    build_status_layout = ft.Row(
+        controls=[
+            ft.Container(
+                margin=20,
+                alignment=ft.Alignment.CENTER,
+                content=ft.Stack(
+                    [
+                        ft.ProgressRing(
+                            width=130,
+                            height=130,
+                            stroke_width=10,
+                            stroke_cap=ft.StrokeCap.ROUND,
+                            bgcolor=ft.Colors.BLUE_GREY_700,
+                            value=build_status.progress,
+                        ),
+                        ft.Container(
+                            content=ft.Text(
+                                f"{build_status.tx_remaining_time}",
+                                weight=ft.FontWeight.BOLD,
+                                size=24,
+                                color=build_status.tx_remaining_time_color,
                             ),
-                            ft.Container(
-                                content=ft.Text(
-                                    f"{self.controller.tx_remaining_time.value}",
-                                    weight=ft.FontWeight.BOLD,
-                                    size=24,
-                                    color=self.controller.tx_remaining_time_color.value,
-                                ),
-                                alignment=ft.Alignment(0, 0),
-                            ),
+                            alignment=ft.Alignment(0, 0),
+                        ),
+                    ],
+                    width=130,
+                    height=130,
+                ),
+            ),
+            ft.DataTable(
+                columns=[
+                    ft.DataColumn(label=ft.Text("START TIME:")),
+                    ft.DataColumn(label=ft.Text(build_status.tx_start_time)),
+                ],
+                rows=[
+                    ft.DataRow(
+                        cells=[
+                            ft.DataCell(ft.Text("COMPLETION TIME:")),
+                            ft.DataCell(ft.Text(build_status.tx_completion_time)),
                         ],
-                        width=130,
-                        height=130,
                     ),
-                ),
-                ft.DataTable(
-                    columns=[
-                        ft.DataColumn(ft.Text("START TIME:")),
-                        ft.DataColumn(ft.Text(self.controller.tx_start_time.value)),
-                    ],
-                    rows=[
-                        ft.DataRow(
-                            cells=[
-                                ft.DataCell(ft.Text("COMPLETION TIME:")),
-                                ft.DataCell(ft.Text(self.controller.tx_completion_time.value)),
-                            ],
-                        ),
-                        ft.DataRow(
-                            cells=[
-                                ft.DataCell(ft.Text("ELAPSED TIME:")),
-                                ft.DataCell(ft.Text(self.controller.tx_elapsed_time.value)),
-                            ],
-                        ),
-                        ft.DataRow(
-                            cells=[
-                                ft.DataCell(ft.Text("PROCESSED:")),
-                                ft.DataCell(ft.Text(self.controller.tx_processed.value)),
-                            ],
-                        ),
-                        ft.DataRow(
-                            cells=[
-                                ft.DataCell(ft.Text("STAGE:")),
-                                ft.DataCell(ft.Text(self.controller.tx_status.value)),
-                            ],
-                        ),
-                    ],
-                    heading_row_height=36,
-                    data_row_min_height=36,
-                    data_row_max_height=36,
-                    expand=True,
-                ),
-            ],
-            spacing=20,
-        )
+                    ft.DataRow(
+                        cells=[
+                            ft.DataCell(ft.Text("ELAPSED TIME:")),
+                            ft.DataCell(ft.Text(build_status.tx_elapsed_time)),
+                        ],
+                    ),
+                    ft.DataRow(
+                        cells=[
+                            ft.DataCell(ft.Text("PROCESSED:")),
+                            ft.DataCell(ft.Text(build_status.tx_processed)),
+                        ],
+                    ),
+                    ft.DataRow(
+                        cells=[
+                            ft.DataCell(ft.Text("STAGE:")),
+                            ft.DataCell(ft.Text(build_status.tx_status)),
+                        ],
+                    ),
+                ],
+                heading_row_height=36,
+                data_row_min_height=36,
+                data_row_max_height=36,
+                expand=True,
+            ),
+        ],
+        spacing=20,
+    )
 
-    @obx
-    def logs_display(self):
-        return ft.ListView(
-            controls=[
-                ft.Text(value=line.text, color=line.color, selectable=True) for line in self.controller.logs.value
-            ],
-            expand=True,
-            spacing=2,
-            auto_scroll=False,
-            on_scroll=self._on_scroll,
-        )
+    logs_layout = ft.ListView(
+        controls=[ft.Text(value=log.text, color=log.color, selectable=True) for log in controller.log_store.list],
+        expand=True,
+        spacing=2,
+        auto_scroll=True,
+    )
 
-    def build(self):
-        # print("BuildPage:build")
-        return ft.Column(
-            controls=[
-                ft.TextButton(
-                    content=ft.Text("← Build Packages", size=20),
-                    on_click=lambda e: self._on_title_click(),
-                ),
-                ft.Divider(),
-                self.build_status_display(),
-                ft.Divider(),
-                ft.ElevatedButton(
-                    "Stop Build",
-                    on_click=lambda e: self._on_stop_build(e),
-                    icon=ft.Icons.STOP_CIRCLE_OUTLINED,
-                ),
-                ft.Divider(),
-                self.logs_display(),
-            ],
-            expand=True,
-        )
+    layout = ft.Column(
+        controls=[
+            build_status_layout,
+            ft.Divider(),
+            ft.Button(
+                "Stop Build",
+                on_click=on_stop_build,
+                icon=ft.Icons.STOP_CIRCLE_OUTLINED,
+            ),
+            ft.Divider(),
+            logs_layout,
+        ],
+        expand=True,
+    )
+
+    return ft.View(
+        key="BuildPage",
+        route=Routes.BUILD,
+        appbar=ft.AppBar(
+            title=ft.Text("Build Packages."),
+            bgcolor=ft.Colors.SURFACE_CONTAINER_HIGHEST,
+            leading=ft.IconButton(
+                icon=ft.Icons.ARROW_BACK, disabled=back_disabled, on_click=lambda e: e.page.navigate(Routes.HOME)
+            ),
+        ),
+        controls=[layout],
+    )

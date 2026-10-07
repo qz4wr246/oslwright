@@ -1,5 +1,7 @@
 import os
 import sys
+import asyncio
+import threading
 from datetime import datetime
 from pathlib import Path
 import glob
@@ -8,10 +10,7 @@ from typing import Any, Dict, List, Optional, Set
 import copy
 from graphlib import TopologicalSorter, CycleError
 
-from fletx import FletX
-from fletx.core import FletXService
-from fletx.utils import run_async
-
+from . import get_service
 from .platform_service import PlatformService
 from .package_service import PackageService
 from ..models.package_model import PackageModel
@@ -42,15 +41,14 @@ DONT_REGIST_KEYS = [
 ]
 
 
-class BuildService(FletXService):
+class BuildService:
     def __init__(self, *args, **kwargs):
         # print("BuildService:__init__")
-        self.platform_service: PlatformService = FletX.find(PlatformService)  # type: ignore[arg-type]
-        self.package_service: PackageService = FletX.find(PackageService)  # type: ignore[arg-type]
+        self.platform_service: PlatformService = get_service("PlatformService")  # type: ignore[arg-type]
+        self.package_service: PackageService = get_service("PackageService")  # type: ignore[arg-type]
         self.shell = PipedShell()
         self.model = None
         self.is_killed = False
-        super().__init__(name="BuildService", auto_start=True, **kwargs)
 
     def on_start(self):
         """Do stuf here on BuildService start"""
@@ -60,11 +58,7 @@ class BuildService(FletXService):
         """Do stuf here on BuildService stop"""
         # print("BuildService:on_stop")
 
-    def run_build(self, packages: List[PackageModel], model: BuildModel):
-        self.is_killed = False
-        run_async(lambda: self.build_task(packages, model))
-
-    async def build_task(self, packages: List[PackageModel], model: BuildModel):
+    def build_task(self, packages: List[PackageModel], model: BuildModel):
         try:
             Post.gui(f"\n======= Build start: {datetime.now().strftime('%Y/%m/%d %H:%M:%S')} ==========")
             self.model = model
@@ -94,6 +88,12 @@ class BuildService(FletXService):
             model.is_running = False
             self.model = None
             Post.gui(f"======= Build end:  {datetime.now().strftime('%Y/%m/%d %H:%M:%S')} ==========")
+
+    def run_build(self, packages: List[PackageModel], model: BuildModel):
+        self.is_killed = False
+        # asyncio.create_task(self.build_task(packages, model))
+        task = threading.Thread(target=self.build_task, args=(packages, model), daemon=True)
+        task.start()
 
     def get_environment(self, session: dict):
         environs = {}

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from pathlib import Path
 from typing import Any, List, Optional, Mapping
@@ -12,6 +12,11 @@ def make_hashable(obj):
     if isinstance(obj, Path):
         return str(obj)  # Path は文字列化して hashable に
     return obj
+
+
+@dataclass
+class MutableBool:
+    value: bool = False
 
 
 @dataclass_json
@@ -28,3 +33,4 @@ class PackageModel:
     info: Optional[str] = None
     latest_version: Optional[str] = None
     path: Optional[str] = None
+    selected: Optional[MutableBool] = field(default_factory=MutableBool)

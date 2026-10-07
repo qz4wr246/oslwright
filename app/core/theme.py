@@ -8,12 +8,10 @@ light_theme = ft.Theme(
         secondary="#64748B",  # Slate 500
         secondary_container="#F1F5F9",  # Light slate background
         surface="#FFFFFF",
-        background="#F9FAFB",
         error="#DC2626",  # Red 600
         on_primary="#FFFFFF",
         on_secondary="#FFFFFF",
         on_surface="#1F2937",  # Gray 800 (text on white)
-        on_background="#1F2937",
         on_error="#FFFFFF",
     ),
     use_material3=True,
@@ -31,12 +29,10 @@ dark_theme = ft.Theme(
         secondary="#94A3B8",  # Slate 400
         secondary_container="#253745",  # Dark slate background
         surface="#191918",  # "#16191C",  # Gray 900
-        background="#191918",  # "#191918",  # Gray 950
         error="#F87171",  # Red 400
         on_primary="#FFFFFF",
         on_secondary="#000000",
         on_surface="#E5E7EB",  # Gray 200
-        on_background="#E5E7EB",
         on_error="#000000",
     ),
     # brightness=ft.Brightness.DARK,

@@ -1,5 +1,4 @@
-flet==0.28.3
-fletxr==0.1.4
+flet[all]>=1.0
 dacite
 dataclasses_json
 json5
@@ -8,8 +7,8 @@ lark
 natsort
 pyjson5
 regex
-# meson==1.8.*
-meson
+# meson==1.8.*,  # Please use Meson 1.8.* for GStreamer 1.24.*
+meson,
 ninja
 jinja2-cli
 numpy
