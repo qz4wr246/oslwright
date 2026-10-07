@@ -1,75 +1,49 @@
-<#
-.SYNOPSIS
-Recursively searches for DLLs that the target depends on from a list of paths.
-
-.DESCRIPTION
-This script analyzes the dependencies of a specified target (e.g., EXE or DLL),
-recursively searches for required DLLs within a given list of directories,
-and either displays the list of found DLLs or copies them to a specified destination.
-
-.PARAMETER Target
-The path to the target executable or DLL file.
-
-.PARAMETER Path
-(Optional) Semicolon-separated list of directory paths to search for dependent DLLs,
-  or set the list via the FINDDEPDLL_SEARCH_PATH environment variable.
-
-.PARAMETER Dest
-(Optional) The path to copy the found DLLs to. If not specified, the script only displays the list.
-
-.PARAMETER Exclude
-(Optional) A list of DLL file names to exclude from the results. DLLs matching these names will be ignored.
-
-.EXAMPLE
-finddepdlls.ps1 -Target "dist\bin\myapp.exe" -Path "dist\package_1;dist\package_2" -Dest "dist\bin"
-
-.NOTES
-Copyright (c) 2025 qz4wr246 (https://github.com/qz4wr246)
-This software is released under the MIT License.
-See https://opensource.org/licenses/MIT
-
-.LINK
-https://github.com/qz4wr246/oslwright
-#>
-
 param (
-  [parameter(mandatory)][String]$Target,
-  [String]$Path,
-  [String]$Exclude,
-  [String]$Dest
+  [String]$Target = "",
+  [String]$Path = "",
+  [String]$Exclude = "",
+  [String]$Dest = ""
 )
 
-$exc_ptn = @("Dump of file", "MSVC.*\.dll", "VCRUNTIME.*\.dll", "KERNEL32\.dll", "ucrtbased\.dll", "api-ms-win.*\.dll")
+$exc_ptn = @("Dump of file","File Type: DLL", "MSVC.*\.dll", "VCRUNTIME.*\.dll", "KERNEL32\.dll", "ucrtbased\.dll", "api-ms-win.*\.dll") -join '|'
 $dumpbin = "dumpbin.exe"
 
 function getDllDirectories($directories) {
   $result = @()
   foreach ($dir in $directories) {
-    $dlldir = Get-ChildItem -Path $dir -Recurse -Filter *.dll | Select-Object -ExpandProperty DirectoryName | Sort-Object -Unique
-    $result = $result + $dlldir
+    if (-not (Test-Path -Path $dir)) { continue }
+    $dlldir = Get-ChildItem -Path $dir -Recurse -Filter *.dll -ErrorAction SilentlyContinue | Select-Object -ExpandProperty DirectoryName | Sort-Object -Unique
+    if ($dlldir) { $result += $dlldir }
   }
-  return $result
+  return ($result | Sort-Object -Unique)
 }
 
-function getDependentDLL($target, $path, $excludes) {
-  $cmd =  """$dumpbin"" /DEPENDENTS ""$target"" | findstr ""dll"""
+function getDependentDLL($target, $paths, $excludes) {
+  $deps = & $dumpbin /DEPENDENTS $target 2>$null
+  if (-not $deps) { return @() }
 
-  # Write-Host "## cmd=$cmd"
-  $deps = (cmd.exe /c $cmd) | ForEach-Object { $_.Trim()} | Select-String -Pattern $exc_ptn -NotMatch
-  $dlls = ($deps | Where-Object { $excludes -notcontains $_ })
-  if ($dlls.Length) {
-    $dlls_ptn = $dlls -join '|'
-    $dlls_full = Get-ChildItem -Path $paths | Where-Object { $_.Name -match $dlls_ptn} | Select-Object -ExpandProperty FullName
-    return @($dlls_full)
-  } else {
-    return @()
+  $dlls = @()
+  foreach ($line in $deps) {
+    $trimmed = $line.Trim()
+    if ($trimmed -match "dll" -and $trimmed -notmatch $script:exc_ptn) {
+      if ($excludes -notcontains $trimmed) {
+        $dlls += $trimmed
+      }
+    }
   }
+
+  if ($dlls.Length -gt 0) {
+    $dlls_full = Get-ChildItem -Path $paths -Filter *.dll -ErrorAction SilentlyContinue | Where-Object { $dlls -contains $_.Name } | Select-Object -ExpandProperty FullName
+    return @($dlls_full)
+  }
+  return @()
 }
 
 function GetExternalDlls($target, $paths, $excludes){
   $find_dlls = @()
   $target_dlls = @($target)
-  while($target_dlls.Length) {
+
+  while ($target_dlls.Length -gt 0) {
     $next_target = @()
     foreach($f in $target_dlls) {
       $ret = @(getDependentDLL $f $paths $excludes)
@@ -82,30 +56,50 @@ function GetExternalDlls($target, $paths, $excludes){
     }
     $target_dlls = $next_target
   }
-  if ($find_dlls.Length) {
-    return $find_dlls | Select-Object -Unique
-  } else {
-    return @()
+
+  if ($find_dlls.Length -gt 0) {
+    return ($find_dlls | Select-Object -Unique)
   }
+  return @()
 }
 
-# __main__
+$dll_search_path = @()
+
 if ($Path) {
   $dll_search_path = $Path.split(";")
 } elseif($env:FINDDEPDLL_SEARCH_PATH) {
   $dll_search_path = $env:FINDDEPDLL_SEARCH_PATH.split(";")
 }
-if ($Target -and $dll_search_path){
+
+if (-not $Target -and $env:FINDDEPDLL_TARGET) {
+  $Target = $env:FINDDEPDLL_TARGET
+}
+if (-not $Exclude -and $env:FINDDEPDLL_EXCLUDE) {
+  $Exclude = $env:FINDDEPDLL_EXCLUDE
+}
+
+if ($Target -and $dll_search_path.Length -gt 0){
   try {
     $dllpaths = getDllDirectories $dll_search_path
     $target_lst = @()
-    $Target.split(";") | ForEach-Object { $target_lst += Convert-Path $_ }
-    $excludeArray = $Exclude.Split(";")
-    $dlls = GetExternalDlls $target_lst $dllpaths $excludeArray
-    if ($Dest -and $dlls){
-      Copy-Item -Path $dlls -Destination $Dest -Force
-    } else {
-      Write-Host ($dlls -replace '\\','/' -join ";")
+    $Target.split(";") | ForEach-Object { if (Test-Path -Path $_) { $target_lst += Convert-Path $_ } }
+
+    $excludeArray = @()
+    if ($Exclude) {
+      $excludeArray = $Exclude.Split(";")
+    }
+
+    if ($target_lst.Length -gt 0) {
+      $dlls = GetExternalDlls $target_lst $dllpaths $excludeArray
+      if ($Dest -and $dlls){
+        if (-not (Test-Path -Path $Dest)) { New-Item -ItemType Directory -Path $Dest -Force | Out-Null }
+        Copy-Item -Path $dlls -Destination $Dest -Force
+      } else {
+        if ($dlls) {
+          $formatted_dlls = @($dlls) | ForEach-Object { $_ -replace '\\','/' }
+          Write-Host ($formatted_dlls -join ";")
+        }
+      }
     }
   }
   catch {
@@ -113,4 +107,5 @@ if ($Target -and $dll_search_path){
     exit 1
   }
 }
+
 exit 0

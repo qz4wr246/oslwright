@@ -99,7 +99,12 @@ function(oslw_install_depdll)
           OUTPUT_VARIABLE __deps
           OUTPUT_STRIP_TRAILING_WHITESPACE
         )
-        file(INSTALL \${__deps} DESTINATION ${_args_DESTINATION})
+        set(__resolved_files \"\")
+        foreach(__file_path IN LISTS \${__deps})
+          get_filename_component(__real_path \"\${__file_path}\" REALPATH)
+          list(APPEND __resolved_files \"\${__real_path}\")
+        endforeach()
+        file(INSTALL \${__resolved_files} DESTINATION ${_args_DESTINATION})
     ")
 
   if(_args_COMPONENT)
@@ -136,7 +141,7 @@ function(oslw_copy_depdll)
   add_custom_command(
     TARGET ${_args_TARGET}
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E env "FINDDEPDLL_SEARCH_PATH=${__paths}"
+    COMMAND ${CMAKE_COMMAND} -E env "FINDDEPDLL_SEARCH_PATH=${__paths}" --
       powershell -NoProfile -NonInteractive -executionpolicy Bypass
       -File $<1:"${_ps_file}">
       -Target $<1:"$<TARGET_FILE:${_args_TARGET}>">
@@ -172,11 +177,9 @@ function(oslw_find_depdll arg)
   list(JOIN __framework_path ";" __paths)
   list(JOIN _args_DLLS ";" __dlls)
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -E env "FINDDEPDLL_SEARCH_PATH=${__paths}"
+    COMMAND ${CMAKE_COMMAND} -E env "FINDDEPDLL_SEARCH_PATH=${__paths}" "FINDDEPDLL_TARGET=${__dlls}" "FINDDEPDLL_EXCLUDE=${_args_EXCLUDE}" --
     powershell -NoProfile -NonInteractive -executionpolicy Bypass
       -File "${_ps_file}"
-      -Target "${__dlls}"
-      -Exclude "${_args_EXCLUDE}"
     WORKING_DIRECTORY ${_args_WORKDIR}
     OUTPUT_VARIABLE __deps
     OUTPUT_STRIP_TRAILING_WHITESPACE

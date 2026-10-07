@@ -1,0 +1,141 @@
+diff --git a/include/cst_file.h b/include/cst_file.h
+index b658564..21a32a8 100644
+--- a/include/cst_file.h
++++ b/include/cst_file.h
+@@ -98,29 +98,7 @@ long cst_fwrite(cst_file fh, const void *buf, long size, long count);
+ long cst_fread(cst_file fh, void *buf, long size, long count);
+ int cst_fprintf(cst_file fh, const char *fmt, ...);
+ int cst_sprintf(char *s, const char *fmt, ...);
+-#ifdef _WIN32
+-#define snprintf c99_snprintf
+-
+-__inline int c99_vsnprintf(char* str, size_t size, const char* format,
+-va_list ap)  {
+-       int count = -1;
+-       if (size != 0)
+-           count = _vsnprintf_s(str, size, _TRUNCATE, format, ap);
+-       if (count == -1)
+-           count = _vscprintf(format, ap);
+-       return count;
+-   }
+-__inline int c99_snprintf(char* str, size_t size, const char* format, ...)
+-{
+-       int count;
+-       va_list ap;
+ 
+-       va_start(ap, format);
+-       count = c99_vsnprintf(str, size, format, ap);
+-       va_end(ap);
+-       return count;
+-   }
+-#endif
+ #define cst_snprintf snprintf
+ 
+ #if defined(__palmos__)
+diff --git a/include/cst_tokenstream.h b/include/cst_tokenstream.h
+index 5296235..d021957 100644
+--- a/include/cst_tokenstream.h
++++ b/include/cst_tokenstream.h
+@@ -130,16 +130,12 @@ cst_tokenstream *ts_open_generic(const char *filename,
+                                  int (*getc)(cst_tokenstream *ts));
+ void ts_close(cst_tokenstream *ts);
+ 
+-#ifdef _WIN32
+-__inline int ts_utf8_sequence_length(char c0);
+-#else
+-int ts_utf8_sequence_length(char c0);
+-#endif
+- // {
+-//    /* Get the expected length of UTF8 sequence given its most */
+-//    /* significant byte */
+-//    return (( 0xE5000000 >> (( c0 >> 3 ) & 0x1E )) & 3 ) + 1;
+-// }
++static inline int ts_utf8_sequence_length(char c0)
++{
++   /* Get the expected length of UTF8 sequence given its most */
++   /* significant byte */
++   return (( 0xE5000000 >> (( c0 >> 3 ) & 0x1E )) & 3 ) + 1;
++}
+ 
+ int ts_eof(cst_tokenstream *ts);
+ const cst_string *ts_get(cst_tokenstream *ts);
+diff --git a/lang/cmu_indic_lang/cmu_indic_lang.c b/lang/cmu_indic_lang/cmu_indic_lang.c
+index 5b0111e..bb1f12c 100644
+--- a/lang/cmu_indic_lang/cmu_indic_lang.c
++++ b/lang/cmu_indic_lang/cmu_indic_lang.c
+@@ -117,22 +117,6 @@ cst_val *cmu_indic_tokentowords(cst_item *token) {
+ #include "indic_pan_num_table.h"
+ 
+ 
+-int ts_utf8_sequence_length(char c0);
+-// inline int utf8_sequence_length(char c0)
+-// {
+-    // Get the expected length of UTF8 sequence given its most
+-    // significant byte
+-//    return (( 0xE5000000 >> (( c0 >> 3 ) & 0x1E )) & 3 ) + 1;
+-// }
+-
+-
+-int ts_utf8_sequence_length(char c0);
+-// inline int utf8_sequence_length(char c0)
+-// {
+-    // Get the expected length of UTF8 sequence given its most
+-    // significant byte
+-//    return (( 0xE5000000 >> (( c0 >> 3 ) & 0x1E )) & 3 ) + 1;
+-// }
+ 
+ 
+ int indic_digit_to_offset(const char *ind_digit) 
+diff --git a/lang/cmu_indic_lex/cmu_indic_lex.c b/lang/cmu_indic_lex/cmu_indic_lex.c
+index d55f1db..40895fd 100644
+--- a/lang/cmu_indic_lex/cmu_indic_lex.c
++++ b/lang/cmu_indic_lex/cmu_indic_lex.c
+@@ -45,7 +45,7 @@
+ 
+ extern cst_lexicon cmu_lex;
+ 
+- int utf8_sequence_length(char c0);
++
+ 
+ static const struct cmu_indic_char cmu_indic_offset_char[128] = {
+   /*000*/ {IND_IGNORE, ""},
+diff --git a/src/utils/cst_tokenstream.c b/src/utils/cst_tokenstream.c
+index de6f6fd..18f03d9 100644
+--- a/src/utils/cst_tokenstream.c
++++ b/src/utils/cst_tokenstream.c
+@@ -266,16 +266,7 @@ static void get_token_sub_part(cst_tokenstream *ts,
+     (*buffer)[p] = '\0';
+ }
+ 
+- #ifdef _WIN32
+- __inline int ts_utf8_sequence_length(char c0)
+- #else
+- int ts_utf8_sequence_length(char c0)
+- #endif
+- {
+-    /* Get the expected length of UTF8 sequence given its most */
+-    /* significant byte */
+-     return (( 0xE5000000 >> (( c0 >> 3 ) & 0x1E )) & 3 ) + 1;
+- }
++
+ 
+ /* Can't afford dynamically generate this char class so have separated func */
+ /* so do the core token part -- this goes while not givenlass (while the    */
+diff --git a/src/utils/cst_val.c b/src/utils/cst_val.c
+index 40cf1e9..2d0d177 100644
+--- a/src/utils/cst_val.c
++++ b/src/utils/cst_val.c
+@@ -475,11 +475,8 @@ int val_dec_refcount(const cst_val *b)
+     }
+ }
+ 
+-#ifdef _WIN32
+-__inline int utf8_sequence_length(char c0)
+-#else
+-int utf8_sequence_length(char c0)
+-#endif
++
++static inline int utf8_sequence_length(char c0)
+ {
+     /* Get the expected length of UTF8 sequence given its most */
+     /* significant byte */

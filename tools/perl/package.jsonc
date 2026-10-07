@@ -4,13 +4,13 @@
   "description": "Strawberry Perl is a perl environment for MS Windows",
   "site": "https://strawberryperl.com/",
   "license": "Artistic License",
-  "settings": [
+  "process_time": 180,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "enable": true,
-      "type": "chose",
-      "item": "{{$versions}}",
+      "type": "choice",
+      "items": "{{$versions}}",
       "default": "$latest_version"
     }
   ],
@@ -43,4 +43,3 @@
     }
   }
 }
-

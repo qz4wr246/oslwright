@@ -1,0 +1,119 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 42d81e9..5c4c4f6 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -166,6 +166,8 @@ else()
+   target_compile_options(${PROJECT_NAME} PUBLIC -Wno-unknown-attributes)
+ endif()
+
++set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
++
+ # +-------------------------------------------------------------------------------------------------------+
+ # | Setup Compile Definitions                                                                             |
+ # +-------------------------------------------------------------------------------------------------------+
+@@ -251,43 +253,51 @@ CPMFindPackage(
+   NAME           lockpp
+   VERSION        3.2.0
+   GIT_REPOSITORY "https://github.com/Curve/lockpp"
++  GIT_TAG        "v3.2.0"
+ )
+
+ CPMFindPackage(
+   NAME           coco
+   VERSION        4.3.0
+   GIT_REPOSITORY "https://github.com/Curve/coco"
++  GIT_TAG        "v4.3.0"
++  PATCH_COMMAND  git apply --whitespace=fix ${CMAKE_CURRENT_SOURCE_DIR}/coco.patch
+   OPTIONS        "coco_exceptions ${saucer_exceptions}"
+ )
+
+ CPMFindPackage(
+   NAME           rebind
+   VERSION        5.3.1
+   GIT_REPOSITORY "https://github.com/Curve/rebind"
++  GIT_TAG        "v5.3.1"
+ )
+
+ CPMFindPackage(
+   NAME           ereignis
+   VERSION        6.3.0
+   GIT_REPOSITORY "https://github.com/Curve/ereignis"
++  GIT_TAG        "v6.3.0"
+ )
+
+ CPMFindPackage(
+   NAME           flagpp
+   VERSION        3.1.0
+   GIT_REPOSITORY "https://github.com/Curve/flagpp"
++  GIT_TAG        "v3.1.0"
+ )
+
+ CPMFindPackage(
+   NAME           polo
+   VERSION        1.0.2
+   GIT_REPOSITORY "https://github.com/Curve/polo"
++  GIT_TAG        "v1.0.2"
+ )
+
+ CPMFindPackage(
+   NAME           saucer-fill
+   VERSION        1.3.0
+   GIT_REPOSITORY "https://github.com/saucer/fill"
++  GIT_TAG        "v1.3.0"
+   OPTIONS        "fill_namespace std" "fill_silent ON"
+ )
+
+@@ -295,6 +305,8 @@ CPMFindPackage(
+   NAME           saucer-embed
+   VERSION        1.1.1
+   GIT_REPOSITORY "https://github.com/saucer/embed"
++  GIT_TAG        "v1.1.1"
++  PATCH_COMMAND  git apply ${CMAKE_CURRENT_SOURCE_DIR}/saucer-embed.patch
+ )
+
+ saucer_link_libraries(${PROJECT_NAME}         cr::lockpp cr::flagpp)
+diff --git a/coco.patch b/coco.patch
+new file mode 100644
+index 0000000..c700511
+--- /dev/null
++++ b/coco.patch
+@@ -0,0 +1,12 @@
++diff --git a/CMakeLists.txt b/CMakeLists.txt
++index 3a2434c..a2eed47 100644
++--- a/CMakeLists.txt
+++++ b/CMakeLists.txt
++@@ -17,6 +17,7 @@ add_library(cr::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
++
++ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
++ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20 CXX_EXTENSIONS OFF CXX_STANDARD_REQUIRED ON)
+++set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
++
++ # +-------------------------------------------------------------------------------------------------------+
++ # | Setup Compile Definitions                                                                              |
+diff --git a/saucer-embed.patch b/saucer-embed.patch
+new file mode 100644
+index 0000000..effc2a5
+--- /dev/null
++++ b/saucer-embed.patch
+@@ -0,0 +1,21 @@
++diff --git a/CMakeLists.txt b/CMakeLists.txt
++index f1faa96..2d7546a 100644
++--- a/CMakeLists.txt
+++++ b/CMakeLists.txt
++@@ -43,3 +43,4 @@ CPMFindPackage(
++ )
++
++ target_link_libraries(${PROJECT_NAME} PUBLIC glaze::glaze)
+++set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
++diff --git a/cmake/embed.cmake b/cmake/embed.cmake
++index ff77465..08b9a4f 100644
++--- a/cmake/embed.cmake
+++++ b/cmake/embed.cmake
++@@ -97,6 +97,7 @@ function(embed_target NAME DIRECTORY)
++
++     target_compile_features(${TARGET} PUBLIC cxx_std_23)
++     set_target_properties(${TARGET} PROPERTIES CXX_STANDARD 23 CXX_EXTENSIONS OFF CXX_STANDARD_REQUIRED ON)
+++    set_target_properties(${TARGET} PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
++ endfunction()
++
++ function(saucer_embed DIRECTORY)

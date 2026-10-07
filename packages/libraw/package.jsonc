@@ -1,0 +1,255 @@
+{
+  "name": "libraw",
+  "display": "LibRaw",
+  "description": "A library for reading RAW files from digital cameras",
+  "site": "http://www.libraw.org/",
+  "license": "LGPL-2.1 license",
+  "info": "info.md",
+  "process_time": 230,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "choice",
+      "items": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "choice",
+      "items": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "shared",
+        "static"
+      ],
+      "default": "shared"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "Release",
+        "Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "union",
+        "separation"
+      ],
+      "default": "separation"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    }
+  ],
+  "versions": {
+    "default": {
+      "environments": {
+        "PERLIO": "raw",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+      },
+      "source_dir": "${source_rootdir}\\LibRaw-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\LibRaw-${version}.tar.gz",
+      "download_url": "https://www.libraw.org/data/LibRaw-${version}.tar.gz",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "donloads",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "curl.exe --fail -L -s -o \"$cache_file\" \"$download_url\"",
+              "fallback": "del /q /f \"$cache_file\""
+            },
+            {
+              "message": "extract from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -aoa -o\"${source_rootdir}\" && del \"${cache_file}.temp.tar\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            }
+          ]
+        },
+        "configure": {
+          "scripts": [
+            {
+              "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
+              "script": "rmdir /s /q \"$build_dir_debug\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_debug\""
+            },
+            {
+              "when": "{{'Release' in $build_type }}",
+              "script": "rmdir /s /q \"$build_dir_release\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_release\""
+            },
+            {
+              "message": "config for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$source_dir",
+              "script": "perl -pe \"s@/I\\.@/I..\\\\{{os.path.basename($source_dir)}}@g; s@src\\\\@..\\\\{{os.path.basename($source_dir)}}\\\\src\\\\@g\" Makefile.msvc > \"$build_dir_debug/Makefile\""
+            },
+            {
+              "message": "config for release.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$source_dir",
+              "script": "perl -pe \"s@/I\\.@/I..\\\\{{os.path.basename($source_dir)}}@g; s@src\\\\@..\\\\{{os.path.basename($source_dir)}}\\\\src\\\\@g\" Makefile.msvc > \"$build_dir_release/Makefile\""
+            }
+          ]
+        },
+        "build": {
+          "LIBSTATIC": "lib\\libraw_static.lib",
+          "LIBDLL": "lib\\libraw.lib",
+          "DLL": "bin\\libraw.dll",
+          "scripts": [
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "mkdir \"$build_dir_debug\\object\" \"$build_dir_debug\\bin\" \"$build_dir_debug\\lib\"",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "mkdir \"$build_dir_release\\object\" \"$build_dir_release\\bin\" \"$build_dir_release\\lib\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "chdir": "$build_dir_debug",
+              "script": "nmake /NOLOGO {{$LIBDLL if 'shared' in $build_library else ''}}  {{$LIBSTATIC if 'static' in $build_library else ''}}"
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "chdir": "$build_dir_release",
+              "script": "nmake /NOLOGO {{$LIBDLL if 'shared' in $build_library else ''}}  {{$LIBSTATIC if 'static' in $build_library else ''}}"
+            }
+          ]
+        },
+        "install": {
+          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
+          "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
+          "template_files": [
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "${package_dir}\\libraw.pc.j2",
+              "output": "${pkgconfig_dir_debug}\\libraw.pc",
+              "defines": [
+                "LIBRAW_VERSION=\"$version\""
+              ]
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "${package_dir}\\libraw.pc.j2",
+              "output": "${pkgconfig_dir_release}\\libraw.pc",
+              "defines": [
+                "LIBRAW_VERSION=\"$version\""
+              ]
+            }
+          ],
+          "scripts": [
+            {
+              // Template Script:
+              // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "xcopy \"$source_dir\\libraw\\*.h\" \"$dist_dir_debug\\include\" /s /e /i /y /q",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "xcopy \"$build_dir_debug\\bin\\*\" \"$dist_dir_debug\\bin\" /s /e /i /y /q",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "script": "xcopy \"$build_dir_debug\\lib\\*\" \"$dist_dir_debug\\lib\" /s /e /i /y /q",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "xcopy \"$source_dir\\libraw\\*.h\" \"$dist_dir_release\\include\" /s /e /i /y /q",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "xcopy \"$build_dir_release\\bin\\*\" \"$dist_dir_release\\bin\" /s /e /i /y /q",
+              "ignore_errors": true
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "xcopy \"$build_dir_release\\lib\\*\" \"$dist_dir_release\\lib\" /s /e /i /y /q",
+              "ignore_errors": true
+            }
+          ]
+        }
+      }
+    },
+    "0.22.1": {}
+  }
+}

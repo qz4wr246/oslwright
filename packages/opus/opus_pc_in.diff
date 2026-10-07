@@ -1,0 +1,16 @@
+--- a/opus.pc.in	2026-06-03 07:04:47.918146100 +0900
++++ b/opus.pc.in	2026-06-03 06:42:24.341102100 +0900
+@@ -1,9 +1,9 @@
+ # Opus codec reference implementation pkg-config file
+
+-prefix=@prefix@
+-exec_prefix=@exec_prefix@
+-libdir=@libdir@
+-includedir=@includedir@
++prefix=${pcfiledir}/../..
++exec_prefix=${prefix}
++libdir=${prefix}/lib
++includedir=${prefix}/include
+
+ Name: Opus
+ Description: Opus IETF audio codec (@PC_BUILD@ build)

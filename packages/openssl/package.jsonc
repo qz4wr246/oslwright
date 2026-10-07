@@ -5,37 +5,44 @@
   "site": "https://www.openssl.org",
   "license": "Apache-2.0 license",
   "info": "info.md",
-  "process_time": "6700",
-  "settings": [
+  "process_time": 7700,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "type": "chose",
-      "item": "{{$versions}}",
+      "type": "choice",
+      "items": "{{$versions}}",
       "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
     },
     {
       "display": "Build arch",
       "name": "build_arch",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "x64",
         "x32"
       ],
       "default": "$build_arch_default"
     },
     {
-      "display": "MSVC toolset version",
-      "name": "msvc_toolset_version",
-      "type": "chose",
-      "item": "{{$msvc_toolset_versions}}",
-      "default": "$msvc_toolset_version_default"
-    },
-    {
       "display": "MSVC runtime library",
       "name": "msvc_runtime_library",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "mt",
         "md"
       ],
@@ -44,8 +51,8 @@
     {
       "display": "Build library",
       "name": "build_library",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "shared",
         "static"
       ],
@@ -54,8 +61,8 @@
     {
       "display": "Build type",
       "name": "build_type",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "Release",
         "Debug",
         "Release;Debug"
@@ -66,8 +73,8 @@
       "display": "Build layout",
       "name": "build_layout",
       "enable": false,
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "union",
         "separation"
       ],
@@ -83,16 +90,16 @@
     {
       "display": "CUDA Version",
       "name": "cuda_version",
-      "enable": false,
-      "type": "chose",
-      "item": "{{$cuda_versions}}",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
     },
     {
       "display": "With Zlib",
       "name": "with_zlib",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "none",
         "auto",
         "shared",
@@ -103,8 +110,8 @@
     {
       "display": "With Brotli",
       "name": "with_brotli",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "none",
         "auto",
         "shared",
@@ -115,8 +122,8 @@
     {
       "display": "With Zstandard",
       "name": "with_zstd",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "none",
         "auto",
         "shared",
@@ -164,47 +171,60 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://github.com/openssl/openssl.git",
-      "git_tag": "openssl-${version}",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'openssl-' + $version}}",
+      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
           "scripts": [
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
-              "failed": "rmdir /q /s \"$source_dir\""
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git checkout.",
+              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$source_dir",
+              "script": "git checkout $git_hash",
+              "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "make cache.",
               "when": "{{os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
-              "failed": "rmdir /q /s \"$source_dir\""
+              "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "extruct from cache.",
+              "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
-              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
-              "failed": "del \"$cache_file\""
+              "script": "7z -sccUTF-8 x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "fallback": "del \"$cache_file\""
             }
           ]
         },
         "patch": {
-          "patch_file_01": "${package_dir}\\openssl_c_rehash.diff",
-          "patch_file_02":  "${package_dir}\\00-base-templates.conf.diff",
-          "scripts": [
+          "patch_files": [
             {
-              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
-              "chdir": "$source_dir",
-              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+              "local": "${package_dir}\\openssl_c_rehash.diff"
             },
             {
-              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_02)))}}",
+              "local":  "${package_dir}\\00-base-templates.conf.diff"
+            }
+          ],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
               "chdir": "$source_dir",
-              "script": "git apply \"$patch_file_02\" && copy nul > {{'__patched_' + os.path.basename($patch_file_02)}}"
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             }
           ]
         },
         "configure": {
+          "environments": {
+            "PERL5LIB": "${source_dir}\\util\\perl;${source_dir}\\external\\perl"
+          },
           "zlib_dir_debug" : "{{next((x for x in $dependent_packages_debug.split(';') if 'zlib' in x), '')}}",
           "zlib_dir_release" : "{{next((x for x in $dependent_packages_release.split(';') if 'zlib' in x), '')}}",
           "zlib_include_debug": "$zlib_dir_debug\\include",
@@ -257,24 +277,12 @@
           ],
           "scripts": [
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "del /q /s \"$build_dir_debug\" > nul"
+              "script": "rmdir /s /q \"$build_dir_debug\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_debug\""
             },
             {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type}}",
-              "script": "del /q /s \"$build_dir_release\" > nul"
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
-              "script": "mkdir \"$build_dir_debug\""
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
-              "script": "mkdir \"$build_dir_release\""
+              "when": "{{'Release' in $build_type }}",
+              "script": "rmdir /s /q \"$build_dir_release\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_release\""
             },
             {
               "message": "config for debug.",
@@ -316,6 +324,20 @@
         },
         "build": {
           "scripts": [
+            // {
+            //   "message": "build for debug.",
+            //   "when": "{{'Debug' in $build_type}}",
+            //   "chdir": "$build_dir_debug",
+            //   "script": "nmake /NOLOGO clean",
+            //   "ignore_errors": true
+            // },
+            // {
+            //   "message": "build for release.",
+            //   "when": "{{'Release' in $build_type}}",
+            //   "chdir": "$build_dir_release",
+            //   "script": "nmake /NOLOGO clean",
+            //   "ignore_errors": true
+            // },
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
@@ -355,36 +377,61 @@
           ]
         },
         "post-install" :{
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
+          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
+          "pkgconfig_dir_debug": "$dist_lib_debug\\lib\\pkgconfig",
+          "template_files": [
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "${package_dir}\\openssl.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_debug}\\openssl.pc"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "${package_dir}\\openssl.pc.j2",
+              "defines": [
+                "VERSION=\"$version\""
+              ],
+              "output": "${pkgconfig_dir_release}\\openssl.pc"
+            }
+          ],
           "environments": {
             "PERLIO": "raw"
           },
           "scripts": [
             {
-              "ignore_errors": true,
+              // Template Script:
+              // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+            },
+            {
               "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_debug)}}\"",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
+              "when": "{{'Release' in $build_type}}",
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl \"${assets_rootdir}\\fix_pcfile.pl\" @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_release)}}\"",
+              "ignore_errors": true
+            },
+            {
               "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
+              "chdir": "${dist_dir_debug}\\lib",
+              "script": "copy /y libcrypto.lib crypto.lib && copy /y libssl.lib ssl.lib"
             },
             {
-              "ignore_errors": true,
               "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
+              "chdir": "${dist_dir_release}\\lib",
+              "script": "copy /y libcrypto.lib crypto.lib && copy /y libssl.lib ssl.lib"
             }
           ]
         }
       }
     },
-    "3.3.5": {},
-    "3.6.1": {}
+    "3.5.6": {},  // TLS 2030/04
+    "3.6.2": {}
   }
 }

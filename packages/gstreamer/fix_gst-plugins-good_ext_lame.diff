@@ -1,0 +1,13 @@
+diff --git a/subprojects/gst-plugins-good/ext/lame/meson.build b/subprojects/gst-plugins-good/ext/lame/meson.build
+index fd697d6..d05da63 100644
+--- a/subprojects/gst-plugins-good/ext/lame/meson.build
++++ b/subprojects/gst-plugins-good/ext/lame/meson.build
+@@ -34,7 +34,7 @@ if have_lame
+     lame_extra_c_args += ['-DGSTLAME_PRESET']
+   endif
+ else
+-  lame_dep = dependency('mp3lame', allow_fallback: true, required: lame_option,
++  lame_dep = dependency(['lame', 'mp3lame'], allow_fallback: true, required: lame_option,
+       include_type: 'system', default_options: ['tools=disabled'])
+   have_lame = lame_dep.found()
+   lame_extra_c_args += ['-DHAVE_LAME_SET_VBR_QUALITY', '-DGSTLAME_PRESET', '-DLAME_SUBPROJECT']

@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 333d3d7..537a209 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -617,7 +617,7 @@ if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
+   string(REPLACE ";" ", "
+            PKGCONFIG_REQUIRES_PRIVATE "${PKGCONFIG_REQUIRES_PRIVATE}")
+ 
+-  string(REPLACE "%prefix%" ${CMAKE_INSTALL_PREFIX}
++  string(REPLACE "%prefix%" "\${pcfiledir}/../.."
+           FREETYPE2_PC_IN ${FREETYPE2_PC_IN})
+   string(REPLACE "%exec_prefix%" "\${prefix}"
+           FREETYPE2_PC_IN ${FREETYPE2_PC_IN})

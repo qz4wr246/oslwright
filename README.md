@@ -1,6 +1,6 @@
 <h1>OSLwright: A C/C++ Open Source Library Builder for Windows</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.1.2-blue.svg?cacheSeconds=2592000" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.2.0-blue.svg?cacheSeconds=2592000" />
   <a href="#" target="_blank">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT_License-yellow.svg" />
     <img alt="Language: python" src="https://img.shields.io/badge/Language-Python-green.svg" />
@@ -11,12 +11,13 @@
 OSLwright は、C/C++オープンソースライブラリ・ビルダーです。
 Windows向けのC/C++ネイティブ・ライブラリをスクラッチビルドします。
 <p>
-<img src="images/building.png" width="50%" style="display: block; margin: auto;" />
+<img src="docs/building.png" width="50%" style="display: block; margin: auto;" />
 </p>
 
 > [!WARNING]
 > ## 🚧 ！工事中！ 👷‍♀️
-> ほとんどテストを実施していません。デフォルト設定（リリースビルド）でのビルドを実施しました。
+> ほとんどテストを実施していません。<br>
+> 全てのパッケージのビルドが完了することを確認しました。ただしリリース版だけです。
 
 # Features
 
@@ -24,19 +25,23 @@ Windows向けのC/C++ネイティブ・ライブラリをスクラッチビル�
 * GUIで簡単にパッケージのビルドが出来ます。
 * いくつかパッケージはCMakeConfigを追加しています。pkg-configは相対パスへ変更済み
 * 気まぐれで商業利用に制限の少ないライセンスのパッケージを収集しています。
-* ソースファイルをダウンロードしてスクラッチ・ビルドするので、バージョン管理やソースの追跡が容易です。
+* ソースファイルをダウンロードしてスクラッチ・ビルドするので、バージョン管理やソースの追跡が可能です。
 * 特に理由がなければ、[__vcpkg__](https://learn.microsoft.com/ja-jp/vcpkg/get_started/overview) をお勧めします。
 
 # Requirements
 
+スペック
+* ディスクスペース 45GB(パッケージのフルビルド時)
+
 次のアプリケーションをインストールしてください。
 
-* Python 3.12 or higher [https://www.python.org/downloads/](https://www.python.org/downloads/)
+* Python 3.12.x [https://www.python.org/downloads/](https://www.python.org/downloads/)
 * Microsoft Visual Studio 2022 or higher [https://visualstudio.microsoft.com/ja/downloads/](https://visualstudio.microsoft.com/ja/downloads/)
-* CMake 3.30 or higher [https://cmake.org/download/](https://cmake.org/download/)
+* CMake 4.3 or higher [https://cmake.org/download/](https://cmake.org/download/)
 * Git for Windows [https://gitforwindows.org/](https://gitforwindows.org/)
 * Git Large File Storage [https://git-lfs.com/](https://git-lfs.com/)
 * 7zip [https://www.7-zip.org/download.html](https://www.7-zip.org/download.html)
+
 
 # Get start
 1. Python, VisualStudioなどOSLwrightが依存するアプリケーションをインストールします。
@@ -48,27 +53,29 @@ Windows向けのC/C++ネイティブ・ライブラリをスクラッチビル�
 
 1. ビルドする対象のパッケージを選択します。
 
-   <img src="images/select.png" width="50%" style="display: block; margin: auto;"/>
+   <img src="docs/select.png" width="50%" style="display: block; margin: auto;"/>
 
 1. [Build all] を押すと、選択されたパッケージが順次ビルドされます。
+
+    ビルド予定時刻はあくまで目安です。ビルド完了は予定時刻より前後します。
 
 1. ビルドされたパッケージは、&lt;OSLwright ディレクトリ&gt;/dist/以下にインストールされます。
 
 # How to use the packages
-パッケージを使用するには、いくつかの方法があります。
+ビルドされたパッケージを使用するには、いくつかの方法があります。
 
 ## A. パッケージをアプリケーションの開発フォルダへコピーして使用する方法
 開発メンバーで開発環境を共有する場合に適しています。
 
 1. 使用したいパッケージフォルダを&lt;開発フォルダ&gt;/3rdparty以下にコピーする。
     ```dos
-    > cd <workdir>
-    > xcopy <OSLwright>\dist 3rdparty /E /H /C /I
+    cd <workdir>
+    xcopy <OSLwright>\dist 3rdparty /E /H /C /I
     ```
 1. &lt;OSLwright ディレクトリ&gt;の cmake フォルダを&lt;開発フォルダ&gt;へコピーする。
     ```dos
-    > cd <workdir>
-    > xcopy <OSLwright>\cmake cmake /E /H /C /I
+    cd <workdir>
+    xcopy <OSLwright>\cmake cmake /E /H /C /I
     ```
 1. CMakeLists.txt に oslwrite module をロードするコードを記述する
     ```cmake
@@ -164,6 +171,18 @@ add_custom_command(TARGET ${target_name} POST_BUILD
 OSLwrightは、各パッケージをリリースビルドしています。MSVCランタイムライブラリのコンパイルオプションはMultiThreadedDLL(/MD)に設定されます。<br>
 開発するアプリケーションにおいて、MSVCランタイムライブラリのコンパイルオプションの設定は、リリース・デバックの両方ともにMultiThreadedDLL(/MD)へ変更してください。
 
+# Troubleshooting
+
+パッケージのビルドでエラーとなったときは、以下の項目を実施してください。
+
++ boost-1.90.0 はVisual Studio 2026を未サポート(2026/04)
++ logs/Output.log へログが出力されています。原因を確認してください。
++ packages/パッケージ/package.jsonc を確認してください。
++ sourcesディレクトリのパッケージ・ディレクトリを削除（ソースファイルが壊れている）
++ cacheディレクトリにパッケージ・アーカイブを削除
+（パッケージ・アーカイブが壊れている）
++ optionsディレクトリのパッケージ・オプションファイルを削除（stageを最初のdownloadから実行したい）
+
 
 # Appendix
 ## ファルダ命名規則(Folder naming conventions)
@@ -173,11 +192,11 @@ OSLwrightは、各パッケージをリリースビルドしています。MSVC�
 
   |Folder name|Mean|
   |----|----|
-  |&lt;package&gt;-&lt;version&gt;-x64-vc144-md|A 64-bit build with either both release and debug configurations or release only, and either both shared and static libraries or shared libraries only.|
-  |&lt;package&gt;-&lt;version&gt;-x64-vc144-md-cu124|with cuda|
-  |&lt;package&gt;-&lt;version&gt;-x64-vc144-md-static|static library only|
-  |&lt;package&gt;-&lt;version&gt;-x64-vc144-md-release|release only|
-  |&lt;package&gt;-&lt;version&gt;-x64-vc144-md-debug|debug only|
+  |&lt;package&gt;-&lt;version&gt;-x64-vc145-md|A 64-bit build with either both release and debug configurations or release only, and either both shared and static libraries or shared libraries only.|
+  |&lt;package&gt;-&lt;version&gt;-x64-vc145-md-cu124|with cuda|
+  |&lt;package&gt;-&lt;version&gt;-x64-vc145-md-static|static library only|
+  |&lt;package&gt;-&lt;version&gt;-x64-vc145-md-release|release only|
+  |&lt;package&gt;-&lt;version&gt;-x64-vc145-md-debug|debug only|
   |&lt;package&gt;-&lt;version&gt;| header  only|
 
 
@@ -185,4 +204,4 @@ OSLwrightは、各パッケージをリリースビルドしています。MSVC�
 OSLwright のライセンスは MIT License です。<br>
 サンプルソースコードのライセンスは MIT License と CC0 1.0 Universal です。<br>
 各パッケージは、それぞれのライセンスに従ってください。<br>
-__本ソフトウェアおよび生成物について、作者は一切の責任を負いません。利用による結果はすべて利用者の責任とします。__
+__本ソフトウェアおよび生成物について、作者は如何なる補償も責任も一切負いません。問い合わせも受け付けません。利用(exploit)および使用(use)による結果はすべて利用者の責任とします。__

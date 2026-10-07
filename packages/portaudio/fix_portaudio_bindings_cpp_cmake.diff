@@ -1,0 +1,28 @@
+--- a/bindings/cpp/CMakeLists.txt	2026-06-09 11:26:10.989665800 +0900
++++ b/bindings/cpp/CMakeLists.txt"	2026-06-09 11:21:56.505664300 +0900
+@@ -57,10 +57,12 @@
+   endif()
+ ENDIF(WIN32)
+
++set(PORTAUDIO_INSTALL_TARGETS "")
+ IF(PA_BUILD_SHARED)
+   add_library(portaudiocpp SHARED ${PA_CPP_SOURCES})
+   target_link_libraries(portaudiocpp PUBLIC portaudio)
+   target_include_directories(portaudiocpp PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
++  list(APPEND PORTAUDIO_INSTALL_TARGETS portaudiocpp)
+ ENDIF(PA_BUILD_SHARED)
+ IF(PA_BUILD_STATIC)
+   add_library(portaudiocpp_static STATIC ${PA_CPP_SOURCES})
+@@ -69,10 +71,11 @@
+   IF(NOT PA_LIBNAME_ADD_SUFFIX)
+     SET_PROPERTY(TARGET portaudiocpp_static PROPERTY OUTPUT_NAME portaudiocpp)
+   ENDIF()
++  list(APPEND PORTAUDIO_INSTALL_TARGETS portaudiocpp_static)
+ ENDIF(PA_BUILD_STATIC)
+
+ include(GNUInstallDirs)
+-install(TARGETS portaudiocpp portaudiocpp_static
++install(TARGETS ${PORTAUDIO_INSTALL_TARGETS}
+   ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+   LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"

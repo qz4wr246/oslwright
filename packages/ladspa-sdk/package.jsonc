@@ -1,0 +1,161 @@
+{
+  "name": "ladspa-sdk",
+  "display": "ladspa-sdk",
+  "description": "Linux Audio Developer's Simple Plugin API (LADSPA) SDK",
+  "site": "https://www.ladspa.org/",
+  "license": "LGPL",
+  "info": "info.md",
+  "process_time": 20,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "enable": false,
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": ""
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "enable": false,
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": ""
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "x64",
+        "x32"
+      ],
+      "default": ""
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "mt",
+        "md"
+      ],
+      "default": ""
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "shared",
+        "static",
+        "interface"
+      ],
+      "default": "interface"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "Release",
+        "Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "union",
+        "separation"
+      ],
+      "default": "union"
+    },
+    {
+      "display": "Using CUDA",
+      "name": "cuda_enable",
+      "enable": false,
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "CUDA Version",
+      "name": "cuda_version",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
+      "default": "{{$cuda_version_default}}"
+    }
+  ],
+  "versions": {
+    "default": {
+      "environments": {
+        "PERLIO": "raw",
+        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
+        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+      },
+      "source_dir": "${source_rootdir}\\ladspa_sdk_${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.tar.gz",
+      "download_url": "https://ladspa.org/download/ladspa_sdk_${version}.tgz",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "donloads",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "curl.exe --fail -L -s -o \"$cache_file\" \"$download_url\"",
+              "fallback": "del /q /f \"$cache_file\""
+            },
+            {
+              "message": "extract from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z.exe x \"${cache_file}\" -so > \"${cache_file}.temp.tar\" && 7z.exe x \"${cache_file}.temp.tar\" -snld -aoa -o\"${source_rootdir}\" && del \"${cache_file}.temp.tar\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            }
+          ]
+        },
+        "install": {
+          "scripts": [
+            {
+              "when": "{{'Release' in $build_type and not os.path.isdir($dist_dir_release)}}",
+              "script": "mkdir \"$dist_dir_release\\include\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "install for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "copy /y \"$source_dir\\src\\ladspa.h\" \"$dist_dir_release\\include\\ladspa.h\""
+            }
+          ]
+        }
+      }
+    },
+    "1.17": {}
+  }
+}

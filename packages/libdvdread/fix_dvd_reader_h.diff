@@ -1,0 +1,13 @@
+diff --git a/src/dvdread/dvd_reader.h b/src/dvdread/dvd_reader.h
+index 9d082b2..0f665a6 100644
+--- a/src/dvdread/dvd_reader.h
++++ b/src/dvdread/dvd_reader.h
+@@ -24,7 +24,7 @@
+ #define LIBDVDREAD_DVD_READER_H
+ 
+ #ifdef _MSC_VER
+-#include <config.h>
++// #include <config.h>
+ 
+ #include <stdio.h>
+ #include <stdlib.h>

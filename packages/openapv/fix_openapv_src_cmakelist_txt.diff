@@ -1,0 +1,19 @@
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index d690068..875f5e5 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -174,7 +174,7 @@ if(OAPV_BUILD_SHARED_LIB)
+   )
+ endif()
+ 
+-if(NOT MSVC)
++# if(NOT MSVC)
+     if(OAPV_BUILD_SHARED_LIB)
+         set(EXTRA_CFLAGS "")
+         set(EXTRA_CFLAGS_PRIVATE "-DOAPV_STATIC_DEFINE")
+@@ -189,4 +189,4 @@ if(NOT MSVC)
+     install(FILES
+       "${CMAKE_BINARY_DIR}/${LIB_NAME_BASE}.pc" DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+     )
+-endif()
++# endif()

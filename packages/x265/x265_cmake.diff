@@ -1,0 +1,43 @@
+diff --git a/source/CMakeLists.txt b/source/CMakeLists.txt
+index 1d1a613..3655b3e 100644
+--- a/source/CMakeLists.txt
++++ b/source/CMakeLists.txt
+@@ -1,4 +1,5 @@
+ # vim: syntax=cmake
++cmake_minimum_required (VERSION 3.10)
+ if(NOT CMAKE_BUILD_TYPE)
+     # default to Release build for GCC builds
+     set(CMAKE_BUILD_TYPE Release CACHE STRING
+@@ -7,17 +8,17 @@ if(NOT CMAKE_BUILD_TYPE)
+ endif()
+ message(STATUS "cmake version ${CMAKE_VERSION}")
+ if(POLICY CMP0025)
+-    cmake_policy(SET CMP0025 OLD) # report Apple's Clang as just Clang
++    cmake_policy(SET CMP0025 NEW) # report Apple's Clang as just Clang
+ endif()
+ if(POLICY CMP0042)
+     cmake_policy(SET CMP0042 NEW) # MACOSX_RPATH
+ endif()
+ if(POLICY CMP0054)
+-    cmake_policy(SET CMP0054 OLD) # Only interpret if() arguments as variables or keywords when unquoted
++    cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted
+ endif()
+ 
+ project (x265)
+-cmake_minimum_required (VERSION 2.8.8) # OBJECT libraries require 2.8.8
++
+ include(CheckIncludeFiles)
+ include(CheckFunctionExists)
+ include(CheckSymbolExists)
+diff --git a/source/cmake/FindNasm.cmake b/source/cmake/FindNasm.cmake
+index ff7eac6..9e0c2ea 100644
+--- a/source/cmake/FindNasm.cmake
++++ b/source/cmake/FindNasm.cmake
+@@ -20,6 +20,6 @@ if(NASM_EXECUTABLE)
+ endif()
+ 
+ # Provide standardized success/failure messages
+-find_package_handle_standard_args(nasm
++find_package_handle_standard_args(Nasm
+     REQUIRED_VARS NASM_EXECUTABLE
+     VERSION_VAR NASM_VERSION_STRING)

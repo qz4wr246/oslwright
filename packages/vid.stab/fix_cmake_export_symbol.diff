@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 834d914..e9832f7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -66,6 +66,8 @@ add_library (vidstab ${SOURCES})
+ 
+ #set version of lib
+ set_target_properties(vidstab PROPERTIES SOVERSION ${MAJOR_VERSION}.${MINOR_VERSION})
++# export symbols
++set_target_properties(vidstab PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+ 
+ 
+ target_link_libraries(vidstab m)

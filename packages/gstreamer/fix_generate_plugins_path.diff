@@ -1,0 +1,47 @@
+diff --git a/meson.build b/meson.build
+index 8359c1f..0ff93ba 100644
+--- a/meson.build
++++ b/meson.build
+@@ -393,11 +393,11 @@ devenv.set('GST_PLUGIN_LOADING_WHITELIST', '*')
+ meson.add_devenv(devenv)
+ 
+ generate_plugins_paths = find_program('scripts/generate_plugins_path.py')
+-configure_file(
+-  output : 'GstPluginsPath.json',
+-  command : [generate_plugins_paths,
+-             '@OUTPUT@',
+-             all_plugins_paths]
++res = run_command(
++  generate_plugins_paths,
++  'GstPluginsPath.json',
++  env : {'GST_ALL_PLUGINS_PATHS': all_plugins_paths},
++  check: true
+ )
+ 
+ if building_full
+diff --git a/scripts/generate_plugins_path.py b/scripts/generate_plugins_path.py
+index d609639..2bf28dc 100644
+--- a/scripts/generate_plugins_path.py
++++ b/scripts/generate_plugins_path.py
+@@ -7,13 +7,18 @@ import json
+ if __name__ == "__main__":
+     parser = argparse.ArgumentParser()
+     parser.add_argument(dest="output", help="Output file")
+-    parser.add_argument(dest="plugins", help="The list of plugins")
++    parser.add_argument(dest="plugins", nargs="?", default=None, help="The list of plugins")
+ 
+     options = parser.parse_args()
+ 
++    plugins_input = options.plugins
++    if plugins_input is None:
++        plugins_input = os.environ.get("GST_ALL_PLUGINS_PATHS", "")
++
+     all_paths = set()
+-    for plugin in options.plugins.split(os.pathsep):
+-        all_paths.add(os.path.dirname(plugin))
++    for plugin in plugins_input.split(os.pathsep):
++        if plugin:
++            all_paths.add(os.path.dirname(plugin))
+ 
+     with open(options.output, "w") as f:
+         json.dump(list(all_paths), f, indent=4, sort_keys=True)

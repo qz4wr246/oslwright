@@ -5,6 +5,10 @@ cd /d %_LD%
 set SCRIPT_DIR=%_LD:~0,-1%
 set SCRIPT_FILE=%~dpnx0
 set VENV_DIR=%SCRIPT_DIR%\.venv
+set __COMPAT_LAYER=RunAsInvoker
+
+cd %SCRIPT_DIR%
+chcp 65001
 
 @REM Check python venv
 if not exist "%VENV_DIR%" (
@@ -13,7 +17,7 @@ if not exist "%VENV_DIR%" (
   echo #================================================
   python -m venv .venv
   "%VENV_DIR%\Scripts\python.exe" -m pip install --upgrade pip
-  "%VENV_DIR%\Scripts\python.exe" -m pip install -r "%SCRIPT_DIR%\requirements.txt"
+  "%VENV_DIR%\Scripts\python.exe" -m pip install .
 )
 if not exist "%VENV_DIR%\Scripts\python3.exe" (
   pushd "%VENV_DIR%\Scripts"
@@ -23,5 +27,5 @@ if not exist "%VENV_DIR%\Scripts\python3.exe" (
 
 @REM Launch oslwright
 call "%VENV_DIR%\Scripts\activate.bat"
-start /MIN "" python.exe -m oslwright
+start /MIN "" pythonw.exe main.py
 exit

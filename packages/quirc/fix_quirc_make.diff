@@ -1,0 +1,73 @@
+diff --git a/Makefile b/Makefile
+index a334b30..7a6f89e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -15,12 +15,13 @@
+ 
+ CC ?= gcc
+ PREFIX ?= /usr/local
+-SDL_CFLAGS := $(shell pkg-config --cflags sdl 2>&1)
+-SDL_LIBS = $(shell pkg-config --libs sdl)
++#SDL_CFLAGS := $(shell pkg-config --cflags sdl2 2>&1)
++#SDL_LIBS = $(shell pkg-config --libs sdl2)
+ 
+ LIB_VERSION = 1.2
+ 
+-CFLAGS ?= -O3 -Wall -fPIC
++CFLAGS += -O3 -Wall -fPIC -I/opt/ucrt64/include
++LDFLAGS += -L/opt/ucrt64/lib
+ QUIRC_CFLAGS = -Ilib $(CFLAGS) $(SDL_CFLAGS)
+ LIB_OBJ = \
+     lib/decode.o \
+@@ -35,13 +36,13 @@ DEMO_UTIL_OBJ = \
+     demo/dthash.o \
+     demo/demoutil.o
+ 
+-OPENCV_CFLAGS := $(shell pkg-config --cflags opencv4 2>&1)
+-OPENCV_LIBS = $(shell pkg-config --libs opencv4)
++#OPENCV_CFLAGS := $(shell pkg-config --cflags opencv4 2>&1)
++#OPENCV_LIBS = $(shell pkg-config --libs opencv4)
+ QUIRC_CXXFLAGS = $(QUIRC_CFLAGS) $(OPENCV_CFLAGS) --std=c++17
+ 
+ .PHONY: all v4l sdl opencv install uninstall clean
+ 
+-all: libquirc.so qrtest
++all: quirc.dll
+ 
+ v4l: quirc-scanner
+ 
+@@ -78,6 +79,10 @@ libquirc.so: libquirc.so.$(LIB_VERSION)
+ libquirc.so.$(LIB_VERSION): $(LIB_OBJ)
+ 	$(CC) -shared -o $@ $(LIB_OBJ) $(LDFLAGS) -lm
+ 
++quirc.dll: $(LIB_OBJ)
++	$(CC) -shared -o $@ $(LIB_OBJ) $(LDFLAGS) -lm -Wl,--out-implib,libquirc.dll.a -Wl,--output-def,libquirc.def
++
++
+ .c.o:
+ 	$(CC) $(QUIRC_CFLAGS) -o $@ -c $<
+ 
+@@ -85,14 +90,16 @@ libquirc.so.$(LIB_VERSION): $(LIB_OBJ)
+ .cxx.o:
+ 	$(CXX) $(QUIRC_CXXFLAGS) -o $@ -c $<
+ 
+-install: libquirc.a libquirc.so.$(LIB_VERSION) quirc-demo quirc-scanner
+-	install -o root -g root -m 0644 lib/quirc.h $(DESTDIR)$(PREFIX)/include
+-	install -o root -g root -m 0644 libquirc.a $(DESTDIR)$(PREFIX)/lib
+-	install -o root -g root -m 0755 libquirc.so.$(LIB_VERSION) \
+-		$(DESTDIR)$(PREFIX)/lib
+-	install -o root -g root -m 0755 quirc-demo $(DESTDIR)$(PREFIX)/bin
++install: libquirc.a libquirc.so.$(LIB_VERSION) # quirc-demo quirc-scanner
++	mkdir -p $(DESTDIR)$(PREFIX)/include
++	mkdir -p $(DESTDIR)$(PREFIX)/lib
++	mkdir -p $(DESTDIR)$(PREFIX)/bin
++	install -m 0644 lib/quirc.h $(DESTDIR)$(PREFIX)/include
++	install -m 0644 libquirc.dll.a $(DESTDIR)$(PREFIX)/lib
++	install -m 0755 quirc.dll $(DESTDIR)$(PREFIX)/bin
++  # install -o root -g root -m 0755 quirc-demo $(DESTDIR)$(PREFIX)/bin
+ 	# install -o root -g root -m 0755 quirc-demo-opencv $(DESTDIR)$(PREFIX)/bin
+-	install -o root -g root -m 0755 quirc-scanner $(DESTDIR)$(PREFIX)/bin
++  # install -o root -g root -m 0755 quirc-scanner $(DESTDIR)$(PREFIX)/bin
+ 
+ uninstall:
+ 	rm -f $(DESTDIR)$(PREFIX)/include/quirc.h

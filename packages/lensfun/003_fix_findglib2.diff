@@ -1,0 +1,19 @@
+diff --git a/cmake/modules/FindGLIB2.cmake b/cmake/modules/FindGLIB2.cmake
+index db07ba27..c6051aec 100644
+--- a/cmake/modules/FindGLIB2.cmake
++++ b/cmake/modules/FindGLIB2.cmake
+@@ -1,4 +1,4 @@
+-IF (NOT MSVC)
++# IF (NOT MSVC)
+     FIND_PACKAGE(PkgConfig)
+     PKG_SEARCH_MODULE(GLIB2 glib-2.0)
+     IF(WIN32 AND NOT BUILD_STATIC)
+@@ -7,7 +7,7 @@ IF (NOT MSVC)
+                 PATHS "${GLIB2_LIBRARY_DIRS}/../bin"
+                 NO_SYSTEM_ENVIRONMENT_PATH)
+     ENDIF()
+-ENDIF()
++# ENDIF()
+ 
+ IF (NOT GLIB2_FOUND OR NOT PKG_CONFIG_FOUND)
+     FIND_PATH(GLIB2_GLIB2CONFIG_INCLUDE_PATH

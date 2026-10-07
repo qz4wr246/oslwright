@@ -4,21 +4,59 @@
   "description": "Software Distribution and Building Platform for Windows",
   "site": "https://www.msys2.org/",
   "license": "any",
-  "process_time": "180",
-  "settings": [
+  "process_time": 1100,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "enable": true,
-      "type": "chose",
-      "item": "{{ $versions }}",
+      "type": "choice",
+      "items": "{{ $versions }}",
       "default": "$latest_version"
     }
   ],
   "versions": {
     "default": {
+      "msys2_packages": [
+        "ucrt64/mingw-w64-ucrt-x86_64-gcc",
+        "ucrt64/mingw-w64-ucrt-x86_64-toolchain",
+        "ucrt64/mingw-w64-ucrt-x86_64-nsis",
+        // "ucrt64/mingw-w64-ucrt-x86_64-gettext",
+        // "ucrt64/mingw-w64-ucrt-x86_64-gperf",
+        "ucrt64/mingw-w64-ucrt-x86_64-cmake",
+        "ucrt64/mingw-w64-ucrt-x86_64-ninja",
+        "ucrt64/mingw-w64-ucrt-x86_64-yasm",
+        "ucrt64/mingw-w64-ucrt-x86_64-nasm",
+        "ucrt64/mingw-w64-ucrt-x86_64-meson",
+        "ucrt64/mingw-w64-ucrt-x86_64-python-pip",
+        "base-devel",
+        "diffutils",
+        "pkg-config",
+        "texinfo",
+        "libtool",
+        "autotools",
+        "automake",
+        "autoconf",
+        "gettext",
+        "gettext-devel",
+        "gperf",
+        "gengetopt",
+        "git",
+        "python3",
+        "patch",
+        "bison",
+        "flex",
+        "gtk-doc",
+        "python3-pip",
+        "mingw-w64-ucrt-x86_64-python-setuptools",
+        "mingw-w64-ucrt-x86_64-python-markdown",
+        "mingw-w64-ucrt-x86_64-python-mako"
+      ],
+      "msys2_dir" : "{{os.path.join($package_dir,'msys64')}}",
+      "msys2_bash_ob": "cmd.exe /c \"set \"MSYSTEM=MSYS\" && set \"CHERE_INVOKING=1\" && \"${msys2_dir}\\usr\\bin\\bash.exe\" -lc ",
+      "msys2_bash_cb": "\"",
       "stages": {
         "install": {
+          "profile_file": "$package_dir\\ucrt64_profile.sh",
           "scripts": [
             {
               "message": "Download $name",
@@ -27,21 +65,63 @@
               "script": "curl.exe -L -s -o \"$msys_cache\" \"$msys_url\""
             },
             {
-              "message": "Extruct $name",
-              "when": "{{os.path.isfile($msys_cache) and not os.path.exists(os.path.join($package_dir,'msys64'))}}",
+              "message": "Extract $name",
+              "when": "{{os.path.isfile($msys_cache) and not os.path.exists($msys2_dir)}}",
               "script": "7z x \"$msys_cache\" -so | 7z x -aoa -si -ttar -o\"$package_dir\""
             },
             {
-              "message": "Setup",
-              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
-              "chdir": "{{os.path.join($package_dir,'msys64')}}",
+              "message": "Fix ucrt64.ini",
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "script": "echo MSYS=winsymlinks:nativestrict >> \"$msys2_dir\\ucrt64.ini\""
+            },
+            {
+              "message": "Fix msys2.ini",
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "script": "echo MSYS=winsymlinks:nativestrict >> \"$msys2_dir\\msys2.ini\""
+            },
+            {
+              "message": "Initalize msys2 system",
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
               "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c exit"
             },
             {
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
+              "bash_script": "mkdir -p /opt/ucrt64",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+            },
+            {
+              "message": "Copy profile",
+              "script": "copy /y \"$profile_file\" \"{{os.path.join($package_dir,'msys64','etc','profile.d')}}\\\""
+            },
+            {
+              "message": "Download msys2",
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
+                "bash_script": "until pacman -Syyuw --noconfirm; do sleep 10; done",
+                "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+            },
+            {
+              "message": "Download build tools",
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
+              "bash_script": "until pacman -Sw --noconfirm {{' '.join($msys2_packages)}};do sleep 10;done",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+            },
+            {
               "message": "Install build tools",
-              "when": "{{os.path.exists(os.path.join($package_dir,'msys64'))}}",
-              "chdir": "{{os.path.join($package_dir,'msys64')}}",
-              "script": "msys2_shell.cmd -ucrt64 -defterm -no-start -c 'pacman -S --noconfirm make pkgconf diffutils'"
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
+              "bash_script": "pacman -S --needed --noconfirm {{' '.join($msys2_packages)}}",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
+            },
+            {
+              "message": "Upgrade msys2",
+              "when": "{{os.path.exists($msys2_dir)}}",
+              "chdir": "$msys2_dir",
+              "bash_script": "pacman -Syyu --noconfirm",
+              "script": "${msys2_bash_ob} '${bash_script}' ${msys2_bash_cb}"
             }
           ]
         }
@@ -50,7 +130,10 @@
     "20241116": {
       "msys_url": "https://repo.msys2.org/distrib/x86_64/msys2-base-x86_64-20241116.tar.xz",
       "msys_cache": "$cache_rootdir\\msys2-base-x86_64-20241116.tar.xz"
+    },
+    "20251213": {
+      "msys_url": "https://repo.msys2.org/distrib/x86_64/msys2-base-x86_64-20251213.tar.xz",
+      "msys_cache": "$cache_rootdir\\msys2-base-x86_64-20251213.tar.xz"
     }
   }
 }
-

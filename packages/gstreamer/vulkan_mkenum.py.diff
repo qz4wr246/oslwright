@@ -1,0 +1,13 @@
+diff --git a/subprojects/gst-plugins-bad/gst-libs/gst/vulkan/vulkan_mkenum.py b/subprojects/gst-plugins-bad/gst-libs/gst/vulkan/vulkan_mkenum.py
+index 59a6bbc..6b0ea15 100644
+--- a/subprojects/gst-plugins-bad/gst-libs/gst/vulkan/vulkan_mkenum.py
++++ b/subprojects/gst-plugins-bad/gst-libs/gst/vulkan/vulkan_mkenum.py
+@@ -47,7 +47,7 @@ if ofilename.endswith('.h'):
+ else:
+     arg_array = c_array
+ 
+-cmd_array = cmd + arg_array + headers
++cmd_array = ['python.exe'] + cmd + arg_array + headers
+ pc = subprocess.Popen(cmd_array, stdout=subprocess.PIPE)
+ (stdo, _) = pc.communicate()
+ if pc.returncode != 0:

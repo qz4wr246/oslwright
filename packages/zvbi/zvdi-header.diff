@@ -1,0 +1,1343 @@
+diff --git a/src/libzvbi.h b/src/libzvbi.h
+index 6f00c77..a1391be 100644
+--- a/src/libzvbi.h
++++ b/src/libzvbi.h
+@@ -101,24 +101,37 @@ typedef void
+ vbi_unlock_fn			(void *			user_data);
+ #endif
+
++#undef EXPORT_API
++
++#if defined _MSC_VER && defined DLL_EXPORT
++#   define EXPORT_API extern __declspec(dllexport)
++#elif defined _MSC_VER
++#   define EXPORT_API extern __declspec(dllimport)
++#elif defined __GNUC__
++#   define EXPORT_API extern __attribute__((visibility("default")))
++#else
++#   define EXPORT_API extern
++#endif
++
++
+ typedef enum {
+-
++
+ 	VBI_LOG_ERROR		= 1 << 3,
+
+ 	VBI_LOG_WARNING		= 1 << 4,
+
+ 	VBI_LOG_NOTICE		= 1 << 5,
+
+-
++
+ 	VBI_LOG_INFO		= 1 << 6,
+
+-
++
+ 	VBI_LOG_DEBUG		= 1 << 7,
+
+-
++
+ 	VBI_LOG_DRIVER		= 1 << 8,
+
+-
++
+ 	VBI_LOG_DEBUG2		= 1 << 9,
+ 	VBI_LOG_DEBUG3		= 1 << 10
+ } vbi_log_mask;
+@@ -129,7 +142,7 @@ vbi_log_fn			(vbi_log_mask		level,
+ 				 const char *		message,
+ 				 void *			user_data);
+
+-extern vbi_log_fn		vbi_log_on_stderr;
++EXPORT_API vbi_log_fn		vbi_log_on_stderr;
+
+
+ /* bcd.h */
+@@ -194,32 +207,32 @@ vbi_bcd_digits_greater		(unsigned int		bcd,
+ #include <stdio.h>
+ #include <inttypes.h>		/* uint16_t */
+
+-
++
+ #define VBI_NUL_TERMINATED -1
+
+-extern unsigned long
++EXPORT_API unsigned long
+ vbi_strlen_ucs2			(const uint16_t *	src);
+-extern char *
++EXPORT_API char *
+ vbi_strndup_iconv		(const char *		dst_codeset,
+ 				 const char *		src_codeset,
+ 				 const char *		src,
+ 				 unsigned long		src_size,
+ 				 int			repl_char)
+   _vbi_alloc;
+-extern char *
++EXPORT_API char *
+ vbi_strndup_iconv_ucs2		(const char *		dst_codeset,
+ 				 const uint16_t *	src,
+ 				 long			src_length,
+ 				 int			repl_char)
+   _vbi_alloc;
+-extern char *
++EXPORT_API char *
+ vbi_strndup_iconv_caption	(const char *		dst_codeset,
+ 				 const char *		src,
+ 				 long			src_length,
+ 				 int			repl_char)
+   _vbi_alloc;
+ #if 3 == VBI_VERSION_MINOR
+-extern char *
++EXPORT_API char *
+ vbi_strndup_iconv_teletext	(const char *		dst_codeset,
+ 				 const vbi_ttx_charset *cs,
+ 				 const uint8_t *	src,
+@@ -227,7 +240,7 @@ vbi_strndup_iconv_teletext	(const char *		dst_codeset,
+ 				 int			repl_char)
+   _vbi_alloc _vbi_nonnull ((2));
+ #endif
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_fputs_iconv			(FILE *			fp,
+ 				 const char *		dst_codeset,
+ 				 const char *		src_codeset,
+@@ -235,14 +248,14 @@ vbi_fputs_iconv			(FILE *			fp,
+ 				 unsigned long		src_size,
+ 				 int			repl_char)
+   _vbi_nonnull ((1));
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_fputs_iconv_ucs2		(FILE *			fp,
+ 				 const char *		dst_codeset,
+ 				 const uint16_t *	src,
+ 				 long			src_length,
+ 				 int			repl_char)
+   _vbi_nonnull ((1));
+-extern const char *
++EXPORT_API const char *
+ vbi_locale_codeset		(void);
+
+
+@@ -300,17 +313,17 @@ enum {
+ 	VBI_PIL_END			= VBI_PIL (15, 15, 31, 63)
+ };
+
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_pil_is_valid_date		(vbi_pil		pil);
+-extern time_t
++EXPORT_API time_t
+ vbi_pil_to_time			(vbi_pil		pil,
+ 				 time_t			start,
+ 				 const char *		tz);
+-extern time_t
++EXPORT_API time_t
+ vbi_pil_lto_to_time		(vbi_pil		pil,
+ 				 time_t			start,
+ 				 int			seconds_east);
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_pty_validity_window		(time_t *		begin,
+ 				 time_t *		end,
+ 				 time_t			time,
+@@ -319,7 +332,7 @@ vbi_pty_validity_window		(time_t *		begin,
+   _vbi_nonnull ((1, 2))
+ #endif
+ ;
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_pil_validity_window		(time_t *		begin,
+ 				 time_t *		end,
+ 				 vbi_pil		pil,
+@@ -329,7 +342,7 @@ vbi_pil_validity_window		(time_t *		begin,
+   _vbi_nonnull ((1, 2))
+ #endif
+ ;
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_pil_lto_validity_window	(time_t *		begin,
+ 				 time_t *		end,
+ 				 vbi_pil		pil,
+@@ -344,13 +357,13 @@ vbi_pil_lto_validity_window	(time_t *		begin,
+ typedef enum {
+ 	VBI_PID_CHANNEL_LCI_0 = 0,
+
+-
++
+ 	VBI_PID_CHANNEL_LCI_1,
+
+-
++
+ 	VBI_PID_CHANNEL_LCI_2,
+
+-
++
+ 	VBI_PID_CHANNEL_LCI_3,
+
+ 	VBI_PID_CHANNEL_VPS,
+@@ -361,26 +374,26 @@ typedef enum {
+
+ 	VBI_PID_CHANNEL_XDS_FUTURE,
+
+-
++
+ 	VBI_MAX_PID_CHANNELS
+ } vbi_pid_channel;
+
+ typedef enum {
+-
++
+ 	VBI_PCS_AUDIO_UNKNOWN = 0,
+
+-
++
+ 	VBI_PCS_AUDIO_MONO,
+
+-
++
+ 	VBI_PCS_AUDIO_STEREO,
+
+-
++
+ 	VBI_PCS_AUDIO_BILINGUAL
+ } vbi_pcs_audio;
+
+ typedef struct {
+-
++
+ 	vbi_pid_channel			channel;
+
+ 	vbi_cni_type			cni_type;
+@@ -395,7 +408,7 @@ typedef struct {
+
+ 	vbi_bool			prf;
+
+-
++
+ 	vbi_pcs_audio			pcs_audio;
+
+ 	unsigned int			pty;
+@@ -432,7 +445,7 @@ typedef struct {
+
+ 	int			reserved;
+
+-
++
+ 	int			cycle;
+ } vbi_network;
+
+@@ -448,9 +461,9 @@ typedef enum {
+ 	VBI_LINK_HTTP,
+ 	VBI_LINK_FTP,
+ 	VBI_LINK_EMAIL,
+-
++
+ 	VBI_LINK_LID,
+-
++
+ 	VBI_LINK_TELEWEB
+ } vbi_link_type;
+
+@@ -483,10 +496,10 @@ typedef struct vbi_link {
+  */
+
+ typedef enum {
+-	VBI_SUBT_NONE,
+-	VBI_SUBT_ACTIVE,
+-	VBI_SUBT_MATTE,
+-	VBI_SUBT_UNKNOWN
++	VBI_SUBT_NONE,
++	VBI_SUBT_ACTIVE,
++	VBI_SUBT_MATTE,
++	VBI_SUBT_UNKNOWN
+ } vbi_subt;
+
+ typedef struct {
+@@ -511,13 +524,13 @@ typedef enum {
+ 	VBI_RATING_AUTH_TV_CA_FR
+ } vbi_rating_auth;
+
+-#define VBI_RATING_D 0x08
+-#define VBI_RATING_L 0x04
+-#define VBI_RATING_S 0x02
+-#define VBI_RATING_V 0x01
++#define VBI_RATING_D 0x08
++#define VBI_RATING_L 0x04
++#define VBI_RATING_S 0x02
++#define VBI_RATING_V 0x01
+
+
+-extern const char *	vbi_rating_string(vbi_rating_auth auth, int id);
++EXPORT_API const char *	vbi_rating_string(vbi_rating_auth auth, int id);
+
+ typedef enum {
+ 	VBI_PROG_CLASSF_NONE = 0,
+@@ -525,21 +538,21 @@ typedef enum {
+ 	VBI_PROG_CLASSF_ETS_300231
+ } vbi_prog_classf;
+
+-extern const char *	vbi_prog_type_string(vbi_prog_classf classf, int id);
++EXPORT_API const char *	vbi_prog_type_string(vbi_prog_classf classf, int id);
+
+
+ /* code depends on order, don't change */
+ typedef enum {
+-	VBI_AUDIO_MODE_NONE = 0,
+-	VBI_AUDIO_MODE_MONO,
+-	VBI_AUDIO_MODE_STEREO,
+-	VBI_AUDIO_MODE_STEREO_SURROUND,
+-	VBI_AUDIO_MODE_SIMULATED_STEREO,
++	VBI_AUDIO_MODE_NONE = 0,
++	VBI_AUDIO_MODE_MONO,
++	VBI_AUDIO_MODE_STEREO,
++	VBI_AUDIO_MODE_STEREO_SURROUND,
++	VBI_AUDIO_MODE_SIMULATED_STEREO,
+ 	VBI_AUDIO_MODE_VIDEO_DESCRIPTIONS,
+ 	VBI_AUDIO_MODE_NON_PROGRAM_AUDIO,
+
+-	VBI_AUDIO_MODE_SPECIAL_EFFECTS,
+-	VBI_AUDIO_MODE_DATA_SERVICE,
++	VBI_AUDIO_MODE_SPECIAL_EFFECTS,
++	VBI_AUDIO_MODE_DATA_SERVICE,
+ 	VBI_AUDIO_MODE_UNKNOWN
+ } vbi_audio_mode;
+
+@@ -654,7 +667,7 @@ typedef struct vbi_program_info {
+ 	signed char		description[8][33];
+ } vbi_program_info;
+
+-extern void		vbi_reset_prog_info(vbi_program_info *pi);
++EXPORT_API void		vbi_reset_prog_info(vbi_program_info *pi);
+
+
+
+@@ -672,24 +685,24 @@ extern void		vbi_reset_prog_info(vbi_program_info *pi);
+
+
+ typedef enum {
+-
++
+ 	VBI_DST_UNKNOWN = 0,
+
+ 	VBI_DST_INCLUDED,
+
+-
++
+ 	VBI_DST_INACTIVE,
+
+ 	VBI_DST_ACTIVE
+ } vbi_dst_state;
+
+ typedef struct {
+-
++
+ 	time_t			time;
+
+ 	int			seconds_east;
+
+-
++
+ 	vbi_bool		seconds_east_valid;
+
+ 	vbi_dst_state		dst_state;
+@@ -737,15 +750,15 @@ typedef struct vbi_event {
+
+ typedef void (* vbi_event_handler)(vbi_event *event, void *user_data);
+
+-extern vbi_bool		vbi_event_handler_add(vbi_decoder *vbi, int event_mask,
++EXPORT_API vbi_bool		vbi_event_handler_add(vbi_decoder *vbi, int event_mask,
+ 					      vbi_event_handler handler,
+ 					      void *user_data);
+-extern void		vbi_event_handler_remove(vbi_decoder *vbi,
++EXPORT_API void		vbi_event_handler_remove(vbi_decoder *vbi,
+ 						 vbi_event_handler handler);
+-extern vbi_bool		vbi_event_handler_register(vbi_decoder *vbi, int event_mask,
++EXPORT_API vbi_bool		vbi_event_handler_register(vbi_decoder *vbi, int event_mask,
+ 						   vbi_event_handler handler,
+ 						   void *user_data);
+-extern void		vbi_event_handler_unregister(vbi_decoder *vbi,
++EXPORT_API void		vbi_event_handler_unregister(vbi_decoder *vbi,
+ 						     vbi_event_handler handler,
+ 						     void *user_data);
+
+@@ -784,9 +797,9 @@ typedef enum {
+ } vbi_size;
+
+ typedef struct vbi_char {
+-	unsigned	underline	: 1;
+-	unsigned	bold		: 1;
+-	unsigned	italic		: 1;
++	unsigned	underline	: 1;
++	unsigned	bold		: 1;
++	unsigned	italic		: 1;
+ 	unsigned	flash		: 1;
+ 	unsigned	conceal		: 1;
+ 	unsigned	proportional	: 1;
+@@ -861,7 +874,7 @@ vbi_is_drcs(unsigned int unicode)
+ 	return unicode >= 0xF000;
+ }
+
+-extern unsigned int
++EXPORT_API unsigned int
+ vbi_caption_unicode		(unsigned int		c,
+ 				 vbi_bool		to_upper);
+
+@@ -870,6 +883,11 @@ vbi_caption_unicode		(unsigned int		c,
+ #include <stdio.h> /* FILE */
+ #include <sys/types.h> /* size_t, ssize_t */
+
++#ifdef _MSC_VER
++#include <basetsd.h>
++typedef SSIZE_T ssize_t;
++#endif
++
+ typedef struct vbi_export vbi_export;
+
+ typedef struct vbi_export_info {
+@@ -905,60 +923,60 @@ typedef union {
+ } vbi_option_value_ptr;
+
+ typedef struct {
+-  	vbi_option_type		type;
++  	vbi_option_type		type;
+
+ 	char *			keyword;
+
+ 	char *			label;
+
+-	vbi_option_value	def;
+-	vbi_option_value	min;
+-	vbi_option_value	max;
+-	vbi_option_value	step;
+-	vbi_option_value_ptr	menu;
++	vbi_option_value	def;
++	vbi_option_value	min;
++	vbi_option_value	max;
++	vbi_option_value	step;
++	vbi_option_value_ptr	menu;
+
+ 	char *			tooltip;
+ } vbi_option_info;
+
+-extern vbi_export_info *	vbi_export_info_enum(int index);
+-extern vbi_export_info *	vbi_export_info_keyword(const char *keyword);
+-extern vbi_export_info *	vbi_export_info_export(vbi_export *);
++EXPORT_API vbi_export_info *	vbi_export_info_enum(int index);
++EXPORT_API vbi_export_info *	vbi_export_info_keyword(const char *keyword);
++EXPORT_API vbi_export_info *	vbi_export_info_export(vbi_export *);
+
+-extern vbi_export *		vbi_export_new(const char *keyword, char **errstr);
+-extern void			vbi_export_delete(vbi_export *);
++EXPORT_API vbi_export *		vbi_export_new(const char *keyword, char **errstr);
++EXPORT_API void			vbi_export_delete(vbi_export *);
+
+-extern vbi_option_info *	vbi_export_option_info_enum(vbi_export *, int index);
+-extern vbi_option_info *	vbi_export_option_info_keyword(vbi_export *, const char *keyword);
++EXPORT_API vbi_option_info *	vbi_export_option_info_enum(vbi_export *, int index);
++EXPORT_API vbi_option_info *	vbi_export_option_info_keyword(vbi_export *, const char *keyword);
+
+-extern vbi_bool			vbi_export_option_set(vbi_export *, const char *keyword, ...);
+-extern vbi_bool			vbi_export_option_get(vbi_export *, const char *keyword,
++EXPORT_API vbi_bool			vbi_export_option_set(vbi_export *, const char *keyword, ...);
++EXPORT_API vbi_bool			vbi_export_option_get(vbi_export *, const char *keyword,
+ 						      vbi_option_value *value);
+-extern vbi_bool			vbi_export_option_menu_set(vbi_export *, const char *keyword, int entry);
+-extern vbi_bool			vbi_export_option_menu_get(vbi_export *, const char *keyword, int *entry);
++EXPORT_API vbi_bool			vbi_export_option_menu_set(vbi_export *, const char *keyword, int entry);
++EXPORT_API vbi_bool			vbi_export_option_menu_get(vbi_export *, const char *keyword, int *entry);
+
+-extern ssize_t
++EXPORT_API ssize_t
+ vbi_export_mem			(vbi_export *		e,
+ 				 void *			buffer,
+ 				 size_t			buffer_size,
+ 				 const vbi_page *	pg)
+   _vbi_nonnull ((1)); /* sic */
+-extern void *
++EXPORT_API void *
+ vbi_export_alloc		(vbi_export *		e,
+ 				 void **		buffer,
+ 				 size_t *		buffer_size,
+ 				 const vbi_page *	pg)
+   _vbi_nonnull ((1)); /* sic */
+-extern vbi_bool			vbi_export_stdio(vbi_export *, FILE *fp, vbi_page *pg);
+-extern vbi_bool			vbi_export_file(vbi_export *, const char *name, vbi_page *pg);
++EXPORT_API vbi_bool			vbi_export_stdio(vbi_export *, FILE *fp, vbi_page *pg);
++EXPORT_API vbi_bool			vbi_export_file(vbi_export *, const char *name, vbi_page *pg);
+
+-extern char *			vbi_export_errstr(vbi_export *);
++EXPORT_API char *			vbi_export_errstr(vbi_export *);
+
+
+ /* cache.h */
+
+-extern void             vbi_unref_page(vbi_page *pg);
+-extern int              vbi_is_cached(vbi_decoder *, int pgno, int subno);
+-extern int              vbi_cache_hi_subno(vbi_decoder *vbi, int pgno);
++EXPORT_API void             vbi_unref_page(vbi_page *pg);
++EXPORT_API int              vbi_is_cached(vbi_decoder *, int pgno, int subno);
++EXPORT_API int              vbi_cache_hi_subno(vbi_decoder *vbi, int pgno);
+
+
+ /* search.h */
+@@ -973,13 +991,13 @@ typedef enum {
+
+ typedef struct vbi_search vbi_search;
+
+-extern vbi_search *	vbi_search_new(vbi_decoder *vbi,
++EXPORT_API vbi_search *	vbi_search_new(vbi_decoder *vbi,
+ 				       vbi_pgno pgno, vbi_subno subno,
+ 				       uint16_t *pattern,
+ 				       vbi_bool casefold, vbi_bool regexp,
+ 				       int (* progress)(vbi_page *pg));
+-extern void		vbi_search_delete(vbi_search *search);
+-extern vbi_search_status vbi_search_next(vbi_search *search, vbi_page **pg, int dir);
++EXPORT_API void		vbi_search_delete(vbi_search *search);
++EXPORT_API vbi_search_status vbi_search_next(vbi_search *search, vbi_page **pg, int dir);
+
+
+ /* sliced.h */
+@@ -1049,18 +1067,22 @@ typedef struct {
+ 	uint8_t			data[56];
+ } vbi_sliced;
+
+-extern const char *
++EXPORT_API const char *
+ vbi_sliced_name			(vbi_service_set	service)
+   _vbi_const;
+-extern unsigned int
++EXPORT_API unsigned int
+ vbi_sliced_payload_bits		(vbi_service_set	service)
+   _vbi_const;
+
+
+ /* decoder.h */
+
++#ifdef _MSC_VER
++typedef struct __cmb_mutex { void* opaque; } __cmb_mutex_t;
++#else
+ #include <pthread.h>
+-
++typedef pthread_mutex_t __cmb_mutex_t;
++#endif
+ /* Bit slicer */
+
+ /* Attn: keep this in sync with rte, don't change order */
+@@ -1121,7 +1143,7 @@ typedef struct vbi_bit_slicer {
+ 	int		skip;
+ } vbi_bit_slicer;
+
+-extern void		vbi_bit_slicer_init(vbi_bit_slicer *slicer,
++EXPORT_API void		vbi_bit_slicer_init(vbi_bit_slicer *slicer,
+ 					    int raw_samples, int sampling_rate,
+ 					    int cri_rate, int bit_rate,
+ 					    unsigned int cri_frc, unsigned int cri_mask,
+@@ -1149,7 +1171,7 @@ typedef struct vbi_raw_decoder {
+
+ 	/*< private >*/
+
+-	pthread_mutex_t		mutex;
++	__cmb_mutex_t		mutex;
+
+ 	unsigned int		services;
+ 	int			num_jobs;
+@@ -1162,21 +1184,21 @@ typedef struct vbi_raw_decoder {
+ 	}			jobs[8];
+ } vbi_raw_decoder;
+
+-extern void		vbi_raw_decoder_init(vbi_raw_decoder *rd);
+-extern void		vbi_raw_decoder_reset(vbi_raw_decoder *rd);
+-extern void		vbi_raw_decoder_destroy(vbi_raw_decoder *rd);
+-extern unsigned int	vbi_raw_decoder_add_services(vbi_raw_decoder *rd,
++EXPORT_API void		vbi_raw_decoder_init(vbi_raw_decoder *rd);
++EXPORT_API void		vbi_raw_decoder_reset(vbi_raw_decoder *rd);
++EXPORT_API void		vbi_raw_decoder_destroy(vbi_raw_decoder *rd);
++EXPORT_API unsigned int	vbi_raw_decoder_add_services(vbi_raw_decoder *rd,
+ 						     unsigned int services,
+ 						     int strict);
+-extern unsigned int     vbi_raw_decoder_check_services(vbi_raw_decoder *rd,
++EXPORT_API unsigned int     vbi_raw_decoder_check_services(vbi_raw_decoder *rd,
+ 						     unsigned int services, int strict);
+-extern unsigned int	vbi_raw_decoder_remove_services(vbi_raw_decoder *rd,
++EXPORT_API unsigned int	vbi_raw_decoder_remove_services(vbi_raw_decoder *rd,
+ 							unsigned int services);
+-extern void             vbi_raw_decoder_resize( vbi_raw_decoder *rd,
++EXPORT_API void             vbi_raw_decoder_resize( vbi_raw_decoder *rd,
+ 						int * start, unsigned int * count );
+-extern unsigned int	vbi_raw_decoder_parameters(vbi_raw_decoder *rd, unsigned int services,
++EXPORT_API unsigned int	vbi_raw_decoder_parameters(vbi_raw_decoder *rd, unsigned int services,
+ 						   int scanning, int *max_rate);
+-extern int		vbi_raw_decode(vbi_raw_decoder *rd, uint8_t *raw, vbi_sliced *out);
++EXPORT_API int		vbi_raw_decode(vbi_raw_decoder *rd, uint8_t *raw, vbi_sliced *out);
+
+
+ /* sampling_par.h */
+@@ -1202,27 +1224,27 @@ vbi_dvb_demux_cb		(vbi_dvb_demux *	dx,
+ 				 unsigned int		sliced_lines,
+ 				 int64_t		pts);
+
+-extern void
++EXPORT_API void
+ vbi_dvb_demux_reset		(vbi_dvb_demux *	dx);
+-extern unsigned int
++EXPORT_API unsigned int
+ vbi_dvb_demux_cor		(vbi_dvb_demux *	dx,
+ 				 vbi_sliced *		sliced,
+ 				 unsigned int 		sliced_lines,
+ 				 int64_t *		pts,
+ 				 const uint8_t **	buffer,
+ 				 unsigned int *		buffer_left);
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_dvb_demux_feed		(vbi_dvb_demux *	dx,
+ 				 const uint8_t *	buffer,
+ 				 unsigned int		buffer_size);
+-extern void
++EXPORT_API void
+ vbi_dvb_demux_set_log_fn	(vbi_dvb_demux *	dx,
+ 				 vbi_log_mask		mask,
+ 				 vbi_log_fn *		log_fn,
+ 				 void *			user_data);
+-extern void
++EXPORT_API void
+ vbi_dvb_demux_delete		(vbi_dvb_demux *	dx);
+-extern vbi_dvb_demux *
++EXPORT_API vbi_dvb_demux *
+ vbi_dvb_pes_demux_new		(vbi_dvb_demux_cb *	callback,
+ 				 void *			user_data);
+
+@@ -1231,7 +1253,7 @@ vbi_dvb_pes_demux_new		(vbi_dvb_demux_cb *	callback,
+ /* dvb_mux.h */
+
+
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_dvb_multiplex_sliced	(uint8_t **		packet,
+ 				 unsigned int *		packet_left,
+ 				 const vbi_sliced **	sliced,
+@@ -1243,7 +1265,7 @@ vbi_dvb_multiplex_sliced	(uint8_t **		packet,
+   _vbi_nonnull ((1, 2, 3, 4))
+ #endif
+   ;
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_dvb_multiplex_raw		(uint8_t **		packet,
+ 				 unsigned int *		packet_left,
+ 				 const uint8_t **	raw,
+@@ -1267,10 +1289,10 @@ vbi_dvb_mux_cb			(vbi_dvb_mux *		mx,
+ 				 const uint8_t *	packet,
+ 				 unsigned int		packet_size);
+
+-extern void
++EXPORT_API void
+ vbi_dvb_mux_reset		(vbi_dvb_mux *		mx)
+   _vbi_nonnull ((1));
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_dvb_mux_cor		(vbi_dvb_mux *		mx,
+ 				 uint8_t **		buffer,
+ 				 unsigned int *		buffer_left,
+@@ -1278,13 +1300,13 @@ vbi_dvb_mux_cor		(vbi_dvb_mux *		mx,
+ 				 unsigned int *		sliced_lines,
+ 				 vbi_service_set	service_mask,
+ 				 const uint8_t *	raw,
+-				 const vbi_sampling_par *sampling_par,
++				 const vbi_sampling_par *sampling_par,
+ 				 int64_t		pts)
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+   _vbi_nonnull ((1, 2, 3, 4, 5))
+ #endif
+   ;
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_dvb_mux_feed		(vbi_dvb_mux *		mx,
+ 				 const vbi_sliced *	sliced,
+ 				 unsigned int		sliced_lines,
+@@ -1293,33 +1315,33 @@ vbi_dvb_mux_feed		(vbi_dvb_mux *		mx,
+ 				 const vbi_sampling_par *sampling_par,
+ 				 int64_t		pts)
+   _vbi_nonnull ((1));
+-extern unsigned int
++EXPORT_API unsigned int
+ vbi_dvb_mux_get_data_identifier (const vbi_dvb_mux *	mx)
+   _vbi_nonnull ((1));
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_dvb_mux_set_data_identifier (vbi_dvb_mux *	mx,
+ 				  unsigned int		data_identifier)
+   _vbi_nonnull ((1));
+-extern unsigned int
++EXPORT_API unsigned int
+ vbi_dvb_mux_get_min_pes_packet_size
+ 				(vbi_dvb_mux *		mx)
+   _vbi_nonnull ((1));
+-extern unsigned int
++EXPORT_API unsigned int
+ vbi_dvb_mux_get_max_pes_packet_size
+ 				(vbi_dvb_mux *		mx)
+   _vbi_nonnull ((1));
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_dvb_mux_set_pes_packet_size (vbi_dvb_mux *	mx,
+ 				  unsigned int		min_size,
+ 				  unsigned int		max_size)
+   _vbi_nonnull ((1));
+-extern void
++EXPORT_API void
+ vbi_dvb_mux_delete		(vbi_dvb_mux *		mx);
+-extern vbi_dvb_mux *
++EXPORT_API vbi_dvb_mux *
+ vbi_dvb_pes_mux_new		(vbi_dvb_mux_cb *	callback,
+ 				 void *			user_data)
+   _vbi_alloc;
+-extern vbi_dvb_mux *
++EXPORT_API vbi_dvb_mux *
+ vbi_dvb_ts_mux_new		(unsigned int		pid,
+ 				 vbi_dvb_mux_cb *	callback,
+ 				 void *			user_data)
+@@ -1348,17 +1370,17 @@ vbi_idl_demux_cb		(vbi_idl_demux *	dx,
+ 				 unsigned int		flags,
+ 				 void *			user_data);
+
+-extern void
++EXPORT_API void
+ vbi_idl_demux_reset		(vbi_idl_demux *	dx)
+   _vbi_nonnull ((1));
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_idl_demux_feed		(vbi_idl_demux *	dx,
+ 				 const uint8_t		buffer[42])
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+   _vbi_nonnull ((1, 2))
+ #endif
+   ;
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_idl_demux_feed_frame	(vbi_idl_demux *	dx,
+ 				 const vbi_sliced *	sliced,
+ 				 unsigned int		n_lines)
+@@ -1366,9 +1388,9 @@ vbi_idl_demux_feed_frame	(vbi_idl_demux *	dx,
+   _vbi_nonnull ((1, 2))
+ #endif
+   ;
+-extern void
++EXPORT_API void
+ vbi_idl_demux_delete		(vbi_idl_demux *	dx);
+-extern vbi_idl_demux *
++EXPORT_API vbi_idl_demux *
+ vbi_idl_a_demux_new		(unsigned int		channel,
+ 				 unsigned int		address,
+ 				 vbi_idl_demux_cb *	callback,
+@@ -1384,19 +1406,19 @@ vbi_idl_a_demux_new		(unsigned int		channel,
+
+
+ typedef struct {
+-
++
+ 	vbi_pgno		pgno;
+
+-
++
+ 	unsigned int		stream;
+
+-
++
+ 	unsigned int		application_id;
+
+-
++
+ 	unsigned int		block_size;
+
+-
++
+ 	uint8_t			block[2048];
+ } vbi_pfc_block;
+
+@@ -1407,17 +1429,17 @@ vbi_pfc_demux_cb		(vbi_pfc_demux *	dx,
+ 				 void *			user_data,
+ 				 const vbi_pfc_block *	block);
+
+-extern void
++EXPORT_API void
+ vbi_pfc_demux_reset		(vbi_pfc_demux *	dx)
+   _vbi_nonnull ((1));
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_pfc_demux_feed		(vbi_pfc_demux *	dx,
+ 				 const uint8_t		buffer[42])
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+   _vbi_nonnull ((1, 2))
+ #endif
+   ;
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_pfc_demux_feed_frame	(vbi_pfc_demux *	dx,
+ 				 const vbi_sliced *	sliced,
+ 				 unsigned int		n_lines)
+@@ -1425,9 +1447,9 @@ vbi_pfc_demux_feed_frame	(vbi_pfc_demux *	dx,
+   _vbi_nonnull ((1, 2))
+ #endif
+   ;
+-extern void
++EXPORT_API void
+ vbi_pfc_demux_delete		(vbi_pfc_demux *	dx);
+-extern vbi_pfc_demux *
++EXPORT_API vbi_pfc_demux *
+ vbi_pfc_demux_new		(vbi_pgno		pgno,
+ 				 unsigned int		stream,
+ 				 vbi_pfc_demux_cb *	callback,
+@@ -1464,9 +1486,9 @@ typedef enum {
+ 	VBI_XDS_PROGRAM_CAPTION_SERVICES,
+ 	VBI_XDS_PROGRAM_CGMS,
+ 	VBI_XDS_PROGRAM_ASPECT_RATIO,
+-
++
+ 	VBI_XDS_PROGRAM_DATA = 0x0C,
+-
++
+ 	VBI_XDS_PROGRAM_MISC_DATA,
+ 	VBI_XDS_PROGRAM_DESCRIPTION_BEGIN = 0x10,
+ 	VBI_XDS_PROGRAM_DESCRIPTION_END = 0x18
+@@ -1477,7 +1499,7 @@ typedef enum {
+ 	VBI_XDS_CHANNEL_NAME = 0x01,
+ 	VBI_XDS_CHANNEL_CALL_LETTERS,
+ 	VBI_XDS_CHANNEL_TAPE_DELAY,
+-
++
+ 	VBI_XDS_CHANNEL_TSID
+ } vbi_xds_subclass_channel;
+
+@@ -1487,13 +1509,13 @@ typedef enum {
+ 	VBI_XDS_IMPULSE_CAPTURE_ID,
+ 	VBI_XDS_SUPPLEMENTAL_DATA_LOCATION,
+ 	VBI_XDS_LOCAL_TIME_ZONE,
+-
++
+ 	VBI_XDS_OUT_OF_BAND_CHANNEL = 0x40,
+-
++
+ 	VBI_XDS_CHANNEL_MAP_POINTER,
+-
++
+ 	VBI_XDS_CHANNEL_MAP_HEADER,
+-
++
+ 	VBI_XDS_CHANNEL_MAP
+ } vbi_xds_subclass_misc;
+
+@@ -1521,7 +1543,7 @@ typedef struct {
+ 	vbi_xds_class		xds_class;
+ 	vbi_xds_subclass	xds_subclass;
+
+-
++
+ 	unsigned int		buffer_size;
+
+ 	uint8_t			buffer[36];
+@@ -1529,7 +1551,7 @@ typedef struct {
+
+
+
+-extern void
++EXPORT_API void
+ _vbi_xds_packet_dump		(const vbi_xds_packet *	xp,
+ 				 FILE *			fp);
+
+@@ -1541,18 +1563,18 @@ vbi_xds_demux_cb		(vbi_xds_demux *	xd,
+ 				 const vbi_xds_packet *	xp,
+ 				 void *			user_data);
+
+-extern void
++EXPORT_API void
+ vbi_xds_demux_reset		(vbi_xds_demux *	xd);
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_xds_demux_feed		(vbi_xds_demux *	xd,
+ 				 const uint8_t		buffer[2]);
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_xds_demux_feed_frame	(vbi_xds_demux *	xd,
+ 				 const vbi_sliced *	sliced,
+ 				 unsigned int		n_lines);
+-extern void
++EXPORT_API void
+ vbi_xds_demux_delete		(vbi_xds_demux *	xd);
+-extern vbi_xds_demux *
++EXPORT_API vbi_xds_demux *
+ vbi_xds_demux_new		(vbi_xds_demux_cb *	callback,
+ 				 void *			user_data)
+   _vbi_alloc;
+@@ -1560,8 +1582,15 @@ vbi_xds_demux_new		(vbi_xds_demux_cb *	callback,
+
+
+ /* io.h */
+-
++#ifdef _MSC_VER
++struct timeval {
++    long tv_sec;
++    long tv_usec;
++};
++#else
+ #include <sys/time.h> /* struct timeval */
++#endif
++
+
+ typedef struct vbi_capture_buffer {
+ 	void *			data;
+@@ -1577,34 +1606,34 @@ typedef enum {
+         VBI_FD_IS_DEVICE   = 1<<2
+ } VBI_CAPTURE_FD_FLAGS;
+
+-extern vbi_capture *	vbi_capture_v4l2_new(const char *dev_name, int buffers,
++EXPORT_API vbi_capture *	vbi_capture_v4l2_new(const char *dev_name, int buffers,
+ 					     unsigned int *services, int strict,
+ 					     char **errorstr, vbi_bool trace);
+-extern vbi_capture *	vbi_capture_v4l2k_new(const char *	dev_name,
++EXPORT_API vbi_capture *	vbi_capture_v4l2k_new(const char *	dev_name,
+ 					      int		fd,
+ 					      int		buffers,
+ 					      unsigned int *	services,
+ 					      int		strict,
+ 					      char **		errorstr,
+ 					      vbi_bool		trace);
+-extern vbi_capture *	vbi_capture_v4l_new(const char *dev_name, int scanning,
++EXPORT_API vbi_capture *	vbi_capture_v4l_new(const char *dev_name, int scanning,
+ 					    unsigned int *services, int strict,
+ 					    char **errorstr, vbi_bool trace);
+-extern vbi_capture *	vbi_capture_v4l_sidecar_new(const char *dev_name, int given_fd,
++EXPORT_API vbi_capture *	vbi_capture_v4l_sidecar_new(const char *dev_name, int given_fd,
+ 						    unsigned int *services,
+-						    int strict, char **errorstr,
++						    int strict, char **errorstr,
+ 						    vbi_bool trace);
+-extern vbi_capture *	vbi_capture_bktr_new (const char *	dev_name,
++EXPORT_API vbi_capture *	vbi_capture_bktr_new (const char *	dev_name,
+ 					      int		scanning,
+ 					      unsigned int *	services,
+ 					      int		strict,
+ 					      char **		errstr,
+ 					      vbi_bool		trace);
+-extern int		vbi_capture_dvb_filter(vbi_capture *cap, int pid);
++EXPORT_API int		vbi_capture_dvb_filter(vbi_capture *cap, int pid);
+
+ /* This function is deprecated. Use vbi_capture_dvb_new2() instead.
+    See io-dvb.c or the Doxygen documentation for details. */
+-extern vbi_capture *
++EXPORT_API vbi_capture *
+ vbi_capture_dvb_new		(char *			dev,
+ 				 int			scanning,
+ 				 unsigned int *		services,
+@@ -1613,52 +1642,52 @@ vbi_capture_dvb_new		(char *			dev,
+ 				 vbi_bool		trace)
+   _vbi_deprecated;
+
+-extern int64_t
++EXPORT_API int64_t
+ vbi_capture_dvb_last_pts	(const vbi_capture *	cap);
+-extern vbi_capture *
++EXPORT_API vbi_capture *
+ vbi_capture_dvb_new2		(const char *		device_name,
+ 				 unsigned int		pid,
+ 				 char **		errstr,
+ 				 vbi_bool		trace);
+
+ struct vbi_proxy_client;
+-
+-extern vbi_capture *
++
++EXPORT_API vbi_capture *
+ vbi_capture_proxy_new( struct vbi_proxy_client * vpc,
+                         int buffers, int scanning,
+                         unsigned int *p_services, int strict,
+                         char **pp_errorstr );
+
+-extern int		vbi_capture_read_raw(vbi_capture *capture, void *data,
++EXPORT_API int		vbi_capture_read_raw(vbi_capture *capture, void *data,
+ 					     double *timestamp, struct timeval *timeout);
+-extern int		vbi_capture_read_sliced(vbi_capture *capture, vbi_sliced *data, int *lines,
++EXPORT_API int		vbi_capture_read_sliced(vbi_capture *capture, vbi_sliced *data, int *lines,
+ 						double *timestamp, struct timeval *timeout);
+-extern int		vbi_capture_read(vbi_capture *capture, void *raw_data,
++EXPORT_API int		vbi_capture_read(vbi_capture *capture, void *raw_data,
+ 					 vbi_sliced *sliced_data, int *lines,
+ 					 double *timestamp, struct timeval *timeout);
+-extern int		vbi_capture_pull_raw(vbi_capture *capture, vbi_capture_buffer **buffer,
++EXPORT_API int		vbi_capture_pull_raw(vbi_capture *capture, vbi_capture_buffer **buffer,
+ 					     struct timeval *timeout);
+-extern int		vbi_capture_pull_sliced(vbi_capture *capture, vbi_capture_buffer **buffer,
++EXPORT_API int		vbi_capture_pull_sliced(vbi_capture *capture, vbi_capture_buffer **buffer,
+ 						struct timeval *timeout);
+-extern int		vbi_capture_pull(vbi_capture *capture, vbi_capture_buffer **raw_buffer,
++EXPORT_API int		vbi_capture_pull(vbi_capture *capture, vbi_capture_buffer **raw_buffer,
+ 					 vbi_capture_buffer **sliced_buffer, struct timeval *timeout);
+-extern vbi_raw_decoder *vbi_capture_parameters(vbi_capture *capture);
+-extern int		vbi_capture_fd(vbi_capture *capture);
+-extern unsigned int     vbi_capture_update_services(vbi_capture *capture,
++EXPORT_API vbi_raw_decoder *vbi_capture_parameters(vbi_capture *capture);
++EXPORT_API int		vbi_capture_fd(vbi_capture *capture);
++EXPORT_API unsigned int     vbi_capture_update_services(vbi_capture *capture,
+                                                     vbi_bool reset, vbi_bool commit,
+                                                     unsigned int services, int strict,
+                                                     char ** errorstr);
+-extern int              vbi_capture_get_scanning(vbi_capture *capture);
+-extern void             vbi_capture_flush(vbi_capture *capture);
+-extern void		vbi_capture_delete(vbi_capture *capture);
++EXPORT_API int              vbi_capture_get_scanning(vbi_capture *capture);
++EXPORT_API void             vbi_capture_flush(vbi_capture *capture);
++EXPORT_API void		vbi_capture_delete(vbi_capture *capture);
+
+-extern vbi_bool         vbi_capture_set_video_path(vbi_capture *capture, const char * p_dev_video);
+-extern VBI_CAPTURE_FD_FLAGS vbi_capture_get_fd_flags(vbi_capture *capture);
++EXPORT_API vbi_bool         vbi_capture_set_video_path(vbi_capture *capture, const char * p_dev_video);
++EXPORT_API VBI_CAPTURE_FD_FLAGS vbi_capture_get_fd_flags(vbi_capture *capture);
+
+
+ /* io-sim.h */
+
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_raw_video_image		(uint8_t *		raw,
+ 				 unsigned long		raw_size,
+ 				 const vbi_sampling_par *sp,
+@@ -1669,14 +1698,14 @@ vbi_raw_video_image		(uint8_t *		raw,
+ 				 vbi_bool		swap_fields,
+ 				 const vbi_sliced *	sliced,
+ 				 unsigned int		n_sliced_lines);
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_raw_add_noise		(uint8_t *		raw,
+ 				 const vbi_sampling_par *sp,
+ 				 unsigned int		min_freq,
+ 				 unsigned int		max_freq,
+ 				 unsigned int		amplitude,
+ 				 unsigned int		seed);
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_raw_vbi_image		(uint8_t *		raw,
+ 				 unsigned long		raw_size,
+ 				 const vbi_sampling_par *sp,
+@@ -1686,27 +1715,27 @@ vbi_raw_vbi_image		(uint8_t *		raw,
+ 				 const vbi_sliced *	sliced,
+ 				 unsigned int		n_sliced_lines);
+
+-extern void
++EXPORT_API void
+ vbi_capture_sim_add_noise	(vbi_capture *		cap,
+ 				 unsigned int		min_freq,
+ 				 unsigned int		max_freq,
+ 				 unsigned int		amplitude);
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_capture_sim_load_caption	(vbi_capture *		cap,
+ 				 const char *		stream,
+ 				 vbi_bool		append);
+ #if 3 == VBI_VERSION_MINOR
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_capture_sim_load_vps	(vbi_capture *		cap,
+ 				 const vbi_program_id *pid);
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_capture_sim_load_wss_625	(vbi_capture *		cap,
+ 				 const vbi_aspect_ratio *ar);
+ #endif
+-extern void
++EXPORT_API void
+ vbi_capture_sim_decode_raw	(vbi_capture *		cap,
+ 				 vbi_bool		enable);
+-extern vbi_capture *
++EXPORT_API vbi_capture *
+ vbi_capture_sim_new		(int			scanning,
+ 				 unsigned int *		services,
+ 				 vbi_bool		interlaced,
+@@ -1785,7 +1814,7 @@ typedef enum
+
+ /* proxy-client.h */
+
+-#include <sys/time.h> /* struct timeval */
++
+
+ typedef struct vbi_proxy_client vbi_proxy_client;
+
+@@ -1804,33 +1833,33 @@ typedef void VBI_PROXY_CLIENT_CALLBACK ( void * p_client_data,
+ /* forward declaration from io.h */
+ struct vbi_capture_buffer;
+
+-extern vbi_proxy_client *
++EXPORT_API vbi_proxy_client *
+ vbi_proxy_client_create( const char *dev_name,
+                          const char *p_client_name,
+                          VBI_PROXY_CLIENT_FLAGS client_flags,
+                          char **pp_errorstr,
+                          int trace_level );
+
+-extern void
++EXPORT_API void
+ vbi_proxy_client_destroy( vbi_proxy_client * vpc );
+
+-extern vbi_capture *
++EXPORT_API vbi_capture *
+ vbi_proxy_client_get_capture_if( vbi_proxy_client * vpc );
+
+-extern VBI_PROXY_CLIENT_CALLBACK *
++EXPORT_API VBI_PROXY_CLIENT_CALLBACK *
+ vbi_proxy_client_set_callback( vbi_proxy_client * vpc,
+                                VBI_PROXY_CLIENT_CALLBACK * p_callback,
+                                void * p_data );
+
+-extern VBI_DRIVER_API_REV
++EXPORT_API VBI_DRIVER_API_REV
+ vbi_proxy_client_get_driver_api( vbi_proxy_client * vpc );
+
+-extern int
++EXPORT_API int
+ vbi_proxy_client_channel_request( vbi_proxy_client * vpc,
+                                   VBI_CHN_PRIO chn_prio,
+                                   vbi_channel_profile * chn_profile );
+
+-extern int
++EXPORT_API int
+ vbi_proxy_client_channel_notify( vbi_proxy_client * vpc,
+                                  VBI_PROXY_CHN_FLAGS notify_flags,
+                                  unsigned int scanning );
+@@ -1841,7 +1870,7 @@ typedef enum
+    VBI_PROXY_SUSPEND_STOP
+ } VBI_PROXY_SUSPEND;
+
+-extern int
++EXPORT_API int
+ vbi_proxy_client_channel_suspend( vbi_proxy_client * vpc,
+                                   VBI_PROXY_SUSPEND cmd );
+
+@@ -1850,19 +1879,19 @@ vbi_proxy_client_device_ioctl( vbi_proxy_client * vpc,
+                                int request,
+                                void * p_arg );
+
+-extern int
++EXPORT_API int
+ vbi_proxy_client_get_channel_desc( vbi_proxy_client * vpc,
+                                    unsigned int * p_scanning,
+                                    vbi_bool * p_granted );
+
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_proxy_client_has_channel_control( vbi_proxy_client * vpc );
+
+
+
+ /* exp-gfx.h */
+
+-extern void		vbi_draw_vt_page_region(vbi_page *pg, vbi_pixfmt fmt,
++EXPORT_API void		vbi_draw_vt_page_region(vbi_page *pg, vbi_pixfmt fmt,
+ 						void *canvas, int rowstride,
+ 						int column, int row,
+ 						int width, int height,
+@@ -1875,7 +1904,7 @@ vbi_draw_vt_page(vbi_page *pg, vbi_pixfmt fmt, void *canvas,
+ 				pg->columns, pg->rows, reveal, flash_on);
+ }
+
+-extern void		vbi_draw_cc_page_region(vbi_page *pg, vbi_pixfmt fmt,
++EXPORT_API void		vbi_draw_cc_page_region(vbi_page *pg, vbi_pixfmt fmt,
+ 						void *canvas, int rowstride,
+ 						int column, int row,
+ 						int width, int height);
+@@ -1886,13 +1915,13 @@ vbi_draw_cc_page(vbi_page *pg, vbi_pixfmt fmt, void *canvas)
+ 	vbi_draw_cc_page_region(pg, fmt, canvas, -1, 0, 0, pg->columns, pg->rows);
+ }
+
+-extern void vbi_get_max_rendered_size(int *w, int *h);
+-extern void vbi_get_vt_cell_size(int *w, int *h);
++EXPORT_API void vbi_get_max_rendered_size(int *w, int *h);
++EXPORT_API void vbi_get_vt_cell_size(int *w, int *h);
+
+
+ /* exp-txt.h */
+
+-extern int		vbi_print_page_region(vbi_page *pg, char *buf, int size,
++EXPORT_API int		vbi_print_page_region(vbi_page *pg, char *buf, int size,
+ 					      const char *format, vbi_bool table, vbi_bool ltr,
+ 					      int column, int row, int width, int height);
+
+@@ -1908,10 +1937,10 @@ vbi_print_page(vbi_page *pg, char *buf, int size,
+
+ /* hamm.h */
+
+-extern const uint8_t		_vbi_bit_reverse [256];
+-extern const uint8_t		_vbi_hamm8_fwd [16];
+-extern const int8_t		_vbi_hamm8_inv [256];
+-extern const int8_t		_vbi_hamm24_inv_par [3][256];
++EXPORT_API const uint8_t		_vbi_bit_reverse [256];
++EXPORT_API const uint8_t		_vbi_hamm8_fwd [16];
++EXPORT_API const int8_t		_vbi_hamm8_inv [256];
++EXPORT_API const int8_t		_vbi_hamm24_inv_par [3][256];
+
+
+ _vbi_inline unsigned int
+@@ -1969,10 +1998,10 @@ vbi_unpar8			(unsigned int		c)
+ 	}
+ }
+
+-extern void
++EXPORT_API void
+ vbi_par				(uint8_t *		p,
+ 				 unsigned int		n);
+-extern int
++EXPORT_API int
+ vbi_unpar			(uint8_t *		p,
+ 				 unsigned int		n);
+
+@@ -1995,10 +2024,10 @@ vbi_unham16p			(const uint8_t *	p)
+ 	  | (((int) _vbi_hamm8_inv[p[1]]) << 4);
+ }
+
+-extern void
++EXPORT_API void
+ vbi_ham24p			(uint8_t *		p,
+ 				 unsigned int		c);
+-extern int
++EXPORT_API int
+ vbi_unham24p			(const uint8_t *	p)
+   _vbi_pure;
+
+@@ -2006,50 +2035,50 @@ vbi_unham24p			(const uint8_t *	p)
+
+ /* cc.h */
+
+-extern vbi_bool		vbi_fetch_cc_page(vbi_decoder *vbi, vbi_page *pg,
++EXPORT_API vbi_bool		vbi_fetch_cc_page(vbi_decoder *vbi, vbi_page *pg,
+ 					  vbi_pgno pgno, vbi_bool reset);
+
+
+ /* teletext_decoder.h */
+
+ typedef enum {
+-	VBI_WST_LEVEL_1,
+-	VBI_WST_LEVEL_1p5,
++	VBI_WST_LEVEL_1,
++	VBI_WST_LEVEL_1p5,
+ 	VBI_WST_LEVEL_2p5,
+-	VBI_WST_LEVEL_3p5
++	VBI_WST_LEVEL_3p5
+ } vbi_wst_level;
+
+
+-extern void		vbi_teletext_set_default_region(vbi_decoder *vbi, int default_region);
+-extern void		vbi_teletext_set_level(vbi_decoder *vbi, int level);
++EXPORT_API void		vbi_teletext_set_default_region(vbi_decoder *vbi, int default_region);
++EXPORT_API void		vbi_teletext_set_level(vbi_decoder *vbi, int level);
+
+-extern vbi_bool		vbi_fetch_vt_page(vbi_decoder *vbi, vbi_page *pg,
++EXPORT_API vbi_bool		vbi_fetch_vt_page(vbi_decoder *vbi, vbi_page *pg,
+ 					  vbi_pgno pgno, vbi_subno subno,
+ 					  vbi_wst_level max_level, int display_rows,
+ 					  vbi_bool navigation);
+-extern int		vbi_page_title(vbi_decoder *vbi, int pgno, int subno, char *buf);
++EXPORT_API int		vbi_page_title(vbi_decoder *vbi, int pgno, int subno, char *buf);
+
+-extern void		vbi_resolve_link(vbi_page *pg, int column, int row,
++EXPORT_API void		vbi_resolve_link(vbi_page *pg, int column, int row,
+ 					 vbi_link *ld);
+-extern void		vbi_resolve_home(vbi_page *pg, vbi_link *ld);
++EXPORT_API void		vbi_resolve_home(vbi_page *pg, vbi_link *ld);
+
+
+ /* tables.h */
+
+-extern const char *	vbi_rating_string(vbi_rating_auth auth, int id);
+-extern const char *	vbi_prog_type_string(vbi_prog_classf classf, int id);
++EXPORT_API const char *	vbi_rating_string(vbi_rating_auth auth, int id);
++EXPORT_API const char *	vbi_prog_type_string(vbi_prog_classf classf, int id);
+
+
+ /* packet-830.h */
+
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_decode_teletext_8301_cni	(unsigned int *		cni,
+ 				 const uint8_t		buffer[42])
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+   _vbi_nonnull ((1, 2))
+ #endif
+   ;
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_decode_teletext_8301_local_time
+ 				(time_t *		utc_time,
+ 				 int *			seconds_east,
+@@ -2058,14 +2087,14 @@ vbi_decode_teletext_8301_local_time
+   _vbi_nonnull ((1, 2, 3))
+ #endif
+   ;
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_decode_teletext_8302_cni	(unsigned int *		cni,
+ 				 const uint8_t		buffer[42])
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+   _vbi_nonnull ((1, 2))
+ #endif
+   ;
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_decode_teletext_8302_pdc	(vbi_program_id *	pid,
+ 				 const uint8_t		buffer[42])
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+@@ -2076,25 +2105,25 @@ vbi_decode_teletext_8302_pdc	(vbi_program_id *	pid,
+
+ /* vps.h */
+
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_decode_vps_cni		(unsigned int *		cni,
+ 				 const uint8_t		buffer[13])
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+   _vbi_nonnull ((1, 2))
+ #endif
+   ;
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_encode_vps_cni		(uint8_t		buffer[13],
+ 				 unsigned int		cni)
+   _vbi_nonnull ((1));
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_decode_vps_pdc		(vbi_program_id *	pid,
+ 				 const uint8_t		buffer[13])
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+   _vbi_nonnull ((1, 2))
+ #endif
+   ;
+-extern vbi_bool
++EXPORT_API vbi_bool
+ vbi_encode_vps_pdc		(uint8_t		buffer[13],
+ 				 const vbi_program_id *	pid)
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+@@ -2134,19 +2163,19 @@ typedef enum {
+ 	VBI_UNKNOWN_PAGE = 0xFF
+ } vbi_page_type;
+
+-extern void		vbi_set_brightness(vbi_decoder *vbi, int brightness);
+-extern void		vbi_set_contrast(vbi_decoder *vbi, int contrast);
++EXPORT_API void		vbi_set_brightness(vbi_decoder *vbi, int brightness);
++EXPORT_API void		vbi_set_contrast(vbi_decoder *vbi, int contrast);
+
+
+-extern vbi_decoder *	vbi_decoder_new(void);
+-extern void		vbi_decoder_delete(vbi_decoder *vbi);
+-extern void		vbi_decode(vbi_decoder *vbi, vbi_sliced *sliced,
++EXPORT_API vbi_decoder *	vbi_decoder_new(void);
++EXPORT_API void		vbi_decoder_delete(vbi_decoder *vbi);
++EXPORT_API void		vbi_decode(vbi_decoder *vbi, vbi_sliced *sliced,
+ 				   int lines, double timestamp);
+-extern void             vbi_channel_switched(vbi_decoder *vbi, vbi_nuid nuid);
+-extern vbi_page_type	vbi_classify_page(vbi_decoder *vbi, vbi_pgno pgno,
++EXPORT_API void             vbi_channel_switched(vbi_decoder *vbi, vbi_nuid nuid);
++EXPORT_API vbi_page_type	vbi_classify_page(vbi_decoder *vbi, vbi_pgno pgno,
+ 					  vbi_subno *subno, char **language);
+-extern void		vbi_version(unsigned int *major, unsigned int *minor, unsigned int *micro);
+-extern void
++EXPORT_API void		vbi_version(unsigned int *major, unsigned int *minor, unsigned int *micro);
++EXPORT_API void
+ vbi_set_log_fn			(vbi_log_mask		mask,
+ 				 vbi_log_fn *		log_fn,
+ 				 void *			user_data);

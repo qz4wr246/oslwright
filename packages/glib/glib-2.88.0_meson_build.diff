@@ -1,0 +1,24 @@
+diff --git a/meson.build b/meson.build
+index c432f75..5d74660 100644
+--- a/meson.build
++++ b/meson.build
+@@ -2317,7 +2317,7 @@ endif
+ # implementations. This could be extended if issues are found in some platforms.
+ libintl_deps = []
+ libintl_prefix = '#include <libintl.h>'
+-libintl = dependency('intl', required: false)
++libintl = dependency('intl', 'libintl', required: false)
+ if libintl.found() and libintl.type_name() != 'internal'
+   # libintl supports different threading APIs, which may not
+   # require additional flags, but it defaults to using pthreads if
+@@ -2707,8 +2707,8 @@ endif
+ # which adds a hard dependency on gobject-introspection-1.0, so we’d better
+ # check for that here.
+ gobject_introspection_required_version = '>= 1.80.0'
+-gir_scanner = find_program('g-ir-scanner', required: get_option('introspection'), version: gobject_introspection_required_version)
+-gobject_introspection = dependency('gobject-introspection-1.0', required: get_option('introspection'), version: gobject_introspection_required_version)
++gir_scanner = find_program('g-ir-scanner', required: get_option('introspection'))
++gobject_introspection = dependency('gobject-introspection-1.0', required: get_option('introspection'))
+ enable_gir = get_option('introspection').allowed() and gir_scanner.found() and gobject_introspection.found() and meson.can_run_host_binaries()
+ 
+ if get_option('introspection').enabled() and not meson.can_run_host_binaries()

@@ -1,0 +1,11 @@
+prefix=${pcfiledir}/../..
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libraw
+Description: A library for reading RAW files from digital cameras
+URL: http://www.libraw.org/
+Version: {{LIBRAW_VERSION}}
+Libs: -L${libdir} -llibraw
+Cflags: -I${includedir} -DLIBRAW_WIN32_DLLDEFS

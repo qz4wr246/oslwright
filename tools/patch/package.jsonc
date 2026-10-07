@@ -1,0 +1,43 @@
+{
+  "name": "patch",
+  "display": "patch",
+  "description": "Unofficial clone",
+  "site": "http://gnuwin32.sourceforge.net/packages/patch.htm",
+  "license": "BSD-2-Clause",
+  "process_time": 5,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{ $versions }}",
+      "default": "$latest_version"
+    }
+  ],
+  "versions": {
+    "default": {
+      "stages": {
+        "install": {
+          "msys2_dir": "${tools_rootdir}\\msys2\\msys64",
+          "msys2_bin_dir": "${msys2_dir}\\usr\\bin",
+          "scripts": [
+            {
+              "script": "mkdir \"${package_dir}\\bin\"",
+              "ignore_errors": true
+            },
+            {
+              "message": "Copy patch.exe form msys2",
+              "script": "copy /y \"${msys2_bin_dir}\\patch.exe\" \"${package_dir}\\bin\""
+            },
+            {
+              "message": "Copy runtime form msys2",
+              "script": "copy /y \"${msys2_bin_dir}\\msys-2.0.dll\" \"${package_dir}\\bin\""
+            }
+          ]
+        }
+      }
+    },
+    "2.7.6": {
+    }
+  }
+}

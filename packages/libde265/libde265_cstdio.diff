@@ -1,0 +1,13 @@
+diff --git a/dec265/sdl-display.cc b/dec265/sdl-display.cc
+index c5b4201..6f081ee 100644
+--- a/dec265/sdl-display.cc
++++ b/dec265/sdl-display.cc
+@@ -26,7 +26,7 @@
+ 
+ #include "sdl-display.h"
+ #include <cstring>
+-
++#include <cstdio>
+ 
+ bool SDL_YUV_Display::init(int frame_width, int frame_height, enum SDL_Chroma chroma)
+ {

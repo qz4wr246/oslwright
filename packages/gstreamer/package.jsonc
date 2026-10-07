@@ -4,37 +4,44 @@
   "description": "GStreamer open-source multimedia framework",
   "site": "https://gstreamer.freedesktop.org/",
   "license": "LGPL v2.1",
-  "process_time": "1500",
-  "settings": [
+  "process_time": 1900,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "type": "chose",
-      "item": "{{$versions}}",
+      "type": "choice",
+      "items": "{{$versions}}",
       "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
     },
     {
       "display": "Build arch",
       "name": "build_arch",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "x64",
         "x32"
       ],
       "default": "$build_arch_default"
     },
     {
-      "display": "MSVC toolset version",
-      "name": "msvc_toolset_version",
-      "type": "chose",
-      "item": "{{$msvc_toolset_versions}}",
-      "default": "$msvc_toolset_version_default"
-    },
-    {
       "display": "MSVC runtime library",
       "name": "msvc_runtime_library",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "mt",
         "md"
       ],
@@ -43,22 +50,20 @@
     {
       "display": "Build library",
       "name": "build_library",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "shared",
         // "static"
       ],
-      // "default": "$build_library_default"
       "default": "shared"
     },
     {
       "display": "Build type",
       "name": "build_type",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "Release",
-        "Debug",
-        "Release;Debug"
+        "Debug"
       ],
       "default": "Release"
     },
@@ -66,8 +71,8 @@
       "display": "Build layout",
       "name": "build_layout",
       "enable": false,
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "union",
         "separation"
       ],
@@ -83,14 +88,27 @@
     {
       "display": "CUDA Version",
       "name": "cuda_version",
-      "enable": "cuda_enable",
-      "type": "chose",
-      "item": "{{$cuda_versions}}",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
+    },
+    {
+      "display": "Enable GPL",
+      "name": "enable_gpl",
+      "type": "bool",
+      "default": false
     },
     {
       "display": "Enable tools",
       "name": "gst_enable_tools",
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "Enable NVCodec",
+      "name": "enable_nvcodec",
+      "enable": "{{$cuda_enable}}",
       "type": "bool",
       "default": false
     },
@@ -108,7 +126,7 @@
           "version": ">=3.45"
         },
         "openssl": {
-          "version": ">=3.3"
+          "version": ">=3.5;<3.6"
         },
         "libxml2": {
           "version": ">=2.11"
@@ -131,17 +149,13 @@
         "icu4c": {
           "version": ">=75.1"
         },
-        "ffmpeg": {
-          "version": ">=6.1;<7.0",   // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
-          "build_library": "shared"
-        },
         "openh264": {
           "enable": "{{$enable_openh264}}",
           "version": ">=2.6"
         },
-        // cannot build with external glib.
+        // 1.24.13,1.28.3 cannot build with external glib.
         // "glib": {
-        //   "version": ">=2.81"
+        //   "version": ">=2.88"
         // },
         "pixman":{
           "version": ">=0.43"
@@ -172,27 +186,60 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-      "git_tag": "${version}",
+      "git_tag": "{{ver.split('@', 1)[0] if '@' in $version else $version}}",
+      "git_hash": "{{ver.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
           "scripts": [
             {
-              "message": "git clone.",
-              "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
-              "failed": "rmdir /q /s \"$source_dir\""
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "extruct from cache.",
+              "message": "git clone.",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git checkout.",
+              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$source_dir",
+              "script": "git checkout $git_hash",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extract from cache.",
               "when": "{{os.path.isfile($cache_file)}}",
-              "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\"",
-              "failed": "rmdir /q /s \"$source_dir\""
+              "script": "7z -sccUTF-8 x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "make cache.",
               "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
-              "failed": "del \"$cache_file\""
+              "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
+              "fallback": "del \"$cache_file\""
+            }
+          ]
+        },
+        "patch": {
+          "patch_files": [
+            // { // This patch is required for Meson version 1.8.5.
+            //   "local": "${package_dir}\\gl_mkenum_py13.diff"
+            // },
+            {
+              "local": "${package_dir}\\vulkan_mkenum.py.diff"
+            },
+            {
+              "local": "${package_dir}\\fix_generate_plugins_path.diff"
+            }
+          ],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             }
           ]
         },
@@ -203,11 +250,17 @@
             "-Db_vscrt={{'from_buildtype' if $msvc_runtime_library == 'md' else 'static_from_buildtype'}}",
             "-Ddefault_library=$build_library",
             "-Dgst-full-target-type={{'static_library' if $build_library  == 'static' else 'shared_library'}}",
-            "-Dbase=enabled -Dgood=enabled -Dugly=disabled -Dbad=disabled",
+            "-Dintrospection=disabled",
+            "-Dbase=enabled",
+            "-Dgood=enabled",
+            "-Dbad=disabled",
+            "-Dugly=disabled",
+            "-Dgpl={{'enabled' if $enable_gpl else 'disabled'}}",
+            "--force-fallback-for=glib",
             "-Dglib-networking:openssl=enabled",
+            "-Dgst-plugins-good:vpx=disabled", // vpx plugin cannot be built with the latest vpx, so disable it.
             "-Dgst-plugins-bad:videoparsers=enabled",
-            "-Dgst-plugins-bad:nvenc={{'enabled' if $cuda_enable else 'disabled'}}",
-            "-Dgst-plugins-bad:nvdec={{'enabled' if $cuda_enable else 'disabled'}}",
+            "-Dgst-plugins-bad:nvcodec={{'enabled' if $cuda_enable and $enable_nvcodec else 'disabled'}}",
             "-Dgst-plugins-bad:openh264={{'enabled' if $enable_openh264 else 'disabled'}}",
             "-DFFmpeg:default_library=shared",
             "-Dpython=disabled", // python should be disabled.
@@ -217,6 +270,7 @@
             "-Dqt5=disabled",
             "-Ddoc=disabled",
             "-Dtests=disabled",
+            "-Dexamples=disabled",
             "-Ddevtools=disabled",
             "-Dpango:install-tests=false",
             "-Djson-glib:tests=false",
@@ -234,24 +288,12 @@
           ],
           "scripts": [
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "del /q /s \"$build_dir_debug\" > nul"
+              "script": "rmdir /s /q \"$build_dir_debug\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_debug\""
             },
             {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type}}",
-              "script": "del /q /s \"$build_dir_release\" > nul"
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
-              "script": "mkdir \"$build_dir_debug\""
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
-              "script": "mkdir \"$build_dir_release\""
+              "when": "{{'Release' in $build_type }}",
+              "script": "rmdir /s /q \"$build_dir_release\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_release\""
             },
             {
               "message": "config for debug.",
@@ -261,7 +303,7 @@
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
                 "PERLIO": "raw"
               },
-              "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_debug)}}  \"$build_dir_debug\" \"$source_dir\""
+              "script": "meson setup {{' '.join($meson_options)}} {{' '.join($meson_options_debug)}} \"$build_dir_debug\" \"$source_dir\""
             },
             {
               "message": "config for release.",
@@ -307,46 +349,82 @@
           ]
         },
         "post-install" :{
-          "j2_template_01": "${package_dir}\\activate.bat.j2",
-          "j2_output_01_release": "${dist_dir_release}\\bin\\activate.bat",
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
           },
+          "template_files":[
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "${assets_rootdir}\\activate.bat.j2",
+              "defines": [
+                "DEPENDENT_DLL_PATHS=\"{{${dependent_dlls_debug}.replace(${dist_rootdir} +'\\\\','')}}\""
+              ],
+              "output": "${dist_dir_release}\\bin\\activate.bat"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "${assets_rootdir}\\activate.bat.j2",
+              "defines": [
+                "DEPENDENT_DLL_PATHS=\"{{${dependent_dlls_release}.replace(${dist_rootdir} +'\\\\','')}}\""
+              ],
+              "output": "${dist_dir_release}\\bin\\activate.bat"
+            }
+          ],
           "scripts": [
             {
-              "ignore_errors": true,
+              // Template Script:
+              // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+            },
+            {
               "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_debug)}}\"",
+              "ignore_errors": true
             },
             {
               "when": "{{'Release' in $build_type}}",
-              "script": "jinja2 -D DEPENDENT_DLL_PATHS=\"{{$dependent_dlls_release.replace($dist_rootdir +'\\\\','')}}\" \"$j2_template_01\" > \"$j2_output_01_release\""
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl \"${assets_rootdir}\\fix_pcfile.pl\" @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_release)}}\"",
+              "ignore_errors": true
             }
           ]
         }
       }
     },
-    "1.24.13": {  // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
+    // "1.24.13": {
+    //   // Meson version 1.8.5 is required to build this.
+    //   // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
+    //   "dependencies": {
+    //     "ffmpeg": {
+    //       "version": ">=6.1;<7.0"
+    //     }
+    //   },
+    //   "stages": {
+    //     "patch": {
+    //       "patch_files!append": [
+    //         {
+    //           "local": "${package_dir}\\fix_vpx_meson_build-1.24.13.diff"
+    //         }
+    //       ]
+    //     }
+    //   }
+    // },
+    "1.28.3": {
       "dependencies": {
         "ffmpeg": {
-          "version": ">=6.1;<7.0",
-          "build_library": "shared"
+          "version": ">=8.1"
+        }
+      },
+      "stages": {
+        "patch": {
+          "patch_files!append": [
+            {
+              "local": "${package_dir}\\fix_gst-plugins-bad_ext_aom_gstav1dec_c.diff"
+            },
+            {
+              "local": "${package_dir}\\fix_gst-plugins-good_ext_lame.diff"
+            }
+          ]
         }
       }
     }

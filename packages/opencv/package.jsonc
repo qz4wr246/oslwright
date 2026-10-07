@@ -5,37 +5,44 @@
   "site": "https://opencv.org",
   "license": "Apache 2 License",
   "info":"info.md",
-  "process_time": "2700",
-  "settings": [
+  "process_time": 2070,
+  "options": [
     {
       "display": "Version",
       "name": "version",
-      "type": "chose",
-      "item": "{{$versions}}",
+      "type": "choice",
+      "items": "{{$versions}}",
       "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
     },
     {
       "display": "Build arch",
       "name": "build_arch",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "x64",
         "x32"
       ],
       "default": "$build_arch_default"
     },
     {
-      "display": "MSVC toolset version",
-      "name": "msvc_toolset_version",
-      "type": "chose",
-      "item": "{{$msvc_toolset_versions}}",
-      "default": "$msvc_toolset_version_default"
-    },
-    {
       "display": "MSVC runtime library",
       "name": "msvc_runtime_library",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "mt",
         "md"
       ],
@@ -44,8 +51,8 @@
     {
       "display": "Build library",
       "name": "build_library",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "shared"
       ],
       "default": "$build_library_default"
@@ -53,8 +60,8 @@
     {
       "display": "Build type",
       "name": "build_type",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "Release",
         "Debug",
         "Release;Debug"
@@ -64,8 +71,8 @@
     {
       "display": "Build layout",
       "name": "build_layout",
-      "type": "chose",
-      "item": [
+      "type": "choice",
+      "items": [
         "union",
         "separation"
       ],
@@ -82,15 +89,15 @@
       "display": "CUDA Version",
       "name": "cuda_version",
       "enable": "cuda_enable",
-      "type": "chose",
-      "item": "{{$cuda_versions}}",
+      "type": "choice",
+      "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
     },
     {
       "display": "With FFmpeg",
       "name": "with_ffmpeg",
-      "type": "chose",
-        "item": [
+      "type": "choice",
+        "items": [
         "none",
         "internal",
         "external"
@@ -113,14 +120,11 @@
   "versions": {
     "default": {
       "dependencies": {
-        "abseil-cpp":{
-          "version": "==20250512.1"
-        },
-        "protobuf": {
-          "version": "==31.1"
-        },
         "vtk": {
           "version": ">=9.3"
+        },
+        "libavif":{
+          "version": ">=1.4"
         },
         "libpng": {
           "version": ">=1.6"
@@ -130,6 +134,15 @@
         },
         "libwebp": {
           "version": ">=1.4"
+        },
+        "libtiff": {
+          "version": ">=4.0"
+        },
+        "openexr": {
+          "version": ">=3.4"
+        },
+        "jasper": {
+          "version": ">=4.2"
         },
         "harfbuzz": {
           "version": ">=9.0"
@@ -174,7 +187,8 @@
       "contrib_cache_file": "${cache_rootdir}\\${name}_contrib-${version}.7z",
       "git_url": "https://github.com/opencv/opencv.git",
       "git_contrib_url" : "https://github.com/opencv/opencv_contrib",
-      "git_tag": "${version}",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
+      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
           "scripts": [
@@ -190,19 +204,26 @@
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
-              "failed": "rmdir /q /s \"$source_dir\""
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
-              "message": "extruct from cache.",
+              "message": "git checkout.",
+              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$source_dir",
+              "script": "git checkout $git_hash",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extract from cache.",
               "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
               "script": "7z x -aoa \"$cache_file\" -o\"$source_dir\""
             },
             {
               "message": "make cache.",
               "when": "{{not os.path.isfile($cache_file)}}",
-              "script": "7z a \"$cache_file\" \"$source_dir\\*\"",
-              "failed": "del \"$cache_file\""
+              "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
+              "fallback": "del \"$cache_file\""
             },
             {
               "when": "{{os.path.isfile(os.path.join($contrib_dir,'CMakeLists.txt'))}}",
@@ -211,11 +232,18 @@
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($contrib_dir) and not os.path.isfile($contrib_cache_file)}}",
-              "script": "git clone -b \"$git_tag\" --depth 1 --single-branch --recurse --shallow-submodules $git_contrib_url \"$contrib_dir\"",
-              "failed": "rmdir /q /s \"$contrib_dir\""
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_contrib_url \"$contrib_dir\"",
+              "fallback": "rmdir /q /s \"$contrib_dir\""
             },
             {
-              "message": "extruct from cache.",
+              "message": "git checkout.",
+              "when": "{{$git_hash and os.path.isdir($contrib_dir) and not os.path.isfile($contrib_cache_file)}}",
+              "chdir": "$contrib_dir",
+              "script": "git checkout $git_hash",
+              "fallback": "rmdir /q /s \"$contrib_dir\""
+            },
+            {
+              "message": "extract from cache.",
               "when": "{{not os.path.isdir($contrib_dir) and os.path.isfile($contrib_cache_file)}}",
               "script": "7z x -aoa \"$contrib_cache_file\" -o\"$contrib_dir\""
             },
@@ -223,7 +251,7 @@
               "message": "make cache.",
               "when": "{{not os.path.isfile($contrib_cache_file)}}",
               "script": "7z a \"$contrib_cache_file\" \"$contrib_dir\\*\"",
-              "failed": "del \"$contrib_cache_file\""
+              "fallback": "del \"$contrib_cache_file\""
             }
           ]
         },
@@ -241,6 +269,7 @@
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
             "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+            "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_CXX_STANDARD=17",
             "-DBUILD_WITH_STATIC_CRT={{'OFF' if $msvc_runtime_library == 'md' else 'ON'}}",
@@ -268,24 +297,12 @@
           ],
           "scripts": [
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
-              "script": "del /q /s \"$build_dir_debug\" > nul"
+              "script": "rmdir /s /q \"$build_dir_debug\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_debug\""
             },
             {
-              "ignore_errors": true,
               "when": "{{'Release' in $build_type }}",
-              "script": "del /q /s \"$build_dir_release\" > nul"
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Debug' in $build_type and not os.path.isdir($build_dir_debug)}}",
-              "script": "mkdir \"$build_dir_debug\""
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type and not os.path.isdir($build_dir_release)}}",
-              "script": "mkdir \"$build_dir_release\""
+              "script": "rmdir /s /q \"$build_dir_release\" & timeout /t 3 /nobreak > nul & mkdir \"$build_dir_release\""
             },
             {
               "message": "config for debug.",
@@ -310,12 +327,13 @@
           ]
         },
         "build": {
+          "protoc_depdll_paths": "{{';'.join([path for path in dependent_dlls_release.split(';') if 'zlib' in path or 'abseil-cpp' in path])}}",
           "scripts": [
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
               "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_debug])}}",
+                "PATH": "{{';'.join(['%PATH%', $protoc_depdll_paths])}}",
                 "PERLIO": "raw"
               },
               "script": "cmake --build \"$build_dir_debug\" --config Debug -j4"
@@ -324,7 +342,7 @@
               "message": "build for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "PATH": "{{';'.join(['%PATH%', $dependent_dlls_release])}}",
+                "PATH": "{{';'.join(['%PATH%', $protoc_depdll_paths])}}",
                 "PERLIO": "raw"
               },
               "script": "cmake --build \"$build_dir_release\" --config Release -j4"
@@ -346,30 +364,19 @@
           ]
         },
         "post-install" :{
-          "dist_rootdir_slash":"{{$dist_rootdir.replace('\\\\', '/')}}",
           "environments": {
             "PERLIO": "raw"
           },
           "scripts": [
             {
-              "ignore_errors": true,
               "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
+              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl ${assets_rootdir}\\fix_pcfile.pl @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_debug)}}\"",
+              "ignore_errors": true
             },
             {
-              "ignore_errors": true,
-              "when": "{{'Debug' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_debug\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
-            },
-            {
-              "ignore_errors": true,
               "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#^prefix=.*#prefix=\\$${pcfiledir}/../..#g;s#^exec_prefix=.*#exec_prefix=\\$${prefix}#g;s#^libdir=.*#libdir=\\$${prefix}/lib#g;s#^includedir=.*#includedir=\\$${prefix}/include#g0x22 @PATH\""
-            },
-            {
-              "ignore_errors": true,
-              "when": "{{'Release' in $build_type}}",
-              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl -p -i -e 0x22s#$dist_rootdir_slash#\\$${prefix}/..#g0x22 @PATH\""
+              "script": "forfiles -P \"$dist_dir_release\" /M *.pc /S /C \"cmd /c perl \"${assets_rootdir}\\fix_pcfile.pl\" @PATH 0x22{{dist_rootdir.replace('\\\\', '/')}}0x22 {{os.path.basename($dist_dir_release)}}\"",
+              "ignore_errors": true
             }
           ]
         }
@@ -400,7 +407,7 @@
         }
       }
     },
-    "4.13.0": {  // OpenCV ver 4.13.0 is compatible with GStreamer ver 1.24 , FFmpeg ver 6.x.
+    "4.13.0": {  // OpenCV ver 4.13.0 is compatible with GStreamer ver 1.28 , FFmpeg ver 8.1
       "dependencies": {
         "abseil-cpp":{
           "version": "==20250512.1"
@@ -410,12 +417,12 @@
         },
         "ffmpeg": {
           "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
-          "version": ">=6.1;<7.0",   // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
+          "version": ">=8.1",
           "build_library": "shared"
         },
         "gstreamer": {
           "enable": "{{$with_gstreamer}}",
-          "version": ">=1.24;<1.25",  // OpenCV ver 4.13.0 is compatible with GStreamer ver 1.24 , FFmpeg ver 6.x.
+          "version": ">=1.28",
           "build_library": "shared"
         }
       },

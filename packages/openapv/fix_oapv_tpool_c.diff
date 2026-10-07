@@ -1,0 +1,27 @@
+diff --git a/src/oapv_tpool.c b/src/oapv_tpool.c
+index 8be0740..b873b60 100644
+--- a/src/oapv_tpool.c
++++ b/src/oapv_tpool.c
+@@ -32,7 +32,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include "oapv_tpool.h"
+-#if defined(WIN32) || defined(WIN64)
++#if defined(WIN32) || defined(WIN64) || defined(_WIN32)
+ #include <windows.h>
+ #include <process.h>
+ #else
+@@ -41,7 +41,7 @@
+ 
+ #define WINDOWS_MUTEX_SYNC 0
+ 
+-#if !defined(WIN32) && !defined(WIN64)
++#if !defined(WIN32) && !defined(WIN64) && !defined(_WIN32)
+ 
+ typedef struct thread_ctx {
+     // synchronization members
+@@ -678,4 +678,3 @@ int oapv_tpool_spinlock_wait(volatile int *addr, int val)
+     }
+     return temp;
+ }
+-

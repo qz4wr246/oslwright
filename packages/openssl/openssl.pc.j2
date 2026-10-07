@@ -1,0 +1,11 @@
+prefix=${pcfiledir}/../..
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: OpenSSL
+Description: Secure Sockets Layer and cryptography libraries and tools
+URL: https://www.openssl.org/
+Version: {{VERSION}}
+Libs: -L${libdir} -lssl -lcrypto
+Cflags: -I${includedir}

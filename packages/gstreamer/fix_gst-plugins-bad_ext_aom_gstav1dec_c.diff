@@ -1,0 +1,30 @@
+diff --git a/subprojects/gst-plugins-bad/ext/aom/gstav1dec.c b/subprojects/gst-plugins-bad/ext/aom/gstav1dec.c
+index c565850010..7cd6d3fbda 100644
+--- a/subprojects/gst-plugins-bad/ext/aom/gstav1dec.c
++++ b/subprojects/gst-plugins-bad/ext/aom/gstav1dec.c
+@@ -49,17 +49,23 @@ GST_STATIC_PAD_TEMPLATE ("sink",
+     );
+ 
+ static GstStaticPadTemplate gst_av1_dec_src_pad_template =
++#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+ GST_STATIC_PAD_TEMPLATE ("src",
+     GST_PAD_SRC,
+     GST_PAD_ALWAYS,
+     GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE ("{ I420, YV12, Y42B, Y444"
+-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+             ", I420_10LE, I420_12LE, I422_10LE, I422_12LE, Y444_10LE, Y444_12LE"
++            " }"))
++    );
+ #else
++GST_STATIC_PAD_TEMPLATE ("src",
++    GST_PAD_SRC,
++    GST_PAD_ALWAYS,
++    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE ("{ I420, YV12, Y42B, Y444"
+             ", I420_10BE, I420_12BE, I422_10BE, I422_12BE, Y444_10BE, Y444_12BE"
+-#endif
+             " }"))
+     );
++#endif
+ 
+ GST_DEBUG_CATEGORY_STATIC (av1_dec_debug);
+ #define GST_CAT_DEFAULT av1_dec_debug
