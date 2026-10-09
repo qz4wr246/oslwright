@@ -40,8 +40,8 @@ class BuildController:
         Post.setLogHooks(
             gui_hook=self.put_log,
             info_hook=self.put_log_detail,
+            warning_hook=self.put_log_detail,
             error_hook=self.put_error,
-            warning_hook=self.put_error,
             critical_hook=self.put_error,
         )
 
