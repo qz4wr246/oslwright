@@ -8,6 +8,7 @@ from ..services.build_service import Reason
 @dataclass
 class BuildStatusModel:
     reason: Reason = Reason.NORMAL
+    build_force: bool = False
     progress: float = 0.0
     tx_remaining_time_color: ft.Colors = ft.Colors.PRIMARY
     tx_remaining_time: str = "00:00:00"

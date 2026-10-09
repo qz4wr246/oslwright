@@ -53,7 +53,14 @@ def BuildPage():
             ),
             content=ft.Text("Packages built successfully."),
             actions=[
-                ft.TextButton("Close", on_click=lambda: [set_back_disabled(False), set_show_success(False)]),
+                ft.TextButton(
+                    "Close",
+                    on_click=lambda: [
+                        set_show_success(False),
+                        set_show_abort(False),
+                        build_status.build_force and page.run_task(page.window.close),
+                    ],
+                ),
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
@@ -75,7 +82,16 @@ def BuildPage():
                 spacing=10,
             ),
             content=ft.Text("Package build was aborted by the user."),
-            actions=[ft.TextButton("Close", on_click=lambda: [set_back_disabled(False), set_show_abort(False)])],
+            actions=[
+                ft.TextButton(
+                    "Close",
+                    on_click=lambda: [
+                        set_back_disabled(False),
+                        set_show_abort(False),
+                        build_status.build_force and page.run_task(page.window.close),
+                    ],
+                )
+            ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
         if show_abort
@@ -95,7 +111,16 @@ def BuildPage():
                 spacing=10,
             ),
             content=ft.Text("An error occurred during the package build process."),
-            actions=[ft.TextButton("Close", on_click=lambda: [set_back_disabled(False), set_show_error(False)])],
+            actions=[
+                ft.TextButton(
+                    "Close",
+                    on_click=lambda: [
+                        set_back_disabled(False),
+                        set_show_error(False),
+                        build_status.build_force and page.run_task(page.window.close),
+                    ],
+                )
+            ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
         if show_error
@@ -120,7 +145,7 @@ def BuildPage():
 
     def on_mount():
         packages = page.session.store.get("packages")
-        build_force = page.session.store.get("build_force")
+        build_force = bool(page.session.store.get("build_force"))
         controller.set_build_packages(packages, build_force)
         controller.start_build()
 

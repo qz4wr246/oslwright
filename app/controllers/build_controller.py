@@ -49,6 +49,7 @@ class BuildController:
     def start_build(self):
         # print("BuildController:start_build")
         self.build_status = BuildStatusModel()
+        self.build_status.build_force = self.build_force
         self.process_time = 0
         self.start_time = datetime.now()
         self.build_status.tx_start_time = self.start_time.strftime("%Y/%m/%d %H:%M:%S")
