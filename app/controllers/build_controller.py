@@ -35,15 +35,22 @@ class BuildController:
         # ログストアを初期化
         self.log_store = LogStore()
         self.max_lines = 500
+        self.log_detail = False
 
         Post.setLogHooks(
             gui_hook=self.put_log,
+            info_hook=self.put_log_detail,
             error_hook=self.put_error,
+            warning_hook=self.put_error,
+            critical_hook=self.put_error,
         )
 
     def set_build_packages(self, packages, build_force: bool = False):
         self.packages = packages
         self.build_force = build_force
+
+    def set_log_detai(self, value: bool):
+        self.log_detail = value
 
     # ビルド開始
     def start_build(self):
@@ -113,3 +120,12 @@ class BuildController:
         # 500行制限のロジック
         if len(self.log_store.list) > self.max_lines:
             self.log_store.list.pop(0)
+
+    def put_log_detail(self, message: str):
+        if self.log_detail:
+            message = message.rstrip("\n")
+            self.log_store.list.append(RichText(text=message))
+
+            # 500行制限のロジック
+            if len(self.log_store.list) > self.max_lines:
+                self.log_store.list.pop(0)
