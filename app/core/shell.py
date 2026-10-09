@@ -203,7 +203,7 @@ class PipedShell:
                     if out == "stdout" and len(mesg):
                         Post.info(mesg)
                     elif out == "stderr" and len(mesg):
-                        Post.info(mesg)
+                        Post.error(mesg)
                     if content and len(mesg):
                         content[out] += mesg
             except:

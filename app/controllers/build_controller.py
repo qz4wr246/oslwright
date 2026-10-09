@@ -35,20 +35,28 @@ class BuildController:
         # ログストアを初期化
         self.log_store = LogStore()
         self.max_lines = 500
+        self.log_detail = False
 
         Post.setLogHooks(
             gui_hook=self.put_log,
+            info_hook=self.put_log_detail,
+            warning_hook=self.put_log_detail,
             error_hook=self.put_error,
+            critical_hook=self.put_error,
         )
 
     def set_build_packages(self, packages, build_force: bool = False):
         self.packages = packages
         self.build_force = build_force
 
+    def set_log_detai(self, value: bool):
+        self.log_detail = value
+
     # ビルド開始
     def start_build(self):
         # print("BuildController:start_build")
         self.build_status = BuildStatusModel()
+        self.build_status.build_force = self.build_force
         self.process_time = 0
         self.start_time = datetime.now()
         self.build_status.tx_start_time = self.start_time.strftime("%Y/%m/%d %H:%M:%S")
@@ -67,7 +75,6 @@ class BuildController:
                 await asyncio.sleep(1)
             except asyncio.CancelledError:
                 pass
-            self.build_status.reason = self.model.reason
             self.process_time += 1
             self.remaining_time = self.model.total_process_time - self.process_time
             if self.remaining_time >= 0:
@@ -90,6 +97,7 @@ class BuildController:
             self.on_status_change(status_data)
 
         # ビルドステータス更新
+        self.build_status.reason = self.model.reason
         status_data = copy.copy(self.build_status)
         self.on_status_change(status_data)
         self.is_running = False
@@ -112,3 +120,12 @@ class BuildController:
         # 500行制限のロジック
         if len(self.log_store.list) > self.max_lines:
             self.log_store.list.pop(0)
+
+    def put_log_detail(self, message: str):
+        if self.log_detail:
+            message = message.rstrip("\n")
+            self.log_store.list.append(RichText(text=message))
+
+            # 500行制限のロジック
+            if len(self.log_store.list) > self.max_lines:
+                self.log_store.list.pop(0)

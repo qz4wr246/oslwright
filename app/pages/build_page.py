@@ -21,6 +21,9 @@ def BuildPage():
     # build status
     build_status, set_build_status = ft.use_state(BuildStatusModel())
 
+    # チェックボタン
+    detail_checked, set_detail_checked = ft.use_state(False)
+
     def on_build_status(status: BuildStatusModel):
         set_build_status(status)
 
@@ -53,7 +56,14 @@ def BuildPage():
             ),
             content=ft.Text("Packages built successfully."),
             actions=[
-                ft.TextButton("Close", on_click=lambda: [set_back_disabled(False), set_show_success(False)]),
+                ft.TextButton(
+                    "Close",
+                    on_click=lambda: [
+                        set_back_disabled(False),
+                        set_show_success(False),
+                        build_status.build_force and page.run_task(page.window.close),
+                    ],
+                ),
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
@@ -75,7 +85,16 @@ def BuildPage():
                 spacing=10,
             ),
             content=ft.Text("Package build was aborted by the user."),
-            actions=[ft.TextButton("Close", on_click=lambda: [set_back_disabled(False), set_show_abort(False)])],
+            actions=[
+                ft.TextButton(
+                    "Close",
+                    on_click=lambda: [
+                        set_back_disabled(False),
+                        set_show_abort(False),
+                        build_status.build_force and page.run_task(page.window.close),
+                    ],
+                )
+            ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
         if show_abort
@@ -95,7 +114,16 @@ def BuildPage():
                 spacing=10,
             ),
             content=ft.Text("An error occurred during the package build process."),
-            actions=[ft.TextButton("Close", on_click=lambda: [set_back_disabled(False), set_show_error(False)])],
+            actions=[
+                ft.TextButton(
+                    "Close",
+                    on_click=lambda: [
+                        set_back_disabled(False),
+                        set_show_error(False),
+                        build_status.build_force and page.run_task(page.window.close),
+                    ],
+                )
+            ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
         if show_error
@@ -120,7 +148,7 @@ def BuildPage():
 
     def on_mount():
         packages = page.session.store.get("packages")
-        build_force = page.session.store.get("build_force")
+        build_force = bool(page.session.store.get("build_force"))
         controller.set_build_packages(packages, build_force)
         controller.start_build()
 
@@ -132,6 +160,11 @@ def BuildPage():
     def on_stop_build(e):
         # open Error Dialog
         set_show_comfirm(True)
+
+    def on_check_detail(e):
+        val = e.control.value
+        set_detail_checked(val)
+        controller.set_log_detai(val)
 
     build_status_layout = ft.Row(
         controls=[
@@ -213,14 +246,21 @@ def BuildPage():
         controls=[
             build_status_layout,
             ft.Divider(),
-            ft.Button(
-                "Stop Build",
-                on_click=on_stop_build,
-                icon=ft.Icons.STOP_CIRCLE_OUTLINED,
+            ft.Row(
+                controls=[
+                    ft.Button(
+                        "Stop Build",
+                        on_click=on_stop_build,
+                        icon=ft.Icons.STOP_CIRCLE_OUTLINED,
+                    ),
+                    ft.Checkbox("Log details", value=detail_checked, on_change=on_check_detail),
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             ),
             ft.Divider(),
             logs_layout,
         ],
+        spacing=1,
         expand=True,
     )
 
