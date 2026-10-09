@@ -27,9 +27,9 @@ def PackageOptionPage():
 
     save_button_disabled, set_save_button_disabled = ft.use_state(True)
 
-    def on_revert_click(e):
-        controller.revert()
-        set_save_button_disabled(True)
+    def on_revert_selected(e):
+        ret = controller.revert(e.control.data)
+        set_save_button_disabled(not ret)
 
     def on_save_click(e):
         controller.save()
@@ -37,7 +37,7 @@ def PackageOptionPage():
 
     def on_reset_click(e):
         controller.reset()
-        set_save_button_disabled(True)
+        set_save_button_disabled(False)
 
     def on_change(e):
         set_save_button_disabled(False)
@@ -74,6 +74,15 @@ def PackageOptionPage():
                 on_change=on_change,
                 data=ui.name,
             )
+
+        hover_bgcolor, set_hover_bgcolor = ft.use_state(None)
+
+        def on_hover(e):
+            if e.data:
+                set_hover_bgcolor(ft.Colors.SURFACE_CONTAINER_HIGHEST)
+            else:
+                set_hover_bgcolor(None)
+
         container = ft.Container(
             content=ft.Row(
                 controls=[ft.Text(value=ui.display, size=16), ctrlitem],
@@ -82,9 +91,8 @@ def PackageOptionPage():
             ),
             key=ui.name,
             padding=ft.padding.Padding.symmetric(horizontal=20),
-            ink=True,  # 波紋エフェクトを有効化
-            ink_color=ft.Colors.SURFACE_CONTAINER_HIGHEST,  # ホバー・クリック時の色を指定
-            on_click=lambda e: None,  # MEMO: lnk を動作させるには clickable である必要があるため、空の関数を指定します
+            on_hover=on_hover,
+            bgcolor=hover_bgcolor,
         )
         return container
 
@@ -101,7 +109,40 @@ def PackageOptionPage():
             ft.Divider(),
             ft.Row(
                 controls=[
-                    ft.Button("Revert", on_click=on_revert_click),
+                    ft.PopupMenuButton(
+                        content=ft.Button(
+                            content="Revert to...",
+                            icon=ft.Icons.ARROW_DROP_DOWN,
+                            disabled=True,
+                            style=ft.ButtonStyle(
+                                color={ft.ControlState.DEFAULT: ft.Colors.PRIMARY},
+                                shape=ft.StadiumBorder(),
+                            ),
+                        ),
+                        items=[
+                            ft.PopupMenuItem(
+                                content=ft.Text("Download"),
+                                data="download",
+                                on_click=on_revert_selected,
+                            ),
+                            ft.PopupMenuItem(
+                                content=ft.Text("Configure"),
+                                data="configure",
+                                on_click=on_revert_selected,
+                            ),
+                            ft.PopupMenuItem(
+                                content=ft.Text("Build"),
+                                data="build",
+                                on_click=on_revert_selected,
+                            ),
+                            ft.PopupMenuItem(
+                                content=ft.Text("Install"),
+                                data="install",
+                                on_click=on_revert_selected,
+                            ),
+                        ],
+                        tooltip="",
+                    ),
                     ft.Row(
                         controls=[ft.Button("Reset", on_click=on_reset_click), save_button],
                         alignment=ft.MainAxisAlignment.END,

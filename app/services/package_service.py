@@ -156,13 +156,13 @@ class PackageService:
     def revert_option(
         self,
         option: PackageOptionModel,
-        target_stage: str = "configure",
-    ):
+        target_stage: str = "download",
+    ) -> bool:
         option_stages = option.versions[option.current_version].stages
         if option_stages:
             # target_stage が定義にない場合はそのまま返す
             if target_stage not in STAGES_ORDER:
-                return
+                return False
 
             # 現在のリストに含まれているステージ名の集合を作成
             existing_stages = {item.stage for item in option_stages}
@@ -191,3 +191,5 @@ class PackageService:
             # stagesを巻き戻す
             option.versions[option.current_version].stages = option_stages
             option.versions[option.current_version].completed = None
+            return True
+        return False

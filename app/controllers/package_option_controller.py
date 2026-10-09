@@ -83,13 +83,13 @@ class PackageOptionController:
 
         self.update_disable()
 
-    def revert(self):
-        self.modified = True
-        self.package_service.revert_option(self.option)
-        self.update_disable()
+    def revert(self, stage: str) -> bool:
+        ret = self.package_service.revert_option(self.option, stage)
+        self.modified = ret
+        return ret
 
     def reset(self):
-        self.modified = False
+        self.modified = True
         self.option = self.default_option.clone()
         self.update_item(self.option.versions[self.option.current_version].options["msvc_version"])
         self.setup_value(self.option.current_version)
