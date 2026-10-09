@@ -17,7 +17,6 @@ def PackageInfoPage():
 
     controller = ft.use_memo(lambda: PackageInfoController(), [])
     packages = page.session.store.get("packages")
-    build_force = page.session.store.get("build_force")
     package = packages[0]
     info = controller.get_package_info(package)
 

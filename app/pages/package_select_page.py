@@ -24,17 +24,17 @@ def PackageItem(package):
 
     def handle_info(e):
         page.session.store.set("packages", [package])
-        page.session.store.set("build_force", True)
+        page.session.store.set("build_force", False)
         page.navigate(Routes.PKG_INFO)
 
     def handle_option(e):
         page.session.store.set("packages", [package])
-        page.session.store.set("build_force", True)
+        page.session.store.set("build_force", False)
         page.navigate(Routes.PKG_OPTION)
 
     def handle_build(e):
         page.session.store.set("packages", [package])
-        page.session.store.set("build_force", True)
+        page.session.store.set("build_force", False)
         page.navigate(Routes.BUILD)
 
     container = ft.Container(
@@ -173,7 +173,7 @@ def PackageSelectPage():
     def open_build_all(e):
         selected_packages = [pkg for pkg in controller.packages if pkg.selected is not None and pkg.selected.value]
         page.session.store.set("packages", selected_packages)
-        page.session.store.set("build_force", True)
+        page.session.store.set("build_force", False)
         page.navigate(Routes.BUILD)
 
     layout = ft.Column(

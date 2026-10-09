@@ -16,7 +16,6 @@ def PackageOptionPage():
     page = ft.context.page
 
     packages = page.session.store.get("packages")
-    build_force = page.session.store.get("build_force")
     package = packages[0]
 
     controller = ft.use_memo(lambda: PackageOptionController(), [])

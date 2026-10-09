@@ -68,7 +68,6 @@ class BuildController:
                 await asyncio.sleep(1)
             except asyncio.CancelledError:
                 pass
-            self.build_status.reason = self.model.reason
             self.process_time += 1
             self.remaining_time = self.model.total_process_time - self.process_time
             if self.remaining_time >= 0:
@@ -91,6 +90,7 @@ class BuildController:
             self.on_status_change(status_data)
 
         # ビルドステータス更新
+        self.build_status.reason = self.model.reason
         status_data = copy.copy(self.build_status)
         self.on_status_change(status_data)
         self.is_running = False
