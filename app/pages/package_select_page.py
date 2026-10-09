@@ -19,6 +19,14 @@ def PackageItem(package):
 
     page = ft.context.page
 
+    hover_bgcolor, set_hover_bgcolor = ft.use_state(None)
+
+    def on_hover(e):
+        if e.data:
+            set_hover_bgcolor(ft.Colors.SURFACE_CONTAINER_HIGHEST)
+        else:
+            set_hover_bgcolor(None)
+
     def handle_checkbox_change(e):
         package.selected.value = e.control.value
 
@@ -40,9 +48,8 @@ def PackageItem(package):
     container = ft.Container(
         key=ft.ScrollKey(package.name.lower()),
         padding=ft.padding.Padding.symmetric(horizontal=10),
-        ink=True,  # inkを使ってホバーエフェクトを実装
-        ink_color=ft.Colors.SURFACE_CONTAINER_HIGHEST,  # ホバー色を指定
-        on_click=lambda e: None,  # ink を動作させるには clickable である必要があるため空の関数を指定
+        on_hover=on_hover,
+        bgcolor=hover_bgcolor,
         content=ft.Row(
             controls=[
                 ft.Row(

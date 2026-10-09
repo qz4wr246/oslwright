@@ -67,6 +67,15 @@ def AppSettingPage():
                 on_change=on_change,
                 data=ui.name,
             )
+
+        hover_bgcolor, set_hover_bgcolor = ft.use_state(None)
+
+        def on_hover(e):
+            if e.data:
+                set_hover_bgcolor(ft.Colors.SURFACE_CONTAINER_HIGHEST)
+            else:
+                set_hover_bgcolor(None)
+
         container = ft.Container(
             content=ft.Row(
                 controls=[ft.Text(value=ui.display, size=16), ctrlitem],
@@ -75,9 +84,8 @@ def AppSettingPage():
             ),
             key=ui.name,
             padding=ft.padding.Padding.symmetric(horizontal=20),
-            ink=True,  # inkを使ってホバーエフェクトを実装
-            ink_color=ft.Colors.SURFACE_CONTAINER_HIGHEST,  # ホバー色を指定
-            on_click=lambda e: None,  # ink を動作させるには clickable である必要があるため空の関数を指定
+            on_hover=on_hover,
+            bgcolor=hover_bgcolor,
         )
         return container
 
