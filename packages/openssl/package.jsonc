@@ -12,7 +12,7 @@
       "name": "version",
       "type": "choice",
       "items": "{{$versions}}",
-      "default": "$latest_version"
+      "default": "$stable_version"
     },
     {
       "display": "Visual Studio version",
@@ -204,14 +204,7 @@
           ]
         },
         "patch": {
-          "patch_files": [
-            {
-              "local": "${package_dir}\\openssl_c_rehash.diff"
-            },
-            {
-              "local":  "${package_dir}\\00-base-templates.conf.diff"
-            }
-          ],
+          "patch_files": [],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -248,9 +241,7 @@
             "{{'no-shared' if 'static' == $build_library else 'shared'}}",
             "threads",
             "no-legacy",
-            "no-dynamic-engine",
-            "{{'' if $with_documents else 'no-docs'}}",
-            "enable-capieng"
+            "{{'' if $with_documents else 'no-docs'}}"
           ],
           "openssl_options_debug": [
             "no-apps",
@@ -324,20 +315,6 @@
         },
         "build": {
           "scripts": [
-            // {
-            //   "message": "build for debug.",
-            //   "when": "{{'Debug' in $build_type}}",
-            //   "chdir": "$build_dir_debug",
-            //   "script": "nmake /NOLOGO clean",
-            //   "ignore_errors": true
-            // },
-            // {
-            //   "message": "build for release.",
-            //   "when": "{{'Release' in $build_type}}",
-            //   "chdir": "$build_dir_release",
-            //   "script": "nmake /NOLOGO clean",
-            //   "ignore_errors": true
-            // },
             {
               "message": "build for debug.",
               "when": "{{'Debug' in $build_type}}",
@@ -431,7 +408,47 @@
         }
       }
     },
-    "3.5.6": {},  // TLS 2030/04
-    "3.6.2": {}
+    "3.5.9": { // LTS ~2030/04
+      "stable": true,
+      "stages": {
+        "configure": {
+          "openssl_options!append" : [
+            "no-dynamic-engine",
+            "enable-capieng"
+          ]
+        },
+        "patch": {
+          "patch_files!replace": [
+            {
+              "local": "${package_dir}\\openssl_35_c_rehash.diff"
+            },
+            {
+              "local": "${package_dir}\\openssl_35_00-base-templates.conf.diff"
+            }
+          ]
+        }
+      }
+    },
+    "3.6.5": {
+      "stages": {
+        "configure": {
+          "openssl_options!append" : [
+            "no-dynamic-engine",
+            "enable-capieng"
+          ]
+        },
+        "patch": {
+          "patch_files!replace": [
+            {
+              "local": "${package_dir}\\openssl_35_c_rehash.diff"
+            },
+            {
+              "local": "${package_dir}\\openssl_35_00-base-templates.conf.diff"
+            }
+          ]
+        }
+      }
+    },
+    "4.0.3": {}
   }
 }
