@@ -176,7 +176,7 @@ def BuildPage():
                         ft.ProgressRing(
                             width=130,
                             height=130,
-                            stroke_width=12,
+                            stroke_width=10,
                             stroke_cap=ft.StrokeCap.ROUND,
                             bgcolor=ft.Colors.BLUE_GREY_700,
                             value=build_status.progress,

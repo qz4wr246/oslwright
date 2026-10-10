@@ -147,7 +147,7 @@ def SplashScreen(status_text: str, platform_init_reason: PlatformReason, on_dial
                         ft.Container(height=20),
                         # 初期化処理が動いている間（理由が未定のとき）だけProgressRingを表示
                         (
-                            ft.ProgressRing(width=45, height=45, stroke_width=4)
+                            ft.ProgressRing(width=45, height=45, stroke_width=5)
                             if platform_init_reason.code == ReasonCode.UNINITIALIZED
                             else ft.Container()
                         ),
