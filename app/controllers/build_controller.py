@@ -90,8 +90,10 @@ class BuildController:
             completion_time = self.start_time + timedelta(seconds=self.model.total_process_time)
             self.build_status.tx_completion_time = completion_time.strftime("%Y/%m/%d %H:%M:%S")
             self.build_status.tx_elapsed_time = seconds_to_hms(self.process_time)
-            self.build_status.tx_processed = f"{self.model.processed_count}/{self.model.package_num}"
-            self.build_status.tx_status = f"{self.model.package_name} / {self.model.stage_name} {self.model.status}"
+            self.build_status.tx_processed = f"{self.model.processed_count} / {self.model.package_num}"
+            self.build_status.tx_status = (
+                f"{self.model.package_name} {self.model.package_version} / {self.model.stage_name} {self.model.status}"
+            )
             # ビルドステータス更新
             status_data = copy.copy(self.build_status)
             self.on_status_change(status_data)

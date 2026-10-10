@@ -137,7 +137,8 @@
                 }
               },
               "additionalProperties": false
-            }
+            },
+            "stable": { "type": "boolean" }
           },
           "additionalProperties": true
         }

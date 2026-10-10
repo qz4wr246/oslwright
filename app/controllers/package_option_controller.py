@@ -28,72 +28,59 @@ class PackageOptionController:
     def load_option(self, package: PackageModel):
         # print("PackageOptionController:load_option")
         self.package = package
+        self.default_option = self.package_service.create_default_option(self.package)
         self.option = self.package_service.load_option(package)
-        self.default_option = self.package_service.create_default_option(package)
         self.option_ui = self.package_service.load_option_ui(self.package).options
+        for k, v in self.option.versions[self.option.current_version].options.items():
+            self.values[k] = OptionItemValue(k, v, False)
+        self.update_item()
+
+    def update_item(self):
         session = self.platform_service.create_session_base(
             self.package, self.option.versions[self.option.current_version].options["msvc_version"]
         )
+        for k, v in self.option.versions[self.option.current_version].options.items():
+            session[k] = v
+        self.option_ui = self.package_service.load_option_ui(self.package).options
         for ui in self.option_ui:
-            if isinstance(ui.items, str):
+            if ui.type == "choice" and isinstance(ui.items, str):
                 ui.items = evaluate_str(ui.items, session)
+            if isinstance(ui.default, str):
+                ui.default = evaluate_str(ui.default, session)
 
-        self.setup_value(self.option.current_version)
-        self.update_disable()
+            if ui.type == "choice":
+                v = self.option.versions[self.option.current_version].options[ui.name]
+                if ui.items and not v in ui.items:
+                    self.option.versions[self.option.current_version].options[ui.name] = ui.default
+                    self.values[ui.name].value = ui.default
 
-    def setup_value(self, version):
-        # print("PackageOptionController:setup_value")
-        self.option.current_version = version
-        for k, v in self.option.versions[version].options.items():
-            self.values[k] = OptionItemValue(k, v, False)
-
-    def update_disable(self):
-        # print("PackageOptionController:update_disable")
-        session = self.platform_service.create_session_base(self.package)
-        for k, v in self.values.items():
-            session[k] = v.value
-
-        for ui in self.option_ui:
             if isinstance(ui.enable, str):
                 self.values[ui.name].disabled = not bool(evaluate_str(ui.enable, session))
             else:
                 self.values[ui.name].disabled = not bool(ui.enable)
 
-    def update_item(self, msvc_version):
-        ui_items = self.package_service.load_option_ui(self.package).options
-        session = self.platform_service.create_session_base(self.package, msvc_version)
-        for ui in ui_items:
-            if isinstance(ui.items, str):
-                ui.items = evaluate_str(ui.items, session)
-        self.option_ui = ui_items
-        value = session["msvc_toolset_version_default"]
-        self.values["msvc_toolset_version"].value = value
-        self.option.versions[self.option.current_version].options["msvc_toolset_version"] = value
-
     def update_value(self, name, value):
         # print("PackageOptionController:update_value")
         self.modified = True
+
         if name == "version":
-            self.setup_value(value)
-        if name == "msvc_version":
-            self.update_item(value)
+            self.option.current_version = value
 
-        self.values[name].value = value
         self.option.versions[self.option.current_version].options[name] = value
-
-        self.update_disable()
+        self.values[name].value = value
+        self.update_item()
 
     def revert(self, stage: str) -> bool:
         ret = self.package_service.revert_option(self.option, stage)
-        self.modified = ret
-        return ret
+        self.modified |= ret
+        return self.modified
 
     def reset(self):
         self.modified = True
         self.option = self.default_option.clone()
-        self.update_item(self.option.versions[self.option.current_version].options["msvc_version"])
-        self.setup_value(self.option.current_version)
-        self.update_disable()
+        for k, v in self.option.versions[self.option.current_version].options.items():
+            self.values[k] = OptionItemValue(k, v, False)
+        self.update_item()
 
     def save(self):
         self.modified = False

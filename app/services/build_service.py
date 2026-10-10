@@ -161,6 +161,7 @@ class BuildService:
     def build_package(self, package: PackageModel, option: PackageOptionModel, model: BuildModel):
         start_time = datetime.now()
         model.package_name = package.display
+        model.package_version = option.current_version
         model.stage_name = "---"
 
         if model.build_force_packages and package.name in model.build_force_packages:
@@ -168,7 +169,7 @@ class BuildService:
             self.package_service.revert_option(option, "download")
 
         if option.versions[option.current_version].completed:
-            Post.gui(f"[{package.display}] skip")
+            Post.gui(f"[{package.display}] {option.current_version} skip")
             result = Reason.COMPLETED
         else:
             session = self.create_session(package, option)
@@ -685,9 +686,9 @@ class BuildService:
             raise PackageValidationError(f"Undefined package referenced: {name}")
 
         versions = self.package_service.get_versions(package)
-        version = versions[-1]
+        version = package.stable_version
         if isinstance(cond, dict) and "version" in cond:
-            version = self._find_request_version(versions, cond["version"])
+            version = self._find_request_version(versions, cond["version"], package.stable_version)
         if not version:
             raise PackageValidationError(f"Unavailable version requested for '{name}': {cond.get('version')}")
         option = self.package_service.load_option(package)
@@ -742,14 +743,17 @@ class BuildService:
             session[ui.name] = ui.default
         return option_ui
 
-    def _find_request_version(self, versions: List[str], req_ver: str | None = None) -> str | None:
+    def _find_request_version(
+        self, versions: List[str], req_ver: str | None = None, stable_ver: str | None = None
+    ) -> str | None:
         reg = r"\s*([><=]=?)?\s*([^\s,;]+)(\s*[,;]+\s*([><]=?)([\w.-]+))?"
 
         if not len(versions):
             return None
 
+        latest_ver = versions[-1] if not stable_ver else stable_ver
         if not req_ver:
-            return versions[-1]
+            return latest_ver
 
         m = regex.match(reg, req_ver)
         ope1 = m.group(1)
@@ -761,7 +765,6 @@ class BuildService:
             # "Bad dependenct version in package.jsonc"
             return None
 
-        versions = versions
         if not ope1:
             if ver1 in set(versions):
                 return ver1
@@ -779,7 +782,7 @@ class BuildService:
             versions = [v for v in versions if Version(v) > Version(ver1)]
 
         if not ope2 and not ver2:
-            return versions[-1] if len(versions) else None
+            return latest_ver if len(versions) else None
 
         if not ope2 and ver2:
             if ver2 in set(versions):
@@ -797,7 +800,7 @@ class BuildService:
         elif ope2 == ">":
             versions = [v for v in versions if Version(v) > Version(ver2)]
 
-        return versions[-1] if len(versions) else None
+        return latest_ver if len(versions) else None
 
     def stop_build(self):
         """ビルド停止"""

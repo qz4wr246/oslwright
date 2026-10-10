@@ -32,5 +32,6 @@ class PackageModel:
     versions: Mapping[str, Any]
     info: Optional[str] = None
     latest_version: Optional[str] = None
+    stable_version: Optional[str] = None
     path: Optional[str] = None
     selected: Optional[MutableBool] = field(default_factory=MutableBool)
