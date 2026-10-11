@@ -18,6 +18,7 @@ class BuildModel:
     processed_count: int = 0  # 処理数
     package_num: int = 0  # 対象数
     package_name: str = ""  # 処理中のパッケージ
+    package_version: str = ""
     stage_name: str = ""  # ステージ
     status: str = ""
     reason: Reason = Reason.NORMAL

@@ -94,12 +94,43 @@
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
     },
+    {
+      "display": "Using OpenSSL",
+      "name": "openssl_enable",
+      "enable": false,
+      "type": "bool",
+      "default": true
+    },
+    {
+      "display": "Using GnuTLS",
+      "name": "gnutls_enable",
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "Using Schannel",
+      "name": "schannel_enable",
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "TLS backend",
+      "name": "tls_backend",
+      "type": "choice",
+      "items": "{{[name for name, enable in [('openssl', $openssl_enable), ('gnutls', $gnutls_enable), ('schannel', $schannel_enable)] if enable]}}",
+      "default": "{{next((name for name, enable in [('openssl', $openssl_enable), ('gnutls', $gnutls_enable), ('schannel', $schannel_enable)] if enable), None)}}"
+    }
   ],
   "versions": {
     "default": {
       "dependencies": {
         "openssl": {
+          "enable": "{{$openssl_enable}}",
           "version": ">=3.5;<3.6"
+        },
+        "gnutls": {
+          "enable": "{{$gnutls_enable}}",
+          "version": ">=3.8;<=3.9"
         },
         "brotli": {
           "version": ">=1.1"
@@ -166,7 +197,13 @@
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DCURL_USE_SCHANNEL=OFF",
+            "-DCURL_CA_NATIVE=ON",
+            "-DCURL_ENABLE_SSL={{'ON' if $openssl_enable or $gnutls_enable or $schannel_enable else 'OFF'}}",
+            "-DCURL_USE_OPENSSL={{'ON' if $openssl_enable else 'OFF'}}",
+            "-DCURL_USE_GNUTLS={{'ON' if $gnutls_enable else 'OFF'}}",
+            "-DCURL_USE_SCHANNEL={{'ON' if $schannel_enable else 'OFF'}}",
+            "{{f'-DCURL_DEFAULT_SSL_BACKEND=\"{$tls_backend}\"' if $tls_backend is not None else ''}}",
+            "-DCMAKE_C_FLAGS=\"/DNETTLE_VERSION_MAJOR=3\"",
             "-DCURL_USE_PKGCONFIG=OFF",
             "-DCURL_BROTLI=ON",
             "-DCURL_ZSTD=ON",

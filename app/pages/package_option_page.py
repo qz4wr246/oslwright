@@ -53,7 +53,7 @@ def PackageOptionPage():
                 width=250,
                 value=controller.values[ui.name].value,
                 disabled=controller.values[ui.name].disabled,
-                options=[ft.dropdown.Option(x) for x in ui.items],
+                options=[ft.dropdown.Option(x) for x in ui.items] if ui.items is not None else [],
                 on_select=on_change,
                 data=ui.name,
             )

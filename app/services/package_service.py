@@ -49,6 +49,9 @@ class PackageService:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 latest_version = list(data["versions"].keys())[-1]
+                stable_version = next(
+                    (k for k, v in reversed(data["versions"].items()) if v.get("stable")), latest_version
+                )
                 return PackageModel(
                     name=data["name"],
                     display=data["display"],
@@ -61,6 +64,7 @@ class PackageService:
                     info=data.get("info"),
                     path=str(path),
                     latest_version=latest_version,
+                    stable_version=stable_version,
                 )
 
         except json.Json5DecoderException as e:
@@ -148,7 +152,7 @@ class PackageService:
                     items[k] = evaluate_str(v, session) if isinstance(v, str) else v
                     session[k] = items[k]
             versions[ver] = PackageOptionItem(options=items, stages=None)
-        return PackageOptionModel(name=package.name, current_version=package.latest_version, versions=versions)
+        return PackageOptionModel(name=package.name, current_version=package.stable_version, versions=versions)
 
     def get_versions(self, package: PackageModel) -> List[str]:
         return [k for k in package.versions.keys() if k != "default"]
