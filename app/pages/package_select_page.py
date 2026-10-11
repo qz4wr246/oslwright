@@ -126,9 +126,11 @@ class AppState:
 def PackageSelectPage():
     """ """
     page = ft.context.page
-
+    PackageSelectPage.pre_query = ""
+    PackageSelectPage.pre_pos = 0
     controller = ft.use_memo(lambda: PackageSelectController(), [])
     is_all_selected, set_is_all_selected = ft.use_state(False)
+    search_value, set_serch_value = ft.use_state("")
     listview_ref = ft.use_ref()
 
     def handle_scroll(e):
@@ -160,17 +162,6 @@ def PackageSelectPage():
                 pkg.selected.value = value
             set_is_all_selected(value)
 
-    async def on_submit_searchbar(e):
-        query = e.data.strip().lower() if e.data else ""
-
-        def search_package(packages: list[PackageModel], query_lower: str) -> str | None:
-            matches = [(idx, p.name) for p in packages if (idx := p.display.lower().find(query_lower)) >= 0]
-            return min(matches, key=lambda x: x[0])[1] if matches else None
-
-        key = search_package(controller.packages, query)
-        if key and listview_ref.current:
-            await listview_ref.current.scroll_to(scroll_key=ft.ScrollKey(key.lower()), duration=500)
-
     def open_reload(e):
         controller.reload()
 
@@ -183,6 +174,59 @@ def PackageSelectPage():
         page.session.store.set("build_force", False)
         page.navigate(Routes.BUILD)
 
+    async def on_submit_searchbar(e):
+        query = search_value.strip().lower()
+        if len(query) == 0:
+            return
+
+        def search_package(packages: list[PackageModel], query_lower: str) -> str | None:
+            matches = [(idx, p.name) for p in packages if (idx := p.display.lower().find(query_lower)) >= 0]
+            if len(matches) == 0:
+                return None
+            matches.sort(key=lambda x: (x[0], x[1]))
+            pos = 0
+            if query_lower == PackageSelectPage.pre_query:
+                pos = PackageSelectPage.pre_pos + 1
+                if len(matches) <= pos:
+                    pos = 0
+            key = matches[pos][1]
+            PackageSelectPage.pre_pos = pos
+            return key
+
+        key = search_package(controller.packages, query)
+        if key and listview_ref.current:
+            PackageSelectPage.pre_query = query
+            await listview_ref.current.scroll_to(scroll_key=ft.ScrollKey(key.lower()), duration=500)
+        page.run_task(search_bar.focus)
+
+    def on_search_clear(e):
+        set_serch_value("")
+        # page.run_task(search_bar.focus)
+
+    def on_search_change(e):
+        set_serch_value(e.data)
+
+    search_bar = ft.SearchBar(
+        controls=[],
+        value=search_value,
+        bar_hint_text="Search...",
+        on_submit=on_submit_searchbar,
+        on_change=on_search_change,
+        bar_trailing=[
+            ft.IconButton(
+                icon=ft.Icons.CANCEL, icon_size=18, margin=ft.Margin(), padding=ft.Padding(), on_click=on_search_clear
+            ),
+            ft.IconButton(
+                icon=ft.Icons.SEARCH,
+                icon_size=18,
+                margin=ft.Margin(),
+                padding=ft.Padding(),
+                on_click=on_submit_searchbar,
+            ),
+        ],
+        expand=True,
+    )
+
     layout = ft.Column(
         controls=[
             ft.Row(
@@ -193,12 +237,9 @@ def PackageSelectPage():
                         on_change=lambda e: on_select_all(e.control.value),
                     ),
                     ft.Container(
-                        content=ft.SearchBar(
-                            bar_hint_text="Search...",
-                            on_submit=on_submit_searchbar,
-                        ),
-                        width=240,
-                        height=28,
+                        content=search_bar,
+                        width=300,
+                        height=32,
                     ),
                     ft.Row(
                         controls=[
