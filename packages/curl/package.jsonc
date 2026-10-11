@@ -130,7 +130,7 @@
         },
         "gnutls": {
           "enable": "{{$gnutls_enable}}",
-          "version": ">=3.8"
+          "version": ">=3.8;<=3.9"
         },
         "brotli": {
           "version": ">=1.1"
@@ -202,7 +202,8 @@
             "-DCURL_USE_OPENSSL={{'ON' if $openssl_enable else 'OFF'}}",
             "-DCURL_USE_GNUTLS={{'ON' if $gnutls_enable else 'OFF'}}",
             "-DCURL_USE_SCHANNEL={{'ON' if $schannel_enable else 'OFF'}}",
-            "{{'-DCURL_DEFAULT_SSL_BACKEND=\"$tls_backend\"' if $tls_backend else ''}}",
+            "{{f'-DCURL_DEFAULT_SSL_BACKEND=\"{$tls_backend}\"' if $tls_backend is not None else ''}}",
+            "-DCMAKE_C_FLAGS=\"/DNETTLE_VERSION_MAJOR=3\"",
             "-DCURL_USE_PKGCONFIG=OFF",
             "-DCURL_BROTLI=ON",
             "-DCURL_ZSTD=ON",
