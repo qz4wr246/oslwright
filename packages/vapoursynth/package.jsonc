@@ -4,6 +4,7 @@
   "description": "A video processing framework with simplicity in mind",
   "site": "https://www.gnu.org/software/libiconv/",
   "license": "LGPL v2.1",
+  "category": "media",
   "info": "info.md",
   "process_time": 280,
   "options": [

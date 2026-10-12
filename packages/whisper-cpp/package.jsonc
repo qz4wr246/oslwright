@@ -4,6 +4,7 @@
   "description": "High-performance inference of OpenAI's Whisper automatic speech recognition (ASR) mode",
   "site": "https://openai.com/index/whisper/",
   "license": "MIT License",
+  "category": "media",
   "info": "info.md",
   "process_time": 70,
   "options": [

@@ -4,6 +4,7 @@
   "description": "a regular expression library.",
   "site": "https://github.com/google/re2/",
   "license": "BSD-3-Clause license",
+  "category": "utility",
   "info": "info.md",
   "process_time": 60,
   "options": [

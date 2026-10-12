@@ -4,6 +4,7 @@
   "description": "JSON for Modern C++",
   "site": "https://json.nlohmann.me/",
   "license": "MIT license",
+  "category": "data",
   "info": "info.md",
   "process_time": 30,
   "options": [

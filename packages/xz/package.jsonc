@@ -4,6 +4,7 @@
   "description": "XZ Utils",
   "site": "tukaani.org/xz",
   "license": "Public Domain",
+  "category": "compression",
   "info": "info.md",
   "process_time": 90,
   "options": [

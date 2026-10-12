@@ -4,6 +4,7 @@
   "description": "A implementation of the Unicode Bidirectional Algorithm.",
   "site": "https://github.com/fribidi/fribidi",
   "license": "LGPL-2.1",
+  "category": "media",
   "info":"info.md",
   "process_time": 300,
   "options": [

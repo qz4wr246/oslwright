@@ -4,6 +4,7 @@
   "description": "Super fast C++ library to generate and parse UUIDv4",
   "site": "https://github.com/crashoz/uuid_v4",
   "license": "MIT license",
+  "category": "utility",
   "info": "info.md",
   "process_time": 40,
   "options": [

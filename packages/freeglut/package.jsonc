@@ -4,6 +4,7 @@
   "description": "Free implementation of the OpenGL Utility Toolkit (GLUT)",
   "site": "http://freeglut.sourceforge.net/",
   "license": "the X-Consortium license.",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 60,
   "options": [

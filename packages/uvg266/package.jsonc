@@ -4,6 +4,7 @@
   "description": "open-source VVC encoder based on Kvazaar",
   "site": "https://example.org",
   "license": "BSD-3-Clause license",
+  "category": "media",
   "info": "info.md",
   "process_time": 50,
   "options": [

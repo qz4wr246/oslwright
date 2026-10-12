@@ -4,6 +4,7 @@
   "description": "Immediate Mode Plotting",
   "site": "https://github.com/epezent/implot",
   "license": "MIT license",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 50,
   "options": [

@@ -4,6 +4,7 @@
   "description": "Open Source Computer Vision Library",
   "site": "https://opencv.org",
   "license": "Apache 2 License",
+  "category": "graphics",
   "info":"info.md",
   "process_time": 2070,
   "options": [

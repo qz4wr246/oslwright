@@ -4,6 +4,7 @@
   "description": "A tool to download rtmp",
   "site": "https://rtmpdump.mplayerhq.hu/",
   "license": "GPL2, LGPL v2.1",
+  "category": "media",
   "info": "info.md",
   "process_time": 440,
   "options": [

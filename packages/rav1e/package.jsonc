@@ -4,6 +4,7 @@
   "description": "An AV1 encoder focused on speed and safety",
   "site": "https://github.com/xiph/rav1e/",
   "license": "BSD-2-Clause",
+  "category": "media",
   "info": "info.md",
   "process_time": 250,
   "options": [

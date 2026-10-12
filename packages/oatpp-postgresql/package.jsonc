@@ -4,6 +4,7 @@
   "description": "PostgreSQL adapter for oatpp ORM.",
   "site": "https://oatpp.io/",
   "license": "Apache 2 License",
+  "category": "network",
   "info": "info.md",
   "process_time": 60,
   "options": [

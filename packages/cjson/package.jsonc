@@ -4,6 +4,7 @@
   "description": "Sample Library",
   "site": "https://example.org",
   "license": "MIT",
+  "category": "data",
   "info": "info.md",
   "process_time": 30,
   "options": [

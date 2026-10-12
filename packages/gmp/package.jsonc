@@ -4,6 +4,7 @@
   "description": "GNU Multiple Precision Arithmetic Library",
   "site": "https://gmplib.org/",
   "license": "LGPL 3+",
+  "category": "utility",
   "info": "info.md",
   "process_time": 1800,
   "options": [

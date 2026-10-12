@@ -4,6 +4,7 @@
   "description": "A modern, cross-platform C++ webview library",
   "site": "https://saucer.github.io/",
   "license": "MIT license",
+  "category": "network",
   "info": "info.md",
   "process_time": 220,
   "options": [

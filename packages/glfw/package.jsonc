@@ -4,6 +4,7 @@
   "description": "A multi-platform library for OpenGL, OpenGL ES, Vulkan, window and input",
   "site": "www.glfw.org",
   "license": "Zlib license",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 50,
   "options": [

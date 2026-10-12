@@ -4,6 +4,7 @@
   "description": "a JPEG image codec",
   "site": "https://libjpeg-turbo.org/",
   "license": "libjpeg-turbo Licenses(IJG, 3-clause BSD, zlib)",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 100,
   "options": [

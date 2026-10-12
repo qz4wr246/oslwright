@@ -4,6 +4,7 @@
   "description": "Vulkan header files and API registry",
   "site": "https://www.vulkan.org/",
   "license": "Apache 2.0",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 30,
   "options": [

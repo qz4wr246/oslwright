@@ -4,6 +4,7 @@
   "description": "A Template Engine for Modern C++",
   "site": "https://pantor.github.io/inja/",
   "license": "MIT license",
+  "category": "data",
   "info": "info.md",
   "process_time": 30,
   "options": [

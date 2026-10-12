@@ -4,6 +4,7 @@
   "description": "a heavily modified implementation of FFTPack",
   "site": "https://github.com/mreineck/pocketfft",
   "license": "3-clause BSD",
+  "category": "utility",
   "info": "info.md",
   "process_time": 30,
   "options": [

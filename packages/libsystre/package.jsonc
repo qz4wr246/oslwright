@@ -4,6 +4,7 @@
   "description": "Wrapper library around TRE that provides POSIX API",
   "site": "https://github.com/msys2/MINGW-packages/tree/master/mingw-w64-libsystre",
   "license": "BSD 2 Clause",
+  "category": "utility",
   "info":"info.md",
   "process_time": 30,
   "options": [

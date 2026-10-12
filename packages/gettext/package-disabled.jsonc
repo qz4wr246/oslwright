@@ -4,6 +4,7 @@
   "description": "A standard system and library for the internationalization (i18n) and localization (l10n) of software.",
   "site": "https://www.gnu.org/software/gettext/",
   "license": "GPL v3, LGPL v2.1",
+  "category": "utility",
   "info": "info.md",
   "process_time": 300,
   "options": [

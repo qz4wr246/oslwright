@@ -4,6 +4,7 @@
   "description": "A free, cross-platform, open source, audio I/O library",
   "site": "https://www.portaudio.com/",
   "license": "custom",
+  "category": "media",
   "info": "info.md",
   "process_time": 30,
   "options": [

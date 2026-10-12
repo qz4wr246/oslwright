@@ -4,6 +4,7 @@
   "description": "bzip2 is a freely available, patent free, high-quality data compressor.",
   "site": "https://sourceware.org/bzip2/",
   "license": "BSD-style license",
+  "category": "compression",
   "process_time": 30,
   "options": [
     {

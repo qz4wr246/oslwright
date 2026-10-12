@@ -4,6 +4,7 @@
   "description": "Simple OpenGL core profile loading",
   "site": "https://github.com/skaslev/gl3w",
   "license": "Unlicense license",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 40,
   "options": [

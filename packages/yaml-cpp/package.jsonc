@@ -4,6 +4,7 @@
   "description": "A YAML parser and emitter in C++",
   "site": "https://github.com/jbeder/yaml-cpp",
   "license": "MIT license",
+  "category": "data",
   "info": "info.md",
   "process_time": 60,
   "options": [

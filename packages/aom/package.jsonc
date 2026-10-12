@@ -4,6 +4,7 @@
   "description": "Alliance for Open Media, AV1 Codec Library",
   "site": "https://aomedia.googlesource.com/aom/",
   "license": "BSD 2 Clause License, AOM Patent License 1.0",
+  "category": "media",
   "info": "info.md",
   "process_time": 230,
   "options": [

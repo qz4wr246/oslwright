@@ -4,6 +4,7 @@
   "description": "Library to access Blu-Ray disks",
   "site": "https://www.videolan.org/developers/libbluray.html",
   "license": "LGPL-2.1-or-later",
+  "category": "media",
   "info":"info.md",
   "process_time": 300,
   "options": [

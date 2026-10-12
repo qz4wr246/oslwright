@@ -4,6 +4,7 @@
   "description": "Abseil Common Libraries (C++)",
   "site": "https://abseil.io/",
   "license": "Apache 2 License",
+  "category": "utility",
   "info": "info.md",
   "process_time": 200,
   "options": [

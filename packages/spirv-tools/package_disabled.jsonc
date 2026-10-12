@@ -4,6 +4,7 @@
   "description": "API and commands for processing SPIR-V modules",
   "site": "hhttps://www.khronos.org/vulkan/",
   "license": "Apache-2.0",
+  "category": "data",
   "info": "info.md",
   "process_time": 480,
   "options": [

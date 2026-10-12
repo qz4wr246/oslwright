@@ -4,6 +4,7 @@
   "description": "Expat XML parser",
   "site": "https://libexpat.github.io/",
   "license": "MIT",
+  "category": "data",
   "info": "info.md",
   "process_time": 60,
   "options": [

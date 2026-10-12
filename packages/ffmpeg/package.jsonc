@@ -4,6 +4,7 @@
   "description": "The leading multimedia framework",
   "site": "https://www.ffmpeg.org",
   "license": "LGPL 2.1+, GPL 2+",
+  "category": "media",
   "info": "info.md",
   "process_time": 3000,
   "options": [

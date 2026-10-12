@@ -4,6 +4,7 @@
   "description": "ICU - International Components for Unicode",
   "site": "https://icu.unicode.org/",
   "license": "UNICODE LICENSE V3",
+  "category": "utility",
   "process_time": 720,
   "options": [
     {

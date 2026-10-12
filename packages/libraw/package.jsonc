@@ -4,6 +4,7 @@
   "description": "A library for reading RAW files from digital cameras",
   "site": "http://www.libraw.org/",
   "license": "LGPL-2.1 license",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 230,
   "options": [

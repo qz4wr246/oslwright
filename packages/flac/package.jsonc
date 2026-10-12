@@ -4,6 +4,7 @@
   "description": "Free Lossless Audio Codec",
   "site": "https://xiph.org/flac/",
   "license": "Xiph.org BSD-style license",
+  "category": "media",
   "info": "info.md",
   "process_time": 70,
   "options": [

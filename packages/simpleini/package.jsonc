@@ -4,6 +4,7 @@
   "description": "A simple API to read and write INI-style configuration files",
   "site": "https://github.com/brofield/simpleini",
   "license": "MIT license",
+  "category": "data",
   "info": "info.md",
   "process_time": 30,
   "options": [

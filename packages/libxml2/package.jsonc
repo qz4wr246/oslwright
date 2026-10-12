@@ -4,6 +4,7 @@
   "description": "XML parser and toolkit",
   "site": "https://gitlab.gnome.org/GNOME/libxml2",
   "license": "MIT",
+  "category": "data",
   "info": "info.md",
   "process_time": 110,
   "options": [

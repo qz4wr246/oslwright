@@ -4,6 +4,7 @@
   "description": "A free codec for free speech",
   "site": "https://speex.org/",
   "license": "BSD 3-Clause",
+  "category": "media",
   "info": "info.md",
   "process_time": 220,
   "options": [

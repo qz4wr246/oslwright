@@ -4,6 +4,7 @@
   "description": "Cross-Platform C++ GUI Library",
   "site": "https://www.wxwidgets.org/",
   "license": "wxWindows Library Licence",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 600,
   "options": [

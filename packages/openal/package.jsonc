@@ -4,6 +4,7 @@
   "description": "OpenAL Software Implementation",
   "site": "https://openal-soft.org/",
   "license": "GNU Lesser General Public License v2.1",
+  "category": "media",
   "info": "info.md",
   "process_time": 280,
   "options": [

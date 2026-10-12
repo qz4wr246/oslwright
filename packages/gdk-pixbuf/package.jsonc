@@ -4,6 +4,7 @@
   "description": "An image loading library",
   "site": "https://gitlab.gnome.org/GNOME/gdk-pixbuf",
   "license": "LGPL-2.1-or-later",
+  "category": "graphics",
   "info":"info.md",
   "process_time": 300,
   "options": [

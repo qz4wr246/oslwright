@@ -4,6 +4,7 @@
   "description": "Super fast fixed-point MP3 encoder",
   "site": "https://github.com/savonet/shine",
   "license": "LGPL 2.0 or later",
+  "category": "media",
   "info": "info.md",
   "process_time": 160,
   "options": [

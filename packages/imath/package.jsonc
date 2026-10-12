@@ -4,6 +4,7 @@
   "description": "a C++ and python library of 2D and 3D vector, matrix, and math operations for computer graphics",
   "site": "https://imath.readthedocs.io/",
   "license": "BSD-3-Clause license",
+  "category": "utility",
   "info": "info.md",
   "process_time": 30,
   "options": [

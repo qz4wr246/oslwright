@@ -78,6 +78,7 @@ def PackageItem(package):
                                     f"version: {package.latest_version}", theme_style=ft.TextThemeStyle.BODY_MEDIUM
                                 ),
                                 ft.Text(f"license: {package.license}", theme_style=ft.TextThemeStyle.BODY_MEDIUM),
+                                ft.Text(f"category: {package.category}", theme_style=ft.TextThemeStyle.BODY_MEDIUM),
                             ]
                         ),
                         ft.Text(

@@ -4,6 +4,7 @@
   "description": "A small fast portable speech synthesis system",
   "site": "http://cmuflite.org/index.html",
   "license": "BSD like",
+  "category": "media",
   "info": "info.md",
   "process_time": 440,
   "options": [

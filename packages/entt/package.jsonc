@@ -4,6 +4,7 @@
   "description": "Entt is a fast and lightweight C++ entity component system",
   "site": "https://github.com/skypjack/entt",
   "license": "MIT License",
+  "category": "utility",
   "info": "info.md",
   "process_time": 30,
   "options": [

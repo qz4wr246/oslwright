@@ -4,6 +4,7 @@
   "description": "A standalone library of the Fraunhofer FDK AAC code from Android.",
   "site": "https://sourceforge.net/projects/opencore-amr/",
   "license": "Fraunhofer FDK AAC license",
+  "category": "media",
   "info": "info.md",
   "process_time": 60,
   "options": [

@@ -4,6 +4,7 @@
   "description": "Reusable library for GPU-accelerated image/video processing primitives and shaders",
   "site": "https://libplacebo.org/",
   "license": "LGPL v2.1",
+  "category": "media",
   "info":"info.md",
   "process_time": 440,
   "options": [

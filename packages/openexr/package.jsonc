@@ -4,6 +4,7 @@
   "description": "The OpenEXR project provides the specification and reference implementation of the EXR file format",
   "site": "http://www.openexr.com/",
   "license": "BSD-3-Clause license",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 260,
   "options": [

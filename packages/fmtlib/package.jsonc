@@ -4,6 +4,7 @@
   "description": "A modern formatting library",
   "site": "https://fmt.dev/",
   "license": "MIT license",
+  "category": "utility",
   "info": "info.md",
   "process_time": 30,
   "options": [

@@ -4,6 +4,7 @@
   "description": "C++ implementation of a fast hash map and hash set using robin hood hashing",
   "site": "https://github.com/Tessil/robin-map",
   "license": "MIT license",
+  "category": "utility",
   "info": "info.md",
   "process_time": 30,
   "options": [

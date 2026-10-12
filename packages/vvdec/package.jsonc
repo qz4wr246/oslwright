@@ -4,6 +4,7 @@
   "description": "The Fraunhofer Versatile Video Decoder",
   "site": "https://www.hhi.fraunhofer.de/en/departments/vca/technologies-and-solutions/h266-vvc.html",
   "license": "BSD-3-Clause-Clear license",
+  "category": "media",
   "info": "info.md",
   "process_time": 120,
   "options": [

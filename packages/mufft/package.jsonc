@@ -4,6 +4,7 @@
   "description": "A library for computing the Fast Fourier Transform (FFT) in one or two dimensions.",
   "site": "https://github.com/Themaister/muFFT",
   "license": "MIT, (GPLv2)",
+  "category": "media",
   "info": "info.md",
   "process_time": 30,
   "options": [

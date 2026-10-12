@@ -4,6 +4,7 @@
   "description": "A comprehensive open-source C++ toolkit for implementing the DICOM standard in medical imaging applications.",
   "site": "https://git.dcmtk.org/",
   "license": "BSD like, see LICENSE",
+  "category": "media",
   "info": "info.md",
   "process_time": 1200,
   "options": [

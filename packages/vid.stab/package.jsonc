@@ -4,6 +4,7 @@
   "description": "Video stabilization library",
   "site": "http://public.hronopik.de/vid.stab",
   "license": "GPL-2.0-or-later",
+  "category": "media",
   "info": "info.md",
   "process_time": 300,
   "options": [

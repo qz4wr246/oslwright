@@ -4,6 +4,7 @@
   "description": "Seamless operability between C++11 and Python",
   "site": "https://pybind11.readthedocs.io/",
   "license": "BSD-style license",
+  "category": "utility",
   "info": "info.md",
   "process_time": 70,
   "options": [

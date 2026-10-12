@@ -31,6 +31,7 @@ class PackageModel:
     options: List[Mapping[str, Any]]
     versions: Mapping[str, Any]
     info: Optional[str] = None
+    category: Optional[str] = None
     latest_version: Optional[str] = None
     stable_version: Optional[str] = None
     path: Optional[str] = None

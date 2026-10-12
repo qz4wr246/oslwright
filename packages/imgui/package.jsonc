@@ -4,6 +4,7 @@
   "description": "Dear ImGui:Bloat-free Graphical User interface for C++ with minimal dependencies",
   "site": "https://github.com/ocornut/imgui",
   "license": "MIT license",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 50,
   "options": [

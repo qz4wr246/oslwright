@@ -4,6 +4,7 @@
   "description": "A low-level cryptographic library",
   "site": "https://www.lysator.liu.se/~nisse/nettle/",
   "license": "GPL-2+,LGPL-3+",
+  "category": "security",
   "info": "info.md",
   "process_time": 1800,
   "options": [

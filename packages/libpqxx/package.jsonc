@@ -4,6 +4,7 @@
   "description": "The official C++ client API for PostgreSQL.",
   "site": "http://pqxx.org/libpqxx/",
   "license": "BSD-3-Clause license",
+  "category": "data",
   "info": "info.md",
   "process_time": 80,
   "options": [

@@ -4,6 +4,7 @@
   "description": "an XSLT processor based on libxml2.",
   "site": "https://gitlab.gnome.org/GNOME/libxslt",
   "license": "MIT License",
+  "category": "data",
   "info": "info.md",
   "process_time": 60,
   "options": [

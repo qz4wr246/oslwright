@@ -4,6 +4,7 @@
   "description": "Boost provides free peer-reviewed portable C++ source libraries.",
   "site": "https://www.boost.org/",
   "license": "BSL-1.0",
+  "category": "utility",
   "info": "info.md",
   "process_time": 1800,
   "options": [

@@ -4,6 +4,7 @@
   "description": "GNU Compact Disc Input and Control Library",
   "site": "https://www.gnu.org/software/libcdio/",
   "license": "GPL 3.0 or later",
+  "category": "media",
   "info": "info.md",
   "process_time": 400,
   "options": [

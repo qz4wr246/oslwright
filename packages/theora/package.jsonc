@@ -4,6 +4,7 @@
   "description": "An open video codec developed by the Xiph.org",
   "site": "https://www.theora.org",
   "license": "BSD-3-Clause",
+  "category": "media",
   "info": "info.md",
   "process_time": 240,
   "options": [

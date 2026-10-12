@@ -4,6 +4,7 @@
   "description": "A fast compressor/decompressor",
   "site": "https://github.com/google/snappy",
   "license": "BSD 3-Clause",
+  "category": "compression",
   "info": "info.md",
   "process_time": 50,
   "options": [

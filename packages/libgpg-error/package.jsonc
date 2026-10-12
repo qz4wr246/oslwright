@@ -4,6 +4,7 @@
   "description": "Support library for libgcrypt",
   "site": "https://gnupg.org",
   "license": "LGPL",
+  "category": "security",
   "info": "info.md",
   "process_time": 500,
   "options": [
