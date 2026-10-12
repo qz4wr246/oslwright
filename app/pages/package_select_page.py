@@ -151,15 +151,6 @@ def PackageSelectPage():
 
     ft.use_effect(on_init, [])
 
-    package_listview = ft.Column(
-        ref=listview_ref,
-        controls=[PackageItem(p) for p in package_list],
-        auto_scroll=False,
-        scroll=ft.ScrollMode.ALWAYS,
-        expand=True,
-        on_scroll=handle_scroll,
-    )
-
     def on_select_all(value):
         if package_listview:
             for pkg in package_list:
@@ -198,7 +189,7 @@ def PackageSelectPage():
             PackageSelectPage.pre_pos = pos
             return key
 
-        key = search_package(controller.packages, query)
+        key = search_package(package_list, query)
         if key and listview_ref.current:
             PackageSelectPage.pre_query = query
             await listview_ref.current.scroll_to(scroll_key=ft.ScrollKey(key.lower()), duration=500)
@@ -210,6 +201,15 @@ def PackageSelectPage():
 
     def on_search_change(e):
         set_serch_value(e.data)
+
+    package_listview = ft.Column(
+        ref=listview_ref,
+        controls=[PackageItem(p) for p in package_list],
+        auto_scroll=False,
+        scroll=ft.ScrollMode.ALWAYS,
+        expand=True,
+        on_scroll=handle_scroll,
+    )
 
     search_bar = ft.SearchBar(
         controls=[],
@@ -258,7 +258,6 @@ def PackageSelectPage():
         ],
         on_select=on_category_select,
         dense=True,
-        text_style=ft.TextStyle(size=14),
         width=150,
     )
 
