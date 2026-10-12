@@ -432,6 +432,31 @@
           "patch_file_01": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff"
         }
       }
+    },
+    "4.14.0": {  // OpenCV ver 4.14.0 is compatible with GStreamer ver 1.28 , FFmpeg ver 8.1
+      "dependencies": {
+        "abseil-cpp":{
+          "version": "==20250512.1"
+        },
+        "protobuf": {
+          "version": "==31.1"
+        },
+        "ffmpeg": {
+          "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
+          "version": ">=8.1",
+          "build_library": "shared"
+        },
+        "gstreamer": {
+          "enable": "{{$with_gstreamer}}",
+          "version": ">=1.28",
+          "build_library": "shared"
+        }
+      },
+      "stages": {
+        "patch": {
+          "patch_file_01": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff"
+        }
+      }
     }
   }
 }
