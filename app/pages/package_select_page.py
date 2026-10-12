@@ -132,6 +132,9 @@ def PackageSelectPage():
     controller = ft.use_memo(lambda: PackageSelectController(), [])
     is_all_selected, set_is_all_selected = ft.use_state(False)
     search_value, set_serch_value = ft.use_state("")
+    package_list, set_package_list = ft.use_state(controller.packages)
+    category_value, set_category_value = ft.use_state("")
+
     listview_ref = ft.use_ref()
 
     def handle_scroll(e):
@@ -150,7 +153,7 @@ def PackageSelectPage():
 
     package_listview = ft.Column(
         ref=listview_ref,
-        controls=[PackageItem(p) for p in controller.packages],
+        controls=[PackageItem(p) for p in package_list],
         auto_scroll=False,
         scroll=ft.ScrollMode.ALWAYS,
         expand=True,
@@ -159,7 +162,7 @@ def PackageSelectPage():
 
     def on_select_all(value):
         if package_listview:
-            for pkg in controller.packages:
+            for pkg in package_list:
                 pkg.selected.value = value
             set_is_all_selected(value)
 
@@ -178,6 +181,7 @@ def PackageSelectPage():
     async def on_submit_searchbar(e):
         query = search_value.strip().lower()
         if len(query) == 0:
+            PackageSelectPage.pre_query = ""
             return
 
         def search_package(packages: list[PackageModel], query_lower: str) -> str | None:
@@ -202,7 +206,7 @@ def PackageSelectPage():
 
     def on_search_clear(e):
         set_serch_value("")
-        # page.run_task(search_bar.focus)
+        PackageSelectPage.pre_query = ""
 
     def on_search_change(e):
         set_serch_value(e.data)
@@ -226,6 +230,36 @@ def PackageSelectPage():
             ),
         ],
         expand=True,
+        height=32,
+    )
+
+    def on_category_select(e):
+        category = e.data
+        set_category_value(category)
+        set_serch_value("")
+
+        if category == "":
+            set_package_list(controller.packages)
+        else:
+            set_package_list([p for p in controller.packages if category in p.category])
+
+    category_dropdown = ft.Dropdown(
+        value=category_value,
+        hint_text="Category",
+        options=[
+            ft.DropdownOption(""),
+            ft.DropdownOption("compression"),
+            ft.DropdownOption("data"),
+            ft.DropdownOption("graphics"),
+            ft.DropdownOption("media"),
+            ft.DropdownOption("network"),
+            ft.DropdownOption("security"),
+            ft.DropdownOption("utility"),
+        ],
+        on_select=on_category_select,
+        dense=True,
+        text_style=ft.TextStyle(size=14),
+        width=150,
     )
 
     layout = ft.Column(
@@ -237,10 +271,9 @@ def PackageSelectPage():
                         value=is_all_selected,
                         on_change=lambda e: on_select_all(e.control.value),
                     ),
-                    ft.Container(
-                        content=search_bar,
-                        width=300,
-                        height=32,
+                    ft.Row(
+                        controls=[search_bar, category_dropdown],
+                        width=500,
                     ),
                     ft.Row(
                         controls=[
