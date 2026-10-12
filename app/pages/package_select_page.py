@@ -169,8 +169,22 @@ def PackageSelectPage():
         page.session.store.set("build_force", False)
         page.navigate(Routes.BUILD)
 
-    async def on_submit_searchbar(e):
-        query = search_value.strip().lower()
+    def on_search_click(e):
+        do_scroll_query(search_value)
+
+    def on_search_submit(e):
+        query = e.data.strip().lower()
+        do_scroll_query(query)
+        page.run_task(search_bar.focus)
+
+    def on_search_clear(e):
+        set_serch_value("")
+        PackageSelectPage.pre_query = ""
+
+    def on_search_change(e):
+        set_serch_value(e.data)
+
+    def do_scroll_query(query):
         if len(query) == 0:
             PackageSelectPage.pre_query = ""
             return
@@ -192,15 +206,7 @@ def PackageSelectPage():
         key = search_package(package_list, query)
         if key and listview_ref.current:
             PackageSelectPage.pre_query = query
-            await listview_ref.current.scroll_to(scroll_key=ft.ScrollKey(key.lower()), duration=500)
-        page.run_task(search_bar.focus)
-
-    def on_search_clear(e):
-        set_serch_value("")
-        PackageSelectPage.pre_query = ""
-
-    def on_search_change(e):
-        set_serch_value(e.data)
+            page.run_task(listview_ref.current.scroll_to, scroll_key=ft.ScrollKey(key.lower()), duration=500)
 
     package_listview = ft.Column(
         ref=listview_ref,
@@ -215,7 +221,7 @@ def PackageSelectPage():
         controls=[],
         value=search_value,
         bar_hint_text="Search...",
-        on_submit=on_submit_searchbar,
+        on_submit=on_search_submit,
         on_change=on_search_change,
         bar_trailing=[
             ft.IconButton(
@@ -226,7 +232,7 @@ def PackageSelectPage():
                 icon_size=18,
                 margin=ft.Margin(),
                 padding=ft.Padding(),
-                on_click=on_submit_searchbar,
+                on_click=on_search_click,
             ),
         ],
         expand=True,
