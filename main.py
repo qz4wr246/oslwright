@@ -137,11 +137,16 @@ def SplashScreen(status_text: str, platform_init_reason: PlatformReason, on_dial
                     controls=[
                         ft.Row(
                             controls=[
-                                ft.Icon(ft.Icons.SETTINGS_SUGGEST, size=60, color=ft.Colors.BLUE),
+                                ft.Image(
+                                    src="/oslwright-logo.png",  # assets_dirからの相対パス（先頭に / が必要）
+                                    width=80,
+                                    height=80,
+                                    fit=ft.BoxFit.CONTAIN,
+                                ),
                                 ft.Text("OSLwright", size=40, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200),
                             ],
                             alignment=ft.MainAxisAlignment.CENTER,
-                            vertical_alignment=ft.CrossAxisAlignment.END,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
                         ),
                         ft.Text("C/C++ Open Source Library Builder for Windows", size=18, color=ft.Colors.GREY_400),
                         ft.Container(height=20),
@@ -169,6 +174,7 @@ def AppMain(page: ft.Page):
     page.title = "OSLwright: A C/C++ Open Source Library Builder for Windows"
     page.theme_mode = ft.ThemeMode.DARK
     page.scroll = None
+    page.window.icon = "/oslwright-logo.png"
 
     platform_service = None
     package_service = None
@@ -263,4 +269,4 @@ if __name__ == "__main__":
     subprocess.run(["chcp.com", "65001"])
     os.environ["PYTHONUTF8"] = "1"
 
-    ft.run(main=AppMain)
+    ft.run(main=AppMain, assets_dir="assets")
