@@ -13,6 +13,7 @@ oslwright_setting.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
+.pytest_cache
 *.py[cod]
 *$py.class
 *.manifest
