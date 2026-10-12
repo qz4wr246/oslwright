@@ -4,6 +4,7 @@
   "description": "Bullet Physics SDK",
   "site": "http://bulletphysics.org/",
   "license": "zlib license",
+  "category": "utility",
   "info": "info.md",
   "process_time": 230,
   "options": [

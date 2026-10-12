@@ -4,6 +4,7 @@
   "description": "Codec designed for interactive speech and audio transmission over the Internet",
   "site": "https://www.opus-codec.org/",
   "license": "BSD-3-Clause",
+  "category": "media",
   "info":"info.md",
   "process_time": 300,
   "options": [

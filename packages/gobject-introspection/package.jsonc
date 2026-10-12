@@ -4,6 +4,7 @@
   "description": "A middleware layer between C libraries (using GObject) and language bindings.",
   "site": "https://gi.readthedocs.io/",
   "license": "LGPL-2.0",
+  "category": "utility",
   "info":"info.md",
   "process_time": 120,
   "options": [

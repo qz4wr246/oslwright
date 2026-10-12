@@ -4,6 +4,7 @@
   "description": "Light-weight, simple and fast XML parser for C++ with XPath support",
   "site": "http://pugixml.org/",
   "license": "MIT license",
+  "category": "data",
   "info": "info.md",
   "process_time": 30,
   "options": [

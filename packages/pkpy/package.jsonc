@@ -4,6 +4,7 @@
   "description": "Portable Python 3.x Interpreter in Modern C",
   "site": "https://pocketpy.dev/",
   "license": "MIT license",
+  "category": "utility",
   "info": "info.md",
   "process_time": 40,
   "options": [

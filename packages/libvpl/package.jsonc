@@ -4,6 +4,7 @@
   "description": "Intel Video Processing Library",
   "site": "https://intel.github.io/libvpl",
   "license": "MIT",
+  "category": "media",
   "info": "info.md",
   "process_time": 300,
   "options": [

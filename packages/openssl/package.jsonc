@@ -4,6 +4,7 @@
   "description": "TLS/SSL and crypto library",
   "site": "https://www.openssl.org",
   "license": "Apache-2.0 license",
+  "category": "security",
   "info": "info.md",
   "process_time": 7700,
   "options": [

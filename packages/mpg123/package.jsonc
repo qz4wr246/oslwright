@@ -4,6 +4,7 @@
   "description": "A console based real time MPEG Audio Player for Layer 1, 2 and 3",
   "site": "https://www.mpg123.com/",
   "license": "LGPL v2.1",
+  "category": "media",
   "info": "info.md",
   "process_time": 440,
   "options": [

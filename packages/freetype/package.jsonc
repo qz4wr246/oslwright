@@ -4,6 +4,7 @@
   "description": "a freely available software library to render fonts.",
   "site": "https://www.freetype.org",
   "license": "FREETYPE LICENSES",
+  "category": "graphics",
   "process_time": 60,
   "options": [
     {

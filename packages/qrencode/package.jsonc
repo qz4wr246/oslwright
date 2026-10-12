@@ -4,6 +4,7 @@
   "description": "C library for encoding data in a QR Code symbol",
   "site": "https://fukuchi.org/works/qrencode/index.en.html",
   "license": "LGPL 2.1 or later",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 30,
   "options": [

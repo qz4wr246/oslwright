@@ -4,6 +4,7 @@
   "description": "Secure Reliable Transport",
   "site": "https://www.srtalliance.org/",
   "license": "MPL-2.0 license",
+  "category": "network",
   "info": "info.md",
   "process_time": 300,
   "options": [

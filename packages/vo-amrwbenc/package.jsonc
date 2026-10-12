@@ -4,6 +4,7 @@
   "description": "VisualOn Adaptive Multi Rate Wideband (AMR-WB) encoder",
   "site": "https://sourceforge.net/projects/opencore-amr/",
   "license": "Apache 2.0",
+  "category": "media",
   "info": "info.md",
   "process_time": 80,
   "options": [

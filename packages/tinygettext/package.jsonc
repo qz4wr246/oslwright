@@ -4,6 +4,7 @@
   "description": "A simple gettext replacement that works directly on .po files",
   "site": "https://github.com/tinygettext/tinygettext",
   "license": "zlib license",
+  "category": "utility",
   "info": "info.md",
   "process_time": 40,
   "options": [

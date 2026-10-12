@@ -58,6 +58,7 @@ class PackageService:
                     description=data["description"],
                     site=data["site"],
                     license=data["license"],
+                    category=data["category"],
                     process_time=data["process_time"],
                     options=data["options"],
                     versions=data["versions"],

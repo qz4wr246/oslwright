@@ -4,6 +4,7 @@
   "description": "A Fast and Easy to use microframework for the web.",
   "site": "https://crowcpp.org/",
   "license": "BSD 3-Clause License",
+  "category": "network",
   "info": "info.md",
   "process_time": 40,
   "options": [

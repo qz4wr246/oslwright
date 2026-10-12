@@ -4,6 +4,7 @@
   "description": "A library that can be used to add the RIST protocol to applications",
   "site": "https://code.videolan.org/rist/librist/",
   "license": "BSD 2-Clause",
+  "category": "network",
   "info":"info.md",
   "process_time": 300,
   "options": [

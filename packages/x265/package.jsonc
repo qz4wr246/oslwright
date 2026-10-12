@@ -4,6 +4,7 @@
   "description": "x265 HEVC Encoder",
   "site": "https://www.x265.org/",
   "license": "GPL-2.0 license",
+  "category": "media",
   "info": "info.md",
   "process_time": 500,
   "options": [

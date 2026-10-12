@@ -4,6 +4,7 @@
   "description": "Portable, high level programming interface to various calling conventions",
   "site": "https://sourceware.org/libffi/",
   "license": "MIT",
+  "category": "utility",
   "info":"info.md",
   "process_time": 240,
   "options": [

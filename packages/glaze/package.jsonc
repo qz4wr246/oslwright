@@ -4,6 +4,7 @@
   "description": "An Extremely fast, In-Memory JSON and Interface Library for Modern C++",
   "site": "https://stephenberry.github.io/glaze/",
   "license": "MIT",
+  "category": "data",
   "info": "info.md",
   "process_time": 20,
   "options": [

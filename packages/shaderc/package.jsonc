@@ -4,6 +4,7 @@
   "description": "A collection of tools, libraries, and tests for Vulkan shader compilation.",
   "site": "https://github.com/google/shaderc",
   "license": "Apache-2.0",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 520,
   "options": [

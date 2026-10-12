@@ -4,6 +4,7 @@
   "description": "Colour ASCII Art Library",
   "site": "https://github.com/cacalabs/libcaca",
   "license": "LGPL",
+  "category": "media",
   "info": "info.md",
   "process_time": 440,
   "options": [
@@ -383,6 +384,8 @@
         }
       }
     },
-    "0.99.beta20": {}
+    "0.99.beta20": {
+      "stable" : true
+    }
   }
 }

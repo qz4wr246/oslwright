@@ -4,6 +4,7 @@
   "description": "Gmerlin audio video library",
   "site": "https://github.com/bplaum/gavl",
   "license": "GPL 2.0",
+  "category": "media",
   "info": "info.md",
   "process_time": 360,
   "options": [

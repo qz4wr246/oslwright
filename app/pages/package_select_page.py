@@ -78,6 +78,7 @@ def PackageItem(package):
                                     f"version: {package.latest_version}", theme_style=ft.TextThemeStyle.BODY_MEDIUM
                                 ),
                                 ft.Text(f"license: {package.license}", theme_style=ft.TextThemeStyle.BODY_MEDIUM),
+                                ft.Text(f"category: {package.category}", theme_style=ft.TextThemeStyle.BODY_MEDIUM),
                             ]
                         ),
                         ft.Text(
@@ -131,6 +132,9 @@ def PackageSelectPage():
     controller = ft.use_memo(lambda: PackageSelectController(), [])
     is_all_selected, set_is_all_selected = ft.use_state(False)
     search_value, set_serch_value = ft.use_state("")
+    package_list, set_package_list = ft.use_state(controller.packages)
+    category_value, set_category_value = ft.use_state("")
+
     listview_ref = ft.use_ref()
 
     def handle_scroll(e):
@@ -147,18 +151,9 @@ def PackageSelectPage():
 
     ft.use_effect(on_init, [])
 
-    package_listview = ft.Column(
-        ref=listview_ref,
-        controls=[PackageItem(p) for p in controller.packages],
-        auto_scroll=False,
-        scroll=ft.ScrollMode.ALWAYS,
-        expand=True,
-        on_scroll=handle_scroll,
-    )
-
     def on_select_all(value):
         if package_listview:
-            for pkg in controller.packages:
+            for pkg in package_list:
                 pkg.selected.value = value
             set_is_all_selected(value)
 
@@ -174,9 +169,24 @@ def PackageSelectPage():
         page.session.store.set("build_force", False)
         page.navigate(Routes.BUILD)
 
-    async def on_submit_searchbar(e):
-        query = search_value.strip().lower()
+    def on_search_click(e):
+        do_scroll_query(search_value)
+
+    def on_search_submit(e):
+        query = e.data.strip().lower()
+        do_scroll_query(query)
+        page.run_task(search_bar.focus)
+
+    def on_search_clear(e):
+        set_serch_value("")
+        PackageSelectPage.pre_query = ""
+
+    def on_search_change(e):
+        set_serch_value(e.data)
+
+    def do_scroll_query(query):
         if len(query) == 0:
+            PackageSelectPage.pre_query = ""
             return
 
         def search_package(packages: list[PackageModel], query_lower: str) -> str | None:
@@ -193,24 +203,25 @@ def PackageSelectPage():
             PackageSelectPage.pre_pos = pos
             return key
 
-        key = search_package(controller.packages, query)
+        key = search_package(package_list, query)
         if key and listview_ref.current:
             PackageSelectPage.pre_query = query
-            await listview_ref.current.scroll_to(scroll_key=ft.ScrollKey(key.lower()), duration=500)
-        page.run_task(search_bar.focus)
+            page.run_task(listview_ref.current.scroll_to, scroll_key=ft.ScrollKey(key.lower()), duration=500)
 
-    def on_search_clear(e):
-        set_serch_value("")
-        # page.run_task(search_bar.focus)
-
-    def on_search_change(e):
-        set_serch_value(e.data)
+    package_listview = ft.Column(
+        ref=listview_ref,
+        controls=[PackageItem(p) for p in package_list],
+        auto_scroll=False,
+        scroll=ft.ScrollMode.ALWAYS,
+        expand=True,
+        on_scroll=handle_scroll,
+    )
 
     search_bar = ft.SearchBar(
         controls=[],
         value=search_value,
         bar_hint_text="Search...",
-        on_submit=on_submit_searchbar,
+        on_submit=on_search_submit,
         on_change=on_search_change,
         bar_trailing=[
             ft.IconButton(
@@ -221,10 +232,39 @@ def PackageSelectPage():
                 icon_size=18,
                 margin=ft.Margin(),
                 padding=ft.Padding(),
-                on_click=on_submit_searchbar,
+                on_click=on_search_click,
             ),
         ],
         expand=True,
+        height=32,
+    )
+
+    def on_category_select(e):
+        category = e.data
+        set_category_value(category)
+        set_serch_value("")
+
+        if category == "":
+            set_package_list(controller.packages)
+        else:
+            set_package_list([p for p in controller.packages if category in p.category])
+
+    category_dropdown = ft.Dropdown(
+        value=category_value,
+        hint_text="Category",
+        options=[
+            ft.DropdownOption(""),
+            ft.DropdownOption("compression"),
+            ft.DropdownOption("data"),
+            ft.DropdownOption("graphics"),
+            ft.DropdownOption("media"),
+            ft.DropdownOption("network"),
+            ft.DropdownOption("security"),
+            ft.DropdownOption("utility"),
+        ],
+        on_select=on_category_select,
+        dense=True,
+        width=150,
     )
 
     layout = ft.Column(
@@ -236,10 +276,9 @@ def PackageSelectPage():
                         value=is_all_selected,
                         on_change=lambda e: on_select_all(e.control.value),
                     ),
-                    ft.Container(
-                        content=search_bar,
-                        width=300,
-                        height=32,
+                    ft.Row(
+                        controls=[search_bar, category_dropdown],
+                        width=500,
                     ),
                     ft.Row(
                         controls=[

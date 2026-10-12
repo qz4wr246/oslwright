@@ -4,6 +4,7 @@
   "description": "Asio C++ Library",
   "site": "http://think-async.com/Asio",
   "license": "BSL-1.0",
+  "category": "network",
   "info": "info.md",
   "process_time": 40,
   "options": [

@@ -4,6 +4,7 @@
   "description": "TLS/SSL and crypto library",
   "site": "https://www.gnutls.org/",
   "license": "GPL-3.0+ OR LGPL-2.1+",
+  "category": "security",
   "info": "info.md",
   "process_time": 1800,
   "options": [

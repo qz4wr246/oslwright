@@ -4,6 +4,7 @@
   "description": "Fast real-time compression algorithm",
   "site": "https://facebook.github.io/zstd",
   "license": "3-Clause BSD or GPLv2",
+  "category": "utility",
   "info":"info.md",
   "process_time": 300,
   "options": [

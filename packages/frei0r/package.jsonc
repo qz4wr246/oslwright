@@ -4,6 +4,7 @@
   "description": "A large collection of free and portable video plugins",
   "site": "https://frei0r.dyne.org/",
   "license": "GPL-2.0",
+  "category": "media",
   "info": "info.md",
   "process_time": 300,
   "options": [

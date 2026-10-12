@@ -4,6 +4,7 @@
   "description": "Flecs is a fast and lightweight C++ entity component system",
   "site": "https://www.flecs.dev/",
   "license": "Apache 2 License",
+  "category": "utility",
   "info": "info.md",
   "process_time": 80,
   "options": [

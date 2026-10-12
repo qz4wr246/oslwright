@@ -4,6 +4,7 @@
   "description": "Sample Library",
   "site": "https://example.org",
   "license": "Apache 2 License",
+  "category": "utility",
   "info": "info.md",
   "process_time": 300,
   "options": [

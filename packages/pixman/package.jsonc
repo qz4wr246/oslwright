@@ -4,6 +4,7 @@
   "description": "Image processing and manipulation library",
   "site": "https://www.pixman.org/",
   "license": "MIT license",
+  "category": "graphics",
   "process_time": 90,
   "options": [
     {

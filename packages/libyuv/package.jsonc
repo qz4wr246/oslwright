@@ -4,6 +4,7 @@
   "description": "YUV conversion and scaling library",
   "site": "https://chromium.googlesource.com/libyuv/libyuv",
   "license": "BSD 3-Clause",
+  "category": "media",
   "info": "info.md",
   "process_time": 20,
   "options": [

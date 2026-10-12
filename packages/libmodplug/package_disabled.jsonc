@@ -4,6 +4,7 @@
   "description": "A library (libmodplug) and input-plugin for XMMS which plays mod-like music formats.",
   "site": "http://modplug-xmms.sf.net/",
   "license": "GPL",
+  "category": "utility",
   "info": "info.md",
   "process_time": 300,
   "options": [

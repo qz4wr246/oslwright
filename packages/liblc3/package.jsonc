@@ -4,6 +4,7 @@
   "description": "A audio codecs designed for low-latency audio transport.",
   "site": "https://github.com/google/liblc3",
   "license": "Apache-2.0",
+  "category": "media",
   "info":"info.md",
   "process_time": 30,
   "options": [

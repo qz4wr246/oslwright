@@ -4,6 +4,7 @@
   "description": "Bauer stereophonic-to-binaural DSP effect library",
   "site": "https://www.gnu.org/software/libiconv/",
   "license": "MIT",
+  "category": "media",
   "info": "info.md",
   "process_time": 440,
   "options": [

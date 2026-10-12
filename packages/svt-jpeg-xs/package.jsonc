@@ -4,6 +4,7 @@
   "description": "Intel® JPEG-XS Library",
   "site": "https://github.com/OpenVisualCloud/SVT-JPEG-XS",
   "license": "The OSI approved BSD+Patent",
+  "category": "media",
   "info": "info.md",
   "process_time": 60,
   "options": [

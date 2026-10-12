@@ -19,6 +19,7 @@
     "site": { "type": "string", "format": "uri" },
     "process_time": { "type": "number" },
     "license": { "type": "string" },
+    "category": { "type": "string" },
     "info": { "type": "string" },
     "options": {
       "type": "array",

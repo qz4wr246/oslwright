@@ -4,6 +4,7 @@
   "description": "Per-Face Texture Mapping for Production Rendering",
   "site": "https://www.disneyanimation.com/open-source/ptex/",
   "license": "Modified BSD License (3-Clause BSD License)",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 40,
   "options": [

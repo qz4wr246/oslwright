@@ -4,6 +4,7 @@
   "description": "Open Asset Import Library",
   "site": "https://www.assimp.org/",
   "license": "3-clause BSD-License,modifyed",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 450,
   "options": [

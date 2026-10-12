@@ -4,6 +4,7 @@
   "description": "MPEG-5 EVC (Essential Video Coding) decoder",
   "site": "https://github.com/mpeg5/xevd/",
   "license": "BSD 3-Clause",
+  "category": "media",
   "info": "info.md",
   "process_time": 40,
   "options": [

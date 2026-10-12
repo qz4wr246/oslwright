@@ -4,6 +4,7 @@
   "description": "QR decoder library",
   "site": "https://github.com/dlbeer/quirc/",
   "license": "ISC",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 20,
   "options": [

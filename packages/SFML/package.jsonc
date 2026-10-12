@@ -4,6 +4,7 @@
   "description": "Simple and Fast Multimedia Library",
   "site": "https://www.sfml-dev.org/",
   "license": "Zlib license",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 100,
   "options": [

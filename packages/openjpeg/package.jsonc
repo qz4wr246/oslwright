@@ -4,6 +4,7 @@
   "description": "An open-source JPEG 2000 codec written in C language.",
   "site": "https://github.com/uclouvain/openjpeg",
   "license": "BSD 2-clause 'Simplified' License",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 60,
   "options": [

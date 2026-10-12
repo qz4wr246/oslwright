@@ -4,6 +4,7 @@
   "description": "Reference implementation of JPEG-2000 Part-1 codec (ISO/IEC 15444-5)",
   "site": "https://www.ece.uvic.ca/~mdadams/jasper",
   "license": "JasPer-2.0",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 300,
   "options": [

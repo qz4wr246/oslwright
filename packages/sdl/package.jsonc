@@ -4,6 +4,7 @@
   "description": "Simple Directmedia Layer",
   "site": "https://libsdl.org/",
   "license": "Zlib license",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 190,
   "options": [

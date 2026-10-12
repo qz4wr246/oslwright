@@ -4,6 +4,7 @@
   "description": "The SoX resampler library",
   "site": "https://sourceforge.net/projects/soxr/",
   "license": "LGPL-2.1, FFTPACK license",
+  "category": "media",
   "info": "info.md",
   "process_time": 300,
   "options": [

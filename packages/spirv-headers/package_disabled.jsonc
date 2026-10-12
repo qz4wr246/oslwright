@@ -4,6 +4,7 @@
   "description": "Machine-readable files for the SPIR-V Registry",
   "site": "https://www.khronos.org/registry/spir-v/",
   "license": "MIT",
+  "category": "data",
   "info": "info.md",
   "process_time": 30,
   "options": [

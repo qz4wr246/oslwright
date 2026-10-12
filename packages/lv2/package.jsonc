@@ -4,6 +4,7 @@
   "description": "LV2 audio plugin specification",
   "site": "https://lv2plug.in/",
   "license": "ISC",
+  "category": "media",
   "info":"info.md",
   "process_time": 30,
   "options": [

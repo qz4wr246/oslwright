@@ -4,6 +4,7 @@
   "description": "ZeroMQ core engine in C++, implements ZMTP/3.1",
   "site": "https://www.zeromq.org/",
   "license": "MPL-2.0 license",
+  "category": "network",
   "info": "info.md",
   "process_time": 120,
   "options": [

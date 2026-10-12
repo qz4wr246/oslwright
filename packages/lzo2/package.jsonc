@@ -4,6 +4,7 @@
   "description": "Portable lossless data compression library",
   "site": "https://www.oberhumer.com/opensource/lzo",
   "license": "GPL 2.0 or later",
+  "category": "compression",
   "info": "info.md",
   "process_time": 250,
   "options": [

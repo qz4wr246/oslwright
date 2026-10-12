@@ -4,6 +4,7 @@
   "description": "A portable subtitle renderer for the ASS/SSA subtitle format.",
   "site": "https://github.com/libass/libass",
   "license": "ISC license",
+  "category": "media",
   "info":"info.md",
   "process_time": 300,
   "options": [

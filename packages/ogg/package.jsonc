@@ -4,6 +4,7 @@
   "description": "Reference implementation of the Ogg media container",
   "site": "https://github.com/xiph/ogg",
   "license": "BSD-3-Clause license",
+  "category": "media",
   "info": "info.md",
   "process_time": 30,
   "options": [

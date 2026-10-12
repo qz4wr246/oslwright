@@ -4,6 +4,7 @@
   "description": "General purpose cryptographic library based on the code from GnuPG",
   "site": "https://gnupg.org",
   "license": "LGPL",
+  "category": "security",
   "info": "info.md",
   "process_time": 440,
   "options": [

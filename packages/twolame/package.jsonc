@@ -4,6 +4,7 @@
   "description": "An optimized MPEG Audio Layer 2 (MP2) encoder",
   "site": "https://www.gnu.org/software/libiconv/",
   "license": "LGPL",
+  "category": "media",
   "info": "info.md",
   "process_time": 210,
   "options": [

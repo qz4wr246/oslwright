@@ -4,6 +4,7 @@
   "description": "an image compression library that uses gain map technology to store and distribute HDR images.",
   "site": "https://developer.android.com/guide/topics/media/platform/hdr-image-format",
   "license": "Apache-2.0 license",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 60,
   "options": [

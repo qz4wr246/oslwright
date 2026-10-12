@@ -4,6 +4,7 @@
   "description": "A friendly copy of the iLBC codec from the WebRTC project",
   "site": "https://github.com/TimothyGu/libilbc",
   "license": "BSD",
+  "category": "media",
   "info": "info.md",
   "process_time": 40,
   "options": [

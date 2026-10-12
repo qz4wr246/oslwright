@@ -4,6 +4,7 @@
   "description": "LZ4 is a lossless compression algorithm and compression library",
   "site": "http://www.lz4.org/",
   "license": "lz4 lib is BSD2, others are GPL-2.0+",
+  "category": "compression",
   "info": "info.md",
   "process_time": 60,
   "options": [

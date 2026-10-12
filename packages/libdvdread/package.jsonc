@@ -4,6 +4,7 @@
   "description": "Provides a simple foundation for reading DVD video disks",
   "site": "https://www.videolan.org/developers/libdvdnav.html",
   "license": "GPL 2.0 or later",
+  "category": "media",
   "info":"info.md",
   "process_time": 40,
   "options": [

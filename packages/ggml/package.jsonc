@@ -4,6 +4,7 @@
   "description": "Tensor library for machine learning",
   "site": "https://github.com/ggml-org/ggml",
   "license": "MIT license",
+  "category": "utility",
   "info": "info.md",
   "process_time": 300,
   "options": [

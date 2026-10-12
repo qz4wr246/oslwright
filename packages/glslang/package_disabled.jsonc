@@ -4,6 +4,7 @@
   "description": "An OpenGL and OpenGL ES shader front end and validator",
   "site": "https://github.com/KhronosGroup/glslang",
   "license": "BSD-3-Clause",
+  "category": "utility",
   "info": "info.md",
   "process_time": 300,
   "options": [

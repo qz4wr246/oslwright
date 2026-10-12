@@ -4,6 +4,7 @@
   "description": "A color management framework for visual effects and animation.",
   "site": "https://opencolorio.org/",
   "license": "BSD-3-Clause license",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 390,
   "options": [

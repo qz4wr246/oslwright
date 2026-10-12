@@ -4,6 +4,7 @@
   "description": "The approximate regex matching library and agrep command line tool",
   "site": "https://github.com/laurikari/tre",
   "license": "BSD",
+  "category": "utility",
   "info": "info.md",
   "process_time": 440,
   "options": [

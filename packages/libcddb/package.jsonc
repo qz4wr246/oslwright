@@ -4,6 +4,7 @@
   "description": "Library that implements the different protocols (CDDBP, HTTP, SMTP) to access data on a CDDB server",
   "site": "https://www.gnu.org/software/libiconv/",
   "license": "LGPL",
+  "category": "media",
   "info": "info.md",
   "process_time": 280,
   "options": [

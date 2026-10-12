@@ -4,6 +4,7 @@
   "description": "A C++ library for interacting with JSON.",
   "site": "https://github.com/open-source-parsers/jsoncpp",
   "license": "MIT License",
+  "category": "data",
   "info": "info.md",
   "process_time": 60,
   "options": [

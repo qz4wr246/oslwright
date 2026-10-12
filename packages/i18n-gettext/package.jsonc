@@ -4,6 +4,7 @@
   "description": "Parsing and use Gettext .mo files.",
   "site": "https://github.com/kaishiqi/I18N-Gettext-Supported",
   "license": "MIT license",
+  "category": "utility",
   "info": "info.md",
   "process_time": 30,
   "options": [

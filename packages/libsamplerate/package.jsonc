@@ -4,6 +4,7 @@
   "description": "An audio Sample Rate Conversion library",
   "site": "http://libsndfile.github.io/libsamplerate/",
   "license": "BSD-2-Clause license",
+  "category": "media",
   "info": "info.md",
   "process_time": 30,
   "options": [

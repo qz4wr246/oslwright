@@ -4,6 +4,7 @@
   "description": "A (very) simple UI lib built on top of OpenCV drawing primitives",
   "site": "https://dovyski.github.io/cvui/",
   "license": "MIT license",
+  "category": "graphics",
   "info": "info.md",
   "process_time": 30,
   "options": [

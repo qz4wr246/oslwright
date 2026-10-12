@@ -4,6 +4,7 @@
   "description": "Library for manipulating Unicode strings and C strings.",
   "site": "https://www.gnu.org/software/libunistring/",
   "license": "LGPL 3+",
+  "category": "utility",
   "info": "info.md",
   "process_time": 1800,
   "options": [

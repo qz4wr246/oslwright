@@ -4,6 +4,7 @@
   "description": "SQL database engine",
   "site": "https://www.sqlite.org",
   "license": "Public Domain",
+  "category": "data",
   "info": "info.md",
   "process_time": 60,
   "options": [

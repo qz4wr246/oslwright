@@ -29,25 +29,65 @@ def get_assets_dir() -> Path:
 
 
 def Version(text):
+    # 数字と文字列の塊に分解
     version_split = re.findall(r"\d+|[a-zA-Z]+", text)
 
     prefix = ["v", "ver", "version", "vol"]
-    if version_split[0].lower() in prefix:
+    if version_split and version_split[0].lower() in prefix:
         version_split = version_split[1:]
 
-    prerelease_str = ["a", "alpha", "b", "beta", "rc", "pre", "preview", "canary"]
+    # 実際に広く使われている標準的な優先順位（右にいくほど製品版に近い）
+    prerelease_str = [
+        "dev",
+        "a",
+        "alpha",
+        "b",
+        "beta",
+        "canary",
+        "pre",
+        "preview",
+        "rc",
+    ]
 
-    output = []
+    numeric_parts = []
+    is_prerelease = False
+    prerelease_weight = -1  # プレリリースがない場合は -1
+    prerelease_num = 0
+
+    # 分解された要素の解析
     for item in version_split:
         if item.isdecimal():
-            output.append((int(item), ""))
-        elif item.lower() in prerelease_str:
-            output.append((0, item))
+            if is_prerelease:
+                prerelease_num = int(item)
+            else:
+                numeric_parts.append(int(item))
         else:
-            output.append((0, item))
-    output.append((0, ""))
+            is_prerelease = True
+            tag = item.lower()
+            if tag in prerelease_str:
+                # 表記揺れ（略称）の重みを統一する処理
+                if tag == "a":
+                    tag = "alpha"
+                elif tag == "b":
+                    tag = "beta"
+                elif tag == "pre":
+                    tag = "preview"
 
-    return tuple(output)
+                # 統一したタグのインデックスを重み（優先度）とする
+                prerelease_weight = prerelease_str.index(tag)
+            else:
+                # リストにない未知の文字列は、最も低い優先度（-2）にする
+                prerelease_weight = -2
+
+    # タプルの長さを固定にするために、メジャー.マイナー.パッチの3要素に補正
+    while len(numeric_parts) < 3:
+        numeric_parts.append(0)
+
+    # 製品版フラグ: 製品版（プレリリースなし）を「1」、プレリリース版を「0」とする
+    release_flag = 0 if is_prerelease else 1
+
+    # (メジャー, マイナー, パッチ, 製品版フラグ, プレリリースの重み, プレリリース番号)
+    return tuple(numeric_parts[:3]) + (release_flag,) + (prerelease_weight, prerelease_num)
 
 
 def add_path_env(path, new_paths_str):

@@ -4,6 +4,7 @@
   "description": "Low-level core library that forms the basis for projects such as GTK+ and GNOME.",
   "site": "https://gitlab.gnome.org/GNOME/glib",
   "license": "LGPL-2.1",
+  "category": "utility",
   "process_time": 350,
   "options": [
     {

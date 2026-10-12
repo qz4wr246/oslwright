@@ -4,6 +4,7 @@
   "description": "A script-based video frame server and the successor to AviSynth.",
   "site": "https://avs-plus.net/",
   "license": "GPL v2",
+  "category": "media",
   "info": "info.md",
   "process_time": 480,
   "options": [

@@ -4,6 +4,7 @@
   "description": "Portable ARIB STD-B24 Caption Decoder/Renderer",
   "site": "https://github.com/xqq/libaribcaption",
   "license": "MIT",
+  "category": "media",
   "info": "info.md",
   "process_time": 30,
   "options": [
