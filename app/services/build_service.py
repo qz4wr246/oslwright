@@ -751,6 +751,7 @@ class BuildService:
         if not len(versions):
             return None
 
+        # 1. 範囲条件がない場合は、従来通り stable_ver または最新版を返す
         latest_ver = versions[-1] if not stable_ver else stable_ver
         if not req_ver:
             return latest_ver
@@ -762,45 +763,55 @@ class BuildService:
         ver2 = m.group(5)
 
         if not ver1:
-            # "Bad dependenct version in package.jsonc"
+            # "Bad dependency version in package.jsonc"
             return None
 
+        # 2. 1つ目の条件によるフィルタリング
         if not ope1:
             if ver1 in set(versions):
-                return ver1
-            return None
+                versions = [ver1]
+            else:
+                versions = []
+        else:
+            if ope1 == "=" or ope1 == "==":
+                versions = [v for v in versions if Version(v) == Version(ver1)]
+            elif ope1 == "<=":
+                versions = [v for v in versions if Version(v) <= Version(ver1)]
+            elif ope1 == ">=":
+                versions = [v for v in versions if Version(v) >= Version(ver1)]
+            elif ope1 == "<":
+                versions = [v for v in versions if Version(v) < Version(ver1)]
+            elif ope1 == ">":
+                versions = [v for v in versions if Version(v) > Version(ver1)]
 
-        if ope1 == "=" or ope1 == "==":
-            versions = [v for v in versions if Version(v) == Version(ver1)]
-        elif ope1 == "<=":
-            versions = [v for v in versions if Version(v) <= Version(ver1)]
-        elif ope1 == ">=":
-            versions = [v for v in versions if Version(v) >= Version(ver1)]
-        elif ope1 == "<":
-            versions = [v for v in versions if Version(v) < Version(ver1)]
-        elif ope1 == ">":
-            versions = [v for v in versions if Version(v) > Version(ver1)]
-
-        if not ope2 and not ver2:
-            return latest_ver if len(versions) else None
-
-        if not ope2 and ver2:
+        # 3. 2つ目の条件（積条件）による追加フィルタリング（※ここで早期リターンさせず、リストをさらに絞り込む）
+        if ope2 and ver2:
+            if ope2 == "=" or ope2 == "==":
+                versions = [v for v in versions if Version(v) == Version(ver2)]
+            elif ope2 == "<=":
+                versions = [v for v in versions if Version(v) <= Version(ver2)]
+            elif ope2 == ">=":
+                versions = [v for v in versions if Version(v) >= Version(ver2)]
+            elif ope2 == "<":
+                versions = [v for v in versions if Version(v) < Version(ver2)]
+            elif ope2 == ">":
+                versions = [v for v in versions if Version(v) > Version(ver2)]
+        elif not ope2 and ver2:
             if ver2 in set(versions):
-                return ver2
+                versions = [ver2]
+            else:
+                versions = []
+
+        # 4. すべてのフィルタリングが完了した後に、共通の確定処理を行う
+        if not versions:
             return None
 
-        if ope2 == "=" or ope2 == "==":
-            versions = [v for v in versions if Version(v) == Version(ver2)]
-        elif ope2 == "<=":
-            versions = [v for v in versions if Version(v) <= Version(ver2)]
-        elif ope2 == ">=":
-            versions = [v for v in versions if Version(v) >= Version(ver2)]
-        elif ope2 == "<":
-            versions = [v for v in versions if Version(v) < Version(ver2)]
-        elif ope2 == ">":
-            versions = [v for v in versions if Version(v) > Version(ver2)]
+        # 完全に絞り込まれたリストの中に stable_ver が残っていればそれを最優先で返す
+        if stable_ver and stable_ver in versions:
+            return stable_ver
 
-        return latest_ver if len(versions) else None
+        # なければ条件を満たす中で最大のバージョンを返す
+        return versions[-1]
 
     def stop_build(self):
         """ビルド停止"""
