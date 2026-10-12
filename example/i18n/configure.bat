@@ -12,7 +12,8 @@ set SCRIPT_FILE=%~dpnx0
 chcp 65001 >nul 2>&1
 if defined LOGFILE goto :DO_SCRIPT
   set "LOGFILE=%SCRIPT_DIR%\Output.txt"
-  "%~f0" %* 2>&1 | powershell -NoProfile -Command "$input | Tee-Object -FilePath \"%LOGFILE%\""
+  @REM  "%~f0" %* 2>&1 | powershell -NoProfile -Command "$input | Tee-Object -FilePath \"%LOGFILE%\""
+  "%~f0" %* 2>&1 | powershell -NoProfile -Command "$utf8 = New-Object System.Text.UTF8Encoding $false; $input | ForEach-Object { Write-Host $_; [System.IO.File]::AppendAllText('%LOGFILE%', ($_ + \"`n\"), $utf8) }"
   exit /b
 :DO_SCRIPT
 
@@ -127,8 +128,9 @@ set "FOUND=0"
 :: generator mapping
 set "MAP[0]=2019=16 2019"
 set "MAP[1]=2022=17 2022"
+set "MAP[2]=2026=18 2026"
 
-for /L %%i in (0,1,3) do (
+for /L %%i in (0,1,2) do (
     set "entry=!MAP[%%i]!"
     for /F "tokens=1,* delims==" %%A in ("!entry!") do (
         if "%%A"=="%input%" (
