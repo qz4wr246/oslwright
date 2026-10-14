@@ -96,12 +96,25 @@
       "default": "{{$cuda_version_default}}"
     },
     {
+      "display": "Enable Qt",
+      "name": "enable_qt",
+      "enable": "{{$qt_enable_default}}",
+      "type": "bool",
+      "default": "{{$qt_enable_default}}"
+    },
+    {
+      "display": "Qt directory(msvc)",
+      "name": "qt_msvc_dir",
+      "enable": "{{$enable_qt}}",
+      "type": "folder",
+      "default": "{{$qt_msvc_dir_default}}"
+    },
+    {
       "display": "Enable kit",
       "name": "vtk_enable_kits",
       "type": "bool",
       "default": false
     },
-
     {
       "display": "Build example",
       "name": "vtk_build_examples",
@@ -197,7 +210,11 @@
             "-DVTK_BUILD_DOCUMENTATION={{'ON' if $build_document == 'Doxygen' else 'OFF'}}",
             "-DVTK_BUILD_SPHINX_DOCUMENTATION={{'ON' if $build_document == 'Sphinx' else 'OFF'}}",
             "-DVTK_ENABLE_LOGGING={{'ON' if $vtk_enable_logging else 'OFF'}}",
-            "-DVTK_ENABLE_KITS={{'ON' if $vtk_enable_kits else 'OFF'}}"
+            "-DVTK_ENABLE_KITS={{'ON' if $vtk_enable_kits else 'OFF'}}",
+            "-DVTK_GROUP_ENABLE_Qt={{'YES' if $enable_qt else 'NO'}}",
+            "{{'-DVTK_QT_VERSION=6' if $enable_qt else ''}}",
+            "-DVTK_MODULE_ENABLE_VTK_GUISupportQt={{'YES' if $enable_qt else 'NO'}}",
+            "-DVTK_MODULE_ENABLE_VTK_ViewsQt={{'YES' if $enable_qt else 'NO'}}"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -218,7 +235,7 @@
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
               "environments": {
-                "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
+                "CMAKE_PREFIX_PATH": "$dependent_packages_debug{{f';{$qt_msvc_dir}' if $enable_qt else ''}}",
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
                 "PERLIO": "raw"
               },
@@ -228,7 +245,7 @@
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "CMAKE_PREFIX_PATH": "$dependent_packages_release",
+                "CMAKE_PREFIX_PATH": "$dependent_packages_release{{f';{$qt_msvc_dir}' if $enable_qt else ''}}",
                 "PKG_CONFIG_PATH": "$pkg_config_path_release",
                 "PERLIO": "raw"
               },
@@ -283,6 +300,7 @@
         }
       }
     },
-    "9.3.1": {}
+    "9.3.1": {},
+    "9.7.1": {}
   }
 }
