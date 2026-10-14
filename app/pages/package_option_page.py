@@ -32,16 +32,37 @@ def PackageOptionPage():
         set_save_button_disabled(not ret)
 
     def on_save_click(e):
-        controller.save()
         set_save_button_disabled(True)
+        controller.save()
 
     def on_reset_click(e):
-        controller.reset()
         set_save_button_disabled(False)
+        controller.reset()
 
     def on_change(e):
         set_save_button_disabled(False)
         controller.update_value(e.control.data, e.control.value)
+
+    async def handle_select_folder(e):
+        file_picker = ft.FilePicker()
+        folder_path = await file_picker.get_directory_path(dialog_title="Please select a folder")
+
+        if folder_path:
+            set_save_button_disabled(False)
+            controller.update_value(e.control.data, folder_path)
+
+        page.update()
+
+    async def handle_select_file(e):
+        file_picker = ft.FilePicker()
+        result = await file_picker.pick_files(dialog_title="Please select a file", allow_multiple=False)
+
+        if result and result.files:
+            selected_file_path = result.files[0].path
+            set_save_button_disabled(False)
+            controller.update_value(e.control.data, selected_file_path)
+
+        page.update()
 
     save_button = ft.Button(content="Save", disabled=save_button_disabled, on_click=on_save_click)
 
@@ -50,7 +71,7 @@ def PackageOptionPage():
         if ui.type == "choice":
             ctrlitem = ft.Dropdown(
                 key=controller.values[ui.name].name,
-                width=250,
+                width=300,
                 value=controller.values[ui.name].value,
                 disabled=controller.values[ui.name].disabled,
                 options=[ft.dropdown.Option(x) for x in ui.items] if ui.items is not None else [],
@@ -65,10 +86,48 @@ def PackageOptionPage():
                 on_change=on_change,
                 data=ui.name,
             )
+        elif ui.type == "folder":
+            ctrlitem = ft.Row(
+                controls=[
+                    ft.TextField(
+                        key=controller.values[ui.name].name,
+                        value=controller.values[ui.name].value,
+                        disabled=controller.values[ui.name].disabled,
+                        on_change=on_change,
+                        data=ui.name,
+                        expand=True,
+                    ),
+                    ft.IconButton(
+                        icon=ft.Icons.FOLDER,
+                        on_click=handle_select_folder,
+                        data=ui.name,
+                    ),
+                ],
+                width=300,
+            )
+        elif ui.type == "file":
+            ctrlitem = ft.Row(
+                controls=[
+                    ft.TextField(
+                        key=controller.values[ui.name].name,
+                        value=controller.values[ui.name].value,
+                        disabled=controller.values[ui.name].disabled,
+                        on_change=on_change,
+                        data=ui.name,
+                        expand=True,
+                    ),
+                    ft.IconButton(
+                        icon=ft.Icons.FOLDER,
+                        on_click=handle_select_file,
+                        data=ui.name,
+                    ),
+                ],
+                width=300,
+            )
         else:  # text
             ctrlitem = ft.TextField(
                 key=controller.values[ui.name].name,
-                width=250,
+                width=300,
                 value=controller.values[ui.name].value,
                 disabled=controller.values[ui.name].disabled,
                 on_change=on_change,
