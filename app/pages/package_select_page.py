@@ -159,6 +159,7 @@ def PackageSelectPage():
 
     def open_reload(e):
         controller.reload()
+        set_package_list(controller.packages)
 
     def open_app_setting(e):
         e.page.navigate(Routes.APP_SETTING)
