@@ -1,6 +1,6 @@
 <h1>OSLwright: A C/C++ Open Source Library Builder for Windows</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.2.0-blue.svg?cacheSeconds=2592000" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.2.x-blue.svg?cacheSeconds=2592000" />
   <a href="#" target="_blank">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT_License-yellow.svg" />
     <img alt="Language: python" src="https://img.shields.io/badge/Language-Python-green.svg" />
@@ -8,25 +8,21 @@
   </a>
 </p>
 
-OSLwright は、C/C++オープンソースライブラリ・ビルダーです。
-Windows向けのC/C++ネイティブ・ライブラリをスクラッチビルドします。
+OSLwright は、Windows向けのC/C++オープンソースライブラリをスクラッチビルドするGUIツールです。<br>
+パッケージごとのビルド設定や依存関係を管理し、生成したライブラリをCMakeプロジェクトから利用できます。
+
 <p>
 <img src="docs/building.png" width="50%" style="display: block; margin: auto;" />
 </p>
 
-> [!WARNING]
-> ## 🚧 ！工事中！ 👷‍♀️
-> ほとんどテストを実施していません。<br>
-> 全てのパッケージのビルドが完了することを確認しました。ただしリリース版だけです。
-
 # Features
 
-* Windows向けにC/C++オープンソースライブラリをビルドします。
-* GUIで簡単にパッケージのビルドが出来ます。
+* Windows向けにC/C++オープンソースライブラリをソースコードから自動ビルドします。
+* GUIでパッケージを選択し簡単にビルドが出来ます。
 * いくつかパッケージはCMakeConfigを追加しています。pkg-configは相対パスへ変更済み
-* 気まぐれで商業利用に制限の少ないライセンスのパッケージを収集しています。
+* 多数のライブラリを収録しています。
 * ソースファイルをダウンロードしてスクラッチ・ビルドするので、バージョン管理やソースの追跡が可能です。
-* 特に理由がなければ、[__vcpkg__](https://learn.microsoft.com/ja-jp/vcpkg/get_started/overview) をお勧めします。
+* 特別な理由がなければ、一般的なパッケージ管理ツール[__vcpkg__](https://learn.microsoft.com/ja-jp/vcpkg/get_started/overview) をお勧めします。
 
 # Requirements
 
@@ -43,21 +39,36 @@ Windows向けのC/C++ネイティブ・ライブラリをスクラッチビル�
 * 7zip [https://www.7-zip.org/download.html](https://www.7-zip.org/download.html)
 
 
-# Get start
+# Get Started
 1. Python, VisualStudioなどOSLwrightが依存するアプリケーションをインストールします。
-1. OSLwrightを起動します。<br>python仮想環境が作成されOSLwrightが起動します。
-   ```dos
-   > launch-oslwright.bat
-   ```
-1. 追加ツールダイアログが表示された場合は「Install tools」ボタンを押してください。
+1. OSLwrightを起動します。<br>python仮想環境が作成された後にOSLwrightが起動します。
+
+    ```dos
+    > launch-oslwright.bat
+    ```
+
+1. スプラッシュ画面で、追加ツールのダイアログが表示された場合は「Install tools」ボタンを押してください。
+
+    <img src="docs/splash.png" width="50%" style="display: block; margin: auto;"/>
+
+
+1. パッケージ選択画面が表示されます。
+
+    <img src="docs/select.png" width="50%" style="display: block; margin: auto;"/>
+
+
+1. [Setting]でシステム全体の共通オプションが設定できます。
+
+    <img src="docs/system_settings.png" width="50%" style="display: block; margin: auto;"/>
 
 1. ビルドする対象のパッケージを選択します。
-
-   <img src="docs/select.png" width="50%" style="display: block; margin: auto;"/>
+1. オプション&#x2699;ボタンを押すと個別にパッケージのオプションが設定できます。
 
 1. [Build all] を押すと、選択されたパッケージが順次ビルドされます。
 
     ビルド予定時刻はあくまで目安です。ビルド完了は予定時刻より前後します。
+
+    <img src="docs/building.png" width="50%" style="display: block; margin: auto;" />
 
 1. ビルドされたパッケージは、&lt;OSLwright ディレクトリ&gt;/dist/以下にインストールされます。
 
@@ -169,7 +180,7 @@ add_custom_command(TARGET ${target_name} POST_BUILD
 
 # Note
 OSLwrightは、各パッケージをリリースビルドしています。MSVCランタイムライブラリのコンパイルオプションはMultiThreadedDLL(/MD)に設定されます。<br>
-開発するアプリケーションにおいて、MSVCランタイムライブラリのコンパイルオプションの設定は、リリース・デバックの両方ともにMultiThreadedDLL(/MD)へ変更してください。
+開発するアプリケーションにおいて、MSVCランタイムライブラリのコンパイルオプションの設定は、リリース・デバッグの両方ともにMultiThreadedDLL(/MD)へ変更してください。
 
 # Troubleshooting
 
@@ -185,8 +196,8 @@ OSLwrightは、各パッケージをリリースビルドしています。MSVC�
 
 
 # Appendix
-## ファルダ命名規則(Folder naming conventions)
-インストールされたパッケージのファルダ名は、次の命名規則に従います。
+## フォルダ命名規則(Folder naming conventions)
+インストールされたパッケージのフォルダ名は、次の命名規則に従います。
 <br>
 &lt;package&gt;-&lt;version&gt;[-&lt;arch&gt;][-&lt;vc-version&gt;][-&lt;vc-runtime&gt;][-&lt;cu-versoin&gt;][-static][-debug|-release]
 

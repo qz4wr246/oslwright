@@ -31,6 +31,7 @@ package.jsonc は、json5で記述します。
 | `name` | string | ○ | パッケージの識別名 |
 | `display` | string | ○ | 表示用の名前 |
 | `description` | string | ○ | パッケージの説明文 |
+| `category` | string | ○ | パッケージの種類 |
 | `site` | string (URI) | ○ | 公式サイト等のURL |
 | `license` | string | ○ | ライセンス情報 |
 | `process_time` | number | ○ | ビルド処理の目安時間 |
@@ -49,7 +50,7 @@ package.jsonc は、json5で記述します。
 | :--- | :--- | :---: | :--- |
 | `name` | string | ○ | 変数名 |
 | `display` | string | ○ | 表示名 |
-| `type` | string | ○ | `text`, `bool`, `choice` のいずれか |
+| `type` | string | ○ | `text`, `bool`, `choice`, `folder`, `file` のいずれか |
 | `default` | string / bool | ○ | デフォルト値 |
 | `enable` | string / bool | - | オプション項目の有効化 （default: true）|
 | `items` | array / string | △ | `type`が`choice`の場合のみ必須。選択肢のリスト |
@@ -87,6 +88,7 @@ package.jsonc は、json5で記述します。
 | `dependencies` | object | - | 依存パッケージ（パッケージ名: バージョン指定） |
 | `environments` | object | - | 環境変数の設定（キー: 値） |
 | `stages` | object | ○ | ビルド等の各ステージ定義（後述） |
+| `stable` | bool | - | 安定バージョン |
 | `(任意)` | any | - | 変数定義(キーが変数名、後述) |
 ---
 #### 3.1 依存関係の定義 (`dependencies`)
