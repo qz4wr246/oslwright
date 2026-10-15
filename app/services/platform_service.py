@@ -19,7 +19,7 @@ import pyjson5 as json
 from natsort import natsorted
 
 from ..core.shell import SYSTEM_PATH, Shell
-from ..core.common import get_app_root, get_data_path, get_assets_dir
+from ..core.common import get_app_root, get_data_path, get_assets_dir, Version
 from ..core.logger import PostLogger as Post
 from ..models.package_model import PackageModel
 from ..models.app_setting_model import AppSettingModel
@@ -81,6 +81,8 @@ class PlatformService:
         self.patch_exe: Path | None = None
         self.cargoc_exe: Path | None = None
         self.rustc_exe: Path | None = None
+        self.qt_enable_default = False
+        self.qt_msvc_dir_default: str = ""
 
         self.rootdir = get_app_root()
         self.package_rootdir = get_data_path("packages")
@@ -147,6 +149,15 @@ class PlatformService:
             self.cuda_enable_default = True
             self.cuda_path_default = self._getCudaPath(self.cuda_latest_version)
             Post.gui(f"Found CUDA: {self.cuda_versions}")
+
+        qt_msvc_dir, version = self._findQt()
+        if qt_msvc_dir:
+            self.qt_msvc_dir_default = str(qt_msvc_dir)
+            self.qt_enable_default = True
+            Post.info(f'Found Qt: {self.qt_msvc_dir_default} (found version "{version}")')
+        else:
+            self.qt_msvc_dir_default = ""
+            self.qt_enable_default = False
 
         setting = self.load_setting()
         msvc_version = setting.values["msvc_version_default"]
@@ -931,6 +942,27 @@ class PlatformService:
             rustc_version = _ver[1] if len(_ver) >= 2 else None
         return (rustc_exe, rustc_version)
 
+    def _findQt(self) -> Tuple[Path | None, str | None]:
+        qt_top = None
+        qt_version = None
+        _dir = os.environ.get("QT_DIR")
+        if _dir:
+            qt_top = Path(_dir)
+
+        if not qt_top:
+            _dir = Path("C:\\Qt")
+            if _dir.is_dir():
+                qt_top = Path(_dir)
+
+        if not qt_top:
+            return (None, None)
+
+        qt_dir = max(
+            (p for p in qt_top.glob("[0-9]*/msvc*") if p.is_dir()), key=lambda p: Version(p.parent.name), default=None
+        )
+        qt_version = qt_dir.parent.name if qt_dir else None
+        return (qt_dir, qt_version)
+
     def _updateToolPath(self) -> None:
         Post.info("Checking for tools...")
 
@@ -1120,6 +1152,8 @@ class PlatformService:
             "msvc_versions": [msvc.generator for msvc in self.visual_studio_infos],
             "msvc_version": msvc_generator,
             "python_exe": str(self.python_exe),
+            "qt_enable_default": self.qt_enable_default,
+            "qt_msvc_dir_default": self.qt_msvc_dir_default,
         }
         session = {}
         if package:
@@ -1149,6 +1183,8 @@ class PlatformService:
             "build_library_default": self.build_library_default,
             "cuda_enable_default": self.cuda_enable_default,
             "cuda_version_default": self.cuda_latest_version,
+            "qt_enable_default": self.qt_enable_default,
+            "qt_msvc_dir_default": self.qt_msvc_dir_default,
         }
         return AppSettingModel(default)
 

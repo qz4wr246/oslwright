@@ -85,6 +85,13 @@ class AppSettingController:
                 "items": self.platform_service.cuda_versions,
                 "default": self.default_setting.values["cuda_version_default"],
             },
+            {
+                "display": "Qt Directory(msvc)",
+                "name": "qt_msvc_dir_default",
+                "enable": True,
+                "type": "folder",
+                "default": self.default_setting.values["qt_msvc_dir_default"],
+            },
         ]
         self.setting_ui = []
         for opt in setting_ui_dic:
@@ -150,7 +157,7 @@ class AppSettingController:
                 )
                 msvc_toolset_versions = [v.name for v in msvc_info.msvc_toolset_versions]
                 msvc_toolset_version_default = msvc_info.msvc_toolset_versions[-1].name
-                ui = next((ui for ui in ui_items if ui["name"] == "msvc_toolset_version_default"), None)
+                ui = next((ui for ui in ui_items if ui.name == "msvc_toolset_version_default"), None)
                 ui.items = msvc_toolset_versions
                 ui.default = msvc_toolset_version_default
                 self.setting_ui = ui_items

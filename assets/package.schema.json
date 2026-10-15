@@ -31,7 +31,7 @@
           "enable": { "type": ["string", "boolean"] },
           "type": {
             "type": "string",
-            "enum": ["text", "bool", "choice"]
+            "enum": ["text", "bool", "choice", "folder", "file"]
           },
           "items": {},
           "default": { "type": ["string", "boolean"] }

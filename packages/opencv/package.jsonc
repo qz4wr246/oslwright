@@ -116,6 +116,20 @@
       "name": "with_vtk",
       "type": "bool",
       "default": true
+    },
+    {
+      "display": "With Qt",
+      "name": "with_qt",
+      "enable": "{{$qt_enable_default}}",
+      "type": "bool",
+      "default": "{{$qt_enable_default}}"
+    },
+    {
+      "display": "Qt directory(msvc)",
+      "name": "qt_msvc_dir",
+      "enable": "{{$with_qt}}",
+      "type": "folder",
+      "default": "{{$qt_msvc_dir_default}}"
     }
   ],
   "versions": {
@@ -159,6 +173,9 @@
         },
         "pixman":{
           "version": ">=0.43"
+        },
+        "quirc": {
+          "version": ">=1.2"
         },
         "zlib": {
           "version": ">=1.3"
@@ -257,12 +274,18 @@
           ]
         },
         "patch": {
-          "patch_file_01": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
+          "patch_files": [
+            {
+              "chdir" : "$source_dir",
+              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
+            }
+          ],
           "scripts": [
             {
-              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
               "chdir": "$source_dir",
-              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             }
           ]
         },
@@ -283,6 +306,7 @@
             "-DWITH_VT={{'ON' if $with_vtk else 'OFF'}}",
             "-DWIHT_FFMPEG={{'ON' if $with_ffmpeg != 'none' else 'OFF'}}",
             "-DOPENCV_FFMPEG_SKIP_DOWNLOAD={{'ON' if $with_ffmpeg == 'external' else 'OFF'}}",
+            "-DWITH_QT={{'ON' if $with_qt else 'OFF'}}",
             "-DOPENCV_ENABLE_PKG_CONFIG=ON",
             "-DDENABLE_PRECOMPILED_HEADERS=OFF",
             "-DBUILD_TESTS=OFF",
@@ -309,7 +333,7 @@
               "message": "config for debug.",
               "when": "{{'Debug' in $build_type and $build_layout == 'separation'}}",
               "environments": {
-                "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
+                "CMAKE_PREFIX_PATH": "$dependent_packages_debug{{f';{$qt_msvc_dir}' if $with_qt else ''}}",
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
                 "PERLIO": "raw"
               },
@@ -319,7 +343,7 @@
               "message": "config for release.",
               "when": "{{'Release' in $build_type}}",
               "environments": {
-                "CMAKE_PREFIX_PATH": "$dependent_packages_release",
+                "CMAKE_PREFIX_PATH": "$dependent_packages_release{{f';{$qt_msvc_dir}' if $with_qt else ''}}",
                 "PKG_CONFIG_PATH": "$pkg_config_path_release",
                 "PERLIO": "raw"
               },
@@ -404,7 +428,12 @@
       },
       "stages": {
         "patch": {
-          "patch_file_01": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff"
+          "patch_files!replace": [
+            {
+              "chdir" : "$source_dir",
+              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
+            }
+          ],
         }
       }
     },
@@ -429,7 +458,12 @@
       },
       "stages": {
         "patch": {
-          "patch_file_01": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff"
+          "patch_files!replace": [
+            {
+              "chdir" : "$source_dir",
+              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
+            }
+          ],
         }
       }
     },
@@ -454,7 +488,16 @@
       },
       "stages": {
         "patch": {
-          "patch_file_01": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff"
+          "patch_files!replace": [
+            {
+              "chdir" : "$source_dir",
+              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
+            },
+            {
+              "chdir" : "$contrib_dir",
+              "local": "${package_dir}\\cv_4.14_fix_viz.diff",
+            },
+          ],
         }
       }
     }
