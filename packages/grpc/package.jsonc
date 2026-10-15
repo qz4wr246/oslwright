@@ -104,9 +104,6 @@
         "opentelemetry-cpp":{
           "version": ">=1.16.1"
         },
-        "abseil-cpp":{
-          "version": "==20250512.1"
-        },
         "re2": {
           "version": ">=2024-07-02"
         },
@@ -115,9 +112,6 @@
         },
         "openssl": {
           "version": ">=3.5;<3.6"
-        },
-        "protobuf": {
-          "version": "==31.1"
         },
         "zlib": {
           "version": ">=1.3"

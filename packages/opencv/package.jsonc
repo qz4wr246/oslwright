@@ -473,7 +473,7 @@
           "version": "==20250512.1"
         },
         "protobuf": {
-          "version": "==31.1"
+          "version": "==35.1"
         },
         "ffmpeg": {
           "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
