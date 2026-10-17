@@ -11,9 +11,9 @@ set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
 for %%I in ("%SCRIPT_DIR%\..\..") do set "ROOT_DIR=%%~fI"
 
 :: =============================================================
-:: 2. カレントディレクトリ直下に「_dlls」フォルダを作成
+:: 2. カレントディレクトリ直下に「__oslw_dep_dlls」フォルダを作成
 :: =============================================================
-set "DLL_TARGET_DIR=%CD%\_dep_dlls"
+set "DLL_TARGET_DIR=%CD%\__oslw_dep_dlls"
 
 if exist "%DLL_TARGET_DIR%" rmdir /s /q "%DLL_TARGET_DIR%"
 mkdir "%DLL_TARGET_DIR%"

@@ -12,7 +12,7 @@ function getDllDirectories($directories) {
   $result = @()
   foreach ($dir in $directories) {
     if (-not (Test-Path -Path $dir)) { continue }
-    $dlldir = Get-ChildItem -Path $dir -Recurse -Filter *.dll -ErrorAction SilentlyContinue | Select-Object -ExpandProperty DirectoryName | Sort-Object -Unique
+    $dlldir = Get-ChildItem -Path $dir -Recurse -Filter *.dll -ErrorAction SilentlyContinue | Where-Object { $_.DirectoryName -notmatch '(^|[\\/])__oslw_dep_dlls([\\/]|$)' } | Select-Object -ExpandProperty DirectoryName | Sort-Object -Unique
     if ($dlldir) { $result += $dlldir }
   }
   return ($result | Sort-Object -Unique)
