@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 :: =============================================================
-:: 1. 事前準備と入力データの設定
+:: 1. Preparation and input data setup
 :: =============================================================
 set "OW_DEP_DIRS={{DEPENDENT_DLL_PATHS}}"
 
@@ -11,7 +11,7 @@ set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
 for %%I in ("%SCRIPT_DIR%\..\..") do set "ROOT_DIR=%%~fI"
 
 :: =============================================================
-:: 2. カレントディレクトリ直下に「__oslw_dep_dlls」フォルダを作成
+:: 2. Create the "__oslw_dep_dlls" folder under the current directory
 :: =============================================================
 set "DLL_TARGET_DIR=%CD%\__oslw_dep_dlls"
 
@@ -19,7 +19,7 @@ if exist "%DLL_TARGET_DIR%" rmdir /s /q "%DLL_TARGET_DIR%"
 mkdir "%DLL_TARGET_DIR%"
 
 :: =============================================================
-:: 3. すべての依存フォルダから *.dll を探してシンボリックコピー
+:: 3. Find *.dll files in all dependency folders and create symbolic links
 :: =============================================================
 echo Creating symbolic links for DLLs...
 
@@ -45,14 +45,14 @@ mklink "%DLL_TARGET_DIR%\libstdc++-6.dll" "%ROOT_DIR%\..\tools\msys2\msys64\ucrt
 mklink "%DLL_TARGET_DIR%\libwinpthread-1.dll" "%ROOT_DIR%\..\tools\msys2\msys64\ucrt64\bin\libwinpthread-1.dll" >nul 2>&1
 
 :: =============================================================
-:: 4. 「_dlls」だけを PATH に追加してサブシェルを起動
+:: 4. Add only "_dlls" to PATH and start a subshell
 :: =============================================================
 echo Sub-shell started. PATH will reset on exit.
 
 cmd.exe /k "set "PATH=%DLL_TARGET_DIR%;%PATH%""
 
 :: =============================================================
-:: 5. サブシェル終了後の後片付け（リセット処理）
+:: 5. Clean up after the subshell exits (reset the environment)
 :: =============================================================
 if exist "%DLL_TARGET_DIR%" rmdir /s /q "%DLL_TARGET_DIR%"
 

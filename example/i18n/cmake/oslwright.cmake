@@ -66,6 +66,7 @@ unset(__MSVC_TOOLS_DIR)
 function(oslw_install_depdll)
   cmake_parse_arguments(_args "" "TARGET;DESTINATION;COMPONENT" "PATH;EXCLUDE" ${ARGN})
   set(_ps_file "${OSLW_CMAKE_DIR}/finddepdlls.ps1")
+  set(_runner_file "${OSLW_CMAKE_DIR}/run_finddepdlls.cmake")
   if(NOT ${__args_TARGET})
     message(FATAL_ERROR "oslw_install_depdll(): Argument TARGET is required.")
   endif()
@@ -89,15 +90,26 @@ function(oslw_install_depdll)
   endif()
 
   list(JOIN __framework_path ";" __paths)
+  string(JOIN ";" __excludes ${_args_EXCLUDE})
+  string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef __temp_id)
+  set(__result_file "${CMAKE_CURRENT_BINARY_DIR}/finddepdlls-${__temp_id}.txt")
   set(__code "
         execute_process(
-          COMMAND \${CMAKE_COMMAND} -E env \$<1:\"FINDDEPDLL_SEARCH_PATH=${__paths}\" \"FINDDEPDLL_EXCLUDE=${_args_EXCLUDE}\"> --
-            powershell -NoProfile -NonInteractive -executionpolicy Bypass
-              -File \$<1:\"${_ps_file}\">
-              -Target \$<1:\"$<TARGET_FILE:${_args_TARGET}>\">
-          OUTPUT_VARIABLE __deps
-          OUTPUT_STRIP_TRAILING_WHITESPACE
+          COMMAND \${CMAKE_COMMAND}
+            \"-DPS_FILE=${_ps_file}\"
+            \"-DSEARCH_PATHS=${__paths}\"
+            \"-DEXCLUDE_LIST=${__excludes}\"
+            \"-DTARGET=\$<TARGET_FILE:${_args_TARGET}>\"
+            \"-DRESULT_FILE=${__result_file}\"
+            \"-DTEMP_DIR=${CMAKE_CURRENT_BINARY_DIR}\"
+            -P \"${_runner_file}\"
+          RESULT_VARIABLE __result
         )
+        if(NOT \"\${__result}\" STREQUAL \"0\")
+          message(FATAL_ERROR \"finddepdlls.ps1 failed with exit code \${__result}.\")
+        endif()
+        file(READ \"${__result_file}\" __deps)
+        file(REMOVE \"${__result_file}\")
         file(INSTALL \${__deps} DESTINATION ${_args_DESTINATION})
     ")
   if(_args_COMPONENT)
@@ -119,6 +131,7 @@ endfunction()
 function(oslw_copy_depdll)
   cmake_parse_arguments(_args "" "TARGET" "PATH;EXCLUDE" ${ARGN})
   set(_ps_file "${OSLW_CMAKE_DIR}/finddepdlls.ps1")
+  set(_runner_file "${OSLW_CMAKE_DIR}/run_finddepdlls.cmake")
   if(NOT ${__args_TARGET})
     message(FATAL_ERROR "oslw_copy_depdll(): Argument TARGET is required.")
   endif()
@@ -131,14 +144,18 @@ function(oslw_copy_depdll)
     set(__framework_path ${OSLW_FRAMEWORK_PATH})
   endif()
   list(JOIN __framework_path ";" __paths)
+  string(JOIN ";" __excludes ${_args_EXCLUDE})
   add_custom_command(
     TARGET ${_args_TARGET}
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E env \"FINDDEPDLL_SEARCH_PATH=${__paths}\" \"FINDDEPDLL_EXCLUDE=${_args_EXCLUDE}\" --
-      powershell -NoProfile -NonInteractive -executionpolicy Bypass
-      -File $<1:"${_ps_file}">
-      -Target $<1:"$<TARGET_FILE:${_args_TARGET}>">
-      -Dest $<1:"$<TARGET_FILE_DIR:${_args_TARGET}>">
+    COMMAND ${CMAKE_COMMAND}
+      "-DPS_FILE=${_ps_file}"
+      "-DSEARCH_PATHS=${__paths}"
+      "-DEXCLUDE_LIST=${__excludes}"
+      "-DTARGET=$<TARGET_FILE:${_args_TARGET}>"
+      "-DDESTINATION=$<TARGET_FILE_DIR:${_args_TARGET}>"
+      "-DTEMP_DIR=${CMAKE_CURRENT_BINARY_DIR}"
+      -P "${_runner_file}"
   )
   unset(__paths)
   unset(__framework_path)
@@ -153,8 +170,9 @@ endfunction()
 #                 )
 #
 function(oslw_find_depdll arg)
-  cmake_parse_arguments(_args "" "WORKDIR" "DLLS;PATH;EXCLUDE" ${ARGN})
+  cmake_parse_arguments(_args "" "" "DLLS;PATH;EXCLUDE;WORKDIR" ${ARGN})
   set(_ps_file "${OSLW_CMAKE_DIR}/finddepdlls.ps1")
+  set(_runner_file "${OSLW_CMAKE_DIR}/run_finddepdlls.cmake")
   if((NOT OSLW_FRAMEWORK_PATH) AND (NOT _args_PATH))
     message(FATAL_ERROR "oslw_find_depdll(): OSLW_FRAMEWORK_PATH and/or argument PATH are required.")
   endif()
@@ -168,14 +186,26 @@ function(oslw_find_depdll arg)
   endif()
   list(JOIN __framework_path ";" __paths)
   list(JOIN _args_DLLS ";" __dlls)
+  string(JOIN ";" __excludes ${_args_EXCLUDE})
+  string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef __temp_id)
+  set(__result_file "${CMAKE_CURRENT_BINARY_DIR}/finddepdlls-${__temp_id}.txt")
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -E env \"FINDDEPDLL_SEARCH_PATH=${__paths}\" \"FINDDEPDLL_TARGET=${__dlls}\" \"FINDDEPDLL_EXCLUDE=${_args_EXCLUDE}\" --
-    powershell -NoProfile -NonInteractive -executionpolicy Bypass
-      -File "${_ps_file}"
-    WORKING_DIRECTORY ${_args_WORKDIR}
-    OUTPUT_VARIABLE __deps
-    OUTPUT_STRIP_TRAILING_WHITESPACE
+    COMMAND ${CMAKE_COMMAND}
+      "-DPS_FILE=${_ps_file}"
+      "-DSEARCH_PATHS=${__paths}"
+      "-DEXCLUDE_LIST=${__excludes}"
+      "-DTARGET=${__dlls}"
+      "-DRESULT_FILE=${__result_file}"
+      "-DTEMP_DIR=${CMAKE_CURRENT_BINARY_DIR}"
+      -P "${_runner_file}"
+    # WORKING_DIRECTORY ${_args_WORKDIR}
+    RESULT_VARIABLE __result
   )
+  if(NOT "${__result}" STREQUAL "0")
+    message(FATAL_ERROR "finddepdlls.ps1 failed with exit code ${__result}.")
+  endif()
+  file(READ "${__result_file}" __deps)
+  file(REMOVE "${__result_file}")
   unset(__code)
   unset(__dlls)
   unset(__paths)
