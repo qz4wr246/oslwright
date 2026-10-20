@@ -3,7 +3,7 @@
   "display": "Matplot++",
   "description": "A C++ Graphics Library for Data Visualization",
   "site": "https://alandefreitas.github.io/matplotplusplus/",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "graphics",
   "info": "info.md",
   "process_time": 200,

@@ -3,7 +3,7 @@
   "display": "libmysofa",
   "description": "Reader for AES SOFA files to get better HRTFs",
   "site": "https://github.com/hoene/libmysofa/",
-  "license": "BSD 3 Clause",
+  "license": "BSD-3-Clause",
   "category": "media",
   "info": "info.md",
   "process_time": 260,

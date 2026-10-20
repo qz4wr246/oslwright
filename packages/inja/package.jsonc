@@ -3,7 +3,7 @@
   "display": "inja",
   "description": "A Template Engine for Modern C++",
   "site": "https://pantor.github.io/inja/",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "data",
   "info": "info.md",
   "process_time": 30,

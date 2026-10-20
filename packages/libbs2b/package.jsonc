@@ -2,7 +2,7 @@
   "name": "libbs2b",
   "display": "libbs2b",
   "description": "Bauer stereophonic-to-binaural DSP effect library",
-  "site": "https://www.gnu.org/software/libiconv/",
+  "site": "https://bs2b.sourceforge.net/",
   "license": "MIT",
   "category": "media",
   "info": "info.md",

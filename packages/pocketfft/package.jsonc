@@ -3,7 +3,7 @@
   "display": "PocketFFT for C++",
   "description": "a heavily modified implementation of FFTPack",
   "site": "https://github.com/mreineck/pocketfft",
-  "license": "3-clause BSD",
+  "license": "BSD-3-Clause",
   "category": "utility",
   "info": "info.md",
   "process_time": 30,

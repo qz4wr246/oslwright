@@ -3,7 +3,7 @@
   "display": "RE2",
   "description": "a regular expression library.",
   "site": "https://github.com/google/re2/",
-  "license": "BSD-3-Clause license",
+  "license": "BSD-3-Clause",
   "category": "utility",
   "info": "info.md",
   "process_time": 60,

@@ -3,7 +3,7 @@
   "display": "Codec2",
   "description": "Open source speech codec designed for communications quality speech between 450 and 3200 bit/s",
   "site": "https://github.com/drowe67/codec2",
-  "license": "LGPL 2.1 or later",
+  "license": "LGPL-2.1-or-later",
   "category": "media",
   "info": "info.md",
   "process_time": 100,

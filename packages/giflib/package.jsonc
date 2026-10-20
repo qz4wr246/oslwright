@@ -3,7 +3,7 @@
   "display": "GIFlib",
   "description": "A library and utilities for processing GIFs",
   "site": "https://giflib.sourceforge.net/",
-  "license": "MIT License",
+  "license": "MIT",
   "category": "graphics",
   "info": "info.md",
   "process_time": 40,

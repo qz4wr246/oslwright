@@ -3,7 +3,7 @@
   "display": "SVT AV1",
   "description": "An AV1-compliant software encoder library.",
   "site": "https://gitlab.com/AOMediaCodec/SVT-AV1",
-  "license": "BSD-2-clause license, AOM Patent License 1.0",
+  "license": "BSD-2-Clause AND LicenseRef-AOMPL-1.0",
   "category": "media",
   "info": "info.md",
   "process_time": 200,

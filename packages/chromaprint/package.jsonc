@@ -3,7 +3,7 @@
   "display": "Chromaprint",
   "description": "Library that implements a custom algorithm for extracting fingerprints from any audio source",
   "site": "https://acoustid.org/chromaprint",
-  "license": "LGPL",
+  "license": "LGPL-2.1-or-later",
   "category": "media",
   "info": "info.md",
   "process_time": 30,

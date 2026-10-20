@@ -4,7 +4,7 @@
   "display": "Zstandard",
   "description": "Fast real-time compression algorithm",
   "site": "https://facebook.github.io/zstd",
-  "license": "3-Clause BSD or GPLv2",
+  "license": "BSD-3-Clause OR GPL-2.0-only",
   "category": "compression",
   "info":"info.md",
   "process_time": 80,

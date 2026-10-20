@@ -3,7 +3,7 @@
   "display": "spdlog",
   "description": "Fast C++ logging library.",
   "site": "https://github.com/gabime/spdlog",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "utility",
   "info": "info.md",
   "process_time": 30,

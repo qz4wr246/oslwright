@@ -3,7 +3,7 @@
   "display": "oatpp-swagger",
   "description": "OpenApi 3.0.0 docs + Swagger UI for oatpp services",
   "site": "https://oatpp.io/",
-  "license": "Apache 2 License",
+  "license": "Apache-2.0",
   "category": "network",
   "info": "info.md",
   "process_time": 50,

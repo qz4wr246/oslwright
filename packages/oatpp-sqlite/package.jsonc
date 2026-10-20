@@ -3,7 +3,7 @@
   "display": "oatpp-sqlite",
   "description": "SQLite adapter for oatpp ORM.",
   "site": "https://oatpp.io/",
-  "license": "Apache 2 License",
+  "license": "Apache-2.0",
   "category": "network",
   "info": "info.md",
   "process_time": 50,

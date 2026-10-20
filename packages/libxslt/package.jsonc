@@ -3,7 +3,7 @@
   "display": "libxslt",
   "description": "an XSLT processor based on libxml2.",
   "site": "https://gitlab.gnome.org/GNOME/libxslt",
-  "license": "MIT License",
+  "license": "MIT",
   "category": "data",
   "info": "info.md",
   "process_time": 60,

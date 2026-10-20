@@ -3,7 +3,7 @@
   "display": "Libgpg-error",
   "description": "Support library for libgcrypt",
   "site": "https://gnupg.org",
-  "license": "LGPL",
+  "license": "LGPL-2.1-or-later",
   "category": "security",
   "info": "info.md",
   "process_time": 500,

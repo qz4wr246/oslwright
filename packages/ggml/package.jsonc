@@ -3,7 +3,7 @@
   "display": "ggml",
   "description": "Tensor library for machine learning",
   "site": "https://github.com/ggml-org/ggml",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "utility",
   "info": "info.md",
   "process_time": 300,

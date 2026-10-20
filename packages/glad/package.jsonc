@@ -3,7 +3,7 @@
   "display": "glad",
   "description": "Multi-Language Vulkan/GL/GLES/EGL/GLX/WGL Loader-Generator based on the official specs.",
   "site": "https://gen.glad.sh/",
-  "license": "MIT, Khronos, EGL",
+  "license": "MIT AND Apache-2.0",
   "category": "graphics",
   "info": "info.md",
   "process_time": 50,

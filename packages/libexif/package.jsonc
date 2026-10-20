@@ -3,7 +3,7 @@
   "display": "libexif",
   "description": "A library for parsing, editing, and saving EXIF data",
   "site": "https://libexif.github.io/",
-  "license": "LGPL 2.1",
+  "license": "LGPL-2.1-only",
   "category": "graphics",
   "info": "info.md",
   "process_time": 440,

@@ -3,7 +3,7 @@
   "display": "bgfx",
   "description": "Cross-platform rendering library",
   "site": "https://bkaradzic.github.io/bgfx/overview.html",
-  "license": "BSD-2-Clause license, CC0-1.0 license",
+  "license": "BSD-2-Clause AND CC0-1.0",
   "category": "graphics",
   "info": "info.md",
   "process_time": 1500,

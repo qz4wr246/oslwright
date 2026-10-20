@@ -3,7 +3,7 @@
   "display": "log4cplus",
   "description": "log4cplus is a simple to use C++ logging API",
   "site": "https://log4cplus.github.io/log4cplus/",
-  "license": "Log4cplus license",
+  "license": "Apache-2.0",
   "category": "utility",
   "info": "info.md",
   "process_time": 140,

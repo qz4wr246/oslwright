@@ -3,7 +3,7 @@
   "display": "HarfBuzz",
   "description": "Text shaping engine",
   "site": "https://harfbuzz.github.io",
-  "license": "Old MIT license.",
+  "license": "MIT",
   "category": "graphics",
   "process_time": 340,
   "options": [

@@ -3,7 +3,7 @@
   "display": "toml++",
   "description": "Header-only TOML config file parser and serializer for C++17.",
   "site": "https://marzer.github.io/tomlplusplus/",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "data",
   "info": "info.md",
   "process_time": 30,

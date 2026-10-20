@@ -3,7 +3,7 @@
   "display": "assimp",
   "description": "Open Asset Import Library",
   "site": "https://www.assimp.org/",
-  "license": "3-clause BSD-License,modifyed",
+  "license": "BSD-3-Clause",
   "category": "graphics",
   "info": "info.md",
   "process_time": 450,

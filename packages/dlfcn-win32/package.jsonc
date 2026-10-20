@@ -3,7 +3,7 @@
   "display": "dlfcn-win32",
   "description": "an implementation of dlfcn for Windows.",
   "site": "https://github.com/dlfcn-win32/dlfcn-win32",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "utility",
   "info": "info.md",
   "process_time": 30,

@@ -3,7 +3,7 @@
   "display": "OpenImageIO",
   "description": "Reading, writing, and processing images in a wide variety of file formats, using a format-agnostic API, aimed at VFX applications.",
   "site": "https://openimageio.readthedocs.org/",
-  "license": "Apache-2.0 license",
+  "license": "Apache-2.0",
   "category": "graphics",
   "info": "info.md",
   "process_time": 90,

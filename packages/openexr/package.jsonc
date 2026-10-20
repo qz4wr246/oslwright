@@ -3,7 +3,7 @@
   "display": "OpenEXR",
   "description": "The OpenEXR project provides the specification and reference implementation of the EXR file format",
   "site": "http://www.openexr.com/",
-  "license": "BSD-3-Clause license",
+  "license": "BSD-3-Clause",
   "category": "graphics",
   "info": "info.md",
   "process_time": 260,

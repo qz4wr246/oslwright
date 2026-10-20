@@ -3,7 +3,7 @@
   "display": "libopenmpt",
   "description": "A cross-platform C++ and C library to decode tracked music files (modules) into a raw PCM audio stream",
   "site": "https://lib.openmpt.org/libopenmpt/",
-  "license": "BSD 3-Clause",
+  "license": "BSD-3-Clause",
   "category": "media",
   "info": "info.md",
   "process_time": 440,

@@ -3,7 +3,7 @@
   "display": "opencore-amr",
   "description": "Open source implementation of the Adaptive Multi Rate (AMR) speech codec",
   "site": "https://opencore-amr.sourceforge.io/",
-  "license": "Apache",
+  "license": "Apache-2.0",
   "category": "media",
   "info": "info.md",
   "process_time": 400,

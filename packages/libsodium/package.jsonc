@@ -3,7 +3,7 @@
   "display": "libsodium",
   "description": "A modern, portable, easy to use crypto library.",
   "site": "https://libsodium.org/",
-  "license": "ISC License",
+  "license": "ISC",
   "category": "security",
   "info": "info.md",
   "process_time": 30,

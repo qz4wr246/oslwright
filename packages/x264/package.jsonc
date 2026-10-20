@@ -3,7 +3,7 @@
   "display": "x264",
   "description": "The best and fastest H.264 encoder",
   "site": "https://code.videolan.org/videolan/x264",
-  "license": "GPLv2",
+  "license": "GPL-2.0-only",
   "category": "media",
   "info": "info.md",
   "process_time": 500,

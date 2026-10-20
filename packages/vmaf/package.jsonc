@@ -3,7 +3,7 @@
   "display": "VMAF",
   "description": "Perceptual video quality assessment algorithm based on multi-method fusion",
   "site": "https://github.com/Netflix/vmaf/",
-  "license": "BSD 2-Clause",
+  "license": "BSD-2-Clause",
   "category": "media",
   "info":"info.md",
   "process_time": 60,

@@ -3,7 +3,7 @@
   "display": "Eigen",
   "description": "a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms.",
   "site": "https://eigen.tuxfamily.org",
-  "license": "Mozilla Public License 2.0",
+  "license": "MPL-2.0",
   "category": "utility",
   "info": "info.md",
   "process_time": 90,

@@ -3,7 +3,7 @@
   "display": "zlib",
   "description": "A Massively Spiffy Yet Delicately Unobtrusive Compression Library",
   "site": "https://zlib.net",
-  "license": "zlib license",
+  "license": "Zlib",
   "category": "compression",
   "info": "info.md",
   "process_time": 40,

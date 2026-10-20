@@ -3,7 +3,7 @@
   "display": "SDL2",
   "description": "Simple Directmedia Layer",
   "site": "https://libsdl.org/",
-  "license": "Zlib license",
+  "license": "Zlib",
   "category": "graphics",
   "info": "info.md",
   "process_time": 190,

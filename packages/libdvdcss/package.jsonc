@@ -3,7 +3,7 @@
   "display": "libdvdcss",
   "description": "Portable abstraction library for DVD decryption",
   "site": "https://www.videolan.org/developers/libdvdcss.html",
-  "license": "GPL 2.0 or later",
+  "license": "GPL-2.0-or-later",
   "category": "media",
   "info":"info.md",
   "process_time": 40,

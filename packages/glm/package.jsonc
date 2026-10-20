@@ -3,7 +3,7 @@
   "display": "glm",
   "description": "OpenGL Mathematics (GLM)",
   "site": "https://github.com/g-truc/glm",
-  "license": "The Happy Bunny License or The MIT License",
+  "license": "LicenseRef-Happy-Bunny OR MIT",
   "category": "utility",
   "info": "info.md",
   "process_time": 50,

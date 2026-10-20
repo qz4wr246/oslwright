@@ -3,7 +3,7 @@
   "display": "XZ",
   "description": "XZ Utils",
   "site": "https://tukaani.org/xz/",
-  "license": "Public Domain",
+  "license": "LicenseRef-Public-Domain",
   "category": "compression",
   "info": "info.md",
   "process_time": 90,

@@ -3,7 +3,7 @@
   "display": "SFML",
   "description": "Simple and Fast Multimedia Library",
   "site": "https://www.sfml-dev.org/",
-  "license": "Zlib license",
+  "license": "Zlib",
   "category": "graphics",
   "info": "info.md",
   "process_time": 100,

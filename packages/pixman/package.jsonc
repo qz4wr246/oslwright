@@ -3,7 +3,7 @@
   "display": "pixman",
   "description": "Image processing and manipulation library",
   "site": "https://www.pixman.org/",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "graphics",
   "process_time": 90,
   "options": [

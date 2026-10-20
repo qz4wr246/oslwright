@@ -3,7 +3,7 @@
   "display": "hiredis",
   "description": "Minimalistic C client for Redis >= 1.2",
   "site": "https://github.com/redis/hiredis",
-  "license": "BSD-3-Clause license",
+  "license": "BSD-3-Clause",
   "category": "network",
   "info": "info.md",
   "process_time": 30,

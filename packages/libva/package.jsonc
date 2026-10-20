@@ -3,7 +3,7 @@
   "display": "Libva",
   "description": "Video Acceleration (VA) API",
   "site": "https://intel.github.io/libva/",
-  "license": "MIT License",
+  "license": "MIT",
   "category": "media",
   "info":"info.md",
   "process_time": 45,

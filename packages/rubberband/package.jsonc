@@ -3,7 +3,7 @@
   "display": "Rubber Band Library",
   "description": "A high quality software library for audio time-stretching and pitch-shifting.",
   "site": "https://breakfastquay.com/rubberband/",
-  "license": "GPL 2.0 or later",
+  "license": "GPL-2.0-or-later",
   "category": "media",
   "info":"info.md",
   "process_time": 50,

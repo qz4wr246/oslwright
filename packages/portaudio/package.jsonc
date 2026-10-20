@@ -3,7 +3,7 @@
   "display": "portaudio",
   "description": "A free, cross-platform, open source, audio I/O library",
   "site": "https://www.portaudio.com/",
-  "license": "custom",
+  "license": "LicenseRef-PortAudio",
   "category": "media",
   "info": "info.md",
   "process_time": 30,

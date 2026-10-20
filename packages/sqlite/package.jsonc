@@ -3,7 +3,7 @@
   "display": "SQLite3",
   "description": "SQL database engine",
   "site": "https://www.sqlite.org",
-  "license": "Public Domain",
+  "license": "blessing",
   "category": "data",
   "info": "info.md",
   "process_time": 60,

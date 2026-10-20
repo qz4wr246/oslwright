@@ -3,7 +3,7 @@
   "display": "libsndfile",
   "description": "A C library for reading and writing sound files containing sampled audio data.",
   "site": "http://libsndfile.github.io/libsndfile/",
-  "license": "LGPL-2.1",
+  "license": "LGPL-2.1-only",
   "category": "media",
   "info": "info.md",
   "process_time": 300,

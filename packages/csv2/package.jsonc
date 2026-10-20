@@ -3,7 +3,7 @@
   "display": "csv2",
   "description": "Fast CSV parser and writer for Modern C++",
   "site": "https://github.com/p-ranav/csv2",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "data",
   "info": "info.md",
   "process_time": 30,

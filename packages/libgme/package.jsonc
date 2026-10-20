@@ -3,7 +3,7 @@
   "display": "libgme",
   "description": "Video game music file emulation/playback library",
   "site": "https://github.com/libgme/game-music-emu",
-  "license": "LGPL",
+  "license": "LGPL-2.1-or-later",
   "category": "media",
   "info": "info.md",
   "process_time": 300,

@@ -3,7 +3,7 @@
   "display": "lame",
   "description": "A high quality MPEG Audio Layer III (MP3) encoder",
   "site": "http://lame.sf.net",
-  "license": "LGPL",
+  "license": "LGPL-2.1-or-later",
   "category": "media",
   "info": "info.md",
   "process_time": 440,

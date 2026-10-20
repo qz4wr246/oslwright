@@ -3,7 +3,7 @@
   "display": "SQLite3MultipleCiphers",
   "description": "SQLite3 encryption extension with support for multiple ciphers",
   "site": "https://utelle.github.io/SQLite3MultipleCiphers",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "data",
   "info":"info.md",
   "process_time": 150,

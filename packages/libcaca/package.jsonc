@@ -3,7 +3,7 @@
   "display": "libcaca",
   "description": "Colour ASCII Art Library",
   "site": "https://github.com/cacalabs/libcaca",
-  "license": "LGPL",
+  "license": "LGPL-2.1-or-later",
   "category": "media",
   "info": "info.md",
   "process_time": 440,

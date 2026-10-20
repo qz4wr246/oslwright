@@ -3,7 +3,7 @@
   "display": "dav1d",
   "description": "An AV1 cross-platform decoder, open-source, and focused on speed and correctness.",
   "site": "https://code.videolan.org/videolan/dav1d/",
-  "license": "BSD 2-Clause 'Simplified' License",
+  "license": "BSD-2-Clause",
   "category": "media",
   "info":"info.md",
   "process_time": 140,

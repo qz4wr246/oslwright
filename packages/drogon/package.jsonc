@@ -3,7 +3,7 @@
   "display": "Drogon",
   "description": "C++17/20 based HTTP application framework.",
   "site": "https://github.com/drogonframework/drogon",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "network",
   "info": "info.md",
   "process_time": 370,

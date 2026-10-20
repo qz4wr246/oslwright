@@ -3,7 +3,7 @@
   "display": "msgpack23",
   "description": "A modern, header-only C++ library for MessagePack serialization and deserialization. msgpack.org[c++23]",
   "site": "https://github.com/rwindegger/msgpack23",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "data",
   "info": "info.md",
   "process_time": 30,

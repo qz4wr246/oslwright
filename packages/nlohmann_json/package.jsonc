@@ -3,7 +3,7 @@
   "display": "nlohmann json",
   "description": "JSON for Modern C++",
   "site": "https://json.nlohmann.me/",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "data",
   "info": "info.md",
   "process_time": 30,

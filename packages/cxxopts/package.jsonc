@@ -3,7 +3,7 @@
   "display": "cxxopts",
   "description": "Lightweight C++ command line option parser",
   "site": "https://github.com/jarro2783/cxxopts",
-  "license": "MIT License",
+  "license": "MIT",
   "category": "utility",
   "info": "info.md",
   "process_time": 30,

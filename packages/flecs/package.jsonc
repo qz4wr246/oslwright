@@ -3,7 +3,7 @@
   "display": "Flecs",
   "description": "Flecs is a fast and lightweight C++ entity component system",
   "site": "https://www.flecs.dev/",
-  "license": "Apache 2 License",
+  "license": "Apache-2.0",
   "category": "utility",
   "info": "info.md",
   "process_time": 80,

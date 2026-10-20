@@ -3,7 +3,7 @@
   "display": "LibRaw",
   "description": "A library for reading RAW files from digital cameras",
   "site": "http://www.libraw.org/",
-  "license": "LGPL-2.1 license",
+  "license": "LGPL-2.1-only",
   "category": "graphics",
   "info": "info.md",
   "process_time": 230,

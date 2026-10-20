@@ -3,7 +3,7 @@
   "display": "ICU4C",
   "description": "ICU - International Components for Unicode",
   "site": "https://icu.unicode.org/",
-  "license": "UNICODE LICENSE V3",
+  "license": "Unicode-3.0",
   "category": "utility",
   "process_time": 720,
   "options": [

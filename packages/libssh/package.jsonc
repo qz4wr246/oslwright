@@ -3,7 +3,7 @@
   "display": "libssh",
   "description": "A multiplatform C library implementing the SSHv2 protocol on client and server side.",
   "site": "https://www.libssh.org/",
-  "license": "LGPL-2.1+",
+  "license": "LGPL-2.1-or-later",
   "category": "network",
   "info": "info.md",
   "process_time": 90,
