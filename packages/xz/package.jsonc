@@ -2,7 +2,7 @@
   "name": "xz",
   "display": "XZ",
   "description": "XZ Utils",
-  "site": "tukaani.org/xz",
+  "site": "https://tukaani.org/xz/",
   "license": "Public Domain",
   "category": "compression",
   "info": "info.md",
