@@ -1,7 +1,10 @@
 param (
   [String]$Target = "",
+  [String]$TargetFile = "",
   [String]$Path = "",
+  [String]$PathFile = "",
   [String]$Exclude = "",
+  [String]$ExcludeFile = "",
   [String]$Dest = ""
 )
 
@@ -65,29 +68,31 @@ function GetExternalDlls($target, $paths, $excludes){
 
 $dll_search_path = @()
 
-if ($Path) {
-  $dll_search_path = $Path.split(";")
-} elseif($env:FINDDEPDLL_SEARCH_PATH) {
-  $dll_search_path = $env:FINDDEPDLL_SEARCH_PATH.split(";")
-}
+try {
+  if ($PathFile) {
+    $dll_search_path = @(Get-Content -LiteralPath $PathFile -ErrorAction Stop | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+  } elseif ($Path) {
+    $dll_search_path = $Path.split(";")
+  }
 
-if (-not $Target -and $env:FINDDEPDLL_TARGET) {
-  $Target = $env:FINDDEPDLL_TARGET
-}
-if (-not $Exclude -and $env:FINDDEPDLL_EXCLUDE) {
-  $Exclude = $env:FINDDEPDLL_EXCLUDE
-}
+  $excludeArray = @()
+  if ($ExcludeFile) {
+    $excludeArray = @(Get-Content -LiteralPath $ExcludeFile -ErrorAction Stop | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+  } elseif ($Exclude) {
+    $excludeArray = $Exclude.Split(";")
+  }
 
-if ($Target -and $dll_search_path.Length -gt 0){
-  try {
+  $targetArray = @()
+  if ($TargetFile) {
+    $targetArray = @(Get-Content -LiteralPath $TargetFile -ErrorAction Stop | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+  } elseif ($Target) {
+    $targetArray = $Target.Split(";")
+  }
+
+  if ($targetArray.Length -gt 0 -and $dll_search_path.Length -gt 0){
     $dllpaths = getDllDirectories $dll_search_path
     $target_lst = @()
-    $Target.split(";") | ForEach-Object { if (Test-Path -Path $_) { $target_lst += Convert-Path $_ } }
-
-    $excludeArray = @()
-    if ($Exclude) {
-      $excludeArray = $Exclude.Split(";")
-    }
+    $targetArray | ForEach-Object { if (Test-Path -Path $_) { $target_lst += Convert-Path $_ } }
 
     if ($target_lst.Length -gt 0) {
       $dlls = GetExternalDlls $target_lst $dllpaths $excludeArray
@@ -102,10 +107,10 @@ if ($Target -and $dll_search_path.Length -gt 0){
       }
     }
   }
-  catch {
-    Write-Output $_
-    exit 1
-  }
+}
+catch {
+  Write-Output $_
+  exit 1
 }
 
 exit 0

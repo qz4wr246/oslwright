@@ -2,7 +2,7 @@
   "name": "cjson",
   "display": "cJSON",
   "description": "Sample Library",
-  "site": "https://example.org",
+  "site": "https://github.com/DaveGamble/cJSON",
   "license": "MIT",
   "category": "data",
   "info": "info.md",

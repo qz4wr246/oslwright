@@ -2,7 +2,7 @@
   "name": "glfw",
   "display": "GLFW",
   "description": "A multi-platform library for OpenGL, OpenGL ES, Vulkan, window and input",
-  "site": "www.glfw.org",
+  "site": "https://www.glfw.org/",
   "license": "Zlib license",
   "category": "graphics",
   "info": "info.md",

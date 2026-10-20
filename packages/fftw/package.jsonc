@@ -2,7 +2,7 @@
   "name": "fftw",
   "display": "FFTW",
   "description": "A C subroutine library for computing the discrete Fourier transform (DFT) in one or more dimensions",
-  "site": "https://example.org",
+  "site": "https://www.fftw.org/",
   "license": "GPL-2.0 license",
   "category": "utility",
   "info": "info.md",
