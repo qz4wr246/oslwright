@@ -3,7 +3,7 @@
   "display": "libpng",
   "description": "Portable Network Graphics support",
   "site": "http://libpng.sf.net/",
-  "license": "libpng License",
+  "license": "Libpng",
   "category": "graphics",
   "info":"info.md",
   "process_time": 30,

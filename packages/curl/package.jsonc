@@ -3,7 +3,7 @@
   "display": "cURL",
   "description": "Curl is a command-line tool for transferring data specified with URL syntax.",
   "site": "https://curl.se/",
-  "license": "The curl license",
+  "license": "curl",
   "category": "network",
   "info": "info.md",
   "process_time": 120,

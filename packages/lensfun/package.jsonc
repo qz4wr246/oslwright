@@ -3,7 +3,7 @@
   "display": "Lensfun",
   "description": "Database of photographic lenses and a library that allows advanced access to the database",
   "site": "https://lensfun.github.io/",
-  "license": "LGPL 3.0 only and GPL 3.0 only and CC-BY-SA 3.0",
+  "license": "LGPL-3.0-only AND GPL-3.0-only AND CC-BY-SA-3.0",
   "category": "graphics",
   "info": "info.md",
   "process_time": 300,

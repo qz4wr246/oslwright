@@ -3,7 +3,7 @@
   "display": "Cairo",
   "description": "Multi-platform 2D graphics library",
   "site": "https://cairographics.org",
-  "license": "MPL-1.1 or LGPL-2.1",
+  "license": "MPL-1.1 OR LGPL-2.1-only",
   "category": "graphics",
   "process_time": 180,
   "options": [

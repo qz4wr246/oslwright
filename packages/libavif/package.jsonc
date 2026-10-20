@@ -3,7 +3,7 @@
   "display": "libavif",
   "description": "Library for encoding and decoding .avif files",
   "site": "https://github.com/AOMediaCodec/libavif",
-  "license": "BSD 2 Clause",
+  "license": "BSD-2-Clause",
   "category": "graphics",
   "info": "info.md",
   "process_time": 30,

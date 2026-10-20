@@ -3,7 +3,7 @@
   "display": "FreeType",
   "description": "a freely available software library to render fonts.",
   "site": "https://www.freetype.org",
-  "license": "FREETYPE LICENSES",
+  "license": "FTL OR GPL-2.0-or-later",
   "category": "graphics",
   "process_time": 60,
   "options": [

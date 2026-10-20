@@ -3,7 +3,7 @@
   "display": "libilbc",
   "description": "A friendly copy of the iLBC codec from the WebRTC project",
   "site": "https://github.com/TimothyGu/libilbc",
-  "license": "BSD",
+  "license": "BSD-3-Clause",
   "category": "media",
   "info": "info.md",
   "process_time": 40,

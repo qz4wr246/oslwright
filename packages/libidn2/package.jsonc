@@ -3,7 +3,7 @@
   "display": "Libidn2",
   "description": "A free software implementation of IDNA2008, Punycode and Unicode TR46.",
   "site": "https://www.gnu.org/s/libidn/#libidn2",
-  "license": "GPL-2.0-or-later, LGPL-3.0-or-later",
+  "license": "GPL-2.0-or-later AND LGPL-3.0-or-later",
   "category": "security",
   "info": "info.md",
   "process_time": 440,

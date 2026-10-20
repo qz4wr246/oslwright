@@ -3,7 +3,7 @@
   "display": "oatpp",
   "description": "Oat++ is a modern Web Framework for C++.",
   "site": "https://oatpp.io/",
-  "license": "Apache 2 License",
+  "license": "Apache-2.0",
   "category": "network",
   "info": "info.md",
   "process_time": 180,

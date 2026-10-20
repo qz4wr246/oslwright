@@ -3,7 +3,7 @@
   "display": "sqlpp11",
   "description": "A type safe SQL template library for C++",
   "site": "https://github.com/rbock/sqlpp11",
-  "license": "BSD-2-Clause license",
+  "license": "BSD-2-Clause",
   "category": "data",
   "info": "info.md",
   "process_time": 40,

@@ -3,7 +3,7 @@
   "display": "PostgreSQL",
   "description": "The World's Most Advanced Open Source Relational Database",
   "site": "https://www.postgresql.org/",
-  "license": " PostgreSQL License",
+  "license": "PostgreSQL",
   "category": "data",
   "info":"info.md",
   "process_time": 730,

@@ -3,7 +3,7 @@
   "display": "rtmpdump",
   "description": "A tool to download rtmp",
   "site": "https://rtmpdump.mplayerhq.hu/",
-  "license": "GPL2, LGPL v2.1",
+  "license": "GPL-2.0-only AND LGPL-2.1-only",
   "category": "media",
   "info": "info.md",
   "process_time": 440,

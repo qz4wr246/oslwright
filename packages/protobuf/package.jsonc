@@ -3,7 +3,7 @@
   "display": "Protocol Buffers",
   "description": "Google's data interchange format",
   "site": "http://protobuf.dev/",
-  "license": "BSD 3-Clause License",
+  "license": "BSD-3-Clause",
   "category": "data",
   "info": "info.md",
   "process_time": 1000,

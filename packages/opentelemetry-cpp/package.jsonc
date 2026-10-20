@@ -3,7 +3,7 @@
   "display": "OpenTelemetry C++",
   "description": "The OpenTelemetry C++ Client",
   "site": "https://opentelemetry.io/",
-  "license": "Apache 2 License",
+  "license": "Apache-2.0",
   "category": "utility",
   "info": "info.md",
   "process_time": 250,

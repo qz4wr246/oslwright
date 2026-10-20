@@ -3,7 +3,7 @@
   "display": "libcdio-paranoia",
   "description": "CD paranoia libraries from libcdio",
   "site": "https://www.gnu.org/software/libcdio/",
-  "license": "GPL 2.0 or later",
+  "license": "GPL-2.0-or-later",
   "category": "media",
   "info": "info.md",
   "process_time": 270,

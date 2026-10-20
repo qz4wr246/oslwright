@@ -3,7 +3,7 @@
   "display": "Bullet",
   "description": "Bullet Physics SDK",
   "site": "http://bulletphysics.org/",
-  "license": "zlib license",
+  "license": "Zlib",
   "category": "utility",
   "info": "info.md",
   "process_time": 230,

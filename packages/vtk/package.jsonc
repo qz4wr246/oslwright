@@ -3,7 +3,7 @@
   "display": "VTK",
   "description": "The Visualization Toolkit (VTK) is open source software for manipulating and displaying scientific data",
   "site": "https://vtk.org",
-  "license": "BSD 3-clause License",
+  "license": "BSD-3-Clause",
   "category": "graphics",
   "info": "info.md",
   "process_time": 5340,

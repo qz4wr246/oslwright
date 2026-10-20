@@ -3,7 +3,7 @@
   "display": "libheif",
   "description": "an HEIF and AVIF file format decoder and encoder.",
   "site": "https://github.com/strukturag/libheif",
-  "license": "LGPLv3, GPLv2+",
+  "license": "LGPL-3.0-or-later AND GPL-2.0-or-later",
   "category": "media",
   "info": "info.md",
   "process_time": 390,

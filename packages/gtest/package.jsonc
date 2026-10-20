@@ -3,7 +3,7 @@
   "display": "GoogleTest",
   "description": "Google Testing and Mocking Framework.",
   "site": "https://google.github.io/googletest/",
-  "license": "BSD-3-Clause license",
+  "license": "BSD-3-Clause",
   "category": "utility",
   "info": "info.md",
   "process_time": 50,

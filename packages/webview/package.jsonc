@@ -3,7 +3,7 @@
   "display": "webview",
   "description": "Tiny cross-platform webview library for C/C++.",
   "site": "https://github.com/webview/webview",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "graphics",
   "info": "info.md",
   "process_time": 30,

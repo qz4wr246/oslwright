@@ -3,7 +3,7 @@
   "display": "libgcrypt",
   "description": "General purpose cryptographic library based on the code from GnuPG",
   "site": "https://gnupg.org",
-  "license": "LGPL",
+  "license": "LGPL-2.1-or-later",
   "category": "security",
   "info": "info.md",
   "process_time": 440,

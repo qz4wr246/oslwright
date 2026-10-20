@@ -3,7 +3,7 @@
   "display": "Fontconfig",
   "description": "Font configuration and customization library",
   "site": "https://www.freedesktop.org/wiki/Software/fontconfig/",
-  "license": "MIT License Modern Variant",
+  "license": "MIT",
   "category": "graphics",
   "process_time": 60,
   "options": [

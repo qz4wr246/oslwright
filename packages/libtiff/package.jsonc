@@ -3,7 +3,7 @@
   "display": "LibTIFF",
   "description": "The LibTIFF software provides support for the Tag Image File Format (TIFF)",
   "site": "https://libtiff.gitlab.io/libtiff/",
-  "license": "LibTIFF License",
+  "license": "libtiff",
   "category": "graphics",
   "info": "info.md",
   "process_time": 60,

@@ -3,7 +3,7 @@
   "display": "Little CMS",
   "description": "Small-footprint color management engine, version 2",
   "site": "https://www.littlecms.com/color-engine/",
-  "license": "MIT AND GPL-3.0 or later",
+  "license": "MIT AND GPL-3.0-or-later",
   "category": "graphics",
   "info":"info.md",
   "process_time": 90,

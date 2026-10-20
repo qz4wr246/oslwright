@@ -3,7 +3,7 @@
   "display": "gsm",
   "description": "Shared libraries for GSM 06.10 lossy speech compression",
   "site": "https://www.quut.com/gsm/",
-  "license": "custom",
+  "license": "LicenseRef-GSM",
   "category": "media",
   "info": "info.md",
   "process_time": 440,

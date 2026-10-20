@@ -3,7 +3,7 @@
   "display": "Vulkan Loader",
   "description": "Vulkan Loader",
   "site": "https://www.khronos.org/vulkan/",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "category": "graphics",
   "info": "info.md",
   "process_time": 300,

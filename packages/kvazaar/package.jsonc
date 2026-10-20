@@ -3,7 +3,7 @@
   "display": "Kvazaar",
   "description": "An open-source HEVC encoder",
   "site": "https://github.com/ultravideo/kvazaar",
-  "license": "BSD-3-Clause license",
+  "license": "BSD-3-Clause",
   "category": "media",
   "info": "info.md",
   "process_time": 30,

@@ -3,7 +3,7 @@
   "display": "OpenAPV",
   "description": "The reference implementation of the APV codec",
   "site": "https://github.com/AcademySoftwareFoundation/openapv/",
-  "license": "BSD 3 Clause",
+  "license": "BSD-3-Clause",
   "category": "media",
   "info": "info.md",
   "process_time": 20,

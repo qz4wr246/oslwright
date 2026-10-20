@@ -3,7 +3,7 @@
   "display": "OpenCV",
   "description": "Open Source Computer Vision Library",
   "site": "https://opencv.org",
-  "license": "Apache 2 License",
+  "license": "Apache-2.0",
   "category": "graphics",
   "info":"info.md",
   "process_time": 2070,

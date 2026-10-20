@@ -3,7 +3,7 @@
   "display": "Box2D",
   "description": "A 2D physics engine for games",
   "site": "https://box2d.org/",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "utility",
   "info": "info.md",
   "process_time": 30,

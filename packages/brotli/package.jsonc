@@ -3,7 +3,7 @@
   "display": "Brotli",
   "description": "Brotli compression format",
   "site": "https://github.com/google/brotli",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "compression",
   "process_time": 70,
   "options": [

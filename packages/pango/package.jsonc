@@ -3,7 +3,7 @@
   "display": "Pango",
   "description": "A library for layout and rendering of text",
   "site": "https://gitlab.gnome.org/GNOME/pango",
-  "license": "LGPLv2",
+  "license": "LGPL-2.0-only",
   "category": "graphics",
   "info":"info.md",
   "process_time": 300,

@@ -3,7 +3,7 @@
   "display": "librsvg",
   "description": "A library to render SVG files using cairo as a rendering engine.",
   "site": "https://wiki.gnome.org/Projects/LibRsvg",
-  "license": "LGPL",
+  "license": "LGPL-2.1-or-later",
   "category": "graphics",
   "info":"info.md",
   "process_time": 500,

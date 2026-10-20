@@ -3,7 +3,7 @@
   "display": "ImPlot",
   "description": "Immediate Mode Plotting",
   "site": "https://github.com/epezent/implot",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "graphics",
   "info": "info.md",
   "process_time": 50,

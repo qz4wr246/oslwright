@@ -3,7 +3,7 @@
   "display": "zvbi",
   "description": "Vertical Blanking Interval (VBI) utilities",
   "site": "http://zapping.sourceforge.net/cgi-bin/view/ZVBI/WebHome",
-  "license": "GPL-2+,LGPL-2.1+,BSD-2-Clause,MIT",
+  "license": "GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause AND MIT",
   "category": "media",
   "info": "info.md",
   "process_time": 330,

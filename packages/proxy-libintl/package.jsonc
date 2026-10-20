@@ -3,7 +3,7 @@
   "display": "proxy-libintl",
   "description": "Proxy for a dynamically loaded optional libintl",
   "site": "https://github.com/frida/proxy-libintl",
-  "license": "LGPLv2",
+  "license": "LGPL-2.0-only",
   "category": "utility",
   "info":"info.md",
   "process_time": 40,

@@ -3,7 +3,7 @@
   "display": "freeglut",
   "description": "Free implementation of the OpenGL Utility Toolkit (GLUT)",
   "site": "http://freeglut.sourceforge.net/",
-  "license": "the X-Consortium license.",
+  "license": "X11",
   "category": "graphics",
   "info": "info.md",
   "process_time": 60,

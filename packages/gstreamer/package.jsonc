@@ -3,7 +3,7 @@
   "display": "GStreamer",
   "description": "GStreamer open-source multimedia framework",
   "site": "https://gstreamer.freedesktop.org/",
-  "license": "LGPL v2.1",
+  "license": "LGPL-2.1-only",
   "category": "media",
   "process_time": 1900,
   "options": [

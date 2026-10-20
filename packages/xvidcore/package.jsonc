@@ -3,7 +3,7 @@
   "display": "xvidcore",
   "description": "XviD is an open source MPEG-4 video codec",
   "site": "https://www.xvid.com/",
-  "license": "GPL",
+  "license": "GPL-2.0-or-later",
   "category": "media",
   "info": "info.md",
   "process_time": 440,

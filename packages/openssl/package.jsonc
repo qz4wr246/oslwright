@@ -3,7 +3,7 @@
   "display": "OpenSSL",
   "description": "TLS/SSL and crypto library",
   "site": "https://www.openssl.org",
-  "license": "Apache-2.0 license",
+  "license": "Apache-2.0",
   "category": "security",
   "info": "info.md",
   "process_time": 7700,

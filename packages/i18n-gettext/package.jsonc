@@ -1,9 +1,9 @@
 {
   "name": "i18n-gettext",
-  "display": "I18N Gettext Supported",
+  "display": "I18N-Gettext-Supported",
   "description": "Parsing and use Gettext .mo files.",
   "site": "https://github.com/kaishiqi/I18N-Gettext-Supported",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "utility",
   "info": "info.md",
   "process_time": 30,

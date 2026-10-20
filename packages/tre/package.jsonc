@@ -3,7 +3,7 @@
   "display": "TRE",
   "description": "The approximate regex matching library and agrep command line tool",
   "site": "https://github.com/laurikari/tre",
-  "license": "BSD",
+  "license": "BSD-2-Clause",
   "category": "utility",
   "info": "info.md",
   "process_time": 440,

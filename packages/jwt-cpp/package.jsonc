@@ -3,7 +3,7 @@
   "display": "jwt-cpp",
   "description": "A header only library for creating and validating json web tokens in c++",
   "site": "https://thalhammer.github.io/jwt-cpp/",
-  "license": "MIT license",
+  "license": "MIT",
   "category": "security",
   "info": "info.md",
   "process_time": 30,

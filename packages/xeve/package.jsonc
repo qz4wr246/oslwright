@@ -3,7 +3,7 @@
   "display": "xeve",
   "description": "MPEG-5 EVC (Essential Video Coding) encoder",
   "site": "https://github.com/mpeg5/xeve/",
-  "license": "BSD 3-Clause",
+  "license": "BSD-3-Clause",
   "category": "media",
   "info": "info.md",
   "process_time": 60,

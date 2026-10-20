@@ -3,7 +3,7 @@
   "display": "pybind11",
   "description": "Seamless operability between C++11 and Python",
   "site": "https://pybind11.readthedocs.io/",
-  "license": "BSD-style license",
+  "license": "BSD-3-Clause",
   "category": "utility",
   "info": "info.md",
   "process_time": 70,

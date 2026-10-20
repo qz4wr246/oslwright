@@ -3,7 +3,7 @@
   "display": "compile-time-regular-expressions",
   "description": "Compile Time Regular Expression in C++",
   "site": "https://compile-time.re",
-  "license": "Apache 2 License",
+  "license": "Apache-2.0",
   "category": "utility",
   "info": "info.md",
   "process_time": 30,

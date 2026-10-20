@@ -3,7 +3,7 @@
   "display": "libde265",
   "description": "Open h.265 video codec implementation.",
   "site": "https://github.com/strukturag/libde265",
-  "license": "LGPL v3",
+  "license": "LGPL-3.0-only",
   "category": "media",
   "info": "info.md",
   "process_time": 90,

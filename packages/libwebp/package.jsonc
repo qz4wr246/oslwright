@@ -3,7 +3,7 @@
   "display": "libwebp",
   "description": "WebP codec is a library to encode and decode images in WebP format.",
   "site": "https://developers.google.com/speed/webp/",
-  "license": "BSD-3-Clause.",
+  "license": "BSD-3-Clause",
   "category": "graphics",
   "info": "info.md",
   "process_time": 90,

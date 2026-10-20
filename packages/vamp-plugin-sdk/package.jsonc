@@ -3,7 +3,7 @@
   "display": "Vamp plugin sdk",
   "description": "The SDK for Vamp plugins, an API for audio analysis and feature extraction plugins.",
   "site": "http://vamp-plugins.org/",
-  "license": "BSD 3-Clause AND MIT",
+  "license": "BSD-3-Clause AND MIT",
   "category": "media",
   "info": "info.md",
   "process_time": 90,

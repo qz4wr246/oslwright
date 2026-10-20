@@ -3,7 +3,7 @@
   "display": "FLAC",
   "description": "Free Lossless Audio Codec",
   "site": "https://xiph.org/flac/",
-  "license": "Xiph.org BSD-style license",
+  "license": "BSD-3-Clause",
   "category": "media",
   "info": "info.md",
   "process_time": 70,

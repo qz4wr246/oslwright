@@ -3,7 +3,7 @@
   "display": "GLFW",
   "description": "A multi-platform library for OpenGL, OpenGL ES, Vulkan, window and input",
   "site": "https://www.glfw.org/",
-  "license": "Zlib license",
+  "license": "Zlib",
   "category": "graphics",
   "info": "info.md",
   "process_time": 50,

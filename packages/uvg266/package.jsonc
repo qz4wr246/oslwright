@@ -3,7 +3,7 @@
   "display": "uvg266",
   "description": "open-source VVC encoder based on Kvazaar",
   "site": "https://ultravideo.fi/uvg266.html",
-  "license": "BSD-3-Clause license",
+  "license": "BSD-3-Clause",
   "category": "media",
   "info": "info.md",
   "process_time": 50,

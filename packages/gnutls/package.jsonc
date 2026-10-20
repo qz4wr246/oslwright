@@ -3,7 +3,7 @@
   "display": "GnuTLS",
   "description": "TLS/SSL and crypto library",
   "site": "https://www.gnutls.org/",
-  "license": "GPL-3.0+ OR LGPL-2.1+",
+  "license": "GPL-3.0-or-later OR LGPL-2.1-or-later",
   "category": "security",
   "info": "info.md",
   "process_time": 1800,

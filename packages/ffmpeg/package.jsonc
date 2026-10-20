@@ -3,7 +3,7 @@
   "display": "FFmpeg",
   "description": "The leading multimedia framework",
   "site": "https://www.ffmpeg.org",
-  "license": "LGPL 2.1+, GPL 2+",
+  "license": "LGPL-2.1-or-later AND GPL-2.0-or-later",
   "category": "media",
   "info": "info.md",
   "process_time": 3000,
