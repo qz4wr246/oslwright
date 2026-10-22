@@ -226,6 +226,7 @@ class PipedShell:
                 stderr=subprocess.PIPE,
                 bufsize=1,
                 encoding="cp65001",
+                errors="ignore",
             )
 
             thr_out = threading.Thread(

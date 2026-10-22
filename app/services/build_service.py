@@ -63,6 +63,8 @@ class BuildService:
             Post.gui(f"\n======= Build start: {datetime.now().strftime('%Y/%m/%d %H:%M:%S')} ==========")
             self.model = model
             model.is_running = True
+
+            Post.gui("Exploring dependencies...")
             deps = self.find_dependent_builds(packages)
             model.package_num = len(deps)
             process_time = 0
