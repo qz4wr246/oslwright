@@ -274,7 +274,7 @@
         }
       }
     },
-    "2.10.0-master": {
+    "2.10.1-pre": {
       "git_tag": "master",
       "git_hash": "44c2487",
       "stages": {

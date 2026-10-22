@@ -120,7 +120,7 @@
     "default": {
       "dependencies": {
         "ffmpeg":{
-          "version": "==8.1"
+          "version": ">=8.1;<8.2"
         },
         "libwebp": { // The requested libsharpyuv is bundled with libwebp.
           "version": ">=1.4"

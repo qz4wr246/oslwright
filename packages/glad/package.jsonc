@@ -180,7 +180,8 @@
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
             "-DCMAKE_DOC=OFF",
-            "-DBUILD_TESTS=OFF"
+            "-DBUILD_TESTS=OFF",
+            "-DPython_EXECUTABLE=\"$python_exe\""
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""

@@ -100,7 +100,7 @@
     "default": {
       "dependencies": {
         "opencv":{
-          "version": "==4.13.0"
+          "version": ">=4.0"
         },
         "openjpeg":{
           "version": ">=2.5"
@@ -109,7 +109,7 @@
           "version": ">=0.2"
         },
         "ffmpeg":{
-          "version": "==8.1"
+          "version": ">=8.1;<8.2"
         },
         "freetype": {
           "version": ">=2.13"
@@ -328,6 +328,6 @@
         }
       }
     },
-    "3.1.11.0": {}
+    "3.1.18.1": {}
   }
 }

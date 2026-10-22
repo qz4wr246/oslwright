@@ -244,7 +244,7 @@
               "fallback": "del \"$cache_file\""
             },
             {
-              "when": "{{os.path.isfile(os.path.join($contrib_dir,'CMakeLists.txt'))}}",
+              "when": "{{os.path.isdir($contrib_dir)}}",
               "script": "rmdir /q /s \"$contrib_dir\""
             },
             {
@@ -447,37 +447,7 @@
         },
         "ffmpeg": {
           "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
-          "version": ">=8.1",
-          "build_library": "shared"
-        },
-        "gstreamer": {
-          "enable": "{{$with_gstreamer}}",
-          "version": ">=1.28",
-          "build_library": "shared"
-        }
-      },
-      "stages": {
-        "patch": {
-          "patch_files!replace": [
-            {
-              "chdir" : "$source_dir",
-              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
-            }
-          ],
-        }
-      }
-    },
-    "4.14.0": {  // OpenCV ver 4.14.0 is compatible with GStreamer ver 1.28 , FFmpeg ver 8.1
-      "dependencies": {
-        "abseil-cpp":{
-          "version": "==20250512.1"
-        },
-        "protobuf": {
-          "version": "==35.1"
-        },
-        "ffmpeg": {
-          "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
-          "version": ">=8.1",
+          "version": ">=8.1;<8.2",
           "build_library": "shared"
         },
         "gstreamer": {
@@ -496,8 +466,42 @@
             {
               "chdir" : "$contrib_dir",
               "local": "${package_dir}\\cv_4.14_fix_viz.diff",
+            }
+          ]
+        }
+      }
+    },
+    "4.14.0": {  // OpenCV ver 4.14.0 is compatible with GStreamer ver 1.28 , FFmpeg ver 8.1
+      "dependencies": {
+        "abseil-cpp":{
+          "version": "==20250512.1"
+        },
+        "protobuf": {
+          "version": "==35.1"
+        },
+        "ffmpeg": {
+          "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
+          "version": ">=8.1;<8.2",
+          "build_library": "shared"
+        },
+        "gstreamer": {
+          "enable": "{{$with_gstreamer}}",
+          "version": ">=1.28",
+          "build_library": "shared"
+        }
+      },
+      "stages": {
+        "patch": {
+          "patch_files!replace": [
+            {
+              "chdir" : "$source_dir",
+              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
             },
-          ],
+            {
+              "chdir" : "$contrib_dir",
+              "local": "${package_dir}\\cv_4.14_fix_viz.diff",
+            }
+          ]
         }
       }
     }

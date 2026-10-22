@@ -163,22 +163,6 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-openal",
-          "patch_files": [
-            {
-              "remote": "$repo_url/0001-dll-name.patch"
-            },
-            {
-              "remote": "$repo_url/0003-openal-not-32.mingw.patch"
-            },
-            {
-              "remote": "$repo_url/0004-pkgconfig-add-Cflags-private.patch"
-            },
-            {
-              "remote": "$repo_url/0005-mingw-dont-check-libm.patch"
-            },
-
-          ],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -301,6 +285,47 @@
         }
       }
     },
-    "1.25.1": {}
+    "1.25.1": {
+      "stages":{
+        "patch":{
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages",
+          "patch_files": [
+            {
+              "remote": "$repo_url/b9af8c101a7a149a192099e2fbcce8927f44db05/mingw-w64-openal/0001-dll-name.patch"
+            },
+            {
+              "remote": "$repo_url/096a8f320c7f2f7b5825b6629b8cd32e20b44556/mingw-w64-openal/0003-openal-not-32.mingw.patch"
+            },
+            {
+              "remote": "$repo_url/faedafeac58b66f782c9ba7db8f060bd929c2269/mingw-w64-openal/0004-pkgconfig-add-Cflags-private.patch"
+            },
+            {
+              "remote": "$repo_url/096a8f320c7f2f7b5825b6629b8cd32e20b44556/mingw-w64-openal/0005-mingw-dont-check-libm.patch"
+            }
+          ]
+        }
+      }
+    },
+    "1.25.2": {
+      "stages":{
+        "patch":{
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages",
+          "patch_files": [
+            {
+              "remote": "$repo_url/3da1e4e9f763ce05ebf2c0e244dcf3e66f44bb66/mingw-w64-openal/0001-dll-name.patch"
+            },
+            {
+              "remote": "$repo_url/096a8f320c7f2f7b5825b6629b8cd32e20b44556/mingw-w64-openal/0003-openal-not-32.mingw.patch"
+            },
+            {
+              "remote": "$repo_url/faedafeac58b66f782c9ba7db8f060bd929c2269/mingw-w64-openal/0004-pkgconfig-add-Cflags-private.patch"
+            },
+            {
+              "remote": "$repo_url/3da1e4e9f763ce05ebf2c0e244dcf3e66f44bb66/mingw-w64-openal/0005-mingw-dont-check-libm.patch"
+            }
+          ]
+        }
+      }
+    }
   }
 }

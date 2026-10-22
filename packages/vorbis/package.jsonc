@@ -239,7 +239,8 @@
         }
       }
     },
-    "1.3.7": {  // Requires from SMFL 3.0.2
+    "1.3.7": {  // Requires from SFML 3.0.2
+      "stable": true,
       "dependencies": {
         "ogg": {
           "version": "==1.3.6"
