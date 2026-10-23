@@ -2,6 +2,7 @@ import asyncio
 import subprocess
 import threading
 import os
+import psutil
 
 from .logger import PostLogger as Post
 from ..models.shell_result_model import ShellResult
@@ -192,31 +193,38 @@ class PipedShell:
         if not env:
             env = os.environ.copy()
 
-        result = None
+        stdout_chunks = []
+        stderr_chunks = []
 
-        def stream_reader(stream, out: str, content: dict | None = None):
+        def stream_reader(stream, out_type: str, chunks_list: list | None):
             try:
-                for line in iter(stream.readline, ""):
+                while True:
                     if self._killed:
                         break
-                    mesg = line.rstrip()
-                    if out == "stdout" and len(mesg):
-                        Post.info(mesg)
-                    elif out == "stderr" and len(mesg):
-                        Post.info(mesg)
-                    if content and len(mesg):
-                        content[out] += mesg
-            except:
-                pass
-            stream.close()
 
-        def run_command(args, cwd: str | None, env: dict, shell: bool, with_content: bool = False):
+                    line = stream.readline()
+
+                    if line == "":
+                        break
+                    if chunks_list is not None:
+                        chunks_list.append(line)
+
+                    mesg = line.rstrip("\r\n")
+                    if mesg:
+                        Post.info(mesg)
+
+            except Exception as e:
+                Post.error(f"Stream reader error ({out_type}): {e}")
+
+            finally:
+                try:
+                    stream.close()
+                    pass
+                except Exception:
+                    pass
+
+        def run_command(args, cwd: str | None, env: dict, shell: bool = True, with_content: bool = False):
             self._killed = False
-            out_content = None
-            if with_content:
-                out_content = {"stdout": "", "stderr": ""}
-
-            # プロセスをインスタンスに保持
             self.process = subprocess.Popen(
                 args=args,
                 env=env,
@@ -224,29 +232,52 @@ class PipedShell:
                 cwd=cwd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                bufsize=1,
-                encoding="cp65001",
-                errors="ignore",
+                text=True,
+                encoding="utf-8",
+                errors="replace",
             )
 
             thr_out = threading.Thread(
-                target=stream_reader, args=(self.process.stdout, "stdout", out_content), daemon=True
+                target=stream_reader,
+                args=(
+                    self.process.stdout,
+                    "stdout",
+                    stdout_chunks if with_content else None,
+                ),
+                daemon=True,
             )
             thr_err = threading.Thread(
-                target=stream_reader, args=(self.process.stderr, "stderr", out_content), daemon=True
+                target=stream_reader,
+                args=(
+                    self.process.stderr,
+                    "stderr",
+                    stderr_chunks if with_content else None,
+                ),
+                daemon=True,
             )
 
             thr_out.start()
             thr_err.start()
 
+            # 1. まず親プロセス（cmd.exeなど）の終了を待つ
             exit_code = self.process.wait()
 
-            thr_out.join(timeout=1.0)
-            thr_err.join(timeout=1.0)
-            stdout = out_content["stdout"] if out_content else ""
-            stderr = out_content["stderr"] if out_content else ""
+            # スレッドがEOFに達するのを安全に待つ
+            thr_out.join()
+            thr_err.join()
+            stdout = "".join(stdout_chunks) if with_content else ""
+            stderr = "".join(stderr_chunks) if with_content else ""
 
-            return ShellResult(exitcode=exit_code, stdout=stdout, stderr=stderr, killed=self._killed)
+            # killフラグが立っていた場合のWindows強制終了コード補正
+            if self._killed and (exit_code == 0 or exit_code is None):
+                exit_code = 1
+
+            return ShellResult(
+                exitcode=exit_code,
+                stdout=stdout,
+                stderr=stderr,
+                killed=self._killed,
+            )
 
         try:
             if shell:
@@ -258,11 +289,6 @@ class PipedShell:
             return ShellResult(exitcode=255, stderr=str(e))
 
     def kill(self):
-        if self.process:
+        if self.process and self.process.poll() is None:
             self._killed = True
             self.process.kill()
-            # if not self.process.stdout.closed:
-            #     self.process.stdout.close()
-            # if not self.process.stderr.closed:
-            #     self.process.stderr.close()
-            # self.process.wait()
