@@ -80,15 +80,22 @@ class AppSettingController:
             {
                 "display": "CUDA Version",
                 "name": "cuda_version_default",
-                "enable": self.default_setting.values["cuda_enable_default"],
+                "enable": "{{$cuda_enable_default}}",
                 "type": "choice",
                 "items": self.platform_service.cuda_versions,
                 "default": self.default_setting.values["cuda_version_default"],
             },
             {
+                "display": "Using Qt",
+                "name": "qt_enable_default",
+                "enable": self.platform_service.qt_enable_default,
+                "type": "bool",
+                "default": self.default_setting.values["qt_enable_default"],
+            },
+            {
                 "display": "Qt Directory(msvc)",
                 "name": "qt_msvc_dir_default",
-                "enable": True,
+                "enable": "{{$qt_enable_default}}",
                 "type": "folder",
                 "default": self.default_setting.values["qt_msvc_dir_default"],
             },
@@ -141,6 +148,7 @@ class AppSettingController:
 
         self.values[key].value = value
         self.app_setting.values[key] = value
+        self.update_disable()
 
     def save(self):
         converted_values = {item.name: item.value for item in self.values.values()}
