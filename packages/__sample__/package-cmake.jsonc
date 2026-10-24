@@ -178,6 +178,15 @@
           ]
         },
         "patch": {
+          "template_files":[
+            {
+              "template": "${package_dir}\\CMakeLists.txt.j2",
+              "defines": [
+                "GLAD_VERSION=\"$version\""
+              ],
+              "output": "$source_dir\\CMakeLists.txt"
+            }
+          ],
           "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
           "patch_files": [
             // {
@@ -196,6 +205,11 @@
             }
           ],
           "scripts": [
+            {
+              // Template script: genrate files with template_files
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+            },
             {
               // Patch Script: patching source code with patch_files
               "message": "Patch ${name} source code",
