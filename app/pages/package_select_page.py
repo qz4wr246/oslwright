@@ -286,6 +286,7 @@ def PackageSelectPage():
                             ft.Button(
                                 content="Reload",
                                 icon=ft.Icons.REFRESH,
+                                disabled=True,
                                 on_click=open_reload,
                             ),
                             ft.Button(

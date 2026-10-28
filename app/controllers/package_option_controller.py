@@ -84,4 +84,5 @@ class PackageOptionController:
 
     def save(self):
         self.modified = False
+        self.package_service.revert_option(self.option, "configure")
         self.package_service.save_option(self.option)
