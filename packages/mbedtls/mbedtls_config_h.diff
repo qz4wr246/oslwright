@@ -1,0 +1,40 @@
+diff --git a/include/mbedtls/mbedtls_config.h b/include/mbedtls/mbedtls_config.h
+index f684347..d3ac534 100644
+--- a/include/mbedtls/mbedtls_config.h
++++ b/include/mbedtls/mbedtls_config.h
+@@ -108,7 +108,7 @@
+  *
+  * Uncomment if the CPU supports SSE2 (IA-32 specific).
+  */
+-//#define MBEDTLS_HAVE_SSE2
++#define MBEDTLS_HAVE_SSE2
+ 
+ /**
+  * \def MBEDTLS_HAVE_TIME
+@@ -1167,7 +1167,7 @@
+  * Disable if you run into name conflicts and want to really remove the
+  * mbedtls_strerror()
+  */
+-#define MBEDTLS_ERROR_STRERROR_DUMMY
++// #define MBEDTLS_ERROR_STRERROR_DUMMY
+ 
+ /**
+  * \def MBEDTLS_GENPRIME
+@@ -2182,7 +2182,7 @@
+  *
+  * Uncomment this to allow your own alternate threading implementation.
+  */
+-//#define MBEDTLS_THREADING_ALT
++#define MBEDTLS_THREADING_ALT
+ 
+ /**
+  * \def MBEDTLS_THREADING_PTHREAD
+@@ -3784,7 +3784,7 @@
+  *
+  * Enable this layer to allow use of mutexes within Mbed TLS
+  */
+-//#define MBEDTLS_THREADING_C
++#define MBEDTLS_THREADING_C
+ 
+ /**
+  * \def MBEDTLS_TIMING_C

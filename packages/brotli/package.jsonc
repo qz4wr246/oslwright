@@ -143,11 +143,7 @@
           ]
         },
         "patch": {
-          "patch_files": [
-            {
-              "local":  "${package_dir}\\brotli_cmake.diff"
-            }
-          ],
+          "patch_files": [],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -251,6 +247,30 @@
         }
       }
     },
-    "1.1.0": {}
+    "1.1.1": {
+      "stages":{
+        "patch": {
+          "patch_files": [
+            {
+              "local": "${package_dir}\\brotli_1_1_cmake.diff"
+            }
+          ]
+        }
+      }
+    },
+    "1.2.1": {
+      "stages":{
+        "patch": {
+          "patch_files": [
+            {
+              "local": "${package_dir}\\brotli_1_2_cmake.diff"
+            },
+            {
+              "copy": "${package_dir}\\Config.cmake.in"
+            }
+          ]
+        }
+      }
+    }
   }
 }

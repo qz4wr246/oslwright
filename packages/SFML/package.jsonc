@@ -6,7 +6,7 @@
   "license": "Zlib",
   "category": "graphics",
   "info": "info.md",
-  "process_time": 100,
+  "process_time": 170,
   "options": [
     {
       "display": "Version",
@@ -55,10 +55,9 @@
       "type": "choice",
       "items": [
         "shared",
-        "static",
-        "shared;static"
+        "static"
       ],
-      "default": "$build_library_default"
+      "default": "static"
     },
     {
       "display": "Build type",
@@ -66,8 +65,7 @@
       "type": "choice",
       "items": [
         "Release",
-        "Debug",
-        "Release;Debug"
+        "Debug"
       ],
       "default": "Release"
     },
@@ -79,7 +77,7 @@
         "union",
         "separation"
       ],
-      "default": "union"
+      "default": "separation"
     }
   ],
   "versions": {
@@ -147,8 +145,8 @@
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DSFML_USE_STATIC_STD_LIBS=OFF",
-            "-DSFML_USE_SYSTEM_DEPS=ON"
+            "-DSFML_USE_STATIC_STD_LIBS={{'ON' if $msvc_runtime_library == 'mt' else 'OFF'}}",
+            "-DSFML_USE_SYSTEM_DEPS=OFF" // NOTE: 常に OFF, 外部ライブラリlibssh2, mbedtlsをリンクするとビルド出来ない。
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -234,37 +232,29 @@
         }
       }
     },
-    "3.0.2": {
-      "stable": true,
+    "3.1.0": {
       "dependencies": {
-        "freetype": {
-          "version": ">=2.13"
-        },
-        "vorbis": {
-          "version": "==1.3.7"
-        },
-        "flac": {
-          "version": "==1.4.3"
-        }
+        // SFML_USE_SYSTEM_DEPS=OFFのとき外部ライブラリに依存しない、パッケージがfetchされる
+        // 外部ライブラリlibssh2,mbedtlsに依存するとビルド出来ない。
+        // "freetype": {
+        //   "version": ">=2.13"
+        // },
+        // "harfbuzz": {
+        //   "version": ">=10.0.0"
+        // },
+        // "vorbis": {
+        //   "version": "==1.3.7"
+        // },
+        // "flac": {
+        //   "version": "==1.4.3"
+        // },
+        // "libssh2": {
+        //   "version": ">=1.11"
+        // },
+        // "mbedtls": {
+        //   "version": ">=3.6"
+        // }
       }
-    },
-    // "3.1.0": {
-    //   "dependencies": {
-    //     "freetype": {
-    //       "version": ">=2.13"
-    //     },
-    //     "harfbuzz": {
-    //       "version": ">=9.0"
-    //     },
-    //     "vorbis": {
-    //       "version": "==1.3.7"
-    //     },
-    //     "flac": {
-    //       "version": "==1.4.3"
-    //     }
-    //     // find_package(MbedTLS REQUIRED)
-    //     // find_package(Libssh2 REQUIRED)
-    //   }
-    // }
+    }
   }
 }

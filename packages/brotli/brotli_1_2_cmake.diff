@@ -1,0 +1,39 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 22b21d2..b07fe26 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -193,6 +193,7 @@ if (NOT BROTLI_BUNDLED_MODE)
+ 
+   install(
+     TARGETS ${BROTLI_SHARED_LIBRARIES} ${BROTLI_STATIC_LIBRARIES}
++    EXPORT brotli-export
+     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+@@ -393,3 +394,26 @@ install(FILES docs/constants.h.3 docs/decode.h.3 docs/encode.h.3 docs/types.h.3
+ if (ENABLE_COVERAGE STREQUAL "yes")
+   setup_target_for_coverage(coverage test coverage)
+ endif()
++
++include(CMakePackageConfigHelpers)
++install(EXPORT brotli-export
++  FILE brotliTargets.cmake
++  NAMESPACE brotli::
++  DESTINATION lib/cmake/brotli
++  EXPORT_LINK_INTERFACE_LIBRARIES
++)
++write_basic_package_version_file(
++  ${CMAKE_CURRENT_BINARY_DIR}/brotliConfigVersion.cmake
++  VERSION "${BROTLI_VERSION}"
++  COMPATIBILITY AnyNewerVersion
++)
++configure_package_config_file(
++    "${PROJECT_SOURCE_DIR}/Config.cmake.in"
++    "${CMAKE_CURRENT_BINARY_DIR}/brotliConfig.cmake"
++    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/brotli
++)
++install(FILES
++  ${CMAKE_CURRENT_BINARY_DIR}/brotliConfigVersion.cmake
++  ${CMAKE_CURRENT_BINARY_DIR}/brotliConfig.cmake
++  DESTINATION lib/cmake/brotli
++)

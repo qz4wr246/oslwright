@@ -233,7 +233,7 @@
         }
       }
     },
-    "1.4.3": {  // Requires from SFML 3.0.2
+    "1.4.3": {
       "stable": true,
       "dependencies": {
         "ogg": {

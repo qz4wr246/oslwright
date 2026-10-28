@@ -154,9 +154,9 @@
           "enable": "{{$enable_openh264}}",
           "version": ">=2.6"
         },
-        // 1.24.13,1.28.3 cannot build with external glib.
+        // // 1.24.13,1.28.3 cannot build with external glib.
         // "glib": {
-        //   "version": ">=2.88"
+        //   "version": ">=2.86"
         // },
         "pixman":{
           "version": ">=0.43"
@@ -257,7 +257,7 @@
             "-Dbad=disabled",
             "-Dugly=disabled",
             "-Dgpl={{'enabled' if $enable_gpl else 'disabled'}}",
-            "--force-fallback-for=glib",
+            "--force-fallback-for=glib", // Build with internal glib
             "-Dglib-networking:openssl=enabled",
             "-Dgst-plugins-good:vpx=disabled", // vpx plugin cannot be built with the latest vpx, so disable it.
             "-Dgst-plugins-bad:videoparsers=enabled",
@@ -410,7 +410,7 @@
     //     }
     //   }
     // },
-    "1.28.8": { // "1.28.3":
+    "1.28.8": {
       "dependencies": {
         "ffmpeg": {
           "version": ">=8.1;<8.2"

@@ -287,7 +287,7 @@
         "patch": {
           "patch_files": [
             {
-              "local": "${package_dir}\\harfbuzz_meson_090.diff"
+              "local": "${package_dir}\\harfbuzz_090_meson.diff"
             }
           ]
         }
@@ -298,7 +298,21 @@
         "patch": {
           "patch_files": [
             {
-              "local": "${package_dir}\\harfbuzz_meson_101.diff"
+              "local": "${package_dir}\\harfbuzz_101_meson.diff"
+            },
+            {
+              "local": "${package_dir}\\ harfbuzz_101_config_cmake.diff"
+            }
+          ]
+        }
+      }
+    },
+    "15.0.0": {
+      "stages": {
+        "patch": {
+          "patch_files": [
+            {
+              "local": "${package_dir}\\harfbuzz_150_config_cmake.diff"
             }
           ]
         }
