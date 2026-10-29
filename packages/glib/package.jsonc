@@ -135,8 +135,11 @@
         },
         "zlib": {
           "version": ">=1.3"
-        }
-        // gobject-introspection は循環参照になるので、別途コピーする
+        },
+        // "gobject-introspection": {
+        // // gobject-introspection は循環参照になるので、distから別途コピーする
+        //   "version": ">-1.86"
+        // }
       },
       "environments": {
         "LC_ALL": "C",

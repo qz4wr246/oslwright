@@ -188,7 +188,7 @@
             "-DBUILD_STATIC={{'ON' if 'static' in $build_library else 'OFF'}}",
             "-DBUILD_AUXFUN=ON",
             "-DBUILD_LENSTOOL=ON",
-            "-DBUILD_WITH_MSVC_STATIC_RUNTIME=OFF",
+            "-DBUILD_WITH_MSVC_STATIC_RUNTIME={{'ON' if $msvc_runtime_library == 'mt' else 'OFF'}}",
             "-DCMAKE_DOC=OFF",
             "-DBUILD_TESTS=OFF"
           ],

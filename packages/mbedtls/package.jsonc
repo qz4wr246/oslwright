@@ -177,7 +177,7 @@
             "-DCMAKE_BUILD_TYPE=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DMSVC_STATIC_RUNTIME=OFF",
+            "-DMSVC_STATIC_RUNTIME={{'ON' if $msvc_runtime_library == 'mt' else 'OFF'}}",
             "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE",
             "-DPython3_EXECUTABLE=\"$python_exe\"",
             "-DENABLE_TESTING=OFF",
