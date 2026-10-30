@@ -1,6 +1,6 @@
 {
   "name": "fmtlib",
-  "display": "fmtlib",
+  "display": "fmt",
   "description": "A modern formatting library",
   "site": "https://fmt.dev/",
   "license": "MIT",

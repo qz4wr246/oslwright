@@ -1,10 +1,10 @@
 {
   "name": "fribidi",
-  "display": "fribidi",
+  "display": "FriBidi",
   "description": "A implementation of the Unicode Bidirectional Algorithm.",
   "site": "https://github.com/fribidi/fribidi",
   "license": "LGPL-2.1-only",
-  "category": "media",
+  "category": "graphics",
   "info":"info.md",
   "process_time": 300,
   "options": [

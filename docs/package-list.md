@@ -12,7 +12,7 @@
 | AviSynth+ | 3.7.5 | GPL-2.0-only | media | https://avs-plus.net/ | git: https://github.com/AviSynth/AviSynthPlus.git |
 | bgfx | 1.136.9114-507 | BSD-2-Clause AND CC0-1.0 | graphics | https://bkaradzic.github.io/bgfx/overview.html | git: https://github.com/bkaradzic/bgfx.cmake.git |
 | Boost | 1.91.0-1 | BSL-1.0 | utility | https://www.boost.org/ | git: https://github.com/boostorg/boost.git |
-| Box2D | 3.1.1 | MIT | utility | https://box2d.org/ | git: https://github.com/erincatto/box2d.git |
+| Box2D | 3.1.1 | MIT | graphics | https://box2d.org/ | git: https://github.com/erincatto/box2d.git |
 | Brotli | 1.2.1 | MIT | compression | https://github.com/google/brotli | git: https://github.com/google/brotli.git |
 | Bullet | 3.2.5 | Zlib | utility | http://bulletphysics.org/ | git: https://github.com/bulletphysics/bullet3.git |
 | bzip2 | 1.0.8 | BSD-3-Clause | compression | https://sourceware.org/bzip2/ | git: https://sourceware.org/git/bzip2.git |
@@ -34,19 +34,19 @@
 | dlfcn-win32 | 1.4.1 | MIT | utility | https://github.com/dlfcn-win32/dlfcn-win32 | git: https://github.com/dlfcn-win32/dlfcn-win32.git |
 | Drogon | 1.9.7 | MIT | network | https://github.com/drogonframework/drogon | git: https://github.com/drogonframework/drogon.git |
 | Eigen | 3.4.0 | MPL-2.0 | utility | https://eigen.tuxfamily.org | git: https://gitlab.com/libeigen/eigen.git |
-| Entt | 3.16.0 | MIT | utility | https://github.com/skypjack/entt | git: https://github.com/skypjack/entt.git |
+| EnTT | 3.16.0 | MIT | utility | https://github.com/skypjack/entt | git: https://github.com/skypjack/entt.git |
 | fdk-aac | 2.0.3 | LicenseRef-Fraunhofer-FDK-AAC | media | https://sourceforge.net/projects/opencore-amr/ | git: https://github.com/mstorsjo/fdk-aac.git |
 | FFmpeg | 8.1.3 | LGPL-2.1-or-later AND GPL-2.0-or-later | media | https://www.ffmpeg.org | git: https://git.ffmpeg.org/ffmpeg.git |
 | FFTW | 3.3.11 | GPL-2.0-or-later | utility | https://www.fftw.org/ | download: https://www.fftw.org/${name}-${version}.tar.gz |
 | FLAC | 1.4.3 (1.5.0) | BSD-3-Clause | media | https://xiph.org/flac/ | git: https://github.com/xiph/flac.git |
 | Flecs | 4.1.4 | Apache-2.0 | utility | https://www.flecs.dev/ | git: https://github.com/SanderMertens/flecs.git |
 | Flite | 2.2 | BSD-3-Clause | media | http://cmuflite.org/index.html | git: https://github.com/festvox/flite.git |
-| fmtlib | 12.1.0 | MIT | utility | https://fmt.dev/ | git: https://github.com/fmtlib/fmt.git |
+| fmt | 12.1.0 | MIT | utility | https://fmt.dev/ | git: https://github.com/fmtlib/fmt.git |
 | Fontconfig | 2.17.1 | MIT | graphics | https://www.freedesktop.org/wiki/Software/fontconfig/ | git: https://gitlab.freedesktop.org/fontconfig/fontconfig.git |
 | freeglut | 3.6.0 | X11 | graphics | http://freeglut.sourceforge.net/ | git: https://github.com/freeglut/freeglut.git |
 | FreeType | 2.14.3 | FTL OR GPL-2.0-or-later | graphics | https://www.freetype.org | git: https://gitlab.freedesktop.org/freetype/freetype.git |
 | frei0r | 3.1.2 | GPL-2.0-only | media | https://frei0r.dyne.org/ | git: https://github.com/dyne/frei0r.git |
-| fribidi | 1.0.16 | LGPL-2.1-only | media | https://github.com/fribidi/fribidi | git: https://github.com/fribidi/fribidi.git |
+| FriBidi | 1.0.16 | LGPL-2.1-only | graphics | https://github.com/fribidi/fribidi | git: https://github.com/fribidi/fribidi.git |
 | gavl | 1.4.0 | GPL-2.0-or-later | media | https://github.com/bplaum/gavl | download: https://downloads.sourceforge.net/sourceforge/gmerlin/${name}-${version}.tar.gz |
 | gdk-pixbuf | 2.44.6 | LGPL-2.1-or-later | graphics | https://gitlab.gnome.org/GNOME/gdk-pixbuf | git: https://gitlab.gnome.org/GNOME/gdk-pixbuf.git |
 | gflags | 2.3.1 | BSD-3-Clause | utility | https://gflags.github.io/gflags/ | git: https://github.com/gflags/gflags.git |

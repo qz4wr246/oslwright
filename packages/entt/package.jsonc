@@ -1,7 +1,7 @@
 {
   "name": "entt",
-  "display": "Entt",
-  "description": "Entt is a fast and lightweight C++ entity component system",
+  "display": "EnTT",
+  "description": "EnTT is a fast and lightweight C++ entity component system",
   "site": "https://github.com/skypjack/entt",
   "license": "MIT",
   "category": "utility",
