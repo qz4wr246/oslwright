@@ -166,6 +166,8 @@ def PackageSelectPage():
 
     def open_build_all(e):
         selected_packages = [pkg for pkg in controller.packages if pkg.selected is not None and pkg.selected.value]
+        if len(selected_packages) == 0:
+            return
         page.session.store.set("packages", selected_packages)
         page.session.store.set("build_force", False)
         page.navigate(Routes.BUILD)

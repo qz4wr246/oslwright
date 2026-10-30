@@ -291,5 +291,5 @@ class PipedShell:
     def kill(self):
         if self.process and self.process.poll() is None:
             self._killed = True
-            self.process.kill()
             subprocess.run(f"taskkill /F /T /PID {self.process.pid}", shell=True)
+            self.process.kill()
