@@ -1,0 +1,53 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7bf48e6..ffd0f20 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -459,12 +459,14 @@ if(FLATBUFFERS_BUILD_FLATC)
+   endif()
+ 
+   target_link_libraries(flatc PRIVATE $<BUILD_INTERFACE:ProjectConfig>)
++  if(FALSE) # DONT mess with runtime flags
+   target_compile_options(flatc
+     PRIVATE
+       $<$<AND:$<BOOL:${MSVC_LIKE}>,$<CONFIG:Release>>:
+         /MT
+       >
+   )
++  endif()
+ 
+   if(FLATBUFFERS_CODE_SANITIZE AND NOT WIN32)
+     add_fsanitize_to_target(flatc ${FLATBUFFERS_CODE_SANITIZE})
+@@ -485,14 +487,7 @@ endif()
+ if(FLATBUFFERS_BUILD_SHAREDLIB)
+   add_library(flatbuffers_shared SHARED ${FlatBuffers_Library_SRCS})
+   target_link_libraries(flatbuffers_shared PRIVATE $<BUILD_INTERFACE:ProjectConfig>)
+-  # FlatBuffers use calendar-based versioning and do not provide any ABI
+-  # stability guarantees. Therefore, always use the full version as SOVERSION
+-  # in order to avoid breaking reverse dependencies on upgrades.
+-  set(FlatBuffers_Library_SONAME_FULL "${PROJECT_VERSION}")
+-  set_target_properties(flatbuffers_shared PROPERTIES
+-                        OUTPUT_NAME flatbuffers
+-                        SOVERSION "${FlatBuffers_Library_SONAME_FULL}"
+-                        VERSION "${FlatBuffers_Library_SONAME_FULL}")
++  set_target_properties(flatbuffers_shared PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+   if(FLATBUFFERS_ENABLE_PCH)
+     add_pch_to_target(flatbuffers_shared include/flatbuffers/pch/pch.h)
+   endif()
+@@ -642,6 +637,8 @@ if(FLATBUFFERS_INSTALL)
+     install(
+       TARGETS flatbuffers EXPORT FlatBuffersTargets
+       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+       INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+     )
+ 
+@@ -670,7 +667,7 @@ if(FLATBUFFERS_INSTALL)
+     install(
+       TARGETS flatbuffers_shared EXPORT FlatBuffersSharedTargets
+       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+-      RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
++      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+       INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+     )
