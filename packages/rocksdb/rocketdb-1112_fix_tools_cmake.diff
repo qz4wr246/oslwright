@@ -1,0 +1,32 @@
+diff --git a/db_stress_tool/CMakeLists.txt b/db_stress_tool/CMakeLists.txt
+index 3cdab41..b526c6d 100644
+--- a/db_stress_tool/CMakeLists.txt
++++ b/db_stress_tool/CMakeLists.txt
+@@ -20,3 +20,5 @@ add_executable(db_stress${ARTIFACT_SUFFIX}
+   ../test_util/simple_external_table_factory.cc)
+ target_link_libraries(db_stress${ARTIFACT_SUFFIX} ${ROCKSDB_LIB} ${THIRDPARTY_LIBS})
+ list(APPEND tool_deps db_stress)
++install(TARGETS db_stress${ARTIFACT_SUFFIX}
++  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+diff --git a/tools/CMakeLists.txt b/tools/CMakeLists.txt
+index 19030e8..a58af4e 100644
+--- a/tools/CMakeLists.txt
++++ b/tools/CMakeLists.txt
+@@ -7,6 +7,8 @@ foreach(src ${CORE_TOOLS})
+     ${src})
+   target_link_libraries(${exename}${ARTIFACT_SUFFIX} ${ROCKSDB_LIB})
+   list(APPEND core_tool_deps ${exename})
++  install(TARGETS ${exename}${ARTIFACT_SUFFIX}
++    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+ endforeach()
+ 
+ if(WITH_TOOLS)
+@@ -22,6 +24,8 @@ if(WITH_TOOLS)
+       ${src})
+     target_link_libraries(${exename}${ARTIFACT_SUFFIX} ${ROCKSDB_LIB} ${THIRDPARTY_LIBS})
+     list(APPEND tool_deps ${exename})
++    install(TARGETS ${exename}${ARTIFACT_SUFFIX}
++      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+   endforeach()
+ 
+   add_custom_target(ldb_tests

@@ -1,0 +1,10 @@
+diff --git a/third-party/gtest-1.8.1/fused-src/gtest/CMakeLists.txt b/third-party/gtest-1.8.1/fused-src/gtest/CMakeLists.txt
+index 211e8a8..3e23ee4 100644
+--- a/third-party/gtest-1.8.1/fused-src/gtest/CMakeLists.txt
++++ b/third-party/gtest-1.8.1/fused-src/gtest/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-add_library(gtest gtest-all.cc)
++add_library(gtest STATIC gtest-all.cc)
+ 
+ # Add dependency of gtest on thread library
+ target_link_libraries(gtest ${CMAKE_THREAD_LIBS_INIT})
