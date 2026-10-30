@@ -187,7 +187,7 @@
             "-DZSTD_BUILD_TESTS=OFF",
             "-DZSTD_BUILD_CONTRIB=OFF",
             "-DZSTD_MULTITHREAD_SUPPORT=ON",
-            "-DZSTD_USE_STATIC_RUNTIME=OFF"
+            "-DZSTD_USE_STATIC_RUNTIME={{'ON' if $msvc_runtime_library == 'mt' else 'OFF'}}"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\"",
