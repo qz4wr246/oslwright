@@ -28,6 +28,8 @@ def BuildPage():
         set_build_status(status)
 
         if status.reason == Reason.COMPLETED:
+            page.window.minimized = False
+            page.run_task(page.window.to_front)
             # open Success Dialog
             set_show_success(True)
 
@@ -36,6 +38,8 @@ def BuildPage():
             set_show_abort(True)
 
         elif status.reason == Reason.ERROR or status.reason == Reason.EXCEPTION:
+            page.window.minimized = False
+            page.run_task(page.window.to_front)
             # open Error Dialog
             set_show_error(True)
 

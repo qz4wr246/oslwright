@@ -139,8 +139,8 @@ def SplashScreen(status_text: str, platform_init_reason: PlatformReason, on_dial
                             controls=[
                                 ft.Image(
                                     src="/oslwright-logo.png",  # assets_dirからの相対パス（先頭に / が必要）
-                                    width=80,
-                                    height=80,
+                                    width=100,
+                                    height=100,
                                     fit=ft.BoxFit.CONTAIN,
                                 ),
                                 ft.Text("OSLwright", size=40, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200),
