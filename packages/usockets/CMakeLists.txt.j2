@@ -1,0 +1,80 @@
+cmake_minimum_required(VERSION 3.30)
+
+project(uSockets VERSION {{USOCKETS_VERSION}} LANGUAGES C CXX)
+
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
+
+option(WITH_OPENSSL "Enables OpenSSL 1.1+ support" ON)
+
+# Upstream compiles all sources at once
+option(CMAKE_UNITY_BUILD "Combine source for compilation." ON)
+
+file(GLOB C_SOURCES src/*.c src/eventing/*.c)
+add_library(uSockets ${C_SOURCES})
+add_library(usockets::usockets ALIAS uSockets)
+
+set_target_properties(uSockets PROPERTIES EXPORT_NAME usockets)
+target_include_directories(uSockets
+    PUBLIC
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>"
+)
+
+if(WITH_OPENSSL)
+    file(GLOB CRYPTO_SOURCES src/crypto/*.c*)
+    target_sources(uSockets PRIVATE ${CRYPTO_SOURCES})
+    target_compile_features(uSockets PRIVATE cxx_std_17)
+    # https://github.com/uNetworking/uSockets/blob/0ebdde0601cc82349fc11a7c4bbb6dc5c9f28f42/Makefile#L55
+    find_package(OpenSSL REQUIRED)
+    target_link_libraries(uSockets PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+    target_compile_definitions(uSockets PRIVATE -DLIBUS_USE_OPENSSL)
+else()
+    target_compile_definitions(uSockets PRIVATE -DLIBUS_NO_SSL)
+endif()
+
+if(WIN32 OR ANDROID)
+    # https://github.com/uNetworking/uSockets/blob/8606de6414a102c55bef8e8ef3391932d7e8df6a/src/libusockets.h#L339-L348
+    find_package(libuv CONFIG REQUIRED)
+    target_link_libraries(uSockets PRIVATE $<IF:$<TARGET_EXISTS:libuv::uv_a>,libuv::uv_a,libuv::uv>)
+    target_compile_definitions(uSockets PRIVATE -DLIBUS_USE_LIBUV)
+
+    if(WIN32)
+        # https://github.com/uNetworking/uSockets/blob/8606de6414a102c55bef8e8ef3391932d7e8df6a/src/libusockets.h#L35
+        target_link_libraries(uSockets PRIVATE ws2_32)
+    endif()
+endif()
+
+
+install(TARGETS uSockets
+    EXPORT usockets-export
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(EXPORT usockets-export
+    FILE usocketsTargets.cmake
+    NAMESPACE usockets::
+    DESTINATION lib/cmake/usockets
+    EXPORT_LINK_INTERFACE_LIBRARIES
+)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/usocketsConfigVersion.cmake
+  COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(
+    "${PROJECT_SOURCE_DIR}/Config.cmake.in"
+    "${CMAKE_BINARY_DIR}/usocketsConfig.cmake"
+    INSTALL_DESTINATION lib/cmake/usockets
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/usocketsConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/usocketsConfig.cmake
+  DESTINATION lib/cmake/usockets
+)
+install(FILES src/libusockets.h DESTINATION include)
