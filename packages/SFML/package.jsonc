@@ -6,7 +6,7 @@
   "license": "Zlib",
   "category": "graphics",
   "info": "info.md",
-  "process_time": 170,
+  "process_time": 360,
   "options": [
     {
       "display": "Version",
@@ -57,7 +57,7 @@
         "shared",
         "static"
       ],
-      "default": "static"
+      "default": "shared"
     },
     {
       "display": "Build type",
@@ -146,7 +146,8 @@
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
             "-DSFML_USE_STATIC_STD_LIBS={{'ON' if $msvc_runtime_library == 'mt' else 'OFF'}}",
-            "-DSFML_USE_SYSTEM_DEPS=OFF" // NOTE: 常に OFF, 外部ライブラリlibssh2, mbedtlsをリンクするとビルド出来ない。
+            "-DSFML_USE_SYSTEM_DEPS=OFF", // NOTE: 常に OFF, 外部ライブラリlibssh2, mbedtlsをリンクするとビルド出来ない。
+            "-DSFML_BUILD_DOC=OFF"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
