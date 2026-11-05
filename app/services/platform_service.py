@@ -985,7 +985,7 @@ class PlatformService:
         result = shell.exec(f'"{gclient_exe}" sync --version', with_content=True, shell=True)
         if not result.exitcode:
             ver = result.stdout.split()
-            gclient_version = ver[1] if len(ver) >= 2 else None
+            gclient_version = ver[3] if len(ver) >= 2 else None
         return (gclient_exe, gclient_version)
 
     def _updateToolPath(self) -> None:
