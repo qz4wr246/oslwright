@@ -1,0 +1,48 @@
+diff --git a/BUILD.gn b/BUILD.gn
+index 5abbd2a..06cea28 100644
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -2150,7 +2150,7 @@ action("skia.h") {
+   skia_h = "$target_gen_dir/skia.h"
+   script = "gn/find_headers.py"
+ 
+-  args = [ rebase_path("//bin/gn") ] + [ rebase_path("//") ] +
++  args = [ "gn.exe" ] + [ rebase_path("//") ] +
+          [ rebase_path(skia_h, root_build_dir) ] +
+          rebase_path(skia_public_includes)
+   depfile = "$skia_h.deps"
+diff --git a/PRESUBMIT.py b/PRESUBMIT.py
+index e4548f3..e0424a0 100644
+--- a/PRESUBMIT.py
++++ b/PRESUBMIT.py
+@@ -185,7 +185,7 @@ def _CheckGNFormatted(input_api, output_api):
+     try:
+       subprocess.check_output(cmd)
+     except subprocess.CalledProcessError:
+-      fix = 'bin/gn format ' + f.LocalPath()
++      fix = 'gn.exe format ' + f.LocalPath()
+       results.append(output_api.PresubmitError(
+           '`%s` failed, try\n\t%s' % (' '.join(cmd), fix)))
+   return results
+diff --git a/tools/skqp/create_apk.py b/tools/skqp/create_apk.py
+index b6463d5..91e0653 100755
+--- a/tools/skqp/create_apk.py
++++ b/tools/skqp/create_apk.py
+@@ -118,7 +118,7 @@ skia_to_android_arch_name_map = {'arm'  : 'armeabi-v7a',
+ def create_apk_impl(opts):
+     build_dir, final_output_dir = opts.build_dir, opts.final_output_dir
+ 
+-    assert os.path.exists('bin/gn')  # Did you `tools/git-syc-deps`?
++    # assert os.path.exists('bin/gn')  # Did you `tools/git-syc-deps`?
+ 
+     for d in [build_dir, final_output_dir]:
+         makedirs(d)
+@@ -150,7 +150,7 @@ def create_apk_impl(opts):
+             build = os.path.join(build_dir, arch)
+             gn_args = opts.gn_args(arch)
+             args = ' '.join('%s=%s' % (k, v) for k, v in gn_args.items())
+-            check_call(['bin/gn', 'gen', build, '--args=' + args])
++            check_call(['gn.exe', 'gen', build, '--args=' + args])
+             try:
+                 check_call(['ninja', '-C', build, lib])
+             except subprocess.CalledProcessError:

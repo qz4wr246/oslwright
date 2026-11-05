@@ -1,0 +1,21 @@
+solutions = [
+  {
+    "name"        : "skia",
+    "url"         : "https://skia.googlesource.com/skia",
+    "deps_file"   : "DEPS",
+    "managed"     : False,
+    "custom_deps" : {
+      "src/resources": None,
+      "src/third_party/externals/perfetto": None,
+      "src/third_party/externals/valgrind": None,
+      "src/third_party/externals/doxygen": None,
+    },
+    "custom_vars": {
+      "checkout_android": False,
+      "checkout_ios": False,
+      "checkout_test_deps": False,
+      "checkout_google_benchmark": False,
+    },
+  },
+]
+target_os = ["win"]
