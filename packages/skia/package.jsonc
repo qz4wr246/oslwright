@@ -72,9 +72,10 @@
     {
       "display": "Build layout",
       "name": "build_layout",
+      "enable": false,
       "type": "choice",
       "items": [
-        // "union",
+        "union",
         "separation"
       ],
       "default": "separation"
@@ -98,7 +99,7 @@
       "display": "Using External Library",
       "name": "using_external",
       "type": "bool",
-      "default": false
+      "default": true
     }
   ],
   "versions": {
