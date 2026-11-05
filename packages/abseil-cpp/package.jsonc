@@ -247,7 +247,9 @@
         }
       }
     },
-    "20250512.1": { // grpc ver 1.74.1 is compatible with abseil-cpp ver 20250512.1
+    "20250512.1": {
+      // grpc ver 1.74.1 is compatible with abseil-cpp ver 20250512.1
+      "stable": true
     }
   }
 }
