@@ -101,7 +101,7 @@
       "type": "bool",
       "default": false
     },
-      {
+    {
       "display": "With x264",
       "name": "with_x264",
       "enable": "{{$enable_gpl}}",
@@ -109,8 +109,22 @@
       "default": false
     },
     {
+      "display": "With x264 plugin",
+      "name": "with_x264_plugin",
+      "enable": "{{$enable_gpl}}",
+      "type": "bool",
+      "default": false
+    },
+    {
       "display": "With x265",
       "name": "with_x265",
+      "enable": "{{$enable_gpl}}",
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "With x265 plugin",
+      "name": "with_x265_plugin",
       "enable": "{{$enable_gpl}}",
       "type": "bool",
       "default": false
@@ -262,12 +276,14 @@
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
             "-DWITH_X265={{'ON' if $enable_gpl and $with_x265 else 'OFF'}}",
+            "-DWITH_X265_PLUGIN={{'ON' if $enable_gpl and $with_x265_plugin else 'OFF'}}",
+            "-DWITH_X264={{'ON' if $enable_gpl and $with_x265 else 'OFF'}}",
+            "-DWITH_X264_PLUGIN={{'ON' if $enable_gpl and $with_x265_plugin else 'OFF'}}",
             "-DWITH_LIBDE265=ON",
             "-DWITH_KVAZAAR=ON",
             "-DWITH_UVG266=ON",
             "-DWITH_VVDEC=ON",
             "-DWITH_VVENC=ON",
-            "-DWITH_X264=ON",
             "-DWITH_OpenH264_ENCODER=ON",
             "-DWITH_OpenH264_DECODER=ON",
             "-DWITH_DAV1D=ON",

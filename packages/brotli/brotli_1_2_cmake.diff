@@ -1,8 +1,18 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 22b21d2..b07fe26 100644
+index 22b21d2..b22a4cf 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -193,6 +193,7 @@ if (NOT BROTLI_BUNDLED_MODE)
+@@ -156,6 +156,9 @@ foreach(lib ${BROTLI_SHARED_LIBRARIES} ${BROTLI_STATIC_LIBRARIES})
+   set_target_properties(${lib} PROPERTIES
+     VERSION "${BROTLI_ABI_COMPATIBILITY}.${BROTLI_ABI_AGE}.${BROTLI_ABI_REVISION}"
+     SOVERSION "${BROTLI_ABI_COMPATIBILITY}")
++  target_include_directories(${lib} INTERFACE
++    $<BUILD_INTERFACE:${BROTLI_INCLUDE_DIRS}>
++    $<INSTALL_INTERFACE:include>)
+   if (NOT BROTLI_EMSCRIPTEN)
+     set_target_properties(${lib} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+   endif()
+@@ -193,6 +196,7 @@ if (NOT BROTLI_BUNDLED_MODE)
  
    install(
      TARGETS ${BROTLI_SHARED_LIBRARIES} ${BROTLI_STATIC_LIBRARIES}
@@ -10,7 +20,7 @@ index 22b21d2..b07fe26 100644
      ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-@@ -393,3 +394,26 @@ install(FILES docs/constants.h.3 docs/decode.h.3 docs/encode.h.3 docs/types.h.3
+@@ -393,3 +397,26 @@ install(FILES docs/constants.h.3 docs/decode.h.3 docs/encode.h.3 docs/types.h.3
  if (ENABLE_COVERAGE STREQUAL "yes")
    setup_target_for_coverage(coverage test coverage)
  endif()
