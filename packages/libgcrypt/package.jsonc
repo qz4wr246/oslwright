@@ -164,15 +164,8 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-libgcrypt",
-          "patch_files": [
-            {
-              "remote": "$repo_url/libgcrypt-use-correct-def-file.patch"
-            },
-            {
-              "remote": "$repo_url/Smarter-fig2dev-detection.all.patch"
-            }
-          ],
+          "repo_url":"",
+          "patch_files": [],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -354,6 +347,20 @@
         }
       }
     },
-    "1.12.2": {}
+    "1.12.4": {
+      "stages": {
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/f1360407767d4b9f08b8a960d05e006f33c7c7f8/mingw-w64-libgcrypt",
+          "patch_files": [
+            {
+              "remote": "$repo_url/0001-properly-linking-def-file.patch"
+            },
+            {
+              "remote": "$repo_url/0002-smarter-fig2dev-detection.all.patch"
+            }
+          ]
+        }
+      }
+    }
   }
 }
