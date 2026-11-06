@@ -84,7 +84,7 @@
 | jwt-cpp | 0.7.0 | MIT | security | https://thalhammer.github.io/jwt-cpp/ | git: https://github.com/Thalhammer/jwt-cpp.git |
 | Kvazaar | 2.3.2 | BSD-3-Clause | media | https://github.com/ultravideo/kvazaar | git: https://github.com/ultravideo/kvazaar.git |
 | ladspa-sdk | 1.17 | LGPL-2.1-or-later | media | https://www.ladspa.org/ | download: https://ladspa.org/download/ladspa_sdk_${version}.tgz |
-| lame | 3.100 | LGPL-2.1-or-later | media | http://lame.sf.net | download: https://sourceforge.net/projects/lame/files/${name}/${version}/${name}-${version}.tar.gz/download |
+| lame | 3.100 (4.0) | LGPL-2.1-or-later | media | http://lame.sf.net | download: https://sourceforge.net/projects/lame/files/${name}/${version}/${name}-${version}.tar.gz/download |
 | Lensfun | 0.3.4-1 | LGPL-3.0-only AND GPL-3.0-only AND CC-BY-SA-3.0 | graphics | https://lensfun.github.io/ | git: https://github.com/lensfun/lensfun.git |
 | LevelDB | 2026-03-11 | BSD-3-Clause | data | https://github.com/google/leveldb | git: https://github.com/google/leveldb.git |
 | libaec | 1.1.7 | BSD-2-Clause | compression | https://github.com/Deutsches-Klimarechenzentrum/libaec | git: https://github.com/Deutsches-Klimarechenzentrum/libaec.git |
@@ -106,9 +106,9 @@
 | libexif | 0.6.26 | LGPL-2.1-only | graphics | https://libexif.github.io/ | git: https://github.com/libexif/libexif.git |
 | libexpat | 2.6.4 | MIT | data | https://libexpat.github.io/ | git: https://github.com/libexpat/libexpat.git |
 | libffi | 3.5.2 | MIT | utility | https://sourceware.org/libffi/ | git: https://github.com/libffi/libffi.git |
-| libgcrypt | 1.12.2 | LGPL-2.1-or-later | security | https://gnupg.org | download: https://gnupg.org/ftp/gcrypt/${name}/${name}-${version}.tar.bz2 |
+| libgcrypt | 1.12.4 | LGPL-2.1-or-later | security | https://gnupg.org | download: https://gnupg.org/ftp/gcrypt/${name}/${name}-${version}.tar.bz2 |
 | libgme | 0.6.4 | LGPL-2.1-or-later | media | https://github.com/libgme/game-music-emu | git: https://github.com/libgme/game-music-emu.git |
-| Libgpg-error | 1.60 | LGPL-2.1-or-later | security | https://gnupg.org | download: https://gnupg.org/ftp/gcrypt/libgpg-error/${name}-${version}.tar.bz2 |
+| Libgpg-error | 1.61 | LGPL-2.1-or-later | security | https://gnupg.org | download: https://gnupg.org/ftp/gcrypt/libgpg-error/${name}-${version}.tar.bz2 |
 | libheif | 1.21.2 | LGPL-3.0-or-later AND GPL-2.0-or-later | media | https://github.com/strukturag/libheif | git: https://github.com/strukturag/libheif.git |
 | libiconv | 1.19 | LGPL-2.1-only | utility | https://www.gnu.org/software/libiconv/ | download: https://ftp.gnu.org/pub/gnu/${name}/${name}-${version}.tar.gz |
 | Libidn2 | 2.3.8 | GPL-2.0-or-later AND LGPL-3.0-or-later | security | https://www.gnu.org/s/libidn/#libidn2 | git: https://gitlab.com/libidn/libidn2.git |
