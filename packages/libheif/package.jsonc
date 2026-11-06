@@ -101,9 +101,16 @@
       "type": "bool",
       "default": false
     },
-      {
+    {
       "display": "With x264",
       "name": "with_x264",
+      "enable": "{{$enable_gpl}}",
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "With x264 plugin",
+      "name": "with_x264_plugin",
       "enable": "{{$enable_gpl}}",
       "type": "bool",
       "default": false
@@ -114,13 +121,20 @@
       "enable": "{{$enable_gpl}}",
       "type": "bool",
       "default": false
+    },
+    {
+      "display": "With x265 plugin",
+      "name": "with_x265_plugin",
+      "enable": "{{$enable_gpl}}",
+      "type": "bool",
+      "default": false
     }
   ],
   "versions": {
     "default": {
       "dependencies": {
         "ffmpeg":{
-          "version": "==8.1"
+          "version": ">=8.1;<8.2"
         },
         "libwebp": { // The requested libsharpyuv is bundled with libwebp.
           "version": ">=1.4"
@@ -208,14 +222,14 @@
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse-submodules --shallow-submodules $git_url \"$source_dir\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "git checkout.",
               "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
               "chdir": "$source_dir",
-              "script": "git checkout $git_hash",
+              "script": "git checkout $git_hash && git submodule update --init --recursive",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
@@ -233,12 +247,17 @@
           ]
         },
         "patch": {
-          "patch_file_01": "${package_dir}\\libheif_cmake.diff",
+          "patch_files": [
+            {
+              "local": "${package_dir}\\libheif_cmake.diff"
+            }
+          ],
           "scripts": [
             {
-              "when": "{{not os.path.isfile(os.path.join($source_dir, '__patched_' + os.path.basename($patch_file_01)))}}",
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
               "chdir": "$source_dir",
-              "script": "git apply \"$patch_file_01\" && copy nul > {{'__patched_' + os.path.basename($patch_file_01)}}"
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             }
           ]
         },
@@ -257,12 +276,14 @@
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
             "-DWITH_X265={{'ON' if $enable_gpl and $with_x265 else 'OFF'}}",
+            "-DWITH_X265_PLUGIN={{'ON' if $enable_gpl and $with_x265_plugin else 'OFF'}}",
+            "-DWITH_X264={{'ON' if $enable_gpl and $with_x265 else 'OFF'}}",
+            "-DWITH_X264_PLUGIN={{'ON' if $enable_gpl and $with_x265_plugin else 'OFF'}}",
             "-DWITH_LIBDE265=ON",
             "-DWITH_KVAZAAR=ON",
             "-DWITH_UVG266=ON",
             "-DWITH_VVDEC=ON",
             "-DWITH_VVENC=ON",
-            "-DWITH_X264=ON",
             "-DWITH_OpenH264_ENCODER=ON",
             "-DWITH_OpenH264_DECODER=ON",
             "-DWITH_DAV1D=ON",

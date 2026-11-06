@@ -156,33 +156,14 @@
           ]
         },
         "patch": {
-          "repo_url": "https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-lame",
-          "patch_files": [
-            {
-              "remote": "$repo_url/0002-07-field-width-fix.all.patch"
-            },
-            {
-              "remote": "$repo_url/0005-no-gtk.all.patch"
-            },
-            {
-              "remote": "$repo_url/0006-dont-use-outdated-symbol-list.patch"
-            },
-            {
-              "remote": "$repo_url/0007-revert-posix-code.patch"
-            },
-            {
-              "remote": "$repo_url/0008-skip-termcap.patch"
-            },
-            {
-              "remote": "$repo_url/0009-lame-add-pkgconfig.patch"
-            }
-          ],
+          "repo_url": "",
+          "patch_files": [],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
               "message": "Patch ${name} source code",
               "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             },
             {
               "message": "reconfigure",
@@ -333,6 +314,79 @@
         }
       }
     },
-    "3.100": {}
+    "3.100": {
+      "stable": true,
+      "stages": {
+        "patch": {
+          "repo_url": "https://raw.githubusercontent.com/msys2/MINGW-packages/c9e5b84b9bd7ac93517ffc177522606b9762c1e5/mingw-w64-lame",
+          "patch_files": [
+            {
+              "remote": "$repo_url/0002-07-field-width-fix.all.patch"
+            },
+            {
+              "remote": "$repo_url/0005-no-gtk.all.patch"
+            },
+            {
+              "remote": "$repo_url/0006-dont-use-outdated-symbol-list.patch"
+            },
+            {
+              "remote": "$repo_url/0007-revert-posix-code.patch"
+            },
+            {
+              "remote": "$repo_url/0008-skip-termcap.patch"
+            },
+            {
+              "remote": "$repo_url/0009-lame-add-pkgconfig.patch"
+            }
+          ]
+        }
+      }
+    },
+    // MEMO:パッチが不適切
+    // "3.101": {
+    //   "stages": {
+    //     "patch": {
+    //       "repo_url": "https://raw.githubusercontent.com/msys2/MINGW-packages/c9e5b84b9bd7ac93517ffc177522606b9762c1e5/mingw-w64-lame",
+    //       "patch_files": [
+    //         {
+    //           "remote": "$repo_url/0002-07-field-width-fix.all.patch"
+    //         },
+    //         {
+    //           "remote": "https://raw.githubusercontent.com/msys2/MINGW-packages/2c5acfaa4add75e100102dbe9c8a317bc411b7ba/mingw-w64-lame/0005-no-gtk.all.patch"
+    //         },
+    //         {
+    //           "remote": "$repo_url/0006-dont-use-outdated-symbol-list.patch"
+    //         },
+    //         {
+    //           "remote": "$repo_url/0008-skip-termcap.patch"
+    //         }
+    //       ]
+    //     }
+    //   }
+    // },
+    "4.0": {
+      "stages": {
+        "patch": {
+          "repo_url": "https://raw.githubusercontent.com/msys2/MINGW-packages/2c5acfaa4add75e100102dbe9c8a317bc411b7ba/mingw-w64-lame",
+          "patch_files": [
+            {
+              "remote": "$repo_url/0002-07-field-width-fix.all.patch"
+            },
+            {
+              "remote": "$repo_url/0005-no-gtk.all.patch"
+            },
+             {
+              "remote": "$repo_url/0006-dont-use-outdated-symbol-list.patch"
+            },
+            {
+              "remote": "$repo_url/0008-skip-termcap.patch"
+            },
+            {
+              "remote": "$repo_url/0010-frontend-utf8-id3v2-setters.patch"
+            }
+          ]
+        }
+      }
+    }
   }
 }

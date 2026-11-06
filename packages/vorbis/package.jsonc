@@ -107,14 +107,14 @@
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse-submodules --shallow-submodules $git_url \"$source_dir\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "git checkout.",
               "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
               "chdir": "$source_dir",
-              "script": "git checkout $git_hash",
+              "script": "git checkout $git_hash && git submodule update --init --recursive",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
@@ -239,7 +239,8 @@
         }
       }
     },
-    "1.3.7": {  // Requires from SMFL 3.0.2
+    "1.3.7": {  // Requires from SFML 3.0.2
+      "stable": true,
       "dependencies": {
         "ogg": {
           "version": "==1.3.6"

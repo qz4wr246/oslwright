@@ -154,9 +154,9 @@
           "enable": "{{$enable_openh264}}",
           "version": ">=2.6"
         },
-        // 1.24.13,1.28.3 cannot build with external glib.
+        // // 1.24.13,1.28.3 cannot build with external glib.
         // "glib": {
-        //   "version": ">=2.88"
+        //   "version": ">=2.86"
         // },
         "pixman":{
           "version": ">=0.43"
@@ -199,14 +199,14 @@
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse-submodules --shallow-submodules $git_url \"$source_dir\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "git checkout.",
               "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
               "chdir": "$source_dir",
-              "script": "git checkout $git_hash",
+              "script": "git checkout $git_hash && git submodule update --init --recursive",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
@@ -240,7 +240,7 @@
               // Patch Script: patching source code with patch_files
               "message": "Patch ${name} source code",
               "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             }
           ]
         },
@@ -257,7 +257,7 @@
             "-Dbad=disabled",
             "-Dugly=disabled",
             "-Dgpl={{'enabled' if $enable_gpl else 'disabled'}}",
-            "--force-fallback-for=glib",
+            "--force-fallback-for=glib", // Build with internal glib
             "-Dglib-networking:openssl=enabled",
             "-Dgst-plugins-good:vpx=disabled", // vpx plugin cannot be built with the latest vpx, so disable it.
             "-Dgst-plugins-bad:videoparsers=enabled",
@@ -410,10 +410,10 @@
     //     }
     //   }
     // },
-    "1.28.8": { // "1.28.3":
+    "1.28.8": {
       "dependencies": {
         "ffmpeg": {
-          "version": ">=8.1"
+          "version": ">=8.1;<8.2"
         }
       },
       "stages": {

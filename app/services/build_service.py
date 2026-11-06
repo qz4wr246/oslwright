@@ -63,6 +63,8 @@ class BuildService:
             Post.gui(f"\n======= Build start: {datetime.now().strftime('%Y/%m/%d %H:%M:%S')} ==========")
             self.model = model
             model.is_running = True
+
+            Post.gui("Exploring dependencies...")
             deps = self.find_dependent_builds(packages)
             model.package_num = len(deps)
             process_time = 0
@@ -110,6 +112,9 @@ class BuildService:
         environs["LC_ALL"] = "C"
         environs["LANG"] = "ja_JP.UTF-8"
         environs["GIT_REDIRECT_STDERR"] = "2>&1"
+        environs["DEPOT_TOOLS_WIN_TOOLCHAIN"] = "0"
+        environs["GIT_HTTP_LOW_SPEED_LIMIT"] = "0"
+        environs["GIT_HTTP_LOW_SPEED_TIME"] = "999999"
 
         # MSVC実行環境の環境変数を取得
         mscv_version = session.get("msvc_version", None)

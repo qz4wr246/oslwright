@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 6462a3e..ff9c780 100644
+index 6462a3e..0be86f8 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -223,6 +223,8 @@ plugin_option(AOM_ENCODER "AOM AV1 encoder" ON OFF)
@@ -21,6 +21,15 @@ index 6462a3e..ff9c780 100644
     endif()
  endif ()
  if (LIBSHARPYUV_FOUND)
+@@ -494,7 +497,7 @@ if (WITH_HEADER_COMPRESSION OR WITH_UNCOMPRESSED_CODEC)
+         message("zlib not found")
+     endif()
+ 
+-    find_package(Brotli)
++    find_package(Brotli CONFIG)
+     if (Brotli_FOUND)
+         message("Brotli found")
+         list(APPEND REQUIRES_PRIVATE "libbrotlidec")
 diff --git a/heifio/CMakeLists.txt b/heifio/CMakeLists.txt
 index 920eeca..fd5b155 100644
 --- a/heifio/CMakeLists.txt
@@ -35,9 +44,18 @@ index 920eeca..fd5b155 100644
  endif()
  
 diff --git a/libheif/CMakeLists.txt b/libheif/CMakeLists.txt
-index 2a66c1d..26e0641 100644
+index 2a66c1d..2b657ff 100644
 --- a/libheif/CMakeLists.txt
 +++ b/libheif/CMakeLists.txt
+@@ -221,7 +221,7 @@ if (APPLE)
+ 	    LINK_FLAGS "-Wl,-compatibility_version,${MACOS_COMPATIBLE_VERSION}")
+ endif ()
+ 
+-if (BUILD_FRAMEWORK) 
++if (BUILD_FRAMEWORK)
+   set_target_properties(heif PROPERTIES
+     FRAMEWORK TRUE
+     FRAMEWORK_VERSION "${PACKAGE_VERSION}"
 @@ -253,8 +253,7 @@ add_subdirectory(plugins)
  if (LIBSHARPYUV_FOUND)
      message("Compiling in 'libsharpyuv'")
@@ -54,7 +72,7 @@ index 2a66c1d..26e0641 100644
      target_compile_definitions(heif PUBLIC HAVE_BROTLI=1)
 -    target_include_directories(heif PRIVATE ${BROTLI_INCLUDE_DIRS})
 -    target_link_libraries(heif PRIVATE ${BROTLI_LIBS})
-+    target_link_libraries(heif PRIVATE brotlidec brotlienc brotlicommon)
++    target_link_libraries(heif PRIVATE brotli::brotlidec brotli::brotlienc brotli::brotlicommon)
  endif()
  
  if (ENABLE_MULTITHREADING_SUPPORT)

@@ -69,6 +69,7 @@ class PackageOptionController:
         self.option.versions[self.option.current_version].options[name] = value
         self.values[name].value = value
         self.update_item()
+        self.package_service.revert_option(self.option, "configure")
 
     def revert(self, stage: str) -> bool:
         ret = self.package_service.revert_option(self.option, stage)

@@ -128,14 +128,14 @@
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse-submodules --shallow-submodules $git_url \"$source_dir\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "git checkout.",
               "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
               "chdir": "$source_dir",
-              "script": "git checkout $git_hash",
+              "script": "git checkout $git_hash && git submodule update --init --recursive",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
@@ -157,8 +157,10 @@
           "cmake_options": [
             "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
             "-DEIGEN_BUILD_DOC=OFF",
+            "-DEIGEN_BUILD_BTL=OFF",
             "-DBUILD_TESTING=OFF",
-            "-DEIGEN_TEST_CXX11=OFF"
+            "-DEIGEN_TEST_CXX11=OFF",
+            "-DEIGEN_SPLIT_LARGE_TESTS=OFF"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""

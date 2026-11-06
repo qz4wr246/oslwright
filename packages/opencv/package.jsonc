@@ -222,14 +222,14 @@
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse --shallow-submodules $git_url \"$source_dir\"",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse-submodules --shallow-submodules $git_url \"$source_dir\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "git checkout.",
               "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
               "chdir": "$source_dir",
-              "script": "git checkout $git_hash",
+              "script": "git checkout $git_hash && git submodule update --init --recursive",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
@@ -244,7 +244,7 @@
               "fallback": "del \"$cache_file\""
             },
             {
-              "when": "{{os.path.isfile(os.path.join($contrib_dir,'CMakeLists.txt'))}}",
+              "when": "{{os.path.isdir($contrib_dir)}}",
               "script": "rmdir /q /s \"$contrib_dir\""
             },
             {
@@ -257,7 +257,7 @@
               "message": "git checkout.",
               "when": "{{$git_hash and os.path.isdir($contrib_dir) and not os.path.isfile($contrib_cache_file)}}",
               "chdir": "$contrib_dir",
-              "script": "git checkout $git_hash",
+              "script": "git checkout $git_hash && git submodule update --init --recursive",
               "fallback": "rmdir /q /s \"$contrib_dir\""
             },
             {
@@ -285,7 +285,7 @@
               // Patch Script: patching source code with patch_files
               "message": "Patch ${name} source code",
               "chdir": "$source_dir",
-              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name)}\" mkdir \"{os.path.join(cache_rootdir, name)}\") && (if not exist \"{os.path.join(cache_rootdir, name, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
             }
           ]
         },
@@ -447,37 +447,7 @@
         },
         "ffmpeg": {
           "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
-          "version": ">=8.1",
-          "build_library": "shared"
-        },
-        "gstreamer": {
-          "enable": "{{$with_gstreamer}}",
-          "version": ">=1.28",
-          "build_library": "shared"
-        }
-      },
-      "stages": {
-        "patch": {
-          "patch_files!replace": [
-            {
-              "chdir" : "$source_dir",
-              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
-            }
-          ],
-        }
-      }
-    },
-    "4.14.0": {  // OpenCV ver 4.14.0 is compatible with GStreamer ver 1.28 , FFmpeg ver 8.1
-      "dependencies": {
-        "abseil-cpp":{
-          "version": "==20250512.1"
-        },
-        "protobuf": {
-          "version": "==35.1"
-        },
-        "ffmpeg": {
-          "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
-          "version": ">=8.1",
+          "version": ">=8.1;<8.2",
           "build_library": "shared"
         },
         "gstreamer": {
@@ -496,8 +466,42 @@
             {
               "chdir" : "$contrib_dir",
               "local": "${package_dir}\\cv_4.14_fix_viz.diff",
+            }
+          ]
+        }
+      }
+    },
+    "4.14.0": {  // OpenCV ver 4.14.0 is compatible with GStreamer ver 1.28 , FFmpeg ver 8.1
+      "dependencies": {
+        "abseil-cpp":{
+          "version": "==20250512.1"
+        },
+        "protobuf": {
+          "version": "==35.1"
+        },
+        "ffmpeg": {
+          "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
+          "version": ">=8.1;<8.2",
+          "build_library": "shared"
+        },
+        "gstreamer": {
+          "enable": "{{$with_gstreamer}}",
+          "version": ">=1.28",
+          "build_library": "shared"
+        }
+      },
+      "stages": {
+        "patch": {
+          "patch_files!replace": [
+            {
+              "chdir" : "$source_dir",
+              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
             },
-          ],
+            {
+              "chdir" : "$contrib_dir",
+              "local": "${package_dir}\\cv_4.14_fix_viz.diff",
+            }
+          ]
         }
       }
     }

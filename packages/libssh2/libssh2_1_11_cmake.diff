@@ -1,0 +1,28 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6b51ac6..15e7f31 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -303,7 +303,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
+ 
+   find_package(OpenSSL ${_specific_crypto_requirement})
+ 
+-  if(OPENSSL_FOUND)
++  if(OpenSSL_FOUND)
+     set(CRYPTO_BACKEND "OpenSSL")
+     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
+     set(CRYPTO_BACKEND_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR})
+@@ -392,7 +392,13 @@ if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
+ 
+   find_package(MbedTLS ${_specific_crypto_requirement})
+ 
+-  if(MBEDTLS_FOUND)
++  if(MbedTLS_FOUND)
++    set(MBEDTLS_LIBRARIES
++      MbedTLS::mbedtls
++      MbedTLS::everest
++      MbedTLS::mbedcrypto
++      MbedTLS::mbedx509)
++    get_target_property(MBEDTLS_INCLUDE_DIRS MbedTLS::mbedtls INTERFACE_INCLUDE_DIRECTORIES)
+     set(CRYPTO_BACKEND "mbedTLS")
+     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")
+     set(CRYPTO_BACKEND_INCLUDE_DIR ${MBEDTLS_INCLUDE_DIRS})

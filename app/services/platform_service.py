@@ -81,6 +81,7 @@ class PlatformService:
         self.patch_exe: Path | None = None
         self.cargoc_exe: Path | None = None
         self.rustc_exe: Path | None = None
+        self.gclient_exe: Path | None = None
         self.qt_enable_default = False
         self.qt_msvc_dir_default: str = ""
 
@@ -199,6 +200,7 @@ class PlatformService:
             or not self.patch_exe
             or not self.cargoc_exe
             or not self.rustc_exe
+            or not self.gclient_exe
         ):
             mesg = ""
             mesg += "NASM not found.\n" if not self.nasm_exe else ""
@@ -214,6 +216,7 @@ class PlatformService:
             mesg += "Patch not found.\n" if not self.patch_exe else ""
             mesg += "Cargo-C not found.\n" if not self.cargoc_exe else ""
             mesg += "Rustc not found.\n" if not self.rustc_exe else ""
+            mesg += "gclient not found.\n" if not self.gclient_exe else ""
             return PlatformReason(code=ReasonCode.MISSING_EMBEDDED_TOOLS, message=mesg)
 
         return PlatformReason(code=ReasonCode.COMPLETE)
@@ -456,6 +459,9 @@ class PlatformService:
 
         if self.gitlfs_exe:
             path = ";".join([path, str(self.gitlfs_exe.parent)])
+
+        if self.gclient_exe:
+            path = ";".join([path, str(self.gclient_exe.parent)])
 
         return path[1:]
 
@@ -963,6 +969,25 @@ class PlatformService:
         qt_version = qt_dir.parent.name if qt_dir else None
         return (qt_dir, qt_version)
 
+    def _findGclient(self) -> Tuple[Path | None, str | None]:
+        gclient_exe = None
+        gclient_version = None
+        _exe = self.tools_rootdir / "depot_tools" / "depot_tools" / "gclient.bat"
+        if _exe.is_file():
+            gclient_exe = _exe
+        if not gclient_exe:
+            _exe = shutil.which("gclient.bat")
+            if _exe and Path(_exe).is_file():
+                gclient_exe = Path(_exe)
+        if not gclient_exe:
+            return (None, None)
+        shell = Shell()
+        result = shell.exec(f'"{gclient_exe}" sync --version', with_content=True, shell=True)
+        if not result.exitcode:
+            ver = result.stdout.split()
+            gclient_version = ver[3] if len(ver) >= 2 else None
+        return (gclient_exe, gclient_version)
+
     def _updateToolPath(self) -> None:
         Post.info("Checking for tools...")
 
@@ -1080,6 +1105,12 @@ class PlatformService:
         else:
             Post.warning("Not found Rustc.")
 
+        self.gclient_exe, version = self._findGclient()
+        if self.gclient_exe:
+            Post.info(f'Found gclient: {self.gclient_exe} (found version "{version}")')
+        else:
+            Post.warning("Not found gclient.")
+
     def get_package_files(self) -> list[Path]:
         files = list(self.package_rootdir.rglob("package.jsonc"))
         exclude_package_root = self.package_rootdir / "__sample__"
@@ -1106,6 +1137,8 @@ class PlatformService:
             pkgs.append(self.tools_rootdir / "patch" / "package.jsonc")
         if not self.cargoc_exe:
             pkgs.append(self.tools_rootdir / "cargo" / "package.jsonc")
+        if not self.gclient_exe:
+            pkgs.append(self.tools_rootdir / "depot_tools" / "package.jsonc")
         return pkgs
 
     def create_session_base(self, package: PackageModel | None = None, msvc_version: str | None = None) -> dict:

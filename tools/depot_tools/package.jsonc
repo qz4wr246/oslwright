@@ -1,0 +1,51 @@
+{
+  "name": "depot_tools",
+  "display": "depot_tools",
+  "description": "Tools for Chromium development.",
+  "site": "https://chromium.googlesource.com/chromium/tools/depot_tools",
+  "license": "BSD-3-Clause",
+  "process_time": 300,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{ $versions }}",
+      "default": "$latest_version"
+    }
+  ],
+  "versions": {
+    "default": {
+      "dep_url": "https://storage.googleapis.com/chrome-infra/depot_tools.zip",
+      "dep_cache": "$cache_rootdir\\gdepot_tools.zip",
+      "stages": {
+        "install": {
+          "scripts": [
+            {
+              "message": "Download $name",
+              "when": "{{not os.path.isfile($dep_cache)}}",
+              "chdir" : "$cache_rootdir",
+              "script": "curl.exe -L -s -o \"$dep_cache\" \"$dep_url\""
+            },
+            {
+              "message": "Extract $name",
+              "when": "{{not os.path.isdir(os.path.join($package_dir, 'depot_tools'))}}",
+              "script": "mkdir \"$package_dir\\depot_tools\" & tar -xf \"$dep_cache\" -C \"$package_dir\\depot_tools\"",
+              "fallback" : "rndir /q /s \"$package_dir\\depot_tools\""
+            },
+            {
+              "message": "initialize gclient",
+              "chdir": "$package_dir\\depot_tools",
+              "environments": {
+                "PATH": "$package_dir\\depot_tools;%PATH%"
+              },
+              "script": "gclient"
+            }
+          ]
+        }
+      }
+    },
+    "latest": {
+    }
+  }
+}

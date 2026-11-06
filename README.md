@@ -27,16 +27,19 @@ OSLwright は、Windows向けのC/C++オープンソースライブラリをス�
 # Requirements
 
 要求HWスペック
-* ディスクスペース 45GB(パッケージのフルビルド時)
+* ディスクスペース 約55GB(パッケージのフルビルド時)
 
 次のアプリケーションをインストールしてください。
 
 * Python 3.12.x [https://www.python.org/downloads/](https://www.python.org/downloads/)
-* Microsoft Visual Studio 2022 or higher [https://visualstudio.microsoft.com/ja/downloads/](https://visualstudio.microsoft.com/ja/downloads/)
+* Microsoft Visual Studio 2022 or higher [https://visualstudio.microsoft.com/ja/downloads/](https://visualstudio.microsoft.com/ja/downloads/)<br>
+  (言語パック：英語を追加インストールする)
 * CMake 4.3 or higher [https://cmake.org/download/](https://cmake.org/download/)
 * Git for Windows [https://gitforwindows.org/](https://gitforwindows.org/)
 * Git Large File Storage [https://git-lfs.com/](https://git-lfs.com/)
 * 7zip [https://www.7-zip.org/download.html](https://www.7-zip.org/download.html)
+* オプションで、Microsoft MPI [https://learn.microsoft.com/ja-jp/message-passing-interface/microsoft-mpi](https://learn.microsoft.com/ja-jp/message-passing-interface/microsoft-mpi)
+* オプションで、NVIDIA CUDA Toolkit,cuDNN,Video Codec SDK
 
 
 # Get Started

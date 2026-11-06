@@ -29,65 +29,52 @@ def get_assets_dir() -> Path:
 
 
 def Version(text):
-    # 数字と文字列の塊に分解
-    version_split = re.findall(r"\d+|[a-zA-Z]+", text)
+    text = text.strip()
+    parenthetical = re.search(r"\s+\(", text)
+    if parenthetical:
+        text = text[: parenthetical.start()]
 
-    prefix = ["v", "ver", "version", "vol"]
-    if version_split and version_split[0].lower() in prefix:
-        version_split = version_split[1:]
+    semver = re.fullmatch(
+        r"(?:v|ver(?:sion)?|vol)?"
+        r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
+        r"(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?"
+        r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?",
+        text,
+        re.IGNORECASE,
+    )
+    if semver:
+        major, minor, patch, prerelease = semver.groups()
+        core = tuple((0, int(part)) for part in (major, minor, patch))
+        prerelease_parts = (
+            tuple(
+                (0, int(part)) if part.isdecimal() else (1, part.lower())
+                for part in prerelease.split(".")
+            )
+            if prerelease
+            else ()
+        )
+        return core, 0 if prerelease else 1, prerelease_parts
 
-    # 実際に広く使われている標準的な優先順位（右にいくほど製品版に近い）
-    prerelease_str = [
-        "dev",
-        "a",
-        "alpha",
-        "b",
-        "beta",
-        "canary",
-        "pre",
-        "preview",
-        "rc",
-    ]
+    # Fall back to natural numeric/text ordering for non-SemVer package tags.
+    parts = re.findall(r"\d+|[a-zA-Z]+", text)
+    if parts and parts[0].lower() in {"v", "ver", "version", "vol"}:
+        parts = parts[1:]
 
-    numeric_parts = []
-    is_prerelease = False
-    prerelease_weight = -1  # プレリリースがない場合は -1
-    prerelease_num = 0
-
-    # 分解された要素の解析
-    for item in version_split:
-        if item.isdecimal():
-            if is_prerelease:
-                prerelease_num = int(item)
-            else:
-                numeric_parts.append(int(item))
+    core_parts = []
+    prerelease_parts = []
+    in_prerelease = False
+    for part in parts:
+        if not in_prerelease and part.isdecimal():
+            core_parts.append((0, int(part)))
+        elif not in_prerelease:
+            in_prerelease = True
+            prerelease_parts.append((1, part.lower()))
+        elif part.isdecimal():
+            prerelease_parts.append((0, int(part)))
         else:
-            is_prerelease = True
-            tag = item.lower()
-            if tag in prerelease_str:
-                # 表記揺れ（略称）の重みを統一する処理
-                if tag == "a":
-                    tag = "alpha"
-                elif tag == "b":
-                    tag = "beta"
-                elif tag == "pre":
-                    tag = "preview"
+            prerelease_parts.append((1, part.lower()))
 
-                # 統一したタグのインデックスを重み（優先度）とする
-                prerelease_weight = prerelease_str.index(tag)
-            else:
-                # リストにない未知の文字列は、最も低い優先度（-2）にする
-                prerelease_weight = -2
-
-    # タプルの長さを固定にするために、メジャー.マイナー.パッチの3要素に補正
-    while len(numeric_parts) < 3:
-        numeric_parts.append(0)
-
-    # 製品版フラグ: 製品版（プレリリースなし）を「1」、プレリリース版を「0」とする
-    release_flag = 0 if is_prerelease else 1
-
-    # (メジャー, マイナー, パッチ, 製品版フラグ, プレリリースの重み, プレリリース番号)
-    return tuple(numeric_parts[:3]) + (release_flag,) + (prerelease_weight, prerelease_num)
+    return tuple(core_parts), 0 if in_prerelease else 1, tuple(prerelease_parts)
 
 
 def add_path_env(path, new_paths_str):

@@ -95,6 +95,7 @@ def AppSettingPage():
                     ),
                     ft.IconButton(
                         icon=ft.Icons.FOLDER,
+                        disabled=controller.values[ui.name].disabled,
                         on_click=handle_select_folder,
                         data=ui.name,
                     ),
@@ -114,6 +115,7 @@ def AppSettingPage():
                     ),
                     ft.IconButton(
                         icon=ft.Icons.FOLDER,
+                        disabled=controller.values[ui.name].disabled,
                         on_click=handle_select_file,
                         data=ui.name,
                     ),
