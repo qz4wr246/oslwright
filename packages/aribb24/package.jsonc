@@ -176,12 +176,8 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-aribb24",
-          "patch_files": [
-            {
-              "remote": "$repo_url/001-no-undefined.patch"
-            }
-          ],
+          "repo_url":"",
+          "patch_files": [],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -363,6 +359,17 @@
         }
       }
     },
-    "1.0.3": {}
+    "1.0.3": {
+      "stages": {
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/9c489a0e25bbe5b9a9671af38e3dfbf506821e3c/mingw-w64-aribb24",
+          "patch_files": [
+            {
+              "remote": "$repo_url/001-no-undefined.patch"
+            }
+          ]
+        }
+      }
+    }
   }
 }

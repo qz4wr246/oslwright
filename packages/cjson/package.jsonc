@@ -150,12 +150,8 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-cjson",
-          "patch_files": [
-            {
-              "remote": "$repo_url/001-fix-cmake-files.patch"
-            }
-          ],
+          "repo_url":"",
+          "patch_files": [],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -269,6 +265,17 @@
         }
       }
     },
-    "1.7.19": {}
+    "1.7.19": {
+      "stages": {
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/175546750b12646d83a7f1f3f98f93e6a1ec23b3/mingw-w64-cjson",
+          "patch_files": [
+            {
+              "remote": "$repo_url/001-fix-cmake-files.patch"
+            }
+          ]
+        }
+      }
+    }
   }
 }

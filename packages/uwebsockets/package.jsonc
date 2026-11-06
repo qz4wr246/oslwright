@@ -103,7 +103,7 @@
     "default": {
       "dependencies": {
         "libdeflate": {
-          "version": ">1.25"
+          "version": ">=1.25"
         },
         "simdutf" : {
           "version": ">=9.1"
