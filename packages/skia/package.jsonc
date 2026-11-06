@@ -178,13 +178,13 @@
             {
               "message": "git clone.",
               "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
-              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse-submodules --shallow-submodules $git_url \"$source_dir\"",
+              "script": "(if not exist \"$base_dir\" mkdir \"$base_dir\") & git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse-submodules --shallow-submodules $git_url \"$source_dir\"",
               "fallback": "rmdir /q /s \"$source_dir\""
             },
             {
               "message": "copy .gclient",
               "when": "{{not os.path.isfile(os.path.join($base_dir, '.gclient'))}}",
-              "script": "if not exist \"$base_dir\" mkdir \"$base_dir\" & copy /y \"$package_dir\\gclient\" \"$base_dir\\\" >nul & ren \"$base_dir\\gclient\" .gclient"
+              "script": "(if not exist \"$base_dir\" mkdir \"$base_dir\") & copy /y \"$package_dir\\gclient\" \"$base_dir\\.gclient\""
             },
             {
               "message": "gclient sysc",
@@ -327,13 +327,13 @@
               "message":"fix fiddle_examples.ninja",
               "when": "{{'Debug' in $build_type and $using_external}}",
               "chdir": "$build_dir_debug\\obj",
-              "script": "for /R %i in (*.ninja) do perl -i -pe \"if (/^\\s*libs\\s*=/) { s/\\bpng\\b/png16.lib/g; s/\\bjpeg\\b/jpeg.lib/g; s/\\bz\\b/zlib.lib/g; s/\\bharfbuzz\\b(?!-)/harfbuzz.lib/g; s/\\bharfbuzz-subset\\b/harfbuzz.lib-subset/g; s/\\bwebp\\b/libwebp.lib/g; s/\\bwebpdemux\\b/libwebpdemux.lib/g; s/\\bwebpmux\\b/libwebpmux.lib/g; s/\\bexpat\\b/libexpat.lib/g; s/\\bicuuc\\b/icuuc.lib/g; }\" \"%i\""
+              "script": "for /R %i in (*.ninja) do perl -i -pe \"if (/^\\s*libs\\s*=/) { s/(?<!\\S)png(?!\\S)/png16.lib/g; s/(?<!\\S)jpeg(?!\\S)/jpeg.lib/g; s/(?<!\\S)z(?!\\S)/zlib.lib/g; s/(?<!\\S)harfbuzz-subset(?!\\S)/harfbuzz-subset.lib/g; s/(?!\\S)harfbuzz(?!\\S)/harfbuzz.lib/g; s/(?<!\\S)webp(?!\\S)/libwebp.lib/g; s/(?<!\\S)webpdemux(?!\\S)/libwebpdemux.lib/g; s/(?<!\\S)webpmux(?!\\S)/libwebpmux.lib/g; s/(?<!\\S)expat(?!\\S)/libexpat.lib/g; s/(?<!\\S)icuuc(?!\\S)/icuuc.lib/g; }\" \"%i\""
             },
             {
               "message":"fix fiddle_examples.ninja",
               "when": "{{'Release' in $build_type and $using_external}}",
               "chdir": "$build_dir_release\\obj",
-              "script": "for /R %i in (*.ninja) do perl -i -pe \"if (/^\\s*libs\\s*=/) { s/\\bpng\\b/png16.lib/g; s/\\bjpeg\\b/jpeg.lib/g; s/\\bz\\b/zlib.lib/g; s/\\bharfbuzz\\b(?!-)/harfbuzz.lib/g; s/\\bharfbuzz-subset\\b/harfbuzz.lib-subset/g; s/\\bwebp\\b/libwebp.lib/g; s/\\bwebpdemux\\b/libwebpdemux.lib/g; s/\\bwebpmux\\b/libwebpmux.lib/g; s/\\bexpat\\b/libexpat.lib/g; s/\\bicuuc\\b/icuuc.lib/g; }\" \"%i\""
+              "script": "for /R %i in (*.ninja) do perl -i -pe \"if (/^\\s*libs\\s*=/) { s/(?<!\\S)png(?!\\S)/png16.lib/g; s/(?<!\\S)jpeg(?!\\S)/jpeg.lib/g; s/(?<!\\S)z(?!\\S)/zlib.lib/g; s/(?<!\\S)harfbuzz-subset(?!\\S)/harfbuzz-subset.lib/g; s/(?<!\\S)harfbuzz(?!\\S)/harfbuzz.lib/g; s/(?<!\\S)webp(?!\\S)/libwebp.lib/g; s/(?<!\\S)webpdemux(?!\\S)/libwebpdemux.lib/g; s/(?<!\\S)webpmux(?!\\S)/libwebpmux.lib/g; s/(?<!\\S)expat(?!\\S)/libexpat.lib/g; s/(?<!\\S)icuuc(?!\\S)/icuuc.lib/g; }\" \"%i\""
             }
           ]
         },
@@ -503,7 +503,7 @@
             },
             {
               "local": "${package_dir}\\fix_gn_path.diff"
-            },
+            }
           ]
         }
       }

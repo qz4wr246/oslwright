@@ -157,8 +157,10 @@
           "cmake_options": [
             "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
             "-DEIGEN_BUILD_DOC=OFF",
+            "-DEIGEN_BUILD_BTL=OFF",
             "-DBUILD_TESTING=OFF",
-            "-DEIGEN_TEST_CXX11=OFF"
+            "-DEIGEN_TEST_CXX11=OFF",
+            "-DEIGEN_SPLIT_LARGE_TESTS=OFF"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""

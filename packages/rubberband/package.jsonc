@@ -154,12 +154,8 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-rubberband",
-          "patch_files": [
-            {
-              "remote": "$repo_url/001-use-system-memory-barrier-on-mingw.patch"
-            }
-          ],
+          "repo_url":"",
+          "patch_files": [],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -283,6 +279,17 @@
         }
       }
     },
-    "3.3.0": {}
+    "3.3.0": {
+      "stages": {
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/62308009e77d772a126313626b194e503b0e5135/mingw-w64-rubberband",
+          "patch_files": [
+            {
+              "remote": "$repo_url/001-use-system-memory-barrier-on-mingw.patch"
+            }
+          ]
+        }
+      }
+    }
   }
 }
