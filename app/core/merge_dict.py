@@ -55,7 +55,7 @@ def _mergeDict(lft: dict, rgt: dict) -> dict:
                 if cmd in ("a", "append"):  # append
                     lft[key].extend(val)
                 elif cmd in ("d", "delete"):  # delete
-                    lft.pop(key, None)
+                    lft[key] = [x for x in lft[key] if x not in val]
                 elif cmd in ("r", "replace"):  # replace
                     lft[key] = copy.deepcopy(val)
                 else:  # replace
