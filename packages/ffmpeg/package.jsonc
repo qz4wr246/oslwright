@@ -416,7 +416,8 @@
           "version": ">=1.8"
         },
         "x264": {
-          "enable": "{{$enable_gpl}}"
+          "enable": "{{$enable_gpl}}",
+          "version": ">=20250910"
         },
         "x265": {
           "enable": "{{$enable_gpl}}",

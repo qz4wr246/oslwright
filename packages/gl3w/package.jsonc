@@ -248,7 +248,13 @@
         }
       }
     },
-    "master@97a85e1": {},
-    "master@d5ba934": {}
+    "20250923": {
+      "git_tag": "master",
+      "git_hash": "97a85e1"
+    },
+    "20260817": {
+      "git_tag": "master",
+      "git_hash": "372e391"
+    }
   }
 }

@@ -176,11 +176,12 @@
           "version": ">=2.6"
         },
         "x264": {
-          "enable": "{{$with_x264}}"
+          "enable": "{{$with_x264}}",
+          "version": ">=20250910"
         },
         "x265": {
-          "version": ">=3.4",
-          "enable": "{{$with_x265}}"
+          "enable": "{{$with_x265}}",
+          "version": ">=3.4"
         },
         "libde265":{
            "version": ">=1.0"
