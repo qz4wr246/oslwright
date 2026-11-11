@@ -89,7 +89,7 @@
     {
       "display": "CUDA Version",
       "name": "cuda_version",
-      "enable": "cuda_enable",
+      "enable": "{{$cuda_enable}}",
       "type": "choice",
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
@@ -205,6 +205,19 @@
         },
         "brotli": {
           "version": ">=1.1"
+        },
+        "hdf5": {
+          "version": ">=2.2"
+        },
+        // NOTE: FlatBuffers is used only as an internal library; external libraries are not supported.
+        // "flatbuffers": {
+        //   "version": ">=25.12"
+        // },
+        "openjpeg": {
+          "version": ">=2.5"
+        },
+        "ogre": {
+          "version": ">=14.6"
         }
       },
       "environments": {
@@ -453,6 +466,10 @@
             {
               "chdir" : "$contrib_dir",
               "local": "${package_dir}\\cv_4.14_fix_viz.diff"
+            },
+            {
+              "chdir" : "$contrib_dir",
+              "local": "${package_dir}\\cv_4.14-hdf_cmake.diff"
             }
           ]
         }
@@ -495,6 +512,9 @@
           "patch_files_02": [
             {
               "local": "${package_dir}\\cv_5.1.0-gapi-gstreamer-chrono.diff"
+            },
+            {
+              "local": "${package_dir}\\cv_4.14-hdf_cmake.diff"
             }
           ],
           "scripts!replace": [
