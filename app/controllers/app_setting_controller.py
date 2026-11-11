@@ -86,6 +86,14 @@ class AppSettingController:
                 "default": self.default_setting.values["cuda_version_default"],
             },
             {
+                "display": "cuDNN Version",
+                "name": "cudnn_version_default",
+                "enable": "{{$cuda_enable_default}}",
+                "type": "choice",
+                "items": self.platform_service.cudnn_versions,
+                "default": self.default_setting.values["cudnn_version_default"],
+            },
+            {
                 "display": "Using Qt",
                 "name": "qt_enable_default",
                 "enable": self.platform_service.qt_enable_default,

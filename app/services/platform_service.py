@@ -109,6 +109,12 @@ class PlatformService:
         self.cuda_version_default = None
         self.cuda_latest_version = None
         self.cuda_path_default = None
+        self.cudnn_root = None
+        self.cudnn_versions = None
+        self.cudnn_version_default = None
+        self.cudnn_latest_version = None
+        self.cudnn_path_default = None
+
         self.app_setting = None
         self.reason = PlatformReason(code=ReasonCode.UNINITIALIZED)
 
@@ -150,6 +156,14 @@ class PlatformService:
             self.cuda_enable_default = True
             self.cuda_path_default = self._getCudaPath(self.cuda_latest_version)
             Post.gui(f"Found CUDA: {self.cuda_versions}")
+
+        self.cudnn_root = self._getCudaRoot()
+        self.cudnn_versions = self._getCudnnVersions()
+        if self.cudnn_versions:
+            self.cudnn_latest_version = self.cudnn_versions[-1]
+            self.cudnn_version_default = self.cudnn_latest_version
+            self.cudnn_path_default = self._getCudnnPath(self.cudnn_latest_version)
+            Post.gui(f"Found CUDNN: {self.cudnn_versions}")
 
         qt_msvc_dir, version = self._findQt()
         if qt_msvc_dir:
@@ -483,6 +497,27 @@ class PlatformService:
         if not cuda_path.is_dir():
             return None
         return cuda_path
+
+    def _getCudnnRoot(self) -> Path | None:
+        cudnn_root = Path(os.environ.get("ProgramFiles")) / "NVIDIA" / "CUDNN"  # type: ignore
+        if not cudnn_root.is_dir():
+            cudnn_root = Path(os.environ.get("ProgramFiles")) / "NVIDIA GPU Computing Toolkit" / "cuDNN"  # type: ignore
+        if not cudnn_root.is_dir():
+            return None
+        return cudnn_root
+
+    def _getCudnnVersions(self):
+        versions = []
+        vers = [os.path.basename(p.rstrip(os.sep))[1:] for p in glob.glob("v*", root_dir=self.cudnn_root)]
+        return natsorted(vers)
+
+    def _getCudnnPath(self, version: str) -> Path | None:
+        if not self.cudnn_root:
+            return None
+        cudnn_path = self.cudnn_root / f"v{version}"
+        if not cudnn_path.is_dir():
+            return None
+        return cudnn_path
 
     def _findGit(self) -> Tuple[Path | None, str | None]:
         git_exe = None
@@ -1173,6 +1208,10 @@ class PlatformService:
             "cuda_enable_default": self.app_setting.values["cuda_enable_default"],
             "cuda_version_default": self.app_setting.values["cuda_version_default"],
             "cuda_latest_version": self.cuda_latest_version,
+            "cudnn_root": str(self.cudnn_root),
+            "cudnn_versions": self.cudnn_versions,
+            "cudnn_version_default": self.app_setting.values["cudnn_version_default"],
+            "cudnn_latest_version": self.cudnn_latest_version,
             "visual_studio_infos": self.visual_studio_infos,
             "visual_studio_current": visual_studio,
             "msvc_toolset_versions": msvc_toolset_versions,
@@ -1216,6 +1255,7 @@ class PlatformService:
             "build_library_default": self.build_library_default,
             "cuda_enable_default": self.cuda_enable_default,
             "cuda_version_default": self.cuda_latest_version,
+            "cudnn_version_default": self.cudnn_latest_version,
             "qt_enable_default": self.qt_enable_default,
             "qt_msvc_dir_default": self.qt_msvc_dir_default,
         }

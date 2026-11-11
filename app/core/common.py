@@ -46,10 +46,7 @@ def Version(text):
         major, minor, patch, prerelease = semver.groups()
         core = tuple((0, int(part)) for part in (major, minor, patch))
         prerelease_parts = (
-            tuple(
-                (0, int(part)) if part.isdecimal() else (1, part.lower())
-                for part in prerelease.split(".")
-            )
+            tuple((0, int(part)) if part.isdecimal() else (1, part.lower()) for part in prerelease.split("."))
             if prerelease
             else ()
         )
@@ -134,3 +131,49 @@ def seconds_to_hms(seconds: int) -> str:
     hours, remainder = divmod(seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
     return "{}{:02}:{:02}:{:02}".format("-" if minus else "", int(hours), int(minutes), int(seconds))
+
+
+def cmpver(version: str, req_ver: str) -> bool:
+    """ """
+    reg = r"^\s*([><=]=?)?\s*([^\s,;]+)(\s*[,;]+\s*([><]=?)([\w.-]+))?$"
+
+    m = re.match(reg, req_ver)
+    if m is None:
+        return False
+
+    ope1 = m.group(1)
+    ver1 = m.group(2)
+    ope2 = m.group(4)
+    ver2 = m.group(5)
+
+    result = False
+    if not ver1:
+        return False
+
+    if not ope1 and ver1 and ope2 is None:
+        return True if ver1 == version else False
+    else:
+        if ope1 == "=" or ope1 == "==":
+            result = True if ver1 == version else False
+        elif ope1 == "<=":
+            result = True if Version(version) <= Version(ver1) else False
+        elif ope1 == ">=":
+            result = True if Version(version) >= Version(ver1) else False
+        elif ope1 == "<":
+            result = True if Version(version) < Version(ver1) else False
+        elif ope1 == ">":
+            result = True if Version(version) > Version(ver1) else False
+
+    if ope2 and ver2:
+        if ope2 == "=" or ope2 == "==":
+            result &= True if ver2 == version else False
+        elif ope2 == "<=":
+            result &= True if Version(version) <= Version(ver2) else False
+        elif ope2 == ">=":
+            result &= True if Version(version) >= Version(ver2) else False
+        elif ope2 == "<":
+            result &= True if Version(version) < Version(ver2) else False
+        elif ope2 == ">":
+            result &= True if Version(version) > Version(ver2) else False
+
+    return result
