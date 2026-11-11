@@ -224,17 +224,7 @@
           ]
         },
         "patch": {
-          "patch_files": [
-            // { // This patch is required for Meson version 1.8.5.
-            //   "local": "${package_dir}\\gl_mkenum_py13.diff"
-            // },
-            {
-              "local": "${package_dir}\\vulkan_mkenum.py.diff"
-            },
-            {
-              "local": "${package_dir}\\fix_generate_plugins_path.diff"
-            }
-          ],
+          "patch_files": [],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -392,33 +382,21 @@
         }
       }
     },
-    // "1.24.13": {
-    //   // Meson version 1.8.5 is required to build this.
-    //   // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
-    //   "dependencies": {
-    //     "ffmpeg": {
-    //       "version": ">=6.1;<7.0"
-    //     }
-    //   },
-    //   "stages": {
-    //     "patch": {
-    //       "patch_files!append": [
-    //         {
-    //           "local": "${package_dir}\\fix_vpx_meson_build-1.24.13.diff"
-    //         }
-    //       ]
-    //     }
-    //   }
-    // },
     "1.28.8": {
       "dependencies": {
         "ffmpeg": {
-          "version": ">=8.1;<8.2"
+          "version": ">=8.1;<9.0"
         }
       },
       "stages": {
         "patch": {
           "patch_files!append": [
+            {
+              "local": "${package_dir}\\vulkan_mkenum.py.diff"
+            },
+            {
+              "local": "${package_dir}\\fix_generate_plugins_path.diff"
+            },
             {
               "local": "${package_dir}\\fix_gst-plugins-bad_ext_aom_gstav1dec_c.diff"
             },

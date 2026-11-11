@@ -164,7 +164,6 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MSYS2-packages/refs/heads/master/libiconv",
           "patch_files": [],
           "scripts": [
             {
@@ -326,9 +325,6 @@
     },
     "1.74.1": {  // grpc ver 1.74.1 is compatible with abseil-cpp ver 20250512.1, protobuf ver 31.1.
       "dependencies": {
-        "abseil-cpp":{
-          "version": "==20250512.1"   // grpc ver 1.74.1 is compatible with abseil-cpp ver 20250512.1
-        },
         "protobuf": {
           "version": "==31.1"        // grpc ver 1.74.1 is compatible with protobuf ver 31.1
         }
@@ -343,18 +339,17 @@
         }
       }
     },
-    "1.84.0": {  // grpc ver 1.84.0 is compatible with abseil-cpp ver 20250512.1, protobuf ver 35.1.
+    "1.84.2": { // grpc ver 1.84.x is compatible with abseil-cpp ver 20250512.1, protobuf ver 35.1.
       "dependencies": {
-        "abseil-cpp":{
-          "version": "==20250512.1"   // grpc ver 1.84.0  is compatible with abseil-cpp ver 20250512.1
-        },
         "protobuf": {
-          "version": "==35.1"        // grpc ver 1.84.0  is compatible with protobuf ver 35.1
+          "version": "==35.1"        // grpc ver 1.84.x is compatible with protobuf ver 35.1
         }
-      },
-      "stages":{
-        "patch": {
-          "patch_files": []
+      }
+    },
+    "1.85.1": { // grpc ver 1.85.x is compatible with abseil-cpp ver 20260526.0, protobuf ver 35.1.
+      "dependencies": {
+        "protobuf": {
+          "version": "==35.1"        // grpc ver 1.85.x is compatible with protobuf ver 35.1
         }
       }
     }

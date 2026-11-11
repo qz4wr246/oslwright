@@ -106,7 +106,8 @@
     "default": {
       "dependencies": {
         "abseil-cpp": {
-          "version": ">=20240722.0"
+          // "version": ">=20240722.0"
+          "version": "==20260526.0"
         },
         "icu4c":{
           "enable": "{{$with_icu}}",

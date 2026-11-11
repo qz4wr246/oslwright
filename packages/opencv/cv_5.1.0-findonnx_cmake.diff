@@ -1,0 +1,16 @@
+diff --git a/cmake/FindONNX.cmake b/cmake/FindONNX.cmake
+index e162cde..b4ba3e6 100644
+--- a/cmake/FindONNX.cmake
++++ b/cmake/FindONNX.cmake
+@@ -46,9 +46,9 @@ if(__ort_target)
+   if(ORT_INCLUDE AND NOT IS_DIRECTORY "${ORT_INCLUDE}")
+     list(GET ORT_INCLUDE 0 ORT_INCLUDE)
+   endif()
+-  get_target_property(ORT_LIB ${__ort_target} IMPORTED_LOCATION)
++  get_target_property(ORT_LIB ${__ort_target} IMPORTED_IMPLIB)
+   if(NOT ORT_LIB)
+-    get_target_property(ORT_LIB ${__ort_target} IMPORTED_LOCATION_RELEASE)
++    get_target_property(ORT_LIB ${__ort_target} IMPORTED_IMPLIB_RELEASE)
+   endif()
+   if(NOT ORT_LIB)
+     get_target_property(ORT_LIB ${__ort_target} LOCATION)
