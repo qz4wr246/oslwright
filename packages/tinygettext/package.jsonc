@@ -247,7 +247,7 @@
         }
       }
     },
-    "0.0.1-pre01": {
+    "0.1.0-20260110": {
       "git_tag": "master",
       "git_hash":"a1ccbc9",
       "dependencies": {
@@ -266,7 +266,7 @@
         }
       }
     },
-    "0.0.1-pre02": {
+    "0.1.0-20260810": {
       "git_tag": "master",
       "git_hash":"0ebef71",
       "dependencies": {

@@ -89,10 +89,18 @@
     {
       "display": "CUDA Version",
       "name": "cuda_version",
-      "enable": "cuda_enable",
+      "enable": "{{$cuda_enable}}",
       "type": "choice",
       "items": "{{$cuda_versions}}",
       "default": "{{$cuda_version_default}}"
+    },
+    {
+      "display": "CUDNN Version",
+      "name": "cudnn_version",
+      "enable": "{{$cuda_enable}}",
+      "type": "choice",
+      "items": "{{$cudnn_versions}}",
+      "default": "{{$cudnn_version_default}}"
     },
     {
       "display": "With FFmpeg",
@@ -116,6 +124,18 @@
       "name": "with_vtk",
       "type": "bool",
       "default": true
+    },
+    {
+      "display": "With ONNX Runtime",
+      "name": "with_onnxruntime",
+      "enable": "{{cmpver($version, '>=5.1.0')}}",
+      "type": "choice",
+        "items": [
+        "none",
+        "internal",
+        "external"
+      ],
+      "default": "external"
     },
     {
       "display": "With Qt",
@@ -185,11 +205,26 @@
         },
         "brotli": {
           "version": ">=1.1"
+        },
+        "hdf5": {
+          "version": ">=2.2"
+        },
+        // NOTE: FlatBuffers is used only as an internal library; external libraries are not supported.
+        // "flatbuffers": {
+        //   "version": ">=25.12"
+        // },
+        "openjpeg": {
+          "version": ">=2.5"
+        },
+        "ogre": {
+          "version": ">=14.6"
         }
       },
       "environments": {
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+        "CUDNN_PATH": "{{'' if not $cuda_enable else (os.path.join($cudnn_root, f'v{$cudnn_version}') if $cudnn_root else os.path.join($cuda_root, f'v{$cuda_version}'))}}",
+        "CUDNN_INCLUDE_DIR": "{{os.path.join($cudnn_root, f'v{$cudnn_version}', 'include') if $cuda_enable and $cudnn_root else ''}}",
+        "CUDNN_LIBRARY": "{{os.path.join($cudnn_root, f'v{$cudnn_version}', 'lib', 'x64', 'cudnn.lib') if $cuda_enable and $cudnn_root else ''}}"
       },
       "base_dir": "${source_rootdir}\\${name}-${version}",
       "source_dir": "${base_dir}\\${name}",
@@ -207,6 +242,8 @@
       "git_contrib_url" : "https://github.com/opencv/opencv_contrib",
       "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "msys2_dir" : "${tools_rootdir}\\msys2\\msys64",
+      "msys2_runtime_dir": "${msys2_dir}\\ucrt64\\bin",
       "stages": {
         "download": {
           "scripts": [
@@ -274,12 +311,7 @@
           ]
         },
         "patch": {
-          "patch_files": [
-            {
-              "chdir" : "$source_dir",
-              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
-            }
-          ],
+          "patch_files": [],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -352,7 +384,7 @@
           ]
         },
         "build": {
-          "protoc_depdll_paths": "{{';'.join([path for path in dependent_dlls_release.split(';') if 'zlib' in path or 'abseil-cpp' in path])}}",
+          "protoc_depdll_paths": "{{';'.join([path for path in dependent_dlls_release.split(';') if 'zlib' in path or 'abseil-cpp' in path]+[$msys2_runtime_dir])}}",
           "scripts": [
             {
               "message": "build for debug.",
@@ -407,81 +439,15 @@
         }
       }
     },
-    "4.12.0": {  // OpenCV ver 4.12.0 is compatible with GStreamer ver 1.24 , FFmpeg ver 6.x.
-      "dependencies": {
-        "abseil-cpp":{
-          "version": "==20250512.1"
-        },
-        "protobuf": {
-          "version": "==31.1"
-        },
-        "ffmpeg": {
-          "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
-          "version": ">=6.1;<7.0",   // GStreamer ver 1.24.5 is compatible with FFmpeg ver 6.x.
-          "build_library": "shared"
-        },
-        "gstreamer": {
-          "enable": "{{$with_gstreamer}}",
-          "version": ">=1.24;<1.25",  // OpenCV ver 4.12.0 is compatible with GStreamer ver 1.24 , FFmpeg ver 6.x.
-          "build_library": "shared"
-        }
-      },
-      "stages": {
-        "patch": {
-          "patch_files!replace": [
-            {
-              "chdir" : "$source_dir",
-              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
-            }
-          ],
-        }
-      }
-    },
-    "4.13.0": {  // OpenCV ver 4.13.0 is compatible with GStreamer ver 1.28 , FFmpeg ver 8.1
-      "dependencies": {
-        "abseil-cpp":{
-          "version": "==20250512.1"
-        },
-        "protobuf": {
-          "version": "==31.1"
-        },
-        "ffmpeg": {
-          "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
-          "version": ">=8.1;<8.2",
-          "build_library": "shared"
-        },
-        "gstreamer": {
-          "enable": "{{$with_gstreamer}}",
-          "version": ">=1.28",
-          "build_library": "shared"
-        }
-      },
-      "stages": {
-        "patch": {
-          "patch_files!replace": [
-            {
-              "chdir" : "$source_dir",
-              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
-            },
-            {
-              "chdir" : "$contrib_dir",
-              "local": "${package_dir}\\cv_4.14_fix_viz.diff",
-            }
-          ]
-        }
-      }
-    },
     "4.14.0": {  // OpenCV ver 4.14.0 is compatible with GStreamer ver 1.28 , FFmpeg ver 8.1
+      "stable": true,
       "dependencies": {
-        "abseil-cpp":{
-          "version": "==20250512.1"
-        },
         "protobuf": {
           "version": "==35.1"
         },
         "ffmpeg": {
           "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
-          "version": ">=8.1;<8.2",
+          "version": ">=8.1;<9.0",
           "build_library": "shared"
         },
         "gstreamer": {
@@ -492,15 +458,86 @@
       },
       "stages": {
         "patch": {
-          "patch_files!replace": [
+          "patch_files": [
             {
               "chdir" : "$source_dir",
-              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff",
+              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff"
             },
             {
               "chdir" : "$contrib_dir",
-              "local": "${package_dir}\\cv_4.14_fix_viz.diff",
+              "local": "${package_dir}\\cv_4.14_fix_viz.diff"
+            },
+            {
+              "chdir" : "$contrib_dir",
+              "local": "${package_dir}\\cv_4.14-hdf_cmake.diff"
             }
+          ]
+        }
+      }
+    },
+    "5.1.0": {
+      "dependencies": {
+        "protobuf": {
+          "version": "==35.1"
+        },
+        "ffmpeg": {
+          "enable": "{{$with_gstreamer or $with_ffmpeg =='external'}}",
+          "version": ">=8.1;<9.0",
+          "build_library": "shared"
+        },
+        "gstreamer": {
+          "enable": "{{$with_gstreamer}}",
+          "version": ">=1.28",
+          "build_library": "shared"
+        },
+        "onnxruntime": {
+          "enable": "{{$with_onnxruntime == 'external'}}",
+          "version": ">=1.31"
+        }
+      },
+      "stages": {
+        "patch": {
+          "repo_url": "https://raw.githubusercontent.com/msys2/MINGW-packages/ed5c7b67d74fbddab21d31b3dc97fc7f2bd5c7f2/mingw-w64-opencv",
+          "patch_files_01": [
+            {
+              "local": "${package_dir}\\cv_4.12_cmake_pkgconfig.diff"
+            },
+            {
+              "local": "${package_dir}\\cv_5.1.0-imagecodecs_grfmt_avif.diff"
+            },
+            {
+              "local": "${package_dir}\\cv_5.1.0-findonnx_cmake.diff"
+            }
+          ],
+          "patch_files_02": [
+            {
+              "local": "${package_dir}\\cv_5.1.0-gapi-gstreamer-chrono.diff"
+            },
+            {
+              "local": "${package_dir}\\cv_4.14-hdf_cmake.diff"
+            }
+          ],
+          "scripts!replace": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files_01 if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
+            },
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} contrib code",
+              "chdir": "$contrib_dir",
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files_02 if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
+            }
+          ]
+        },
+        "configure": {
+          "cmake_options!append": [
+            "-DOPENCV_FFMPEG_USE_FIND_PACKAGE={{'ON' if $with_ffmpeg =='external' else 'OFF'}}",
+            "-DWITH_ONNXRUNTIME={{'ON' if $with_onnxruntime != 'none' else 'OFF'}}",
+            "-DDOWNLOAD_ONNXRUNTIME={{'ON' if $with_onnxruntime == 'internal' else 'OFF'}}",
+            "-DONNXRUNTIME_PREFER_STATIC={{'ON' if $with_onnxruntime == 'internal' else 'OFF'}}",
           ]
         }
       }

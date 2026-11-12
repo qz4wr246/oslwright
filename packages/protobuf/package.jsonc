@@ -283,10 +283,10 @@
       }
     },
     "35.1": {
-      // grpc ver 1.84.0 is compatible with abseil-cpp ver 20250512.1, protobuf ver 35.1.
+      // grpc ver 1.84.1 is compatible with abseil-cpp ver 20260526.0, protobuf ver 35.1.
       "dependencies": {
         "abseil-cpp": {
-          "version": "==20250512.1" // protobuf ver 35.1 is compatible with abseil-cpp ver 20250512.1
+          "version": "==20260526.0" // protobuf ver 35.1 is compatible with abseil-cpp ver 20260526.0
         }
       }
     }

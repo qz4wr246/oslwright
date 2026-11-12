@@ -1,0 +1,21 @@
+diff --git a/modules/gapi/src/streaming/gstreamer/gstreamersource.cpp b/modules/gapi/src/streaming/gstreamer/gstreamersource.cpp
+index 9fb1572..587e90a 100644
+--- a/modules/gapi/src/streaming/gstreamer/gstreamersource.cpp
++++ b/modules/gapi/src/streaming/gstreamer/gstreamersource.cpp
+@@ -4,6 +4,8 @@
+ //
+ // Copyright (C) 2021 Intel Corporation
+ 
++#include <chrono>
++
+ #include "gstreamer_buffer_utils.hpp"
+ 
+ #include "gstreamer_media_adapter.hpp"
+@@ -17,6 +19,7 @@
+ 
+ #include <opencv2/imgproc.hpp>
+ 
++
+ #ifdef HAVE_GSTREAMER
+ #include <gst/app/gstappsink.h>
+ #include <gst/gstbuffer.h>

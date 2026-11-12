@@ -357,9 +357,9 @@
           "enable": "{{$enable_gpl}}",
           "version": ">=3.3"
         },
-        "shaderc": {
-          "version": ">=2026.2"
-        },
+        // "shaderc": { // n9.0.x later are unsupported
+        //   "version": ">=2026.2"
+        // },
         "shine": {
           "version": ">=3.1"
         },
@@ -416,7 +416,8 @@
           "version": ">=1.8"
         },
         "x264": {
-          "enable": "{{$enable_gpl}}"
+          "enable": "{{$enable_gpl}}",
+          "version": ">=20250910"
         },
         "x265": {
           "enable": "{{$enable_gpl}}",
@@ -494,30 +495,8 @@
           ]
         },
         "patch": {
-          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/refs/heads/master/mingw-w64-ffmpeg",
-          "patch_files": [
-            {
-              "remote": "$repo_url/0005-Win32-Add-path-relocation-to-frei0r-plugins-search.patch"
-            },
-            {
-              "local": "$package_dir\\fix_ocio_wrapper_cpp.diff"
-            },
-            {
-              "chdir": "${msys2_dir}\\opt\\ucrt64\\bin",
-              "copy": "$package_dir\\sdl2-config"
-            },
-            {
-              "chdir": "${source_dir}\\libavfilter",
-              "copy": "$package_dir\\pathtools.h"
-            },
-            {
-              "chdir": "${source_dir}\\libavfilter",
-              "copy": "$package_dir\\pathtools.c"
-            },
-            {
-              "local": "$package_dir\\fix_configure_uavs3d_version.patch"
-            }
-          ],
+          "repo_url": "",
+          "patch_files": [],
           "scripts": [
             {
               // Patch Script: patching source code with patch_files
@@ -628,7 +607,7 @@
             "--enable-librsvg",           // enable SVG rasterization via librsvg [no]
             "{{'--enable-librubberband' if $enable_gpl else ''}}",     // enable rubberband needed for rubberband filter [no]
             "--enable-librtmp",           // enable RTMP[E] support via librtmp [no]
-            "--enable-libshaderc",        // enable runtime GLSL->SPIRV compilation via libshaderc [no]
+            // "--enable-libshaderc",        // enable runtime GLSL->SPIRV compilation via libshaderc [no] [< n9.0]
             "--enable-libshine",          // enable fixed-point MP3 encoding via libshine [no]
             //// "--enable-libsmbclient",      // (SAMBA is legacy.) enable Samba protocol via libsmbclient [no]
             "--enable-libsnappy",         // enable Snappy compression, needed for hap encoding [no]
@@ -853,19 +832,77 @@
         }
       }
     },
-    "6.1.4": {
-      "git_tag": "n6.1.4",
-      "dependencies": {
-        "sdl": {
-          "version": ">=2.30;<3.0" // GStreamer 1.24.5, ffmpeg 6.x is compatible with sdl 2.x.
-        }
-      }
-    },
     "8.1.3": {
+      "stable": true,
       "git_tag": "n8.1.3",
       "dependencies": {
         "sdl": {
           "version": ">=2.30;<3.0" // GStreamer 1.28.2, ffmpeg 8.x is compatible with sdl 2.x.
+        }
+      },
+      "stages": {
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/f6ae36581d8dd1f6878442575cc8471830b863ed/mingw-w64-ffmpeg",
+          "patch_files": [
+            {
+              "remote": "$repo_url/0005-Win32-Add-path-relocation-to-frei0r-plugins-search.patch"
+            },
+            { // fix include <unistd.h> for MSVC
+              "chdir": "${source_dir}\\libavfilter",
+              "copy": "$package_dir\\pathtools.h"
+            },
+            { // fix include <unistd.h> for MSVC
+              "chdir": "${source_dir}\\libavfilter",
+              "copy": "$package_dir\\pathtools.c"
+            },
+            {
+              "chdir": "${msys2_dir}\\opt\\ucrt64\\bin",
+              "copy": "$package_dir\\sdl2-config"
+            },
+            {
+              "local": "$package_dir\\fix_ocio_wrapper_cpp.diff"
+            },
+            {
+              "local": "$package_dir\\fix_configure_uavs3d_version.patch"
+            }
+          ]
+        }
+      }
+    },
+    "9.0.2": {
+      "git_tag": "n9.0.2",
+      "dependencies": {
+        "sdl": {
+          "version": ">=2.30;<3.0" // GStreamer 1.28.2, ffmpeg 8.x is compatible with sdl 2.x.
+        },
+        "shaderc!delete":{}
+      },
+      "stages": {
+        "patch": {
+          "repo_url":"https://raw.githubusercontent.com/msys2/MINGW-packages/d468dd4568d3c2e6f07deee83cfbffebe79ac033/mingw-w64-ffmpeg",
+          "patch_files": [
+            {
+              "remote": "$repo_url/0005-Win32-Add-path-relocation-to-frei0r-plugins-search.patch"
+            },
+            {  // fix include <unistd.h> for MSVC
+              "chdir": "${source_dir}\\libavfilter",
+              "copy": "$package_dir\\pathtools.h"
+            },
+            {  // fix include <unistd.h> for MSVC
+              "chdir": "${source_dir}\\libavfilter",
+              "copy": "$package_dir\\pathtools.c"
+            },
+            {
+              "chdir": "${msys2_dir}\\opt\\ucrt64\\bin",
+              "copy": "$package_dir\\sdl2-config"
+            },
+            {
+              "local": "$package_dir\\fix_ocio_wrapper_cpp.diff"
+            },
+            {
+              "local": "$package_dir\\fix_configure_uavs3d_version.patch"
+            }
+          ]
         }
       }
     }
