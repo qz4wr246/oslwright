@@ -155,11 +155,35 @@ def PackageOptionPage():
         )
         return container
 
+    base_names_set = set(
+        [
+            "version",
+            "msvc_version",
+            "msvc_toolset_version",
+            "build_arch",
+            "msvc_runtime_library",
+            "build_library",
+            "build_type",
+            "build_layout",
+            "cuda_enable",
+            "cuda_version",
+        ]
+    )
+    base_ui = [ui for ui in controller.option_ui if ui.name in base_names_set]
+    extend_ui = [ui for ui in controller.option_ui if ui.name not in base_names_set]
+
     layout = ft.Column(
         controls=[
             # OptionItem List
             ft.Column(
-                controls=[OptionItem(ui) for ui in controller.option_ui],
+                controls=[
+                    *([OptionItem(ui) for ui in base_ui]),
+                    *(
+                        ([ft.Divider(height=30, color=ft.Colors.TRANSPARENT)] + [OptionItem(ui) for ui in extend_ui])
+                        if len(extend_ui)
+                        else []
+                    ),
+                ],
                 auto_scroll=False,
                 scroll=ft.ScrollMode.ALWAYS,
                 expand=True,
