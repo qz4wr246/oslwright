@@ -6,7 +6,7 @@
   "license": "curl",
   "category": "network",
   "info": "info.md",
-  "process_time": 120,
+  "process_time": 100,
   "options": [
     {
       "display": "Version",
@@ -65,8 +65,7 @@
       "type": "choice",
       "items": [
         "Release",
-        "Debug",
-        "Release;Debug"
+        "Debug"
       ],
       "default": "Release"
     },
@@ -96,15 +95,33 @@
       "default": "{{$cuda_version_default}}"
     },
     {
+      "display": "Enable HTTP Only",
+      "name": "http_only_enable",
+      "type": "bool",
+      "default": true
+    },
+    {
       "display": "Using OpenSSL",
       "name": "openssl_enable",
-      "enable": false,
+      // "enable": false,
       "type": "bool",
       "default": true
     },
     {
       "display": "Using GnuTLS",
       "name": "gnutls_enable",
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "Using MbedTLS",
+      "name": "mbedtls_enable",
+      "type": "bool",
+      "default": false
+    },
+    {
+      "display": "Using wolfSSL",
+      "name": "wolfssl_enable",
       "type": "bool",
       "default": false
     },
@@ -118,8 +135,20 @@
       "display": "TLS backend",
       "name": "tls_backend",
       "type": "choice",
-      "items": "{{[name for name, enable in [('openssl', $openssl_enable), ('gnutls', $gnutls_enable), ('schannel', $schannel_enable)] if enable]}}",
-      "default": "{{next((name for name, enable in [('openssl', $openssl_enable), ('gnutls', $gnutls_enable), ('schannel', $schannel_enable)] if enable), None)}}"
+      "items": "{{[name for name, enable in [('openssl', $openssl_enable), ('gnutls', $gnutls_enable), ('wolfssl', $wolfssl_enable), ('mbedtls', $mbedtls_enable), ('schannel', $schannel_enable)] if enable]}}",
+      "default": "{{next((name for name, enable in [('openssl', $openssl_enable), ('gnutls', $gnutls_enable), ('wolfssl', $wolfssl_enable), ('mbedtls', $mbedtls_enable), ('schannel', $schannel_enable)] if enable), None)}}"
+    },
+    {
+      "display": "Enable HTTP/2",
+      "name": "http2_enable",
+      "type": "bool",
+      "default": true
+    },
+    {
+      "display": "Enable HTTP/3",
+      "name": "http3_enable",
+      "type": "bool",
+      "default": true
     }
   ],
   "versions": {
@@ -133,6 +162,14 @@
           "enable": "{{$gnutls_enable}}",
           "version": ">=3.8;<=3.9"
         },
+        "mbedtls": {
+          "enable": "{{$mbedtls_enable}}",
+          "version": ">=3.6"
+        },
+        "wolfssl": {
+          "enable": "{{$wolfssl_enable}}",
+          "version": ">=5.9"
+        },
         "brotli": {
           "version": ">=1.1"
         },
@@ -141,6 +178,21 @@
         },
         "zstd": {
           "version": ">=1.5"
+        },
+        "libpsl" : {
+          "version": ">=0.23"
+        },
+        "nghttp2": {
+          "enable": "{{$http2_enable}}",
+          "version": ">=1.71"
+        },
+        "ngtcp2": {
+          "enable": "{{$http3_enable}}",
+          "version": ">=1.26"
+        },
+        "nghttp3": {
+          "enable": "{{$http3_enable}}",
+          "version": ">=1.19"
         }
       },
       "source_dir": "${source_rootdir}\\${name}-${version}",
@@ -153,7 +205,7 @@
       "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
       "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
       "git_url": "https://github.com/curl/curl.git",
-      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'curl-' + $version.replace('.','_')}}",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
       "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
       "stages": {
         "download": {
@@ -193,19 +245,26 @@
           "cmake_genarator": "-G \"Ninja Multi-Config\"",
           "cmake_options": [
             "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON",
-            "-DCMAKE_DEBUG_POSTFIX=d",
             "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DCURL_CA_NATIVE=ON",
-            "-DCURL_ENABLE_SSL={{'ON' if $openssl_enable or $gnutls_enable or $schannel_enable else 'OFF'}}",
-            "-DCURL_USE_OPENSSL={{'ON' if $openssl_enable else 'OFF'}}",
-            "-DCURL_USE_GNUTLS={{'ON' if $gnutls_enable else 'OFF'}}",
-            "-DCURL_USE_SCHANNEL={{'ON' if $schannel_enable else 'OFF'}}",
-            "{{f'-DCURL_DEFAULT_SSL_BACKEND=\"{$tls_backend}\"' if $tls_backend is not None else ''}}",
             "-DCMAKE_C_FLAGS=\"/DNETTLE_VERSION_MAJOR=3\"",
             "-DCURL_USE_PKGCONFIG=OFF",
+            "-DCURL_CA_NATIVE=ON",
+            "-DCURL_ENABLE_SSL={{'ON' if $openssl_enable or $gnutls_enable or $wolfssl_enable or $mbedtls_enable or $schannel_enable else 'OFF'}}",
+            "-DCURL_USE_OPENSSL={{'ON' if $openssl_enable else 'OFF'}}",
+            "-DOPENSSL_USE_STATIC_LIBS='OFF'",
+            "-DCURL_USE_GNUTLS={{'ON' if $gnutls_enable else 'OFF'}}",
+            "-DCURL_USE_WOLFSSL={{'ON' if $wolfssl_enable else 'OFF'}}",
+            "-DCURL_USE_MBEDTLS={{'ON' if $mbedtls_enable else 'OFF'}}",
+            "-DCURL_USE_SCHANNEL={{'ON' if $schannel_enable else 'OFF'}}",
+            "{{f'-DCURL_DEFAULT_SSL_BACKEND=\"{$tls_backend}\"' if $tls_backend is not None else ''}}",
+            "-DCURL_USE_LIBPSL=ON",
+            "-DUSE_NGHTTP2={{'ON' if $http2_enable else 'OFF'}}",
+            "-DUSE_NGTCP2={{'ON' if $http3_enable else 'OFF'}}",
+            "-DUSE_NGHTTP3={{'ON' if $http3_enable else 'OFF'}}",
+            "-DHTTP_ONLY={{'ON' if $http_only_enable else 'OFF'}}",
             "-DCURL_BROTLI=ON",
             "-DCURL_ZSTD=ON",
             "-DBUILD_LIBCURL_DOCS=OFF",
@@ -296,6 +355,11 @@
         }
       }
     },
-    "8.10.1": {}
+    "8.10.1": {
+      "git_tag": "curl-8_10_1"
+    },
+    "8.23.0": {
+      "git_tag": "curl-8_23_0"
+    }
   }
 }

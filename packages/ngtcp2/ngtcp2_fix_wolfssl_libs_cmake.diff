@@ -1,0 +1,12 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b42a5b4..1b1d293 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -290,6 +290,7 @@ endif()
+ # wolfSSL (required for libngtcp2_crypto_wolfssl)
+ if(ENABLE_WOLFSSL)
+   set(WOLFSSL_INCLUDE_DIRS  ${WOLFSSL_INCLUDE_DIR})
++  set(WOLFSSL_LIBRARIES "wolfssl::wolfssl")
+   set(HAVE_WOLFSSL TRUE)
+   set(HAVE_CRYPTO TRUE)
+ else()
