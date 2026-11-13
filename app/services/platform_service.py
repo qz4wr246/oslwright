@@ -1242,6 +1242,8 @@ class PlatformService:
                 "dependent_dlls_debug": "",
                 "pkg_config_path_release": "",
                 "pkg_config_path_debug": "",
+                "cuda_enable": False,
+                "cuda_version": None,
             }
         session |= plat_vers
         return session
