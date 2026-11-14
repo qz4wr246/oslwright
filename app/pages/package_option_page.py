@@ -167,6 +167,7 @@ def PackageOptionPage():
             "build_layout",
             "cuda_enable",
             "cuda_version",
+            "cudnn_version",
         ]
     )
     base_ui = [ui for ui in controller.option_ui if ui.name in base_names_set]
