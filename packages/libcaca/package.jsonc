@@ -80,21 +80,6 @@
         "separation"
       ],
       "default": "separation"
-    },
-    {
-      "display": "Using CUDA",
-      "name": "cuda_enable",
-      "enable": false,
-      "type": "bool",
-      "default": false
-    },
-    {
-      "display": "CUDA Version",
-      "name": "cuda_version",
-      "enable": "{{$cuda_enable}}",
-      "type": "choice",
-      "items": "{{$cuda_versions}}",
-      "default": "{{$cuda_version_default}}"
     }
   ],
   "versions": {
@@ -146,8 +131,7 @@
         "ac_cv_func_sprintf_s": "yes",
         "ac_cv_func_vsnprintf_s": "yes",
         "PERLIO": "raw",
-        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+
       },
       "stages": {
         "download": {

@@ -97,15 +97,17 @@
   ],
   "versions": {
     "default": {
-      // "dependencies": {
+      "dependencies": {
       //   "ggml": { // No need for external libraries, building a bundled.
       //     "version": ">=0.15"
       //   }
-      // },
+      },
       "environments": {
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+        "CUDNN_PATH": "{{'' if not $cuda_enable else (os.path.join($cudnn_root, f'v{$cudnn_version}') if $cudnn_root else os.path.join($cuda_root, f'v{$cuda_version}'))}}",
+        "CUDNN_INCLUDE_DIR": "{{os.path.join($cudnn_root, f'v{$cudnn_version}', 'include') if $cuda_enable and $cudnn_root else ''}}",
+        "CUDNN_LIBRARY": "{{os.path.join($cudnn_root, f'v{$cudnn_version}', 'lib', 'x64', 'cudnn.lib') if $cuda_enable and $cudnn_root else ''}}"
       },
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",

@@ -80,21 +80,6 @@
       "default": "union"
     },
     {
-      "display": "Using CUDA",
-      "name": "cuda_enable",
-      "enable": false,
-      "type": "bool",
-      "default": false
-    },
-    {
-      "display": "CUDA Version",
-      "name": "cuda_version",
-      "enable": "{{$cuda_enable}}",
-      "type": "choice",
-      "items": "{{$cuda_versions}}",
-      "default": "{{$cuda_version_default}}"
-    },
-    {
       "display": "Using OpenSSL",
       "name": "openssl_enable",
       "type": "bool",
@@ -130,9 +115,7 @@
         },
       },
       "environments": {
-        "PERLIO": "raw",
-        "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+        "PERLIO": "raw"
       },
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",

@@ -458,7 +458,9 @@
         "MSYS2_PATH_TYPE": "inherit",
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+        "CUDNN_PATH": "{{'' if not $cuda_enable else (os.path.join($cudnn_root, f'v{$cudnn_version}') if $cudnn_root else os.path.join($cuda_root, f'v{$cuda_version}'))}}",
+        "CUDNN_INCLUDE_DIR": "{{os.path.join($cudnn_root, f'v{$cudnn_version}', 'include') if $cuda_enable and $cudnn_root else ''}}",
+        "CUDNN_LIBRARY": "{{os.path.join($cudnn_root, f'v{$cudnn_version}', 'lib', 'x64', 'cudnn.lib') if $cuda_enable and $cudnn_root else ''}}"
       },
       "stages": {
         "download": {
