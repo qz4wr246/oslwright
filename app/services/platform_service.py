@@ -1178,11 +1178,11 @@ class PlatformService:
 
     def create_session_base(self, package: PackageModel | None = None, msvc_version: str | None = None) -> dict:
         if msvc_version:
+            msvc_version = self.app_setting.values["msvc_version_default"]
             visual_studio = next((vc for vc in self.visual_studio_infos if vc.generator == msvc_version), None)
             msvc_toolset_versions = [v.name for v in visual_studio.msvc_toolset_versions]
             msvc_toolset_version_default = visual_studio.msvc_toolset_version_default.name
-            msvc_version_default = msvc_version
-            msvc_version = msvc_version
+            msvc_version_default = visual_studio.generator
             msvc_generator = msvc_version
 
         else:
@@ -1191,8 +1191,7 @@ class PlatformService:
             msvc_toolset_versions = [v.name for v in visual_studio.msvc_toolset_versions]
             msvc_toolset_version_default = self.app_setting.values["msvc_toolset_version_default"]
             msvc_version_default = visual_studio.generator
-            msvc_version = visual_studio.generator
-            msvc_generator = visual_studio.generator
+            msvc_generator = msvc_version
 
         plat_vers = {
             "rootdir": self.rootdir,
@@ -1224,8 +1223,8 @@ class PlatformService:
             "msvc_versions": [msvc.generator for msvc in self.visual_studio_infos],
             "msvc_version": msvc_generator,
             "python_exe": str(self.python_exe),
-            "qt_enable_default": self.qt_enable_default,
-            "qt_msvc_dir_default": self.qt_msvc_dir_default,
+            "qt_enable_default": self.app_setting.values["qt_enable_default"],
+            "qt_msvc_dir_default": self.app_setting.values["qt_msvc_dir_default"],
         }
         session = {}
         if package:

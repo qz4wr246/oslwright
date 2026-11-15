@@ -549,18 +549,44 @@ class BuildService:
         sorted_nodes.reverse()
         return sorted_nodes
 
+    def gen_base_option(self, option: PackageOptionModel) -> dict:
+        app_setting = copy.copy(self.platform_service.app_setting)
+        base_opt = {
+            "msvc_version": app_setting.values["msvc_version_default"],
+            "msvc_toolset_version": app_setting.values["msvc_toolset_version_default"],
+            "build_arch": app_setting.values["build_arch_default"],
+            "msvc_runtime_library": app_setting.values["msvc_runtime_library_default"],
+            "build_library": app_setting.values["build_library_default"],
+            "cuda_enable": app_setting.values["cuda_enable_default"],
+            "cuda_version": app_setting.values["cuda_version_default"],
+            "cudnn_version": app_setting.values["cudnn_version_default"],
+            "qt_enable": app_setting.values["qt_enable_default"],
+            "qt_msvc_dir": app_setting.values["qt_msvc_dir_default"],
+        }
+
+        options = option.versions[option.current_version].options
+
+        keep_keys = set(["msvc_version", "msvc_toolset_version", "build_arch", "msvc_runtime_library", "build_library"])
+        if options["build_library"] == "interface":
+            return {k: v for k, v in base_opt.items() if k in keep_keys}
+        else:
+            return {k: options.get(k, v) for k, v in base_opt.items() if k in options or k in keep_keys}
+
     def get_package_dependencies(self, package: "PackageModel", option: PackageOptionModel) -> List[NodeModel]:
         """
         依存関係リストを取得。巡回参照（無限ループ）は例外を発生させる。
         """
+
+        base_opt = self.gen_base_option(option)
         return self.get_package_dependencies_recursive(
-            package, option, parent=None, visited=set(), stack=set(), result=[]
+            package, option, base_opt, parent=None, visited=set(), stack=set(), result=[]
         )
 
     def get_package_dependencies_recursive(
         self,
         package: "PackageModel",
         option: PackageOptionModel,
+        base_option: Dict[str, Any],
         parent: Optional[NodeModel] = None,
         visited: Optional[Set[int]] = None,
         stack: Optional[Set[int]] = None,
@@ -601,7 +627,7 @@ class BuildService:
 
         # 子ノード（依存先）の探索
         parent_option = parent.option if parent else None
-        cond_reqs = self.get_cond_of_requests(package, option, parent_option)
+        cond_reqs = self.get_cond_of_requests(package, option, base_option)
 
         for name, cond in cond_reqs.items():
             try:
@@ -612,7 +638,7 @@ class BuildService:
 
             if child_pkg and child_opt:
                 self.get_package_dependencies_recursive(
-                    child_pkg, child_opt, parent=node, visited=visited, stack=stack, result=result
+                    child_pkg, child_opt, base_option, parent=node, visited=visited, stack=stack, result=result
                 )
 
         # 探索終了：現在のパスから抜ける
@@ -620,9 +646,7 @@ class BuildService:
 
         return result
 
-    def get_cond_of_requests(
-        self, package: PackageModel, option: PackageOptionModel, parent: PackageOptionModel | None = None
-    ):
+    def get_cond_of_requests(self, package: PackageModel, option: PackageOptionModel, base_option: dict):
         """
         パッケージの依存関係を取得する(enableのみ)
         """
@@ -637,10 +661,8 @@ class BuildService:
         deps = merged.get("dependencies", {})
 
         requests = {}
-
         for name, cond in deps.items():
-            cond_c = {}
-            version = None
+            cond_c = copy.copy(base_option)
             if isinstance(cond, dict):
                 for k, v in cond.items():
                     if isinstance(v, str):
@@ -655,29 +677,6 @@ class BuildService:
             if "enable" in cond_c:
                 if not cond_c["enable"]:
                     continue
-
-            if options.get("build_library", "") == "interface":
-                for k, v in options.items():
-                    if k in ["version", "build_library", "build_type", "build_layout"]:
-                        continue
-                    if k not in cond_c:
-                        v = None if isinstance(v, str) and not v else v
-                        v = (
-                            parent.versions[parent.current_version].options.get(k, None)
-                            if v is None and parent
-                            else None
-                        )
-                        if v:
-                            cond_c[k] = v
-            else:
-                for k, v in options.items():
-                    if k in ["version", "build_library", "build_type", "build_layout"]:
-                        continue
-                    if k not in cond_c:
-                        v = None if isinstance(v, str) and not v else v
-                        if v:
-                            cond_c[k] = v
-
             requests[name] = cond_c
 
         return requests
@@ -706,26 +705,27 @@ class BuildService:
         )
         option_ui = self.get_eval_option_ui(package, msvc_version)
         overwrite = False
+        options = option.versions[version].options
         if isinstance(cond, dict):
             for k, v in cond.items():
-                if k not in option.versions[version].options:
+                if k not in options:
                     continue
-                if not v:
-                    continue
+                # if not v:
+                #     continue
                 if k in ["version", "enable"]:
                     continue
                 ui = next((o for o in option_ui.options if o.name == k), None)
                 if not ui or not ui.enable:
                     continue
-                if option.versions[version].options.get(k, None) != v:
+                if options.get(k, None) != v:
                     if ui.type == "choice":
                         if v in ui.items:  # type: ignore
-                            option.versions[version].options[k] = v
+                            options[k] = v
                             overwrite = True
                         else:
                             raise PackageValidationError("未定義なオプションを要求しています。")
-                    elif isinstance(option.versions[version].options[k], type(v)):
-                        option.versions[version].options[k] = v
+                    elif isinstance(options[k], type(v)):
+                        options[k] = v
                         overwrite = True
                     else:
                         raise PackageValidationError("未定義なオプションを要求しています。")
