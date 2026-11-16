@@ -1,0 +1,25 @@
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 295efb5..9b1eb41 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -90,8 +90,18 @@ if (SPM_PROTOBUF_PROVIDER STREQUAL "module")
+     VERBATIM
+   )
+ elseif (SPM_PROTOBUF_PROVIDER STREQUAL "package")
+-  protobuf_generate_cpp(SPM_PROTO_SRCS SPM_PROTO_HDRS sentencepiece.proto)
+-  protobuf_generate_cpp(SPM_MODEL_PROTO_SRCS SPM_MODEL_PROTO_HDRS sentencepiece_model.proto)
++  set(SPM_PROTO_HDRS "${CMAKE_CURRENT_BINARY_DIR}/sentencepiece.pb.h")
++  set(SPM_PROTO_SRCS "${CMAKE_CURRENT_BINARY_DIR}/sentencepiece.pb.cc" "${SPM_PROTO_HDRS}")
++  protobuf_generate(
++      OUT_VAR SPM_PROTO_SRCS
++      PROTOS sentencepiece.proto
++  )
++  set(SPM_MODEL_PROTO_HDRS "${CMAKE_CURRENT_BINARY_DIR}/sentencepiece_model.pb.h")
++  set(SPM_MODEL_PROTO_SRCS "${CMAKE_CURRENT_BINARY_DIR}/sentencepiece_model.pb.cc" "${SPM_MODEL_PROTO_HDRS}")
++  protobuf_generate(
++      OUT_VAR SPM_MODEL_PROTO_SRCS
++      PROTOS sentencepiece_model.proto
++  )
+ endif()
+ 
+ # FlatBuffers dependency and schema generation for SentencePiece Lite converter
