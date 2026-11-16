@@ -36,7 +36,7 @@ function getDependentDLL($target, $paths, $excludes) {
   }
 
   if ($dlls.Length -gt 0) {
-    $dlls_full = Get-ChildItem -Path $paths -Filter *.dll -ErrorAction SilentlyContinue | Where-Object { $dlls -contains $_.Name } | Select-Object -ExpandProperty FullName
+    $dlls_full = Get-ChildItem -Path $paths -Filter *.dll -ErrorAction SilentlyContinue | Where-Object { !$_.LinkType -and ($dlls -contains $_.Name) } | Select-Object -ExpandProperty FullName
     return @($dlls_full)
   }
   return @()

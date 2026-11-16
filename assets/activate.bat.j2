@@ -31,6 +31,7 @@ for %%A in (%OW_DEP_DIRS%) do (
             set "dll_name=%%~nxF"
             set "src_path=%%~fF"
             set "dst_path=%DLL_TARGET_DIR%\!dll_name!"
+            set "dst2_path=%SCRIPT_DIR%\!dll_name!"
 
             if not exist "!dst_path!" (
                 mklink "!dst_path!" "!src_path!" >nul 2>&1
@@ -38,24 +39,18 @@ for %%A in (%OW_DEP_DIRS%) do (
                     copy /y "!src_path!" "!dst_path!" >nul
                 )
             )
+            if not exist "!dst2_path!" (
+                mklink "!dst2_path!" "!src_path!" >nul 2>&1
+                if errorlevel 1 (
+                    copy /y "!src_path!" "!dst2_path!" >nul
+                )
+            )
         )
     )
 )
 mklink "%DLL_TARGET_DIR%\libstdc++-6.dll" "%ROOT_DIR%\..\tools\msys2\msys64\ucrt64\bin\libstdc++-6.dll" >nul 2>&1
 mklink "%DLL_TARGET_DIR%\libwinpthread-1.dll" "%ROOT_DIR%\..\tools\msys2\msys64\ucrt64\bin\libwinpthread-1.dll" >nul 2>&1
-
-:: =============================================================
-:: 4. Add only "_dlls" to PATH and start a subshell
-:: =============================================================
-echo Sub-shell started. PATH will reset on exit.
-
-cmd.exe /k "set "PATH=%DLL_TARGET_DIR%;%PATH%""
-
-:: =============================================================
-:: 5. Clean up after the subshell exits (reset the environment)
-:: =============================================================
-if exist "%DLL_TARGET_DIR%" rmdir /s /q "%DLL_TARGET_DIR%"
+mklink "%SCRIPT_DIR%\libstdc++-6.dll" "%ROOT_DIR%\..\tools\msys2\msys64\ucrt64\bin\libstdc++-6.dll" >nul 2>&1
+mklink "%SCRIPT_DIR%\libwinpthread-1.dll" "%ROOT_DIR%\..\tools\msys2\msys64\ucrt64\bin\libwinpthread-1.dll" >nul 2>&1
 
 endlocal
-echo Environment has been reset.
-pause

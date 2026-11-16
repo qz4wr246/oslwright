@@ -1,0 +1,19 @@
+@echo off
+setlocal enabledelayedexpansion
+
+:: =============================================================
+:: 1. Preparation and input data setup
+:: =============================================================
+set "OW_DEP_DIRS={{DEPENDENT_DLL_PATHS}}"
+
+set "SCRIPT_DIR=%~dp0"
+set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
+for %%I in ("%SCRIPT_DIR%\..\..") do set "ROOT_DIR=%%~fI"
+set "DLL_TARGET_DIR=%CD%\__oslw_dep_dlls"
+
+:: =============================================================
+:: 2. delete *.dll(symbolic)
+:: =============================================================
+for /f "delims=" %%F in ('dir /b /a:l "%SCRIPT_DIR%\*.dll" 2^>nul') do del "%SCRIPT_DIR%\%%F"
+if exist "%DLL_TARGET_DIR%" rd /s /q "%DLL_TARGET_DIR%"
+endlocal
