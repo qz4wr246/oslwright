@@ -556,7 +556,7 @@ class BuildService:
             "msvc_toolset_version": app_setting.values["msvc_toolset_version_default"],
             "build_arch": app_setting.values["build_arch_default"],
             "msvc_runtime_library": app_setting.values["msvc_runtime_library_default"],
-            "build_library": app_setting.values["build_library_default"],
+            # "build_library": app_setting.values["build_library_default"],
             "cuda_enable": app_setting.values["cuda_enable_default"],
             "cuda_version": app_setting.values["cuda_version_default"],
             "cudnn_version": app_setting.values["cudnn_version_default"],
@@ -566,7 +566,7 @@ class BuildService:
 
         options = option.versions[option.current_version].options
 
-        keep_keys = set(["msvc_version", "msvc_toolset_version", "build_arch", "msvc_runtime_library", "build_library"])
+        keep_keys = set(["msvc_version", "msvc_toolset_version", "build_arch", "msvc_runtime_library"])
         if options["build_library"] == "interface":
             return {k: v for k, v in base_opt.items() if k in keep_keys}
         else:
