@@ -790,6 +790,22 @@
                 "DEPENDENT_DLL_PATHS=\"{{${dependent_dlls_release}.replace(${dist_rootdir} +'\\\\','')}}\""
               ],
               "output": "${dist_dir_release}\\bin\\activate.bat"
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "template": "${assets_rootdir}\\deactivate.bat.j2",
+              "defines": [
+                "DEPENDENT_DLL_PATHS=\"{{${dependent_dlls_debug}.replace(${dist_rootdir} +'\\\\','')}}\""
+              ],
+              "output": "${dist_dir_release}\\bin\\deactivate.bat"
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "${assets_rootdir}\\deactivate.bat.j2",
+              "defines": [
+                "DEPENDENT_DLL_PATHS=\"{{${dependent_dlls_release}.replace(${dist_rootdir} +'\\\\','')}}\""
+              ],
+              "output": "${dist_dir_release}\\bin\\deactivate.bat"
             }
           ],
           "environments": {
