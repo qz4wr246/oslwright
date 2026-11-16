@@ -710,8 +710,6 @@ class BuildService:
             for k, v in cond.items():
                 if k not in options:
                     continue
-                # if not v:
-                #     continue
                 if k in ["version", "enable"]:
                     continue
                 ui = next((o for o in option_ui.options if o.name == k), None)
@@ -723,12 +721,12 @@ class BuildService:
                             options[k] = v
                             overwrite = True
                         else:
-                            raise PackageValidationError("未定義なオプションを要求しています。")
+                            Post.warning(f"Undefined option requested by a dependency: {k} = {v}")
                     elif isinstance(options[k], type(v)):
                         options[k] = v
                         overwrite = True
                     else:
-                        raise PackageValidationError("未定義なオプションを要求しています。")
+                        Post.warning(f"Undefined option requested by a dependency: {k} = {v}")
         option.current_version = version
         if overwrite:
             self.package_service.revert_option(option)
