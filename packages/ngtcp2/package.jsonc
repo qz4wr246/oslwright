@@ -89,7 +89,7 @@
       "display": "Using GnuTLS",
       "name": "gnutls_enable",
       "type": "bool",
-      "default": true
+      "default": false
     },
     {
       "display": "Using wolfSSL",
