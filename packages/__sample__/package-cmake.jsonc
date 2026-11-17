@@ -129,7 +129,9 @@
       "environments": {
         "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
-        "CUDNN_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}"
+        "CUDNN_PATH": "{{'' if not $cuda_enable else (os.path.join($cudnn_root, f'v{$cudnn_version}') if $cudnn_root else os.path.join($cuda_root, f'v{$cuda_version}'))}}",
+        "CUDNN_INCLUDE_DIR": "{{os.path.join($cudnn_root, f'v{$cudnn_version}', 'include') if $cuda_enable and $cudnn_root else ''}}",
+        "CUDNN_LIBRARY": "{{os.path.join($cudnn_root, f'v{$cudnn_version}', 'lib', 'x64', 'cudnn.lib') if $cuda_enable and $cudnn_root else ''}}"
       },
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
@@ -257,7 +259,6 @@
               "environments": {
                 "CMAKE_PREFIX_PATH": "$dependent_packages_debug",
                 "PKG_CONFIG_PATH": "$pkg_config_path_debug",
-                "PERLIO": "raw"
               },
               "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_debug)}} -S \"$source_dir\" -B \"$build_dir_debug\""
             },
@@ -267,7 +268,6 @@
               "environments": {
                 "CMAKE_PREFIX_PATH": "$dependent_packages_release",
                 "PKG_CONFIG_PATH": "$pkg_config_path_release",
-                "PERLIO": "raw"
               },
               "script": "cmake $cmake_genarator {{' '.join($cmake_options)}} {{' '.join($cmake_options_release)}} -S \"$source_dir\" -B \"$build_dir_release\""
             }
