@@ -43,6 +43,8 @@ set(WITH_QUIRC ON CACHE BOOL "")
 set(WITH_HDF5 ON CACHE BOOL "")
 # set(WITH_FLATBUFFERS ON CACHE BOOL "") // FlatBuffers is used only as an internal library; external libraries are not supported.
 
+set(BUILD_TBB OFF CACHE BOOL "")
+
 # Language
 set(BUILD_JAVA OFF CACHE BOOL "")
 set(BUILD_opencv_python2 OFF CACHE BOOL "")

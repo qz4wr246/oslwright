@@ -80,6 +80,17 @@
       "default": "union"
     },
     {
+      "display": "Parallel framework",
+      "name": "parallel_framework",
+      "type": "choice",
+      "items": [
+        "Concurrency",
+        "TBB",
+        "OpenMP"
+      ],
+      "default": "Concurrency"
+    },
+    {
       "display": "Using CUDA",
       "name": "cuda_enable",
       "enable": "{{True if $cuda_versions else False}}",
@@ -218,9 +229,14 @@
         },
         "ogre": {
           "version": ">=14.6"
+        },
+        "onetbb": {
+          "enable": "{{$parallel_framework == 'TBB'}}",
+          "version": ">=2023.2.0"
         }
       },
       "environments": {
+        "PERLIO": "raw",
         "CUDA_PATH": "{{os.path.join($cuda_root, f'v{$cuda_version}')  if $cuda_enable else ''}}",
         "CUDNN_PATH": "{{'' if not $cuda_enable else (os.path.join($cudnn_root, f'v{$cudnn_version}') if $cudnn_root else os.path.join($cuda_root, f'v{$cuda_version}'))}}",
         "CUDNN_INCLUDE_DIR": "{{os.path.join($cudnn_root, f'v{$cudnn_version}', 'include') if $cuda_enable and $cudnn_root else ''}}",
@@ -344,7 +360,9 @@
             "-DBUILD_TESTS=OFF",
             "-DBUILD_PERF_TESTS=OFF",
             "-DBUILD_EXAMPLES=OFF",
-            "-DBUILD_opencv_apps=OFF"
+            "-DBUILD_opencv_apps=OFF",
+            "-DWITH_TBB={{'ON' if $parallel_framework == 'TBB' else 'OFF'}}",
+            "-DWITH_OPENMP={{'ON' if $parallel_framework == 'OpenMP' else 'OFF'}}"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -391,7 +409,6 @@
               "when": "{{'Debug' in $build_type}}",
               "environments": {
                 "PATH": "{{';'.join(['%PATH%', $protoc_depdll_paths])}}",
-                "PERLIO": "raw"
               },
               "script": "cmake --build \"$build_dir_debug\" --config Debug -j4"
             },
@@ -400,7 +417,6 @@
               "when": "{{'Release' in $build_type}}",
               "environments": {
                 "PATH": "{{';'.join(['%PATH%', $protoc_depdll_paths])}}",
-                "PERLIO": "raw"
               },
               "script": "cmake --build \"$build_dir_release\" --config Release -j4"
             }
@@ -537,6 +553,7 @@
             "-DOPENCV_FFMPEG_USE_FIND_PACKAGE={{'ON' if $with_ffmpeg =='external' else 'OFF'}}",
             "-DWITH_ONNXRUNTIME={{'ON' if $with_onnxruntime != 'none' else 'OFF'}}",
             "-DDOWNLOAD_ONNXRUNTIME={{'ON' if $with_onnxruntime == 'internal' else 'OFF'}}",
+            "-DDOWNLOAD_ONNXRUNTIME_GPU={{'ON' if $with_onnxruntime == 'internal' and $cuda_enable else 'OFF'}}",
             "-DONNXRUNTIME_PREFER_STATIC={{'ON' if $with_onnxruntime == 'internal' else 'OFF'}}",
           ]
         }
