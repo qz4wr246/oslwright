@@ -1,0 +1,19 @@
+diff --git a/cmake/install.cmake b/cmake/install.cmake
+index fd576a5..435d597 100644
+--- a/cmake/install.cmake
++++ b/cmake/install.cmake
+@@ -62,11 +62,11 @@ ENDIF()
+ #
+ 
+ SET(INSTALL_BINDIR_DEFAULT "bin")
+-SET(INSTALL_LIBDIR_DEFAULT "lib/mariadb")
++SET(INSTALL_LIBDIR_DEFAULT "lib")
+ SET(INSTALL_PCDIR_DEFAULT "lib/pkgconfig")
+ SET(INSTALL_INCLUDEDIR_DEFAULT "include/mariadb")
+-SET(INSTALL_DOCDIR_DEFAULT "docs")
+-SET(INSTALL_MANDIR_DEFAULT "man")
++SET(INSTALL_DOCDIR_DEFAULT "share/docs")
++SET(INSTALL_MANDIR_DEFAULT "share/man")
+ IF(NOT IS_SUBPROJECT)
+   SET(INSTALL_PLUGINDIR_DEFAULT "lib/mariadb/plugin")
+ ELSE()

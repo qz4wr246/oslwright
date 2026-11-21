@@ -1,0 +1,51 @@
+diff --git a/libmariadb/CMakeLists.txt b/libmariadb/CMakeLists.txt
+index 4b3f23f..190e3a2 100644
+--- a/libmariadb/CMakeLists.txt
++++ b/libmariadb/CMakeLists.txt
+@@ -479,8 +479,13 @@ INSTALL(TARGETS mariadbclient
+           DESTINATION ${INSTALL_LIBDIR})
+ IF(WIN32)
+ INSTALL(TARGETS libmariadb
+-        COMPONENT SharedLibraries
+-        DESTINATION ${INSTALL_LIBDIR})
++  EXPORT unofficial-libmariadb-export
++  COMPONENT SharedLibraries
++  ARCHIVE DESTINATION ${INSTALL_LIBDIR}
++  LIBRARY DESTINATION ${INSTALL_LIBDIR}
++  PUBLIC_HEADER DESTINATION include
++  RUNTIME DESTINATION ${INSTALL_BINDIR}
++)
+ ELSE()
+ INSTALL(TARGETS libmariadb LIBRARY DESTINATION ${INSTALL_LIBDIR}
+         COMPONENT SharedLibraries NAMELINK_COMPONENT Development)
+@@ -492,3 +497,29 @@ IF(MSVC)
+            CONFIGURATIONS Debug RelWithDebInfo
+            COMPONENT Development)
+ ENDIF()
++
++include(CMakePackageConfigHelpers)
++install(EXPORT unofficial-libmariadb-export
++  FILE unofficial-libmariadbTargets.cmake
++  NAMESPACE unofficial::
++  DESTINATION lib/cmake/unofficial-libmariadb
++  EXPORT_LINK_INTERFACE_LIBRARIES
++)
++
++write_basic_package_version_file(
++  ${CMAKE_CURRENT_BINARY_DIR}/unofficial-libmariadbConfigVersion.cmake
++  VERSION ${CPACK_PACKAGE_VERSION}
++  COMPATIBILITY AnyNewerVersion
++)
++
++configure_package_config_file(
++    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
++    ${CMAKE_CURRENT_BINARY_DIR}/unofficial-libmariadbConfig.cmake
++    INSTALL_DESTINATION lib/cmake/unofficial-libmariadb
++)
++
++install(FILES
++  ${CMAKE_CURRENT_BINARY_DIR}/unofficial-libmariadbConfigVersion.cmake
++  ${CMAKE_CURRENT_BINARY_DIR}/unofficial-libmariadbConfig.cmake
++  DESTINATION lib/cmake/unofficial-libmariadb
++)
+\ No newline at end of file
