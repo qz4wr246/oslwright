@@ -1,0 +1,178 @@
+{
+  "name": "stb",
+  "display": "stb",
+  "description": "stb single-file public domain libraries",
+  "site": "https://nothings.org/",
+  "license": "Unlicense OR MIT",
+  "category": "graphics",
+  "info": "info.md",
+  "process_time": 20,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "enable": false,
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": ""
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "enable": false,
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": ""
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "x64",
+        "x32"
+      ],
+      "default": ""
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "mt",
+        "md"
+      ],
+      "default": ""
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "shared",
+        "static",
+        "interface"
+      ],
+      "default": "interface"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "Release",
+        "Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "union",
+        "separation"
+      ],
+      "default": "union"
+    }
+  ],
+  "versions": {
+    "default": {
+      "dependencies": {
+      },
+      "environments": {
+        "PERLIO": "raw"
+      },
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "git_url": "https://github.com/nothings/stb.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git clone.",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse-submodules --shallow-submodules $git_url \"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git checkout.",
+              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$source_dir",
+              "script": "git checkout $git_hash && git submodule update --init --recursive",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extract from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z -sccUTF-8 x -aoa \"$cache_file\" -o\"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "make cache.",
+              "when": "{{not os.path.isfile($cache_file)}}",
+              "script": "7z -sccUTF-8 a \"$cache_file\" \"$source_dir\\*\"",
+              "fallback": "del \"$cache_file\""
+            }
+          ]
+        },
+        "install": {
+          "pkgconfig_dir_release": "$dist_dir_release\\lib\\pkgconfig",
+          "template_files": [
+            {
+              "when": "{{'Release' in $build_type}}",
+              "template": "${package_dir}\\stb.pc.j2",
+              "output": "${pkgconfig_dir_release}\\libstb.pc",
+              "defines": [
+                "STB_VERSION=\"$version\""
+              ]
+            }
+          ],
+          "scripts": [
+            {
+              // Template Script:
+              // This will render the template files specified in template_files, and the rendered result will be executed as a script. So you can generate files from templates  and execute any script after installation.
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+            },
+            {
+              "message": "install for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "robocopy \"$source_dir\" \"$dist_dir_release\\include\\stb\" \"*.c\" \"*.h\"",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}"
+            }
+          ]
+        }
+      }
+    },
+    "2026-12-19-6b5799b": {
+      "git_tag": "master",
+      "git_hash": "6b5799b"
+    }
+  }
+}
