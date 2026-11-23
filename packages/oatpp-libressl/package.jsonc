@@ -52,9 +52,10 @@
     {
       "display": "Build library",
       "name": "build_library",
+      "enable": false,
       "type": "choice",
       "items": [
-        // "shared",  // NOTE: build error
+        "shared",  // NOTE: build error
         "static"
       ],
       "default": "static"
