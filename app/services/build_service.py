@@ -174,7 +174,7 @@ class BuildService:
             self.package_service.revert_option(option, "download")
 
         if option.versions[option.current_version].completed:
-            Post.gui(f"[{package.display}] {option.current_version} skip")
+            Post.gui(f"[{package.display}] {option.current_version} SKIPPED")
             result = Reason.COMPLETED
         else:
             session = self.create_session(package, option)
@@ -202,13 +202,13 @@ class BuildService:
             stages = {k: stages[k] for k in STAGES_ORDER if k in stages}
 
             result = Reason.NORMAL
-            Post.gui(f"[{package.display}] build for {session.get("dist_name","")}")
+            Post.gui(f"[{package.display}] Build for {session.get("dist_name","")}")
             Post.gui(f"[{package.display}] process time: {seconds_to_hms(int(package.process_time))}")
-            Post.gui(f"[{package.display}] execute statges.....")
+            Post.gui(f"[{package.display}] Execute statges.....")
             for stage, body in stages.items():
                 if not self.isfinished(stage, option):
                     model.stage_name = stage
-                    Post.gui(f"[{package.display}] '{stage}' stage ...")
+                    Post.gui(f"[{package.display}] Executing the '{stage}' stage ...")
                     result = self.execute_stage(body, session, sys_env)
                     if result == Reason.COMPLETED:
                         self.update_stage(stage, option)
@@ -216,7 +216,7 @@ class BuildService:
                     else:
                         break
                 else:
-                    Post.gui(f"[{package.display}] skip '{stage}' stage")
+                    Post.gui(f"[{package.display}] Executing the '{stage}' stage ... SKIPPED")
             if result == Reason.COMPLETED:
                 model.stage_name = "completed"
                 option.versions[option.current_version].completed = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
