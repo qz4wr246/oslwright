@@ -72,7 +72,7 @@ _system_valiable_names = {
     "cuda_enable_default": True,
     "cuda_version_default": "11.8",
     "cuda_latest_version": "11.8",
-    "msvc_toolset_version_default": "v142",
+    "msvc_toolset_version_default": "vc142",
     "msvc_runtime_library_default": "md",
     "build_arch_default": "x64",
     "build_library_default": "static",
