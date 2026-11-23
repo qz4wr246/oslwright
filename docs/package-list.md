@@ -22,10 +22,11 @@
 | cJSON | 1.7.19 | MIT | data | https://github.com/DaveGamble/cJSON | git: https://github.com/DaveGamble/cJSON.git |
 | Codec2 | 1.2.0 | LGPL-2.1-or-later | media | https://github.com/drowe67/codec2 | git: https://github.com/drowe67/codec2.git |
 | compile-time-regular-expressions | 3.9.0 | Apache-2.0 | utility | https://compile-time.re | git: https://github.com/hanickadot/compile-time-regular-expressions.git |
+| cpr | 1.15.1 | MIT | network | https://docs.libcpr.dev/ | git: https://github.com/libcpr/cpr.git |
 | CRC32C | 1.1.2 | BSD-3-Clause | utility | https://github.com/google/crc32c | git: https://github.com/google/crc32c.git |
 | Crow | 1.2.1.2 | BSD-3-Clause | network | https://crowcpp.org/ | git: https://github.com/CrowCpp/Crow.git |
 | csv2 | 0.2 | MIT | data | https://github.com/p-ranav/csv2 | git: https://github.com/p-ranav/csv2 |
-| cURL | 8.10.1 | curl | network | https://curl.se/ | git: https://github.com/curl/curl.git |
+| cURL | 8.23.0 | curl | network | https://curl.se/ | git: https://github.com/curl/curl.git |
 | cvui | 2.7.0 | MIT | graphics | https://dovyski.github.io/cvui/ | git: https://github.com/Dovyski/cvui.git |
 | cxxopts | 3.2.0 | MIT | utility | https://github.com/jarro2783/cxxopts | git: https://github.com/jarro2783/cxxopts.git |
 | Date | 3.0.1 | MIT | utility | https://github.com/HowardHinnant/date | git: https://github.com/HowardHinnant/date.git |
@@ -34,8 +35,10 @@
 | DCMTK | 3.7.0 | BSD-3-Clause | media | https://git.dcmtk.org/ | git: https://github.com/DCMTK/dcmtk.git |
 | dlfcn-win32 | 1.4.1 | MIT | utility | https://github.com/dlfcn-win32/dlfcn-win32 | git: https://github.com/dlfcn-win32/dlfcn-win32.git |
 | Drogon | 1.9.7 | MIT | network | https://github.com/drogonframework/drogon | git: https://github.com/drogonframework/drogon.git |
+| DuckDB | 2.0.0 | MIT | data | http://www.duckdb.org/ | git: https://github.com/duckdb/duckdb.git |
 | Eigen | 3.4.0 | MPL-2.0 | utility | https://eigen.tuxfamily.org | git: https://gitlab.com/libeigen/eigen.git |
 | EnTT | 3.16.0 | MIT | utility | https://github.com/skypjack/entt | git: https://github.com/skypjack/entt.git |
+| Faiss | 1.16.0 | MIT | utility | https://faiss.ai/ | git: https://github.com/facebookresearch/faiss.git |
 | fdk-aac | 2.0.3 | LicenseRef-Fraunhofer-FDK-AAC | media | https://sourceforge.net/projects/opencore-amr/ | git: https://github.com/mstorsjo/fdk-aac.git |
 | FFmpeg | 8.1.3 (9.0.2) | LGPL-2.1-or-later AND GPL-2.0-or-later | media | https://www.ffmpeg.org | git: https://git.ffmpeg.org/ffmpeg.git |
 | FFTW | 3.3.11 | GPL-2.0-or-later | utility | https://www.fftw.org/ | download: https://www.fftw.org/${name}-${version}.tar.gz |
@@ -52,7 +55,7 @@
 | gavl | 1.4.0 | GPL-2.0-or-later | media | https://github.com/bplaum/gavl | download: https://downloads.sourceforge.net/sourceforge/gmerlin/${name}-${version}.tar.gz |
 | gdk-pixbuf | 2.44.6 | LGPL-2.1-or-later | graphics | https://gitlab.gnome.org/GNOME/gdk-pixbuf | git: https://gitlab.gnome.org/GNOME/gdk-pixbuf.git |
 | gflags | 2.3.1 | BSD-3-Clause | utility | https://gflags.github.io/gflags/ | git: https://github.com/gflags/gflags.git |
-| ggml | 0.15.1 | MIT | utility | https://github.com/ggml-org/ggml | git: https://github.com/ggml-org/ggml.git |
+| ggml | 1.0.0 | MIT | utility | https://github.com/ggml-org/ggml | git: https://github.com/ggml-org/ggml.git |
 | GIFlib | 6.1.2 | MIT | graphics | https://giflib.sourceforge.net/ | git: https://git.code.sf.net/p/giflib/code |
 | gl3w | 20260817 | Unlicense | graphics | https://github.com/skaslev/gl3w | git: https://github.com/skaslev/gl3w.git |
 | glad | 2.0.8 | MIT AND Apache-2.0 | graphics | https://gen.glad.sh/ | git: https://github.com/Dav1dde/glad.git |
@@ -98,6 +101,7 @@
 | libcddb | 1.3.2 | LGPL-2.0-or-later | media | https://libcddb.sourceforge.net/ | download: https://downloads.sourceforge.net/sourceforge/${name}/${name}-${version}.tar.bz2 |
 | libcdio | 2.3.0 | GPL-3.0-or-later | media | https://www.gnu.org/software/libcdio/ | git: https://github.com/libcdio/libcdio.git |
 | libcdio-paranoia | 10.2+2.0.2 | GPL-2.0-or-later | media | https://www.gnu.org/software/libcdio/ | download: https://ftp.gnu.org/gnu/libcdio/${name}-${version}.tar.bz2 |
+| libdatachannel | 0.24.6 | MPL-2.0 | network | https://libdatachannel.org/ | git: https://github.com/paullouisageneau/libdatachannel.git |
 | libde265 | 1.0.18 | LGPL-3.0-only | media | https://github.com/strukturag/libde265 | git: https://github.com/strukturag/libde265.git |
 | libdeflate | 1.25 | MIT | compression | https://github.com/ebiggers/libdeflate | git: https://github.com/ebiggers/libdeflate.git |
 | libdvdcss | 1.5.0 | GPL-2.0-or-later | media | https://www.videolan.org/developers/libdvdcss.html | git: https://code.videolan.org/videolan/libdvdcss.git |
@@ -115,12 +119,14 @@
 | Libidn2 | 2.3.8 | GPL-2.0-or-later AND LGPL-3.0-or-later | security | https://www.gnu.org/s/libidn/#libidn2 | git: https://gitlab.com/libidn/libidn2.git |
 | libilbc | 3.0.4 | BSD-3-Clause | media | https://github.com/TimothyGu/libilbc | git: https://github.com/TimothyGu/libilbc.git |
 | libjpeg-turbo | 3.1.3 | IJG AND BSD-3-Clause AND Zlib | graphics | https://libjpeg-turbo.org/ | git: https://github.com/libjpeg-turbo/libjpeg-turbo.git |
+| libjuice | 1.7.4 | MPL-2.0 | network | https://github.com/paullouisageneau/libjuice | git: https://github.com/paullouisageneau/libjuice.git |
 | liblc3 | 1.1.3 | Apache-2.0 | media | https://github.com/google/liblc3 | git: https://github.com/google/liblc3.git |
 | libmysofa | 1.3.4 | BSD-3-Clause | media | https://github.com/hoene/libmysofa/ | git: https://github.com/hoene/libmysofa.git |
 | libopenmpt | 0.8.9 | BSD-3-Clause | media | https://lib.openmpt.org/libopenmpt/ | download: https://ftp.gathering.org/Scene/OpenMPT/archive/libopenmpt/src/libopenmpt-${version}+release.autotools.tar.gz |
 | libplacebo | 7.360.1 | LGPL-2.1-only | media | https://libplacebo.org/ | git: https://code.videolan.org/videolan/libplacebo.git |
 | libpng | 1.6.43 | Libpng | graphics | http://libpng.sf.net/ | git: https://github.com/pnggroup/libpng.git |
 | libpqxx | 7.10.1 | BSD-3-Clause | data | http://pqxx.org/libpqxx/ | git: https://github.com/jtv/libpqxx.git |
+| libpsl | 0.23.3 | MIT | network | https://rockdaboot.github.io/libpsl | git: https://github.com/rockdaboot/libpsl.git |
 | LibRaw | 0.22.1 | LGPL-2.1-only | graphics | http://www.libraw.org/ | download: https://www.libraw.org/data/LibRaw-${version}.tar.gz |
 | LibreSSL | 4.3.3 | Apache-1.0 AND BSD-4-Clause AND ISC AND LicenseRef-Public-Domain | security | https://www.libressl.org/ | git: https://github.com/libressl/portable.git |
 | libRIST | 0.2.17 | BSD-2-Clause | network | https://code.videolan.org/rist/librist/ | git: https://code.videolan.org/rist/librist.git |
@@ -128,6 +134,7 @@
 | libsamplerate | 0.2.2 | BSD-2-Clause | media | http://libsndfile.github.io/libsamplerate/ | git: https://github.com/libsndfile/libsamplerate.git |
 | libsndfile | 1.2.2 | LGPL-2.1-only | media | http://libsndfile.github.io/libsndfile/ | git: https://github.com/libsndfile/libsndfile.git |
 | libsodium | 1.0.21 | ISC | security | https://libsodium.org/ | git: https://github.com/jedisct1/libsodium.git |
+| libsrtp | 2.8.1 | BSD 3-Clause | security | https://github.com/cisco/libsrtp | git: https://github.com/cisco/libsrtp.git |
 | libssh | 0.11.4 | LGPL-2.1-or-later | network | https://www.libssh.org/ | git: https://git.libssh.org/projects/libssh.git |
 | libssh2 | 1.11.1 | BSD-3-Clause | network | https://libssh2.org/ | git: https://github.com/libssh2/libssh2.git |
 | libsystre | 1.0.2 | BSD-2-Clause | utility | https://github.com/msys2/MINGW-packages/tree/master/mingw-w64-libsystre | - |
@@ -135,6 +142,7 @@
 | LibTIFF | 4.7.1 | libtiff | graphics | https://libtiff.gitlab.io/libtiff/ | git: https://gitlab.com/libtiff/libtiff.git |
 | libultrahdr | 1.4.0 | Apache-2.0 | graphics | https://developer.android.com/guide/topics/media/platform/hdr-image-format | git: https://github.com/google/libultrahdr.git |
 | libunistring | 1.4.1 | LGPL-3.0-or-later | utility | https://www.gnu.org/software/libunistring/ | download: https://ftp.gnu.org/gnu/${name}/${name}-${version}.tar.xz |
+| libusb | 1.0.30 | LGPL-2.1 | utility | https://libusb.info/ | git: https://github.com/libusb/libusb.git |
 | libuv | 1.53.0 | MIT AND BSD-2-Clause AND ISC | utility | https://github.com/libuv/libuv | git: https://github.com/libuv/libuv.git |
 | Libva | 2.23.0 | MIT | media | https://intel.github.io/libva/ | git: https://github.com/intel/libva.git |
 | libvpl | 2.16.0 | MIT | media | https://intel.github.io/libvpl | git: https://github.com/intel/libvpl |
@@ -145,10 +153,13 @@
 | libyuv | 20260413 | BSD-3-Clause | media | https://chromium.googlesource.com/libyuv/libyuv | git: https://chromium.googlesource.com/libyuv/libyuv |
 | libzmq | 4.3.5 | MPL-2.0 | network | https://www.zeromq.org/ | git: https://github.com/zeromq/libzmq.git |
 | Little CMS | 2.19.1 | MIT AND GPL-3.0-or-later | graphics | https://www.littlecms.com/color-engine/ | git: https://github.com/mm2/Little-CMS.git |
+| llama.cpp | 1.0.0 | MIT | utility | https://llama.app/ | git: https://github.com/ggml-org/llama.cpp.git |
 | log4cplus | 2.1.1 | Apache-2.0 | utility | https://log4cplus.github.io/log4cplus/ | git: https://github.com/log4cplus/log4cplus.git |
 | LV2 | 1.18.10 | ISC | media | https://lv2plug.in/ | git: https://gitlab.com/lv2/lv2.git |
 | lz4 | 1.10.0 | BSD-2-Clause AND GPL-2.0-or-later | compression | http://www.lz4.org/ | git: https://github.com/lz4/lz4.git |
 | LZO2 | 2.10 | GPL-2.0-or-later | compression | https://www.oberhumer.com/opensource/lzo | download: https://www.oberhumer.com/opensource/lzo/download/lzo-${version}.tar.gz |
+| Magic Enum C++ | 0.9.8 | MIT | utility | https://github.com/Neargye/magic_enum | git: https://github.com/Neargye/magic_enum.git |
+| MariaDB Connector/C | 3.4.11 | LGPL-2.1 | data | https://mariadb.org/ | git: https://github.com/mariadb-corporation/mariadb-connector-c.git |
 | Matplot++ | 1.2.2 | MIT | graphics | https://alandefreitas.github.io/matplotplusplus/ | git: https://github.com/alandefreitas/matplotplusplus.git |
 | Mbed TLS | 3.6.7 (4.2.0) | Apache-2.0 OR GPL-2.0-or-later | network | https://www.trustedfirmware.org/projects/mbed-tls/ | git: https://github.com/Mbed-TLS/mbedtls.git |
 | miniaudio | 0.11.26 | Unlicense OR MIT-0 | media | https://github.com/mackron/miniaudio | git: https://github.com/mackron/miniaudio.git |
@@ -156,6 +167,9 @@
 | msgpack23 | 3.1 | MIT | data | https://github.com/rwindegger/msgpack23 | git: https://github.com/rwindegger/msgpack23.git |
 | muFFT | 20190216 | MIT AND GPL-2.0-only | media | https://github.com/Themaister/muFFT | git: https://github.com/Themaister/muFFT.git |
 | nettle | 3.10.2 (4.0) | GPL-2.0-or-later AND LGPL-3.0-or-later | security | https://www.lysator.liu.se/~nisse/nettle/ | download: https://ftp.gnu.org/gnu/${name}/${name}-${version}.tar.gz |
+| nghttp2 | 1.71.0 | MIT | network | https://nghttp2.org/ | git: https://github.com/nghttp2/nghttp2.git |
+| nghttp3 | 1.19.0 | MIT | network | https://nghttp2.org/nghttp3/ | git: https://github.com/ngtcp2/nghttp3.git |
+| ngtcp2 | 1.26.0 | MIT | network | https://nghttp2.org/ngtcp2/ | git: https://github.com/ngtcp2/ngtcp2.git |
 | nlohmann json | 3.11.3 | MIT | data | https://json.nlohmann.me/ | git: https://github.com/nlohmann/json.git |
 | oatpp | 1.3.1 | Apache-2.0 | network | https://oatpp.io/ | git: https://github.com/oatpp/oatpp.git |
 | oatpp-libressl | 1.3.0-latest | Apache-2.0 | network | https://oatpp.io/ | git: https://github.com/oatpp/oatpp-libressl.git |
@@ -167,9 +181,12 @@
 | oatpp-zlib | 1.3.0-latest | Apache-2.0 | network | https://oatpp.io/ | git: https://github.com/oatpp/oatpp-zlib.git |
 | Ogg | 1.3.6 (1.3.6) | BSD-3-Clause | media | https://github.com/xiph/ogg | git: https://github.com/xiph/ogg.git |
 | OGRE | 14.6.3 | MIT | graphics | https://ogrecave.github.io/ogre/ | git: https://github.com/OGRECave/ogre.git |
+| oneDNN | 3.14.2 | Apache-2.0 | utility | http://uxlfoundation.github.io/oneDNN/ | git: https://github.com/uxlfoundation/oneDNN.git |
+| oneTBB | 2023.2.0 | Apache-2.0 | utility | https://uxlfoundation.github.io/oneTBB/ | git: https://github.com/uxlfoundation/oneTBB.git |
 | ONNX Runtime | 1.31.1 | MIT | utility | https://onnxruntime.ai/ | git: https://github.com/microsoft/onnxruntime.git |
 | OpenAL Soft | 1.25.2 | LGPL-2.1-or-later | media | https://openal-soft.org/ | git: https://github.com/kcat/openal-soft.git |
 | OpenAPV | 0.2.1.3 | BSD-3-Clause | media | https://github.com/AcademySoftwareFoundation/openapv/ | git: https://github.com/AcademySoftwareFoundation/openapv.git |
+| OpenBLAS | 0.3.34 | BSD-3-Clause | utility | http://www.openblas.net/ | git: https://github.com/OpenMathLib/OpenBLAS.git |
 | OpenColorIO | 2.5.2 | BSD-3-Clause | graphics | https://opencolorio.org/ | git: https://github.com/AcademySoftwareFoundation/OpenColorIO.git |
 | opencore-amr | 0.1.6 | Apache-2.0 | media | https://opencore-amr.sourceforge.io/ | download: https://downloads.sourceforge.net/${name}/${name}-${version}.tar.gz |
 | OpenCV | 4.14.0 (5.1.0) | Apache-2.0 | graphics | https://opencv.org | git: https://github.com/opencv/opencv.git |
@@ -180,10 +197,12 @@
 | OpenJPH | 0.26.3 | BSD-2-Clause | graphics | https://github.com/aous72/OpenJPH | git: https://github.com/aous72/OpenJPH.git |
 | OpenSSL | 3.5.9 (4.0.3) | Apache-2.0 | security | https://www.openssl.org | git: https://github.com/openssl/openssl.git |
 | OpenTelemetry C++ | 1.16.1 | Apache-2.0 | utility | https://opentelemetry.io/ | git: https://github.com/open-telemetry/opentelemetry-cpp.git |
+| OpenVINO | 2026.4.1 | Apache-2.0 | utility | https://docs.openvino.ai/ | git: https://github.com/openvinotoolkit/openvino.git |
 | opus | 1.6.1 | BSD-3-Clause | media | https://www.opus-codec.org/ | download: https://downloads.xiph.org/releases/${name}/${name}-${version}.tar.gz |
 | Pango | 1.57.1 | LGPL-2.0-only | graphics | https://gitlab.gnome.org/GNOME/pango | git: https://gitlab.gnome.org/GNOME/pango.git |
 | pcre2 | 10.47 | BSD-3-Clause WITH PCRE2-exception | utility | https://pcre2project.github.io/pcre2/ | git: https://github.com/PCRE2Project/pcre2.git |
 | pixman | 0.43.4 | MIT | graphics | https://www.pixman.org/ | git: https://gitlab.freedesktop.org/pixman/pixman.git |
+| plog | 1.1.11 | MIT | utility | https://github.com/SergiusTheBest/plog | git: https://github.com/SergiusTheBest/plog.git |
 | PocketFFT for C++ | 20261019 | BSD-3-Clause | utility | https://github.com/mreineck/pocketfft | git: https://github.com/mreineck/pocketfft.git |
 | pocketpy | 2.0.0 | MIT | utility | https://pocketpy.dev/ | git: https://github.com/pocketpy/pocketpy.git |
 | portaudio | 19.7.0 | LicenseRef-PortAudio | media | https://www.portaudio.com/ | git: https://github.com/PortAudio/portaudio.git |
@@ -201,7 +220,8 @@
 | RocksDB | 11.12 | Apache-2.0 OR GPL-2.0-or-later | data | http://rocksdb.org/ | git: https://github.com/meta/rocksdb.git |
 | rtmpdump | 2.6 | GPL-2.0-only AND LGPL-2.1-only | media | https://rtmpdump.mplayerhq.hu/ | git: https://git.ffmpeg.org/rtmpdump.git |
 | Rubber Band Library | 3.3.0 | GPL-2.0-or-later | media | https://breakfastquay.com/rubberband/ | download: https://breakfastquay.com/files/releases/${name}-${version}.tar.bz2 |
-| SDL2 | 2.32.10 | Zlib | graphics | https://libsdl.org/ | git: https://github.com/libsdl-org/SDL.git |
+| SDL | 2.32.10 (3.4.20) | Zlib | graphics | https://libsdl.org/ | git: https://github.com/libsdl-org/SDL.git |
+| SentencePiece | 0.2.3 | Apache-2.0 | utility | https://google.github.io/sentencepiece/ | git: https://github.com/google/sentencepiece.git |
 | SFML | 3.1.0 | Zlib | graphics | https://www.sfml-dev.org/ | git: https://github.com/SFML/SFML.git |
 | shaderc | 2026.2 | Apache-2.0 | graphics | https://github.com/google/shaderc | git: https://github.com/google/shaderc.git |
 | Shine | 3.1.1 | LGPL-2.0-or-later | media | https://github.com/savonet/shine | git: https://github.com/toots/shine.git |
@@ -218,6 +238,7 @@
 | SRT | 1.5.5 | MPL-2.0 | network | https://www.srtalliance.org/ | git: https://github.com/Haivision/srt.git |
 | SVT AV1 | 4.1.0 | BSD-2-Clause AND LicenseRef-AOMPL-1.0 | media | https://gitlab.com/AOMediaCodec/SVT-AV1 | git: https://gitlab.com/AOMediaCodec/SVT-AV1.git |
 | SVT JPEG XS | 0.10.0-pre | LicenseRef-SVT-JPEG-XS-BSD-Patent | media | https://github.com/OpenVisualCloud/SVT-JPEG-XS | git: https://github.com/OpenVisualCloud/SVT-JPEG-XS.git |
+| Taskflow | 4.1.0 | MIT | utility | https://taskflow.github.io/ | git: https://github.com/taskflow/taskflow.git |
 | theora | 1.2.0 | BSD-3-Clause | media | https://www.theora.org | git: https://gitlab.xiph.org/xiph/theora.git |
 | tinygettext | 0.1.0-20260810 | Zlib | utility | https://github.com/tinygettext/tinygettext | git: https://github.com/tinygettext/tinygettext |
 | toml++ | 3.4.0 | MIT | data | https://marzer.github.io/tomlplusplus/ | git: https://github.com/marzer/tomlplusplus.git |
@@ -225,6 +246,7 @@
 | TwoLAME | 0.4.0 | LGPL-2.1-or-later | media | http://twolame.org | download: https://downloads.sourceforge.net/${name}/${name}-${version}.tar.gz |
 | uavs3d | 1.1.1 | BSD-3-Clause | media | https://github.com/uavs3/uavs3d | git: https://github.com/uavs3/uavs3d.git |
 | uSockets | 0.8.8 | Apache-2.0 | network | https://github.com/uNetworking/uSockets | git: https://github.com/uNetworking/uSockets.git |
+| usrsctp | 0.9.5.0 | BSD-3-Clause | secrity | https://github.com/sctplab/usrsctp | git: https://github.com/sctplab/usrsctp.git |
 | uuid_v4 | 1.0.0 | MIT | utility | https://github.com/crashoz/uuid_v4 | git: https://github.com/crashoz/uuid_v4.git |
 | uvg266 | 0.8.1 | BSD-3-Clause | media | https://ultravideo.fi/uvg266.html | git: https://github.com/ultravideo/uvg266.git |
 | Vamp plugin sdk | 2.10.1-pre | BSD-3-Clause AND MIT | media | http://vamp-plugins.org/ | git: https://github.com/vamp-plugins/vamp-plugin-sdk.git |
@@ -240,6 +262,7 @@
 | VVenC | 1.14.0 | BSD-3-Clause-Clear | media | https://www.hhi.fraunhofer.de/en/departments/vca/technologies-and-solutions/h266-vvc.html | git: https://github.com/fraunhoferhhi/vvenc.git |
 | webview | 0.12.0 | MIT | graphics | https://github.com/webview/webview | git: https://github.com/webview/webview.git |
 | whisper.cpp | 1.8.7 | MIT | media | https://openai.com/index/whisper/ | git: https://github.com/ggml-org/whisper.cpp.git |
+| wolfSSL | 5.9.4 | GPL-3.0 | security | https://www.wolfssl.com/ | git: https://github.com/wolfSSL/wolfssl.git |
 | wxWidgets | 3.3.1 | LGPL-2.0-or-later WITH WxWindows-exception-3.1 | graphics | https://www.wxwidgets.org/ | git: https://github.com/wxWidgets/wxWidgets.git |
 | x264 | 20250910 | GPL-2.0-only | media | https://code.videolan.org/videolan/x264 | git: https://code.videolan.org/videolan/x264.git |
 | x265 | 3.4 | GPL-2.0-only | media | https://www.x265.org/ | git: https://github.com/videolan/x265.git |
