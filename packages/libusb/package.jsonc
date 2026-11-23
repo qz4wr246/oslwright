@@ -1,0 +1,250 @@
+{
+  "name": "libusb",
+  "display": "libusb",
+  "description": "A cross-platform library to access USB devices",
+  "site": "https://libusb.info/",
+  "license": "LGPL-2.1",
+  "category": "utility",
+  "info": "info.md",
+  "process_time": 60,
+  "options": [
+    {
+      "display": "Version",
+      "name": "version",
+      "type": "choice",
+      "items": "{{$versions}}",
+      "default": "$latest_version"
+    },
+    {
+      "display": "Visual Studio version",
+      "name": "msvc_version",
+      "type": "choice",
+      "items": "{{$msvc_versions}}",
+      "default": "$msvc_version_default"
+    },
+    {
+      "display": "MSVC toolset version",
+      "name": "msvc_toolset_version",
+      "type": "choice",
+      "items": "{{$msvc_toolset_versions}}",
+      "default": "$msvc_toolset_version_default"
+    },
+    {
+      "display": "Build arch",
+      "name": "build_arch",
+      "type": "choice",
+      "items": [
+        "x64",
+        "x32"
+      ],
+      "default": "$build_arch_default"
+    },
+    {
+      "display": "MSVC runtime library",
+      "name": "msvc_runtime_library",
+      "type": "choice",
+      "items": [
+        "mt",
+        "md"
+      ],
+      "default": "$msvc_runtime_library_default"
+    },
+    {
+      "display": "Build library",
+      "name": "build_library",
+      "type": "choice",
+      "items": [
+        "shared",
+        "static"
+      ],
+      "default": "shared"
+    },
+    {
+      "display": "Build type",
+      "name": "build_type",
+      "type": "choice",
+      "items": [
+        "Release",
+        "Debug"
+      ],
+      "default": "Release"
+    },
+    {
+      "display": "Build layout",
+      "name": "build_layout",
+      "enable": false,
+      "type": "choice",
+      "items": [
+        "union",
+        "separation"
+      ],
+      "default": "separation"
+    }
+  ],
+  "versions": {
+    "default": {
+      "dependencies": {},
+      "environments": {
+        "PERLIO": "raw"
+      },
+      "source_dir": "${source_rootdir}\\${name}-${version}",
+      "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
+      "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
+      "dist_name_release": "${dist_name}{{'-release' if $build_layout == 'separation' else ''}}",
+      "build_dir_debug": "${source_rootdir}\\${dist_name_debug}-build",
+      "build_dir_release": "${source_rootdir}\\${dist_name_release}-build",
+      "dist_dir_debug": "${dist_rootdir}\\${dist_name_debug}",
+      "dist_dir_release": "${dist_rootdir}\\${dist_name_release}",
+      "cache_file": "${cache_rootdir}\\${name}-${version}.7z",
+      "git_url": "https://github.com/libusb/libusb.git",
+      "git_tag": "{{$version.split('@', 1)[0] if '@' in $version else 'v' + $version}}",
+      "git_hash": "{{$version.split('@', 1)[1] if '@' in $version else ''}}",
+      "stages": {
+        "download": {
+          "scripts": [
+            {
+              "when": "{{os.path.isdir($source_dir)}}",
+              "script": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git clone.",
+              "when": "{{not os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "script": "git clone --no-progress --quiet -b \"$git_tag\" {{'' if $git_hash else '--depth 1'}} --single-branch --recurse-submodules --shallow-submodules $git_url \"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "git checkout.",
+              "when": "{{$git_hash and os.path.isdir($source_dir) and not os.path.isfile($cache_file)}}",
+              "chdir": "$source_dir",
+              "script": "git checkout $git_hash && git submodule update --init --recursive",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "extract from cache.",
+              "when": "{{not os.path.isdir($source_dir) and os.path.isfile($cache_file)}}",
+              "script": "7z -sccUTF-8 x -snld -aoa \"$cache_file\" -o\"$source_dir\"",
+              "fallback": "rmdir /q /s \"$source_dir\""
+            },
+            {
+              "message": "make cache.",
+              "when": "{{not os.path.isfile($cache_file)}}",
+              "script": "7z -sccUTF-8 a -snl \"$cache_file\" \"$source_dir\\*\"",
+              "fallback": "del \"$cache_file\""
+            }
+          ]
+        },
+        "patch": {
+          "patch_files": [],
+          "scripts": [
+            {
+              // Patch Script: patching source code with patch_files
+              "message": "Patch ${name} source code",
+              "chdir": "$source_dir",
+              "script": "{{' && '.join([(f'(if not exist \"{p[\"chdir\"]}\" mkdir \"{p[\"chdir\"]}\") && pushd \"{p[\"chdir\"]}\" && ' if 'chdir' in p else '') + (f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"remote\"]}\" || exit /b 1)) && patch --ignore-whitespace -t -b -p1 -i \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\"' if 'remote' in p else f'(if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version)}\" mkdir \"{os.path.join(cache_rootdir, name + \"-\" + version)}\") && (if not exist \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" (curl.exe --fail -L -s -o \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{p[\"fetch\"]}\" || exit /b 1)) && copy /Y \"{os.path.join(cache_rootdir, name + \"-\" + version, b)}\" \"{b}\"' if 'fetch' in p else f'patch --ignore-whitespace -t -b -p1 -i \"{p[\"local\"]}\"' if 'local' in p else f'copy /Y \"{p[\"copy\"]}\" \"{b}\"' if 'copy' in p else '') + f' && copy nul \"{os.path.join(source_dir, f\"__patched_{b}\")}\"' + (' && popd' if 'chdir' in p else '') for p in patch_files if p.get('when', True) is not False and (v := (p.get('remote') or p.get('local') or p.get('copy') or p.get('fetch'))) and (b := os.path.basename(v)) and not os.path.exists(os.path.join(source_dir, f'__patched_{b}'))])}}"
+            }
+          ]
+        },
+        "build": {
+          "libusb_sln": "$source_dir\\msvc\\libusb.sln",
+          "msbuild_platform": "{{'Win32' if 'x32' == $build_arch else 'x64'}}",
+          "msbuild_configuration_release": "Release",
+          "msbuild_runtimelibrary_release": "MultiThreaded{{'DLL' if 'md' == $msvc_runtime_library else ''}}",
+          "msbuild_configuration_debug": "Debug",
+          "msbuild_runtimelibrary_debug": "MultiThreadedDebug{{'DLL' if 'md' == $msvc_runtime_library else ''}}",
+          "msbuild_rootdir_release": "$build_dir_release",
+          "msbuild_rootdir_debug": "$build_dir_debug",
+          "scripts": [
+            {
+              "message": "build for debug.",
+              "when": "{{'Debug' in $build_type}}",
+              "script": "msbuild \"$libusb_sln\" \"/p:LibusbRootDir=$msbuild_rootdir_debug\\\\\" /p:Configuration=$msbuild_configuration_debug /p:Platform=$msbuild_platform /p:RuntimeLibrary=$msbuild_runtimelibrary_debug /t:clean;rebuild"
+            },
+            {
+              "message": "build for release.",
+              "when": "{{'Release' in $build_type}}",
+              "script": "msbuild \"$libusb_sln\" \"/p:LibusbRootDir=$msbuild_rootdir_release\\\\\" /p:Configuration=$msbuild_configuration_release /p:Platform=$msbuild_platform /p:RuntimeLibrary=$msbuild_runtimelibrary_release /t:clean;rebuild"
+            }
+          ]
+        },
+        "install": {
+          "libusb_build_dir_release": "$msbuild_rootdir_release\\build\\{{'v' + msvc_toolset_version[2:]}}\\{{'Win32' if 'x32' == $build_arch else 'x64'}}\\Release",
+          "libusb_build_dir_debug": "$msbuild_rootdir_debug\\build\\{{'v' + msvc_toolset_version[2:]}}\\{{'Win32' if 'x32' == $build_arch else 'x64'}}\\Debug",
+          "scripts": [
+            {
+              "when": "{{'Release' in $build_type}}",
+              "ignore_errors": true,
+              "script": "for %i in (bin, lib\\pkgconfig, include\\libusb-1.0) do mkdir \"$dist_dir_release\\%i\""
+            },
+            {
+              "when": "{{'Debug' in $build_type}}",
+              "ignore_errors": true,
+              "script": "for %i in (bin, lib\\pkgconfig, include\\libusb-1.0) do mkdir \"$dist_dir_debug\\%i\""
+            },
+            {
+              "when": "{{'Release' in $build_type and 'shared' == $build_library}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$libusb_build_dir_release\\dll\" \"$dist_dir_release\\lib\" \"libusb-*.*\" /XF \"libusb-*.dll\""
+            },
+            {
+              "when": "{{'Release' in $build_type and 'shared' == $build_library}}",
+              "ignore_errors": true,
+              "script": "copy /Y \"$libusb_build_dir_release\\dll\\libusb-*.dll\" \"$dist_dir_release\\bin\\\""
+            },
+            {
+              "when": "{{'Debug' in $build_type and 'shared' == $build_library}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$libusb_build_dir_debug\\dll\" \"$dist_dir_debug\\lib\" \"libusb-*.*\" /XF \"libusb-*.dll\""
+            },
+            {
+              "when": "{{'Debug' in $build_type and 'shared' == $build_library}}",
+              "ignore_errors": true,
+              "script": "copy /Y \"$libusb_build_dir_debug\\dll\\libusb-*.dll\" \"$dist_dir_debug\\bin\\\""
+            },
+            {
+              "when": "{{'Release' in $build_type and 'static' == $build_library}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$libusb_build_dir_release\\lib\" \"$dist_dir_release\\lib\" \"libusb-*.*\""
+            },
+            {
+              "when": "{{'Debug' in $build_type and 'static' == $build_library}}",
+              "ignore_errors": "{{%ERRORLEVEL% < 8}}",
+              "script": "robocopy \"$libusb_build_dir_debug\\lib\" \"$dist_dir_debug\\lib\" \"libusb-*.*\""
+            },
+            {
+              "when": "{{'Release' in $build_type}}",
+              "script": "copy /y \"$source_dir\\libusb\\libusb.h\" \"$dist_dir_release\\include\\libusb-1.0\\\""
+            }
+          ]
+        },
+        "post-install": {
+          "environments": {
+            "PERLIO": "raw"
+          },
+          "template_files":[
+            {
+              "template": "${source_dir}\\libusb-1.0.pc.in",
+              "defines": [
+                "prefix=\"$${pcfiledir}/../..\"",
+                "exec_prefix=\"$${prefix}\"",
+                "libdir=\"$${prefix}/lib\"",
+                "includedir=\"$${prefix}/include\"",
+                "VERSION=\"$version\"",
+                "LIBS="
+              ],
+              "option": "--variable-start=\"@\" --variable-end=\"@\"",
+              "output": "$dist_dir_release\\lib\\pkgconfig\\libusb-1.0.pc"
+            }
+          ],
+          "scripts": [
+            {
+              // Template script: genrate files with template_files
+              "message": "Generate files from templates.",
+              "script": "{{' && '.join([f\"(if not exist \\\"{os.path.dirname(tp['output'])}\\\" mkdir \\\"{os.path.dirname(tp['output'])}\\\") && jinja2 {tp['option']} {(' '.join(['-D ' + d for d in tp['defines']]))} \\\"{tp['template']}\\\" > \\\"{tp['output']}\\\"\" for tp in ${template_files} if tp.get('when', True)])}}"
+            }
+          ]
+        }
+      }
+    },
+    "1.0.30": {}
+  }
+}

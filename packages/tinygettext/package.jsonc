@@ -252,7 +252,7 @@
       "git_hash":"a1ccbc9",
       "dependencies": {
         "sdl": {
-          "version": ">=2.32.0"
+          "version": ">=2.32.0;<3.0"
         }
       },
       "stages": {
@@ -271,7 +271,7 @@
       "git_hash":"0ebef71",
       "dependencies": {
         "sdl": {
-          "version": ">=2.32.0"
+          "version": ">=2.32.0;<3.0"
         }
       },
       "stages": {

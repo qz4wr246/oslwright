@@ -1,6 +1,6 @@
 {
   "name": "sdl",
-  "display": "SDL2",
+  "display": "SDL",
   "description": "Simple Directmedia Layer",
   "site": "https://libsdl.org/",
   "license": "Zlib",
@@ -83,6 +83,7 @@
   ],
   "versions": {
     "default": {
+      "dependencies": {},
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
       "dist_name_debug": "${dist_name}{{'-debug' if $build_layout == 'separation' else ''}}",
@@ -137,7 +138,14 @@
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
             "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
-            "-DSDL_TEST_ENABLED_BY_DEFAULT=OFF"
+            "-DSDL_TEST_ENABLED_BY_DEFAULT=OFF",
+            "-DSDL_INSTALL=ON",
+            "-DSDL_INSTALL_CPACK=OFF",
+            "-DSDL_INSTALL_DOCS=OFF",
+            "-DSDL_INSTALL_TESTS=OFF",
+            "-DSDL_TESTS=OFF",
+            "-DSDL_TEST_LIBRARY=OFF",
+            "-DSDL_EXAMPLES=OFF"
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -220,14 +228,24 @@
               "ignore_errors": true
             },
             {
-              "when": "{{'Debug' in $build_type}}",
+              "when": "{{'Debug' in $build_type and cmpver($version, '<3.0')}}",
               "chdir": "$dist_dir_debug\\lib",
               "script": "copy /y SDL2.lib libSDL2.lib && copy /y SDL2main.lib libSDL2main.lib"
             },
             {
-              "when": "{{'Release' in $build_type}}",
+              "when": "{{'Release' in $build_type and cmpver($version, '<3.0')}}",
               "chdir": "$dist_dir_release\\lib",
               "script": "copy /y SDL2.lib libSDL2.lib && copy /y SDL2main.lib libSDL2main.lib"
+            },
+            {
+              "when": "{{'Debug' in $build_type and cmpver($version, '>=3.0')}}",
+              "chdir": "$dist_dir_debug\\lib",
+              "script": "copy /y SDL3.lib libSDL3.lib"
+            },
+            {
+              "when": "{{'Release' in $build_type and cmpver($version, '>=3.0')}}",
+              "chdir": "$dist_dir_release\\lib",
+              "script": "copy /y SDL3.lib libSDL3.lib"
             }
           ]
         }
@@ -236,6 +254,14 @@
     "2.30.12": { // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
     },
     "2.32.10": { // ffmpeg ver 6.x is compatible with sdl2 ver 2.x.
+      "stable": true
+    },
+    "3.4.20" : {
+      "dependencies": {
+        "libusb": {
+          "version": ">=1.0"
+        }
+      }
     }
   }
 }

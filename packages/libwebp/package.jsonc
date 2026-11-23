@@ -85,7 +85,7 @@
     "default": {
       "dependencies": {
         "sdl": {
-          "version": ">=2.30"
+          "version": ">=2.30;<3.0"
         },
         "freeglut": {
           "version": ">=2.30"
