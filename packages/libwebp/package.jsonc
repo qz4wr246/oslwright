@@ -84,18 +84,24 @@
   "versions": {
     "default": {
       "dependencies": {
-        "sdl": {
-          "version": ">=2.30;<3.0"
-        },
-        "freeglut": {
-          "version": ">=2.30"
-        },
-        "libpng": {
-          "version": ">=1.6"
-        },
-        "libjpeg-turbo": {
-          "version": ">=3.0"
-        }
+        // "sdl": {
+        //   "version": ">=2.30;<3.0"
+        // },
+        // "freeglut": {
+        //   "version": ">=2.30"
+        // },
+        // "libpng": {
+        //   "version": ">=1.6"
+        // },
+        // "libjpeg-turbo": {
+        //   "version": ">=3.0"
+        // },
+        // "libtiff": {
+        //   "version": ">=4.7"
+        // },
+        // "giflib":{
+        //   "version": ">=6.1"
+        // }
       },
       "source_dir": "${source_rootdir}\\${name}-${version}",
       "dist_name": "${name}-${version}{{'' if $build_library == 'interface' else '-' + $build_arch + '-' + $msvc_toolset_version + '-' + $msvc_runtime_library + (('-cu' + $cuda_version.replace('.','')) if $cuda_enable else '') + ('-static' if 'static' == $build_library else '')}}",
@@ -149,7 +155,16 @@
             "-DCMAKE_FIND_LIBRARY_PREFIXES=\"lib\"",
             "-DCMAKE_CONFIGURATION_TYPES=\"$build_type\"",
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"{{'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' if $msvc_runtime_library == 'md' else 'MultiThreaded$<$<CONFIG:Debug>:Debug>'}}\"",
-            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}"
+            "-DBUILD_SHARED_LIBS={{'ON' if 'shared' in $build_library else 'OFF'}}",
+            "-DWEBP_BUILD_LIBWEBPMUX=ON", // library
+            "-DWEBP_BUILD_ANIM_UTILS=OFF", // tools
+            "-DWEBP_BUILD_CWEBP=OFF", // tools
+            "-DWEBP_BUILD_DWEBP=OFF", // tools
+            "-DWEBP_BUILD_GIF2WEBP=OFF", // tools
+            "-DWEBP_BUILD_IMG2WEBP=OFF", // tools
+            "-DWEBP_BUILD_VWEBP=OFF", // tools
+            "-DWEBP_BUILD_WEBPINFO=OFF", // tools
+            "-DWEBP_BUILD_WEBPMUX=OFF" // tools
           ],
           "cmake_options_debug": [
             "-DCMAKE_INSTALL_PREFIX=\"$dist_dir_debug\""
@@ -235,6 +250,7 @@
         }
       }
     },
-    "1.4.0": {}
+    "1.4.0": {},
+    "1.6.0": {}
   }
 }
