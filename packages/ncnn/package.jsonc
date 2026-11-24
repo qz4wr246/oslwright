@@ -254,9 +254,9 @@
     "20261020": {
       "git_tag" : "20261020",
       "dependencies": {
-        "protobuf": {
-          "version": "==35.1"
-        }
+        // "protobuf": { // for tools
+        //  "version": "==35.1"
+        // }
       }
     }
   }
